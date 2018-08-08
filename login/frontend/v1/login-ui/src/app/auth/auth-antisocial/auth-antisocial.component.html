@@ -1,0 +1,29 @@
+<form #loginForm="ngForm" (ngSubmit)="authorizeUser()" (keydown.enter)="authorizeUser()">
+    <fa-icon [icon]="usernameIcon"></fa-icon>
+    <mat-form-field>
+        <input
+            id="username"
+            matInput
+            name="username"
+            placeholder="Email or Username"
+            required
+            type="text"
+            [(ngModel)]="username"
+        >
+    </mat-form-field>
+    <fa-icon [icon]="passwordIcon"></fa-icon>
+    <mat-form-field>
+        <input
+            id="password"
+            matInput
+            name="password"
+            placeholder="Password"
+            required
+            type="password"
+            [(ngModel)]="password"
+        >
+        <mat-hint>Forgot password?</mat-hint>
+    </mat-form-field>
+    <button mat-button type="submit" class="login-button">LOGIN</button>
+</form>
+<div class="mat-body-2" *ngIf="authorizationFailed">Invalid username/password combination; try again</div>

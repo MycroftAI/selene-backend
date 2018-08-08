@@ -1,0 +1,24 @@
+@import '../../stylesheets/global';
+
+mat-tab-group {
+    height: 485px;
+    width: 320px;
+}
+
+.login-options {
+    border-radius: 10px;
+    background-color: $mycroft-white;
+}
+
+.mat-subheading-2 {
+    color: $mycroft-dark-grey;
+    margin-bottom: -15px;
+    margin-top: -15px;
+    text-align: center;
+}
+
+img {
+    margin-bottom: 50px;
+    margin-top: 50px;
+    width: 600px;
+}

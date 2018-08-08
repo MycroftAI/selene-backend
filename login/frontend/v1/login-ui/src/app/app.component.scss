@@ -1,0 +1,25 @@
+@import "../stylesheets/global";
+
+/* Split the screen in half */
+.split {
+  height: 50%;
+  left: 0;
+  overflow-x: hidden;
+  padding-top: 20px;
+  position: fixed;
+  width: 100%;
+  z-index: -1;
+}
+
+/* Control the top side */
+.top {
+  top: 0;
+  background-color: $mycroft-primary;
+}
+
+/* Control the bottom side */
+.bottom {
+  bottom: 0;
+  background-color: #e5e5e5;
+}
+

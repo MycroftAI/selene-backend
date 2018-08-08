@@ -1,0 +1,24 @@
+@import '../../../stylesheets/global';
+
+button {
+    @include login-button;
+}
+
+.social {
+    padding: 20px;
+    button {
+        margin-bottom: 15px;
+    }
+    fa-icon {
+        margin-right: 15px;
+    }
+    .facebook-button {
+        background-color: #3b5998;
+    }
+    .github-button {
+        background-color: #333333;
+    }
+    .google-button {
+        background-color: #db3236;
+    }
+}
