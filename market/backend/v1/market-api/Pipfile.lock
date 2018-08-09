@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "f18ad3d99efd674a8cc7d9d41d9c90cbd0361a19f6564db23533aaf66fea410f"
+            "sha256": "3b6f84e44d72af2b5dc62d1c2865d5683ce7df0e98055c3553fb3082f85a0648"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -122,6 +122,9 @@
             ],
             "markers": "python_version >= '2.6' and python_version != '3.1.*' and python_version != '3.3.*' and python_version < '4' and python_version != '3.0.*' and python_version != '3.2.*'",
             "version": "==1.23"
+        },
+        "util": {
+            "path": "./../../../../shared"
         },
         "werkzeug": {
             "hashes": [

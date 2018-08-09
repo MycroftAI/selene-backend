@@ -1,6 +1,6 @@
 from collections import defaultdict
 
-from flask import request
+from flask import request, current_app
 from flask_restful import Resource
 import requests
 
@@ -14,7 +14,9 @@ class SkillSummaryView(Resource):
         self.search_term = None
 
     def get(self):
-        self.skill_service_response = requests.get('http://service.mycroft.test/skill/all')
+        self.skill_service_response = requests.get(
+            current_app.config['SELENE_BASE_URL'] + '/skill/all'
+        )
         if request.query_string:
             self.search_term = request.query_string.decode().lower().split('=')[1]
         self._reformat_skills()
@@ -46,7 +48,7 @@ class SkillDetailView(Resource):
 
     def get(self, skill_id):
         self.skill_service_response = requests.get(
-            'http://service.mycroft.test/skill/id/' + skill_id
+            current_app.config['SELENE_BASE_URL'] + '/skill/id/' + skill_id
         )
 
         return self.skill_service_response.json()

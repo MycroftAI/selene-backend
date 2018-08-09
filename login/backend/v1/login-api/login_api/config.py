@@ -8,7 +8,7 @@ class LoginConfigException(Exception):
 class BaseConfig:
     """Base configuration."""
     DEBUG = False
-    SECRET_KEY = os.getenv('LOGIN_API_SECRET')
+    SECRET_KEY = os.environ['JWT_SECRET']
 
 
 class DevelopmentConfig(BaseConfig):

@@ -8,12 +8,14 @@ class LoginConfigException(Exception):
 class BaseConfig:
     """Base configuration."""
     DEBUG = False
-    SECRET_KEY = os.getenv('LOGIN_API_SECRET')
+    SECRET_KEY = os.environ['JWT_SECRET']
 
 
 class DevelopmentConfig(BaseConfig):
     """Development configuration."""
     DEBUG = True
+    SELENE_BASE_URL = 'http://service.mycroft.test'
+    TARTARUS_BASE_URL = 'https://api-test.mycroft.ai/v1'
 
 
 def get_config_location():
