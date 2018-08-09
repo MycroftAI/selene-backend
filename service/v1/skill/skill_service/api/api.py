@@ -1,3 +1,5 @@
+"""Define the API Flask application and its endpoints"""
+
 from flask import Flask
 from flask_restful import Api
 

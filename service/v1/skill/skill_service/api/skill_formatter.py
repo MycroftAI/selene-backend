@@ -1,4 +1,6 @@
 def format_skill_for_response(skill):
+    """Manipulate a mongoengine object into a serializable object."""
+
     formatted_skill = skill.to_mongo().to_dict()
     formatted_skill['id'] = str(formatted_skill['_id'])
     formatted_skill['created'] = formatted_skill['_id'].generation_time

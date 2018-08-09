@@ -1,3 +1,5 @@
+"""Define the view to return summary information for all available skills."""
+
 from http import HTTPStatus
 
 from flask_restful import Resource
@@ -7,10 +9,10 @@ from ..repository.skill import select_all_skills
 
 
 class AllSkillsView(Resource):
-    """
-    All skills available for use on devices running Mycroft core.
-    """
+    """All skills available for use on devices running Mycroft core."""
+
     def get(self):
+        """Handle a HTTP GET request for available skills."""
         response = []
         for skill in select_all_skills():
             formatted_skill = format_skill_for_response(skill)
