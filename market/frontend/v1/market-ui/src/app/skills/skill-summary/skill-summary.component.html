@@ -1,0 +1,22 @@
+<div fxLayout="row wrap">
+    <mat-card *ngFor="let skill of skills" align="center">
+        <div [routerLink]="['/skill', skill.id]">
+            <mat-card-header align="center">
+                <fa-icon [icon]="skillIcon"></fa-icon>
+            </mat-card-header>
+            <mat-card-title>{{skill.title}}</mat-card-title>
+            <mat-card-subtitle align="center">
+                <button mat-flat-button [disabled]="true">
+                    <fa-icon [icon]="voiceIcon"></fa-icon>
+                    {{skill.triggers[0]}}
+                </button>
+            </mat-card-subtitle>
+            <mat-card-content>
+                {{skill.summary ? skill.summary : '&nbsp;'}}
+            </mat-card-content>
+        </div>
+            <mat-card-actions>
+            <button mat-button (click)="install_skill(skill)">INSTALL</button>
+        </mat-card-actions>
+    </mat-card>
+</div>

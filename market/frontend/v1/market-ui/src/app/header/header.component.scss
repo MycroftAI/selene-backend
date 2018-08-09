@@ -1,0 +1,14 @@
+@import '../../stylesheets/global';
+
+mat-toolbar {
+    background-color: $mycroft-primary;
+    color: $mycroft-white;
+    fa-icon {
+        padding-right: 5px;
+    }
+    .menu-button {
+        fa-icon {
+            padding-left: 5px;
+        }
+    }
+}

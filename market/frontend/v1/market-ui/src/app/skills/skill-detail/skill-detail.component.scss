@@ -1,0 +1,66 @@
+@import '../../../stylesheets/global';
+
+.skill-detail {
+    height: 800px;
+    max-width: 1000px;
+    .skill-detail-header {
+        background-color: $mycroft-blue-grey;
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+        height: 150px;
+        padding: 30px;
+        .skill-detail-header-left {
+            color: $mycroft-secondary;
+            width: 75%;
+            h1 {
+                font-family: 'Roboto Mono', monospace;
+                margin-bottom: 15px;
+                margin-top: 0;
+            }
+            .mat-subheading-1 {
+                padding-right: 30px;
+                @include ellipsis-overflow
+            }
+        }
+        .skill-detail-header-right {
+            width: 25%;
+            button {
+                @include action-button;
+                margin-top: 5px;
+                width: 135px;
+            }
+            .mat-body-1 {
+                color: $mycroft-dark-grey;
+                padding-top: 10px;
+                fa-icon {
+                    margin-right: 5px;
+                }
+            }
+        }
+    }
+    .skill-detail-body {
+        background-color: $mycroft-white;
+        border-bottom-left-radius: 10px;
+        border-bottom-right-radius: 10px;
+        height: 600px;
+        padding: 30px;
+        .mat-subheading-1 {
+            color: $mycroft-dark-grey
+        }
+        .skill-detail-body-left {
+            width: 75%;
+            button {
+                @include skill-trigger-button;
+                @include ellipsis-overflow;
+                max-width: 100%;
+            }
+        }
+        .skill-detail-body-right {
+            width: 25%;
+        }
+        .skill-detail-section {
+            padding-bottom: 30px;
+            padding-right: 30px;
+        }
+    }
+}

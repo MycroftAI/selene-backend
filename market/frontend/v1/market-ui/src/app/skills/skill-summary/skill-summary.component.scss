@@ -1,0 +1,44 @@
+@import '../../../stylesheets/global';
+
+@mixin card-width {
+    width: 320px;
+}
+
+mat-card {
+    @include card-width;
+    border-radius: 10px;
+    margin: 15px;
+    padding: 15px;
+    mat-card-header {
+        justify-content: center;
+        margin-bottom: 15px;
+        fa-icon {
+            color: $mycroft-tertiary-green;
+            font-size: 28px;
+        }
+    }
+    mat-card-title {
+        @include ellipsis-overflow;
+        color: $mycroft-secondary;
+        font-family: 'Roboto Mono', monospace;
+        font-weight: bold;
+    }
+    mat-card-subtitle {
+        button {
+            @include skill-trigger-button;
+            @include ellipsis-overflow;
+            margin: 0;
+            width: 310px;
+        }
+    }
+    mat-card-content {
+        @include ellipsis-overflow;
+    }
+    mat-card-actions {
+        button {
+            @include action-button;
+            @include card-width;
+            margin-bottom: 15px;
+        }
+    }
+}

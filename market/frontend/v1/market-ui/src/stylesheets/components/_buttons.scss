@@ -1,0 +1,22 @@
+@import "../base/mycroft-colors";
+$button-border-radius: 4px;
+
+@mixin action-button {
+    border-radius: $button-border-radius;
+    background-color: $mycroft-primary;
+    color: $mycroft-white;
+    font-weight: normal;
+}
+
+@mixin skill-trigger-button {
+    background-color: $mycroft-blue-grey;
+    border-radius: $button-border-radius;
+    color: $mycroft-secondary;
+    font-weight: normal;
+    margin-bottom: 15px;
+    margin-right: 15px;
+    fa-icon {
+        color: $mycroft-secondary;
+        margin-right: 5px;
+    }
+}

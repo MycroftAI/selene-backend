@@ -1,0 +1,19 @@
+<mat-toolbar>
+    <div>MYCROFT MARKETPLACE</div>
+    <div fxFlex fxLayout="row" fxLayoutAlign="end center">
+        <button mat-button (click)="login()" *ngIf="!isLoggedIn">
+            <fa-icon [icon]="signInIcon"></fa-icon>
+            SIGN IN
+        </button>
+        <button mat-button class="menu-button" [matMenuTriggerFor]="menu" *ngIf="isLoggedIn">
+            {{userMenuButtonText}}
+            <fa-icon [icon]="menuButtonIcon"></fa-icon>
+        </button>
+        <mat-menu [overlapTrigger]="false" #menu="matMenu">
+            <button mat-menu-item (click)="logout()">
+                <fa-icon [icon]="signOutIcon"></fa-icon>
+                Logout
+            </button>
+        </mat-menu>
+    </div>
+</mat-toolbar>

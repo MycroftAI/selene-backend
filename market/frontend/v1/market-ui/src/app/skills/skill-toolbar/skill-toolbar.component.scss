@@ -1,0 +1,13 @@
+@import '../../../stylesheets/global';
+
+fa-icon {
+    color: $mycroft-dark-grey;
+}
+
+.skill-toolbar {
+    margin-left: 15px;
+    margin-right: 15px;
+    .search-field {
+        width: 80%;
+    }
+}

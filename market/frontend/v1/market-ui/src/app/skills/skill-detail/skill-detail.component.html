@@ -1,0 +1,58 @@
+<div fxLayout="row" fxLayoutAlign="center">
+    <div class="skill-detail" *ngIf="skill$ | async as skill">
+
+        <!-- Header block -->
+        <div class="skill-detail-header" fxLayout="row">
+            <div class="skill-detail-header-left">
+                <h1>
+                    <fa-icon [icon]="skillIcon"></fa-icon>
+                    {{skill.title}}
+                </h1>
+                <div class="mat-subheading-1">{{skill.summary}}</div>
+            </div>
+            <div class="skill-detail-header-right">
+                <button mat-button>INSTALL</button>
+                <div class="mat-body-1">
+                    <fa-icon [icon]="githubIcon"></fa-icon>
+                    GitHub Repository
+                </div>
+            </div>
+        </div>
+
+        <!-- Detail block -->
+        <div class="skill-detail-body" fxLayout="row">
+            <div class="skill-detail-body-left">
+                <div class="skill-detail-section">
+                    <div class="mat-subheading-1">HEY MYCROFT</div>
+                    <button mat-flat-button [disabled]="true" *ngFor="let trigger of skill.triggers">
+                        <fa-icon [icon]="triggerIcon"></fa-icon>
+                        {{trigger}}
+                    </button>
+                </div>
+                <div class="skill-detail-section">
+                    <div class="mat-subheading-1">DESCRIPTION</div>
+                    <div class="mat-body-1">{{skill.description}}</div>
+                </div>
+                <div class="skill-detail-section">
+                    <div class="mat-subheading-1">AUTHOR</div>
+                    <div class="mat-body-1">{{skill.author}}</div>
+                </div>
+            </div>
+            <div class="skill-detail-body-right">
+                <div class="skill-detail-section">
+                    <div class="mat-subheading-1">SUPPORTED DEVICES</div>
+                    <div class="mat-body-1">Mark I</div>
+                </div>
+                <div class="skill-detail-section">
+                    <div class="mat-subheading-1">SUPPORTED LANGUAGES</div>
+                    <div class="mat-body-1">English</div>
+                </div>
+                <div class="skill-detail-section">
+                    <div class="mat-subheading-1">CATEGORY</div>
+                    <div class="mat-body-1">{{skill.category}}</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
