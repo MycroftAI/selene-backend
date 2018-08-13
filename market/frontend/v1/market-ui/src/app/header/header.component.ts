@@ -4,8 +4,7 @@ import { Subscription } from "rxjs/internal/Subscription";
 
 import { faCaretDown, faSignInAlt, faSignOutAlt } from "@fortawesome/free-solid-svg-icons";
 
-import { LoginService } from "../login/login.service";
-import { HeaderService, User } from "./header.service";
+import { LoginService } from "./login/login.service";
 
 @Component({
     selector: 'market-header',
@@ -22,8 +21,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
     constructor(
         private loginService: LoginService,
-        private router: Router,
-        private toolbarService: HeaderService
+        private router: Router
     ) { }
 
     ngOnInit() {
@@ -40,7 +38,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     onLoginStateChange(isLoggedIn) {
         this.isLoggedIn = isLoggedIn;
         if (isLoggedIn) {
-            this.toolbarService.getUser().subscribe(
+            this.loginService.getUser().subscribe(
                 (user) => {this.userMenuButtonText = user.name}
             );
         }

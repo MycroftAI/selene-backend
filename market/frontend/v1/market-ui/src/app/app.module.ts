@@ -6,7 +6,6 @@ import { NgModule } from '@angular/core';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { HeaderModule } from "./header/header.module";
-import { LoginModule } from './login/login.module';
 import { MaterialModule } from './shared/material.module';
 import { SkillsModule } from "./skills/skills.module";
 import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
@@ -19,7 +18,6 @@ import { PageNotFoundComponent } from './page-not-found/page-not-found.component
             BrowserAnimationsModule,
             HttpClientModule,
             HeaderModule,
-            LoginModule,
             MaterialModule,
             SkillsModule,
             AppRoutingModule
