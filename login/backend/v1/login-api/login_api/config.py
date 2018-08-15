@@ -14,6 +14,7 @@ class BaseConfig:
 class DevelopmentConfig(BaseConfig):
     """Development configuration."""
     DEBUG = True
+    TARTARUS_BASE_URL = 'https://api-test.mycroft.ai/v1'
 
 
 def get_config_location():
