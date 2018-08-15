@@ -14,7 +14,7 @@ class BaseConfig:
 class DevelopmentConfig(BaseConfig):
     """Development configuration."""
     DEBUG = True
-    SELENE_BASE_URL = 'http://service.mycroft.test'
+    SELENE_BASE_URL = 'https://service.mycroft.test'
     TARTARUS_BASE_URL = 'https://api-test.mycroft.ai/v1'
 
 
