@@ -1,10 +1,9 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Router } from "@angular/router";
 import { Subscription } from "rxjs/internal/Subscription";
 
 import { faCaretDown, faSignInAlt, faSignOutAlt } from "@fortawesome/free-solid-svg-icons";
 
-import { LoginService } from "./login/login.service";
+import { LoginService } from "../shared/login.service";
 
 @Component({
     selector: 'market-header',
@@ -12,27 +11,24 @@ import { LoginService } from "./login/login.service";
     styleUrls: ['./header.component.scss']
 })
 export class HeaderComponent implements OnInit, OnDestroy {
-    private loginSubscription: Subscription;
+    public isLoggedIn: boolean;
+    private loginStatus: Subscription;
     public signInIcon = faSignInAlt;
     public signOutIcon = faSignOutAlt;
     public menuButtonIcon = faCaretDown;
     public userMenuButtonText: string;
-    public isLoggedIn: boolean;
 
-    constructor(
-        private loginService: LoginService,
-        private router: Router
-    ) { }
+    constructor(private loginService: LoginService) { }
 
     ngOnInit() {
-        this.loginSubscription = this.loginService.isLoggedIn.subscribe(
+        this.loginStatus = this.loginService.isLoggedIn.subscribe(
             (isLoggedIn) => { this.onLoginStateChange(isLoggedIn) }
         );
         this.loginService.setLoginStatus();
     }
 
     ngOnDestroy() {
-        this.loginSubscription.unsubscribe();
+        this.loginStatus.unsubscribe();
     }
 
     onLoginStateChange(isLoggedIn) {
@@ -45,7 +41,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     }
 
     login() {
-        this.router.navigate(['/login']);
+        this.loginService.login();
     }
 
     logout() {

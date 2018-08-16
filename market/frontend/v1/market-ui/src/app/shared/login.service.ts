@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Router } from "@angular/router";
 
 import { Observable } from "rxjs/internal/Observable";
 import { Subject } from "rxjs/internal/Subject";
@@ -14,7 +15,7 @@ export class LoginService {
     public redirectUrl: string;
     private userUrl = '/api/user';
 
-    constructor(private http: HttpClient) { }
+    constructor(private http: HttpClient, private router: Router) { }
 
     getUser(): Observable<User> {
         return this.http.get<User>(this.userUrl)
@@ -22,5 +23,9 @@ export class LoginService {
 
     setLoginStatus() {
         this.isLoggedIn.next(document.cookie.includes('seleneToken'));
+    }
+
+    login() {
+        this.router.navigate(['/login']);
     }
 }
