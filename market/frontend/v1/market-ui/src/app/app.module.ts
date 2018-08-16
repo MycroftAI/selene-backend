@@ -6,7 +6,8 @@ import { NgModule } from '@angular/core';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { HeaderModule } from "./header/header.module";
-import { SharedModule } from "./shared/shared.module";
+import { MaterialModule } from "./shared/material.module";
+import { LoginService } from "./shared/login.service";
 import { SkillsModule } from "./skills/skills.module";
 import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
 
@@ -18,11 +19,11 @@ import { PageNotFoundComponent } from './page-not-found/page-not-found.component
             BrowserAnimationsModule,
             HttpClientModule,
             HeaderModule,
-            SharedModule,
+            MaterialModule,
             SkillsModule,
             AppRoutingModule
         ],
-        providers: [ ],
+        providers: [ LoginService ],
         bootstrap: [ AppComponent ]
     }
 )

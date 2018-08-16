@@ -7,7 +7,6 @@ import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 import { MaterialModule } from "../shared/material.module";
 import { HeaderComponent } from './header.component';
 import { LoginComponent } from "./login/login.component";
-import { LoginService } from "./login/login.service";
 
 @NgModule({
     imports: [
@@ -18,6 +17,5 @@ import { LoginService } from "./login/login.service";
     ],
     declarations: [ HeaderComponent, LoginComponent ],
     exports: [ HeaderComponent ],
-    providers: [ LoginService ]
 })
 export class HeaderModule { }
