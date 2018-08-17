@@ -12,10 +12,14 @@
             </div>
             <div class="skill-detail-header-right">
                 <button mat-button>INSTALL</button>
-                <div class="mat-body-1">
+                <button
+                    mat-flat-button
+                    class="github-button"
+                    (click)="navigateToGithubRepo(skill.repository_url)"
+                >
                     <fa-icon [icon]="githubIcon"></fa-icon>
                     GitHub Repository
-                </div>
+                </button>
             </div>
         </div>
 
@@ -34,7 +38,7 @@
                     <div class="mat-body-1">{{skill.description}}</div>
                 </div>
                 <div class="skill-detail-section">
-                    <div class="mat-subheading-1">AUTHOR</div>
+                    <div class="mat-subheading-1">AUTHOR(S)</div>
                     <div class="mat-body-1">{{skill.author}}</div>
                 </div>
             </div>

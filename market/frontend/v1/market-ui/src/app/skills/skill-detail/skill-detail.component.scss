@@ -1,7 +1,6 @@
 @import '../../../stylesheets/global';
 
 .skill-detail {
-    height: 800px;
     max-width: 1000px;
     .skill-detail-header {
         background-color: $mycroft-blue-grey;
@@ -11,7 +10,7 @@
         padding: 30px;
         .skill-detail-header-left {
             color: $mycroft-secondary;
-            width: 75%;
+            width: 70%;
             h1 {
                 font-family: 'Roboto Mono', monospace;
                 margin-bottom: 15px;
@@ -23,17 +22,17 @@
             }
         }
         .skill-detail-header-right {
-            width: 25%;
+            width: 30%;
             button {
                 @include action-button;
                 margin-top: 5px;
-                width: 135px;
+                width: 160px;
             }
-            .mat-body-1 {
+            .github-button {
+                background-color: $mycroft-blue-grey;
                 color: $mycroft-dark-grey;
-                padding-top: 10px;
                 fa-icon {
-                    margin-right: 5px;
+                    padding-right: 5px;
                 }
             }
         }
@@ -42,13 +41,12 @@
         background-color: $mycroft-white;
         border-bottom-left-radius: 10px;
         border-bottom-right-radius: 10px;
-        height: 600px;
         padding: 30px;
         .mat-subheading-1 {
             color: $mycroft-dark-grey
         }
         .skill-detail-body-left {
-            width: 75%;
+            width: 70%;
             button {
                 @include skill-trigger-button;
                 @include ellipsis-overflow;
@@ -56,7 +54,7 @@
             }
         }
         .skill-detail-body-right {
-            width: 25%;
+            width: 30%;
             img {
                 padding-right: 15px;
             }
