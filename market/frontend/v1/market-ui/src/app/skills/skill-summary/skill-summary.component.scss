@@ -9,14 +9,6 @@ mat-card {
     border-radius: 10px;
     margin: 15px;
     padding: 15px;
-    mat-card-header {
-        justify-content: center;
-        margin-bottom: 15px;
-        fa-icon {
-            color: $mycroft-tertiary-green;
-            font-size: 28px;
-        }
-    }
     mat-card-title {
         @include ellipsis-overflow;
         color: $mycroft-secondary;

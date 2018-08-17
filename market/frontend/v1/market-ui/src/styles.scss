@@ -86,3 +86,10 @@ $mycroft-theme: mat-light-theme($mycroft-palette-primary, $mycroft-palette-accen
 body {
     background-color: #f1f1f1;
 }
+
+.mycroft-snackbar {
+    width: 500px;
+}
+.mycroft-snackbar .mat-simple-snackbar-action {
+    color: #22a7f0
+}

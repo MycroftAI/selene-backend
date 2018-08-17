@@ -1,10 +1,11 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 
 import { Observable } from 'rxjs';
 
 export class Skill {
     id: number;
+    author: string;
     category: string;
     skill_name: string;
     title: string;
@@ -12,11 +13,12 @@ export class Skill {
     description: string;
     repository_url: string;
     triggers: string;
+    isMycroft: boolean = true;
 }
 
 @Injectable()
 export class SkillsService {
-    private installUrl = '/api/install';
+    private installUrl = '/api/install-skill';
     private skillUrl = '/api/skill/';
     private skillsUrl = '/api/skills';
     private searchQuery = '?search=';
@@ -35,7 +37,11 @@ export class SkillsService {
         return this.http.get<Skill[]>(this.skillsUrl + this.searchQuery + searchTerm)
     }
 
-    installSkill(): Observable<Object> {
-        return this.http.get<Object>(this.installUrl)
+    installSkill(skill: Skill): Observable<Object> {
+        return this.http.put<Object>(
+            this.installUrl,
+            {skill_url: skill.repository_url}
+        )
+
     }
 }

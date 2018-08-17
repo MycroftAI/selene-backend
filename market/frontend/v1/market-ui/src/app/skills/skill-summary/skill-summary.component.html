@@ -1,9 +1,7 @@
 <div fxLayout="row wrap">
-    <mat-card *ngFor="let skill of skills" align="center">
+    <mat-card *ngFor="let skill of skills; let i = index" align="center">
         <div [routerLink]="['/skill', skill.id]">
-            <mat-card-header align="center">
-                <fa-icon [icon]="skillIcon"></fa-icon>
-            </mat-card-header>
+            <market-skill-card-header [skill]="skills[i]"></market-skill-card-header>
             <mat-card-title>{{skill.title}}</mat-card-title>
             <mat-card-subtitle align="center">
                 <button mat-flat-button [disabled]="true">

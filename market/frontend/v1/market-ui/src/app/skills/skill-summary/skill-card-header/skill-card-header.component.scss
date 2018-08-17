@@ -1,0 +1,22 @@
+@import '../../../../stylesheets/global.scss';
+
+mat-card-header {
+    justify-content: center;
+    margin-bottom: 15px;
+    .mycroft-icon {
+        left: 15px;
+        position: absolute;
+        top: 15px;
+        img {
+            height: 20px;
+            width: 20px;
+        }
+    }
+    .skill-icon {
+        position: relative;
+        fa-icon {
+            color: $mycroft-tertiary-green;
+            font-size: 28px;
+        }
+    }
+}

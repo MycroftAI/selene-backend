@@ -12,6 +12,7 @@ import { SkillsRoutingModule } from "./skills-routing.module";
 import { SkillToolbarComponent } from "./skill-toolbar/skill-toolbar.component";
 import { SkillsService } from "./skills.service";
 import { SkillSummaryComponent } from "./skill-summary/skill-summary.component";
+import { SkillCardHeaderComponent } from './skill-summary/skill-card-header/skill-card-header.component';
 
 @NgModule(
     {
@@ -27,7 +28,8 @@ import { SkillSummaryComponent } from "./skill-summary/skill-summary.component";
             SkillDetailComponent,
             SkillsComponent,
             SkillToolbarComponent,
-            SkillSummaryComponent
+            SkillSummaryComponent,
+            SkillCardHeaderComponent
         ],
         exports: [ SkillsComponent, SkillDetailComponent ],
         entryComponents: [ SkillDetailComponent ],
