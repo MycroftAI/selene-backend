@@ -5,10 +5,10 @@ from http import HTTPStatus
 from flask_restful import Resource
 
 from .skill_formatter import format_skill_for_response
-from ..repository.skill import select_all_skills
+from ...repository.skill import select_all_skills
 
 
-class AllSkillsView(Resource):
+class AllSkillsEndpoint(Resource):
     """All skills available for use on devices running Mycroft core."""
 
     def get(self):

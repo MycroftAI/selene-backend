@@ -4,10 +4,10 @@ from http import HTTPStatus
 from flask_restful import Resource
 
 from .skill_formatter import format_skill_for_response
-from ..repository.skill import select_skill_by_id
+from ...repository.skill import select_skill_by_id
 
 
-class SkillDetailView(Resource):
+class SkillDetailEndpoint(Resource):
 
     def get(self, skill_id):
         """Handle HTP GET request for detailed information about a skill."""
