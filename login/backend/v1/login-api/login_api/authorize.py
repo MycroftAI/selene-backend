@@ -18,7 +18,11 @@ def encode_selene_token(user_uuid):
     """
     token_expiration = time() + THIRTY_DAYS
     payload = dict(iat=datetime.utcnow(), exp=token_expiration, sub=user_uuid)
-    selene_token = jwt.encode(payload, current_app.config['SECRET_KEY'], algorithm='HS256')
+    selene_token = jwt.encode(
+        payload,
+        current_app.config['SECRET_KEY'],
+        algorithm='HS256'
+    )
 
     return selene_token.decode()
 
@@ -47,7 +51,9 @@ class AuthorizeAntisocialView(Resource):
             headers=service_request_headers
         )
         if auth_service_response.status_code == HTTPStatus.OK:
-            auth_service_response_content = json.loads(auth_service_response.content)
+            auth_service_response_content = json.loads(
+                auth_service_response.content
+            )
             self.users_uuid = auth_service_response_content['uuid']
             self.tartarus_token = auth_service_response_content['accessToken']
         else:
@@ -62,4 +68,7 @@ class AuthorizeAntisocialView(Resource):
             )
         else:
             frontend_response_data = {}
-        self.frontend_response = (frontend_response_data, self.response_status_code)
+        self.frontend_response = (
+            frontend_response_data,
+            self.response_status_code
+        )
