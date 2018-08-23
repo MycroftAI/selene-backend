@@ -54,7 +54,9 @@ class SkillInstallView(Resource):
             self.selene_token = request.cookies['seleneToken']
             self.tartarus_token = request.cookies['tartarusToken']
         except KeyError:
-            raise AuthorizationError('no authentication tokens found in request')
+            raise AuthorizationError(
+                'no authentication tokens found in request'
+            )
 
     def _validate_auth_token(self):
         self.user_uuid = decode_auth_token(
@@ -69,9 +71,19 @@ class SkillInstallView(Resource):
         self._update_skill_installer_settings()
 
     def _get_users_installer_skill_settings(self):
-        service_request_headers = {'Authorization': 'Bearer ' + self.tartarus_token}
-        service_url = current_app.config['TARTARUS_BASE_URL'] + '/user/' + self.user_uuid + '/skill'
-        self.service_response = requests.get(service_url, headers=service_request_headers)
+        service_request_headers = {
+            'Authorization': 'Bearer ' + self.tartarus_token
+        }
+        service_url = (
+            current_app.config['TARTARUS_BASE_URL'] +
+            '/user/' +
+            self.user_uuid +
+            '/skill'
+        )
+        self.service_response = requests.get(
+            service_url,
+            headers=service_request_headers
+        )
         self.check_for_tartarus_errors(service_url)
 
     def _find_installer_skill(self):
@@ -93,7 +105,9 @@ class SkillInstallView(Resource):
 
     def _update_skill_installer_settings(self):
         service_url = current_app.config['TARTARUS_BASE_URL'] + '/skill/field'
-        service_request_headers = {'Authorization': 'Bearer ' + self.tartarus_token}
+        service_request_headers = {
+            'Authorization': 'Bearer ' + self.tartarus_token
+        }
         self.service_response = requests.patch(
             service_url,
             data=json.dumps(self._build_install_request_body()),
@@ -109,11 +123,16 @@ class SkillInstallView(Resource):
             elif setting['name'] == 'auto_install':
                 setting_value = True
             else:
-                error_message = 'found unexpected setting "{}" in installer skill settings'
+                error_message = (
+                    'found unexpected setting "{}" in installer skill settings'
+                )
                 _log.error(error_message.format(setting['name']))
                 raise ValueError(error_message.format(setting['name']))
             install_request_body.append(
-                dict(fieldUiud=setting['uuid'], deviceUuid=self.device_uuid, value=setting_value)
+                dict(
+                    fieldUiud=setting['uuid'],
+                    deviceUuid=self.device_uuid, value=setting_value
+                )
             )
         return dict(batch=install_request_body)
 
@@ -127,7 +146,9 @@ class SkillInstallView(Resource):
             _log.error(error_message)
             raise ServiceUrlNotFound(error_message)
         elif self.service_response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR:
-            error_message = 'error occurred during GET request to URL ' + service_url
+            error_message = (
+                'error occurred during GET request to URL ' + service_url
+            )
             _log.error(error_message)
             raise ServiceServerError(error_message)
 
