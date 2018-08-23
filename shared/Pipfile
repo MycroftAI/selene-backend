@@ -6,6 +6,7 @@ name = "pypi"
 [packages]
 pyjwt = "*"
 pygithub = "*"
+flask-restful = "*"
 
 [dev-packages]
 
