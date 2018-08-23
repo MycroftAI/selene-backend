@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "b154c511bcf975cbf0065fd6b875ea08640eeb2018c816586d0688c9413b0c7a"
+            "sha256": "7890c1b6cb617f800658144c5d5d277d7a3abad2d062e7b10e265fed1b72e1c2"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -25,10 +25,10 @@
         },
         "certifi": {
             "hashes": [
-                "sha256:13e698f54293db9f89122b0581843a782ad0934a4fe0172d2a980ba77fc61bb7",
-                "sha256:9fa520c1bacfb634fa7af20a76bcbd3d5fb390481724c597da32c719a7dca4b0"
+                "sha256:4c1d68a1408dd090d2f3a869aa94c3947cc1d967821d1ed303208c9f41f0f2f4",
+                "sha256:b6e8b28b2b7e771a41ecdd12d4d43262ecab52adebbafa42c77d6b57fb6ad3a4"
             ],
-            "version": "==2018.4.16"
+            "version": "==2018.8.13"
         },
         "chardet": {
             "hashes": [
@@ -58,6 +58,14 @@
             ],
             "index": "pypi",
             "version": "==0.3.6"
+        },
+        "gunicorn": {
+            "hashes": [
+                "sha256:aa8e0b40b4157b36a5df5e599f45c9c76d6af43845ba3b3b0efe2c70473c2471",
+                "sha256:fa2662097c66f920f53f70621c6c58ca4a3c4d3434205e608e121b5b3b71f4f3"
+            ],
+            "index": "pypi",
+            "version": "==19.9.0"
         },
         "idna": {
             "hashes": [
@@ -179,5 +187,9 @@
             "version": "==0.14.1"
         }
     },
-    "develop": {}
+    "develop": {
+        "selene-util": {
+            "path": "/Users/chrisveilleux/PycharmProjects/selene/shared"
+        }
+    }
 }
