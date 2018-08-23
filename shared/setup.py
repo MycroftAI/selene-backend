@@ -8,5 +8,5 @@ setup(
     name='selene_util',
     version='0.0.0',
     packages=['selene_util'],
-    install_requires=['pygithub', 'pyjwt']
+    install_requires=['flask', 'flask-restful', 'pygithub', 'pyjwt']
 )
