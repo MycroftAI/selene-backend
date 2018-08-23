@@ -1,3 +1,4 @@
+"""API endpoint to return the user's name to the marketplace"""
 from http import HTTPStatus
 import json
 
@@ -5,7 +6,7 @@ from flask import request, current_app
 from flask_restful import Resource
 import requests
 
-from util.jwt import decode_auth_token
+from selene_util.auth import decode_auth_token
 
 
 class UserView(Resource):
