@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "3b6f84e44d72af2b5dc62d1c2865d5683ce7df0e98055c3553fb3082f85a0648"
+            "sha256": "caca5839f533e5406a6d7ec7220ab5d8ff5d2c21f711a8523e83dfab3c48fdce"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -25,10 +25,11 @@
         },
         "certifi": {
             "hashes": [
-                "sha256:13e698f54293db9f89122b0581843a782ad0934a4fe0172d2a980ba77fc61bb7",
-                "sha256:9fa520c1bacfb634fa7af20a76bcbd3d5fb390481724c597da32c719a7dca4b0"
+                "sha256:4c1d68a1408dd090d2f3a869aa94c3947cc1d967821d1ed303208c9f41f0f2f4",
+                "sha256:b6e8b28b2b7e771a41ecdd12d4d43262ecab52adebbafa42c77d6b57fb6ad3a4"
             ],
-            "version": "==2018.4.16"
+            "index": "pypi",
+            "version": "==2018.8.13"
         },
         "chardet": {
             "hashes": [
@@ -85,14 +86,6 @@
             ],
             "version": "==1.0"
         },
-        "pyjwt": {
-            "hashes": [
-                "sha256:30b1380ff43b55441283cc2b2676b755cca45693ae3097325dea01f3d110628c",
-                "sha256:4ee413b357d53fd3fb44704577afac88e72e878716116270d722723d65b42176"
-            ],
-            "index": "pypi",
-            "version": "==1.6.4"
-        },
         "pytz": {
             "hashes": [
                 "sha256:a061aa0a9e06881eb8b3b2b43f05b9439d6583c206d0a6c340ff72a7b6669053",
@@ -123,9 +116,6 @@
             "markers": "python_version >= '2.6' and python_version != '3.1.*' and python_version != '3.3.*' and python_version < '4' and python_version != '3.0.*' and python_version != '3.2.*'",
             "version": "==1.23"
         },
-        "util": {
-            "path": "./../../../../shared"
-        },
         "werkzeug": {
             "hashes": [
                 "sha256:c3fd7a7d41976d9f44db327260e263132466836cef6f91512889ed60ad26557c",
@@ -134,5 +124,9 @@
             "version": "==0.14.1"
         }
     },
-    "develop": {}
+    "develop": {
+        "selene-util": {
+            "path": "/Users/chrisveilleux/PycharmProjects/selene/shared"
+        }
+    }
 }

@@ -6,10 +6,10 @@ name = "pypi"
 [packages]
 flask-restful = "*"
 requests = "*"
-pyjwt = "*"
-util = {path = "./../../../../shared"}
+certifi = "*"
 
 [dev-packages]
+selene-util = {path = "/Users/chrisveilleux/PycharmProjects/selene/shared"}
 
 [requires]
 python_version = "3.7"
