@@ -3,7 +3,7 @@ import json
 
 from ..repository.skill import select_all_skills, Skill, upsert_skill
 from ..repository.db import connect_to_skill_db
-from ..util.github import download_repository_file
+from selene_util.github import download_repository_file
 
 
 class SkillRefresher(object):
@@ -18,9 +18,10 @@ class SkillRefresher(object):
         """
         Determine if any of the skill metadata fields will be updated.
 
-        This is important to know whether or not the last update timestamp needs a new value.
-        Changes in the metadata will result in an update of the timestamp whereas the timestamp
-        will stay the same if nothing has changed.
+        This is important to know whether or not the last update timestamp
+        needs a new value. Changes in the metadata will result in an update
+        of the timestamp whereas the timestamp will stay the same if nothing
+        has changed.
         """
         return (
             self.skill.skill_name != self.skill_metadata['name'] or
@@ -34,7 +35,7 @@ class SkillRefresher(object):
 
     def refresh(self):
         """
-        Refresh the database representation of a skill's metadata with the repository README.md file
+        Refresh the skill database with the repository README.md file
         """
         if self._skill_meta_changed():
             self.skill.skill_name = self.skill_metadata['name']
