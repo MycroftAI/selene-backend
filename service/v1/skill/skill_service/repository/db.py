@@ -1,12 +1,11 @@
 """Database access utility functions"""
-
+from os import environ
 from mongoengine import connect
 
 
 def connect_to_skill_db():
     """Establish a connection to the Mongo skills database."""
-    # TODO: replace with production logic to ge the correct host and port for the skill DB
-    host = 'localhost'
-    port = 27017
+    host = environ['SKILL_DB_HOST']
+    port = int(environ['SKILL_DB_PORT'])
     database = 'skillDB'
     connect(database, host=host, port=port)
