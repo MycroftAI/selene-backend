@@ -10,7 +10,7 @@ pygithub = "*"
 gunicorn = "*"
 
 [dev-packages]
-selene-util = {path = "/Users/chrisveilleux/PycharmProjects/selene/shared"}
+selene-util = {path = "./../../../shared"}
 
 [requires]
 python_version = "3.7"
