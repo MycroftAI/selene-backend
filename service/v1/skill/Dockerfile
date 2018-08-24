@@ -24,6 +24,6 @@ RUN pipenv install --system
 RUN rm /opt/selene/Pipfile
 RUN rm /opt/selene/Pipfile.lock
 
-EXPOSE 5200
+EXPOSE 5000
 
 ENTRYPOINT ["gunicorn", "--config=/opt/selene/config/gunicorn_config.py", "skill_service.api.api:skill"]
