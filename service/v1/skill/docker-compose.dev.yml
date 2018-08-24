@@ -1,0 +1,9 @@
+version: '3.7'
+services:
+  skill-service:
+    environment:
+      GUNICORN_KEYFILE: localhost.key
+      GUNICORN_CRTFILE: localhost.crt
+      GUNICORN_CACERT: rootCA.pem
+      SKILL_DB_HOST: skill-db
+      SKILL_DB_PORT: 27017
