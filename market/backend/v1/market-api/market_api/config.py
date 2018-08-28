@@ -1,3 +1,4 @@
+"""Configuration for the marketplace API"""
 import os
 
 
@@ -14,11 +15,12 @@ class BaseConfig:
 class DevelopmentConfig(BaseConfig):
     """Development configuration."""
     DEBUG = True
-    SELENE_BASE_URL = 'https://service.mycroft.test'
+    SELENE_BASE_URL = 'http://service.mycroft.test'
     TARTARUS_BASE_URL = 'https://api-test.mycroft.ai/v1'
 
 
 def get_config_location():
+    """Determine which config to load based on environment"""
     environment_configs = dict(
         dev='market_api.config.DevelopmentConfig',
         # test=TestConfig,
