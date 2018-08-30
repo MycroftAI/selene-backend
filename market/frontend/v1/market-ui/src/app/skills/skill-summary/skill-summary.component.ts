@@ -18,6 +18,11 @@ export class SkillSummaryComponent implements OnInit {
 
     ngOnInit() { }
 
+    /**
+     * Install a skill onto one or many devices
+     *
+     * @param {Skill} skill
+     */
     install_skill(skill: Skill) : void {
         this.skillsService.installSkill(skill).subscribe(
             (response) => {
@@ -29,10 +34,27 @@ export class SkillSummaryComponent implements OnInit {
         );
     }
 
+    /**
+     * Handle the successful install attempt
+     *
+     * This does not indicate that the install of the skill completed, only
+     * that the request to install a skill succeeded.  Change the install
+     * button to an "installing" state.
+     *
+     * @param response
+     */
     onInstallSuccess(response) : void {
         console.log('success!')
     }
 
+    /**
+     * Handle the failure to install a skill.
+     *
+     * If a user attempts to install a skill without being logged in, show a
+     * snackbar to notify the user and give them the ability to log in.
+     *
+     * @param response
+     */
     onInstallFailure(response) : void {
         if (response.status === 401) {
             this.loginSnackbar.open(
