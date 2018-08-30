@@ -5,11 +5,6 @@
 FROM selene-shared:latest
 LABEL description="Run the Selene skill service"
 
-# Configuration files for the software loaded in this image.
-COPY config /opt/selene/config
-RUN mkdir -p /var/log/gunicorn/
-RUN mkdir -p /var/log/gunicorn/
-
 # Load the skill service application to the image
 COPY skill_service /opt/selene/skill_service
 WORKDIR /opt/selene/
@@ -26,4 +21,4 @@ RUN rm /opt/selene/Pipfile.lock
 
 EXPOSE 5000
 
-ENTRYPOINT ["gunicorn", "--config=/opt/selene/config/gunicorn_config.py", "skill_service.api.api:skill"]
+ENTRYPOINT ["gunicorn", "--bind=0.0.0.0:5000", "skill_service.api.api:skill"]
