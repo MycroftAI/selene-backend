@@ -1,3 +1,4 @@
+# Kubernetes service that exposes the skill API and DB as a single service
 apiVersion: v1
 kind: Service
 metadata:
