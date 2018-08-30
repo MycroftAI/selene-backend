@@ -3,7 +3,7 @@
 # The selene-shared parent image contains all the common Docker configs for
 # all Selene apps and services see the "shared" directory in this repository.
 FROM selene-shared:latest
-LABEL description="Run the Selene skill service"
+LABEL description="Selene Skill Service API"
 
 # Load the skill service application to the image
 COPY skill_service /opt/selene/skill_service
@@ -21,4 +21,5 @@ RUN rm /opt/selene/Pipfile.lock
 
 EXPOSE 5000
 
+# Use gunicorn to serve the API
 ENTRYPOINT ["gunicorn", "--bind=0.0.0.0:5000", "skill_service.api.api:skill"]
