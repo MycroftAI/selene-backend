@@ -20,7 +20,7 @@ spec:
       serviceAccount: selene
       containers:
         - name: skill-api-container
-          image: skill-service
+          image: selene-skill-service-api
           imagePullPolicy: IfNotPresent
           ports:
             - name: skill-api-port
