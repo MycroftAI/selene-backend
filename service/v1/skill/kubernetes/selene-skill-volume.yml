@@ -1,0 +1,18 @@
+# Define a persistent volume that will be used to store the data underlying
+# the pods running in the Selene Skill Service
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: selene-skill-volume
+  labels:
+    type: local
+spec:
+  capacity:
+    storage: 1Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: manual
+  hostPath:
+    path: /data/db/

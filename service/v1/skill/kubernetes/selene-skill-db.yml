@@ -1,0 +1,34 @@
+# Deploy a MongoDB docker image for the the Selene Skill Service DB
+# to the Kubernetes cluster.  Make the deployment visible to the
+# selene-skill service so that it can communicate with the API.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: selene-skill-db
+  labels:
+    app: selene-skill
+spec:
+  selector:
+    matchLabels:
+      app: selene-skill
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: selene-skill
+    spec:
+      serviceAccount: selene
+      containers:
+        - name: skill-db-container
+          image: mongo
+          ports:
+            - name: skill-db-port
+              containerPort: 27017
+              hostPort: 27017
+          volumeMounts:
+            - name: skill-db-data
+              mountPath: /data/db/
+      volumes:
+        - name: skill-db-data
+          persistentVolumeClaim:
+            claimName: skill-db-volume-claim

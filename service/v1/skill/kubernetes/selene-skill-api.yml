@@ -1,0 +1,27 @@
+# Deploy the Selene Skill Service API Docker image the Kubernetes cluster.
+# Make the deployment visible to the selene-skill service so that it
+# can communicate with the database.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: selene-skill-api
+  labels:
+    app: selene-skill
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: selene-skill
+  template:
+    metadata:
+      labels:
+        app: selene-skill
+    spec:
+      serviceAccount: selene
+      containers:
+        - name: skill-api-container
+          image: skill-service
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: skill-api-port
+              containerPort: 5000
