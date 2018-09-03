@@ -2,7 +2,7 @@
 
 # The selene-shared parent image contains all the common Docker configs for
 # all Selene apps and services see the "shared" directory in this repository.
-FROM selene-shared:latest
+FROM docker.mycroft.ai/selene-shared:latest
 LABEL description="Selene Skill Service API"
 
 # Load the skill service application to the image
