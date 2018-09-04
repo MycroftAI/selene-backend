@@ -3,8 +3,9 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: selene-skill-volume
+  name: selene-skill-db
   labels:
+    app:  selene-skill
     type: local
 spec:
   capacity:

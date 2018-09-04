@@ -19,10 +19,10 @@ spec:
     spec:
       serviceAccount: selene
       containers:
-        - name: skill-db-container
+        - name: skill-db
           image: mongo
           ports:
-            - name: skill-db-port
+            - name: skill-db
               containerPort: 27017
               hostPort: 27017
           volumeMounts:
@@ -31,4 +31,4 @@ spec:
       volumes:
         - name: skill-db-data
           persistentVolumeClaim:
-            claimName: skill-db-volume-claim
+            claimName: selene-skill-db

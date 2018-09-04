@@ -19,9 +19,9 @@ spec:
     spec:
       serviceAccount: selene
       containers:
-        - name: skill-api-container
-          image: selene-skill-service-api
+        - name: skill-skill-api
+          image: docker.mycroft.ai/selene-skill-api
           imagePullPolicy: IfNotPresent
           ports:
-            - name: skill-api-port
+            - name: selene-skill-api
               containerPort: 5000
