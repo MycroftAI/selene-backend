@@ -1,13 +1,18 @@
-# Claim a portion of the storage allocated for the Selene Skill Service for
-# storage of the database data.
+# Define a persistent volume that will be used to store the data underlying
+# the pods running in the Selene Skill Service
 apiVersion: v1
-kind: PersistentVolumeClaim
+kind: PersistentVolume
 metadata:
-  name: skill-db-volume
+  name: selene-skill-volume
+  labels:
+    type: local
 spec:
-  storageClassName: manual
+  capacity:
+    storage: 1Gi
+  volumeMode: Filesystem
   accessModes:
     - ReadWriteOnce
-  resources:
-    requests:
-      storage: 1Gi
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: manual
+  hostPath:
+    path: /data/db/
