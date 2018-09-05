@@ -24,6 +24,8 @@ def encode_selene_token(user_uuid):
         algorithm='HS256'
     )
 
+    # before returning the token, convert it from bytes to string so that
+    # it can be included in a JSON response object
     return selene_token.decode()
 
 
