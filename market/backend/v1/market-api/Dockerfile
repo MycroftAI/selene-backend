@@ -19,7 +19,7 @@ RUN pipenv install --system
 RUN rm /opt/selene/Pipfile
 RUN rm /opt/selene/Pipfile.lock
 
-EXPOSE 5202
+EXPOSE 5002
 
 # Use gunicorn to serve the API
 ENTRYPOINT ["gunicorn", "--bind=0.0.0.0:5002", "market_api.api:marketplace"]
