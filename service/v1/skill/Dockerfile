@@ -19,11 +19,8 @@ RUN pipenv install --system
 RUN rm /opt/selene/Pipfile
 RUN rm /opt/selene/Pipfile.lock
 
-# Copy the uwsgi config file to the image
-COPY uwsgi.ini uwsgi.ini
-
 EXPOSE 5000
 
-# Use gunicorn to serve the API
-#ENTRYPOINT ["gunicorn", "--bind=0.0.0.0:5000", "--worker-class=gevent", "skill_service.api.api:skill"]
+# Use uwsgi to serve the API
+COPY uwsgi.ini uwsgi.ini
 ENTRYPOINT ["uwsgi", "--ini", "uwsgi.ini"]
