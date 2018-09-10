@@ -19,7 +19,8 @@ RUN pipenv install --system
 RUN rm /opt/selene/Pipfile
 RUN rm /opt/selene/Pipfile.lock
 
-EXPOSE 5002
+EXPOSE 7101
 
-# Use gunicorn to serve the API
-ENTRYPOINT ["gunicorn", "--bind=0.0.0.0:5002", "market_api.api:marketplace"]
+# Use uwsgi to serve the API
+COPY uwsgi.ini uwsgi.ini
+ENTRYPOINT ["uwsgi", "--ini", "uwsgi.ini"]

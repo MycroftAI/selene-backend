@@ -7,7 +7,7 @@ name = "pypi"
 flask-restful = "*"
 requests = "*"
 certifi = "*"
-gunicorn = "*"
+uwsgi = "*"
 
 [dev-packages]
 selene-util = {path = "./../../../../shared"}
