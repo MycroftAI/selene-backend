@@ -19,7 +19,7 @@ RUN pipenv install --system
 RUN rm /opt/selene/Pipfile
 RUN rm /opt/selene/Pipfile.lock
 
-EXPOSE 5000
+EXPOSE 7100
 
 # Use uwsgi to serve the API
 COPY uwsgi.ini uwsgi.ini
