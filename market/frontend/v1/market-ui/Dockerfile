@@ -11,4 +11,3 @@ RUN npm run build
 # STAGE TWO: build the web server and copy the compiled angular app to it.
 FROM nginx:latest
 COPY --from=build /usr/src/app/dist/mycroft-marketplace /usr/share/nginx/html
-RUN rm /etc/nginx/conf.d/default.conf
