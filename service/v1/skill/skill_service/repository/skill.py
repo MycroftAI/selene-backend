@@ -3,7 +3,13 @@ Queries and manipulations of the skill collection in the marketplaceDB
 """
 from datetime import datetime
 
-from mongoengine import Document, DateTimeField, ListField, StringField
+from mongoengine import (
+    DateTimeField,
+    DictField,
+    Document,
+    ListField,
+    StringField
+)
 
 from .db import connect_to_skill_db
 
@@ -12,20 +18,26 @@ class Skill(Document):
     """
     Represents the schema of documents in the skill collection
     """
-    skill_name = StringField(required=True, unique=True)
-    repository_url = StringField(required=True)
-    title = StringField(required=True)
-    author = StringField()
-    summary = StringField()
+    branch = StringField(required=True)
+    categories = ListField(StringField())
+    credits = ListField(DictField())
     description = StringField()
-    triggers = ListField(StringField())
-    category = StringField()
+    icon = DictField()
     last_update = DateTimeField(default=datetime.now(), required=True)
+    repository_owner = StringField(required=True)
+    repository_url = StringField(required=True)
+    skill_name = StringField(required=True, unique=True)
+    summary = StringField()
+    tags = ListField(StringField())
+    title = StringField(required=True)
+    triggers = ListField(StringField())
 
 
 def select_all_skills() -> list:
     """
-    Skill repositories in Github must be uniquely named; map the repository name to the skill object
+    Map the repository name to the skill object
+
+    Skill repositories in Github must be uniquely named
 
     :return: dictionary of skill objects keyed by the repository name
     """
