@@ -14,7 +14,6 @@ export class Skill {
     description: string;
     repository_url: string;
     triggers: string;
-    isMycroft: boolean = true;
 }
 
 @Injectable()
