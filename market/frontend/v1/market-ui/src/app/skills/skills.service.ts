@@ -5,8 +5,9 @@ import { Observable } from 'rxjs';
 
 export class Skill {
     id: number;
-    credits: string;
-    categories: string;
+    credits: Object;
+    categories: string[];
+    icon: Object;
     skill_name: string;
     title: string;
     summary: string;

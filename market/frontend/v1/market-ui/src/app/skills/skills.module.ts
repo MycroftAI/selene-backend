@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FlexLayoutModule } from "@angular/flex-layout";
 import { FormsModule } from "@angular/forms";
 
+import { AngularFontAwesomeModule } from 'angular-font-awesome';
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 
 import { MaterialModule } from "../shared/material.module";
@@ -17,6 +18,7 @@ import { SkillCardHeaderComponent } from './skill-summary/skill-card-header/skil
 @NgModule(
     {
         imports: [
+            AngularFontAwesomeModule,
             CommonModule,
             FlexLayoutModule,
             FontAwesomeModule,
