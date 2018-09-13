@@ -1,4 +1,4 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 
 import { Observable } from 'rxjs';
@@ -7,11 +7,12 @@ export class Skill {
     id: number;
     credits: Object;
     categories: string[];
+    description: string;
     icon: Object;
+    icon_image: string;
     skill_name: string;
     title: string;
     summary: string;
-    description: string;
     repository_url: string;
     triggers: string;
 }

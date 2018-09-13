@@ -3,7 +3,12 @@
         <img src="../../../../assets/mycroft-logo.svg"  *ngIf="isMycroftMade"  matTooltip="Mycroft Made">
     </div>
     <div class="skill-icon">
-        <!--<fa-icon [ngStyle]="{'color': skill.icon.color}" [icon]="skillIcon"></fa-icon>-->
-        <fa [ngStyle]="{'color': skillIconColor}" name={{skillIconName}} size="2x"></fa>
+        <fa
+            *ngIf="!skill.icon_image"
+            [ngStyle]="{'color': skillIconColor}"
+            name={{skillIconName}} size="2x"
+        >
+        </fa>
+        <img *ngIf="skill.icon_image" src={{skill.icon_image}} height="30" width="30">
     </div>
 </mat-card-header>
