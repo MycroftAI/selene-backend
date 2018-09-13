@@ -33,7 +33,7 @@ class SkillRefresher(object):
             self.skill.credits != self.skill_metadata.get('credits', []) or
             self.skill.description != self.skill_metadata['description'] or
             self.skill.icon != self.skill_metadata.get('icon') or
-            self.skill.icon_image != self.skill_metadata.get('icon_img  ') or
+            self.skill.icon_image != self.skill_metadata.get('icon_img') or
             self.skill.platforms != self.skill_metadata['platforms'] or
             self.skill.repository_owner != self.skill_metadata['github_username'] or
             self.skill.repository_url != self.skill_metadata['repo'] or
