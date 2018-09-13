@@ -13,7 +13,7 @@ import { faMicrophoneAlt } from "@fortawesome/free-solid-svg-icons";
 })
 export class SkillCardHeaderComponent implements OnInit {
     public skillIconColor = '#6C7A89';
-    public skillIconName = 'microphone';
+    public skillIconName = 'comment-alt';
     @Input() public skill: Skill;
     public isMycroftMade: boolean;
 
