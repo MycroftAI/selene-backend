@@ -41,6 +41,7 @@ class SkillSummaryView(SeleneBaseView):
         for skill in self.skill_service_response.json():
             skill_summary = dict(
                 credits=skill['credits'],
+                icon=skill['icon'],
                 id=skill['id'],
                 title=skill['title'],
                 summary=skill['summary'],
