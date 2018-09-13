@@ -22,7 +22,8 @@ export class SkillCardHeaderComponent implements OnInit {
      * Include the Mycroft AI logo in the card header if Mycroft authored the skill
      */
     ngOnInit() {
-        this.isMycroftMade = this.skill.author.toLowerCase().includes('mycroft')
+        if (this.skill.credits) {
+            this.isMycroftMade = this.skill.credits[0]['name'] == 'Mycroft AI';
+        }
     }
-
 }
