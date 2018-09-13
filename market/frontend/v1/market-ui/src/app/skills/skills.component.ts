@@ -8,7 +8,7 @@ import { SkillsService } from './skills.service'
   styleUrls: ['./skills.component.scss']
 })
 export class SkillsComponent implements OnInit {
-    public skillCategories: String[];
+    public skillCategories: string[];
     public skills: Object;
 
     constructor(private skillsService: SkillsService) { }
