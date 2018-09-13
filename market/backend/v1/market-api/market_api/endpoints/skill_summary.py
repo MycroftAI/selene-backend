@@ -40,7 +40,7 @@ class SkillSummaryView(SeleneBaseView):
         """Build the response data from the skill service response"""
         for skill in self.skill_service_response.json():
             skill_summary = dict(
-                author=skill['author'],
+                credits=skill['credits'],
                 id=skill['id'],
                 title=skill['title'],
                 summary=skill['summary'],
@@ -51,7 +51,13 @@ class SkillSummaryView(SeleneBaseView):
                 self.search_term in skill['title'].lower()
             )
             if search_term_match:
-                skill_category = skill.get('category', UNDEFINED)
+                # a skill may have many categories.  the first one in the
+                # list is considered the "primary" category.  This is the
+                # category the marketplace will use to group the skill.
+                if skill['categories']:
+                    skill_category = skill['categories'][0]
+                else:
+                    skill_category = UNDEFINED
                 self.response_data[skill_category].append(skill_summary)
 
     def _sort_skills(self):
