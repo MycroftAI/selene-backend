@@ -31,6 +31,7 @@ export class SkillsComponent implements OnInit {
         Object.keys(skills).forEach(
             category_name => {this.skillCategories.push(category_name);}
         );
+        this.skillCategories.sort()
     }
 
     showSearchResults(searchResults): void {
