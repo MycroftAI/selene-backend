@@ -12,8 +12,6 @@ import { faMicrophoneAlt } from "@fortawesome/free-solid-svg-icons";
     styleUrls: ['./skill-card-header.component.scss']
 })
 export class SkillCardHeaderComponent implements OnInit {
-    public skillIconColor = '#6C7A89';
-    public skillIconName = 'comment-alt';
     @Input() public skill: Skill;
     public isMycroftMade: boolean;
 
@@ -25,12 +23,6 @@ export class SkillCardHeaderComponent implements OnInit {
     ngOnInit() {
         if (this.skill.credits) {
             this.isMycroftMade = this.skill.credits[0]['name'] == 'Mycroft AI';
-        }
-        if (this.skill.icon['color']) {
-            this.skillIconColor = this.skill.icon['color'];
-        }
-        if (this.skill.icon['icon']) {
-            this.skillIconName = this.skill.icon['icon'];
         }
     }
 }
