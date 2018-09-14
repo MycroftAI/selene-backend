@@ -1,5 +1,7 @@
 <mat-toolbar>
-    <div>MYCROFT MARKETPLACE</div>
+    <img src="../../assets/header-logo.png">
+    <mat-divider [vertical]="true"></mat-divider>
+    <div class="mat-subheading-1" style="margin-bottom: 0">MARKETPLACE</div>
     <div fxFlex fxLayout="row" fxLayoutAlign="end center">
         <button mat-button (click)="login()" *ngIf="!isLoggedIn">
             <fa-icon [icon]="signInIcon"></fa-icon>
