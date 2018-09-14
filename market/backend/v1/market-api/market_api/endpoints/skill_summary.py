@@ -39,9 +39,12 @@ class SkillSummaryView(SeleneBaseView):
     def _reformat_skills(self):
         """Build the response data from the skill service response"""
         for skill in self.skill_service_response.json():
+            if not skill['icon']:
+                skill['icon'] = dict(icon='comment-alt', color='#6C7A89')
             skill_summary = dict(
                 credits=skill['credits'],
                 icon=skill['icon'],
+                icon_image=skill.get('icon_image'),
                 id=skill['id'],
                 title=skill['title'],
                 summary=skill['summary'],
