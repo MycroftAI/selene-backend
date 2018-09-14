@@ -16,7 +16,7 @@
                     </fa>
                     {{skill.title}}
                 </h1>
-                <div class="mat-subheading-1">{{skill.summary}}</div>
+                <div class="mat-subheading-1" [innerHTML]="skill.summary"></div>
             </div>
             <div class="skill-detail-header-right">
                 <button mat-button>INSTALL</button>
@@ -44,7 +44,7 @@
                 </div>
                 <div class="skill-detail-section">
                     <div class="mat-subheading-1">DESCRIPTION</div>
-                    <div class="mat-body-1">{{skill.description}}</div>
+                    <div class="mat-body-1" [innerHTML]="skill.description"></div>
                 </div>
                 <div class="skill-detail-section">
                     <div class="mat-subheading-1">CREDITS</div>

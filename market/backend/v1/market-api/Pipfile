@@ -8,6 +8,7 @@ flask-restful = "*"
 requests = "*"
 certifi = "*"
 uwsgi = "*"
+markdown = "*"
 
 [dev-packages]
 selene-util = {path = "./../../../../shared"}

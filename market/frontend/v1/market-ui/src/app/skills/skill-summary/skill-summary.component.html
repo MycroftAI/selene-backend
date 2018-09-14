@@ -9,9 +9,8 @@
                     {{skill.triggers[0]}}
                 </button>
             </mat-card-subtitle>
-            <mat-card-content>
-                {{skill.summary ? skill.summary : '&nbsp;'}}
-            </mat-card-content>
+            <mat-card-content *ngIf="skill.summary" [innerHTML]="skill.summary"></mat-card-content>
+            <mat-card-content *ngIf="!skill.summary">'&nbsp;'</mat-card-content>
         </div>
             <mat-card-actions>
             <button mat-button (click)="install_skill(skill)">INSTALL</button>

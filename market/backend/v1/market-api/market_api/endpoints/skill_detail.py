@@ -1,4 +1,5 @@
 """View to return detailed information about a skill"""
+from markdown import markdown
 import requests as service_request
 
 from selene_util.api import SeleneBaseView, AuthorizationError
@@ -26,3 +27,11 @@ class SkillDetailView(SeleneBaseView):
             self.base_url + '/skill/id/' + self.skill_id
         )
         self.response_data = self.service_response.json()
+        self.response_data['description'] = markdown(
+            self.response_data['description'],
+            output_format='html5'
+        )
+        self.response_data['summary'] = markdown(
+            self.response_data['summary'],
+            output_format='html5'
+        )

@@ -2,6 +2,7 @@
 from collections import defaultdict
 
 from flask import request
+from markdown import markdown
 import requests as service_request
 
 from selene_util.api import SeleneBaseView, AuthorizationError
@@ -47,7 +48,7 @@ class SkillSummaryView(SeleneBaseView):
                 icon_image=skill.get('icon_image'),
                 id=skill['id'],
                 title=skill['title'],
-                summary=skill['summary'],
+                summary=markdown(skill['summary'], output_format='html5'),
                 triggers=skill['triggers']
             )
             search_term_match = (
