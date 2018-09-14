@@ -5,7 +5,15 @@
         <div class="skill-detail-header" fxLayout="row">
             <div class="skill-detail-header-left">
                 <h1>
-                    <fa-icon [icon]="skillIcon"></fa-icon>
+                    <!-- there cannot be an icon and an icon_image.  show the
+                         image if it exists otherwise show the icon -->
+                    <img *ngIf="skill.icon_image" src={{skill.icon_image}} height="30" width="30">
+                    <fa
+                        *ngIf="!skill.icon_image"
+                        [ngStyle]="{'color': skill.icon.color}"
+                        name={{skill.icon.icon}}
+                    >
+                    </fa>
                     {{skill.title}}
                 </h1>
                 <div class="mat-subheading-1">{{skill.summary}}</div>
@@ -25,6 +33,7 @@
 
         <!-- Detail block -->
         <div class="skill-detail-body" fxLayout="row">
+            <!-- Left Side -->
             <div class="skill-detail-body-left">
                 <div class="skill-detail-section">
                     <div class="mat-subheading-1">HEY MYCROFT</div>
@@ -38,10 +47,13 @@
                     <div class="mat-body-1">{{skill.description}}</div>
                 </div>
                 <div class="skill-detail-section">
-                    <div class="mat-subheading-1">AUTHOR(S)</div>
-                    <div class="mat-body-1">{{skill.author}}</div>
+                    <div class="mat-subheading-1">CREDITS</div>
+                    <div *ngFor="let credit of skill.credits">
+                        <div class="mat-body-1">{{credit.name}}</div>
+                    </div>
                 </div>
             </div>
+            <!-- Right Side -->
             <div class="skill-detail-body-right">
                 <div class="skill-detail-section">
                     <div class="mat-subheading-1">SUPPORTED DEVICES</div>
@@ -64,7 +76,7 @@
                 </div>
                 <div class="skill-detail-section">
                     <div class="mat-subheading-1">CATEGORY</div>
-                    <div class="mat-body-1">{{skill.category}}</div>
+                    <div class="mat-body-1">{{skill.categories[0]}}</div>
                 </div>
             </div>
         </div>

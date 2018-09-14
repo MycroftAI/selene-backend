@@ -3,7 +3,7 @@ import { Router, ActivatedRoute, ParamMap } from '@angular/router';
 import { Observable } from "rxjs/internal/Observable";
 import { switchMap } from "rxjs/operators";
 
-import { faComment, faMicrophoneAlt, faCodeBranch} from '@fortawesome/free-solid-svg-icons';
+import { faComment, faCodeBranch} from '@fortawesome/free-solid-svg-icons';
 
 import { Skill, SkillsService } from "../skills.service";
 
@@ -13,10 +13,9 @@ import { Skill, SkillsService } from "../skills.service";
   styleUrls: ['./skill-detail.component.scss']
 })
 export class SkillDetailComponent implements OnInit {
-    githubIcon = faCodeBranch;
-    skillIcon = faMicrophoneAlt;
-    skill$: Observable<Skill>;
-    triggerIcon = faComment;
+    public githubIcon = faCodeBranch;
+    public skill$: Observable<Skill>;
+    public triggerIcon = faComment;
 
     constructor(
         private route: ActivatedRoute,
