@@ -5,10 +5,6 @@
 FROM selene-shared:latest
 LABEL description="Run the API for the Mycroft login screen"
 
-# Load the skill service application to the image
-COPY login_api /opt/selene/login_api
-WORKDIR /opt/selene/
-
 # Use pipenv to install the package's dependencies in the container
 COPY Pipfile Pipfile
 COPY Pipfile.lock Pipfile.lock
@@ -16,10 +12,15 @@ RUN pipenv install --system
 
 # Now that pipenv has installed all the packages required by selene-util
 # the Pipfile can be removed from the container.
-RUN rm /opt/selene/Pipfile
-RUN rm /opt/selene/Pipfile.lock
+RUN rm Pipfile
+RUN rm Pipfile.lock
 
-EXPOSE 5001
+# Load the skill service application to the image
+COPY login_api /opt/selene/login_api
+WORKDIR /opt/selene/
 
-# Use gunicorn to serve the API
-ENTRYPOINT ["gunicorn", "--bind=0.0.0.0:5001", "login_api.api:login"]
+EXPOSE 7102
+
+# Use uwsgi to serve the API
+COPY uwsgi.ini uwsgi.ini
+ENTRYPOINT ["uwsgi", "--ini", "uwsgi.ini"]
