@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 
-import { faFacebook, faGithub, faGoogle } from '@fortawesome/free-brands-svg-icons';
+import { faFacebook, faGithub } from '@fortawesome/free-brands-svg-icons';
 
 @Component({
     selector: 'login-auth-social',
@@ -10,11 +10,8 @@ import { faFacebook, faGithub, faGoogle } from '@fortawesome/free-brands-svg-ico
 export class AuthSocialComponent implements OnInit {
     public facebookIcon = faFacebook;
     public githubIcon = faGithub;
-    public googleIcon = faGoogle;
 
-  constructor() { }
+    constructor() {}
 
-  ngOnInit() {
-  }
-
+    ngOnInit() { }
 }
