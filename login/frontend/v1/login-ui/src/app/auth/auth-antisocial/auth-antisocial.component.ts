@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 
 import { faUser, faLock } from "@fortawesome/free-solid-svg-icons";
 
-import { AuthService } from "../../core/auth.service";
+import { AuthService, AuthResponse } from "../auth.service";
 
 @Component({
   selector: 'login-auth-antisocial',
@@ -10,42 +10,39 @@ import { AuthService } from "../../core/auth.service";
   styleUrls: ['./auth-antisocial.component.scss']
 })
 export class AuthAntisocialComponent implements OnInit {
-    public authorizationFailed = false;
+    public authFailed = false;
     public password: string;
     public passwordIcon = faLock;
     public username: string;
     public usernameIcon = faUser;
-    public user: Object;
 
     constructor(private authService: AuthService) { }
 
-    ngOnInit() {
-    }
+    ngOnInit() { }
 
     authorizeUser(): void {
-        this.authService.authorizeUser(this.username, this.password).subscribe(
-            (response) => {this.onAuthorizationSuccess(response)},
-            (response) => {this.onAuthorizationFailure(response)}
+        this.authService.authorizeAntisocial(this.username, this.password).subscribe(
+            (response) => {this.onAuthSuccess(response)},
+            (response) => {this.onAuthFailure(response)}
         );
     }
 
-    onAuthorizationSuccess(authorizeUserResponse) {
-        this.user = authorizeUserResponse;
-        this.authorizationFailed = false;
-        let expirationDate = new Date(authorizeUserResponse.expiration * 1000);
+    onAuthSuccess(authResponse: AuthResponse) {
+        this.authFailed = false;
+        let expirationDate = new Date(authResponse.expiration * 1000);
         let domain = document.domain.replace('login.', '');
-        document.cookie = 'seleneToken=' + authorizeUserResponse.seleneToken +
+        document.cookie = 'seleneToken=' + authResponse.seleneToken +
             '; expires=' + expirationDate.toUTCString() +
             '; domain=' + domain;
-        document.cookie = 'tartarusToken=' + authorizeUserResponse.tartarusToken +
+        document.cookie = 'tartarusToken=' + authResponse.tartarusToken +
             '; expires=' + expirationDate.toUTCString() +
             '; domain=' + domain;
         window.parent.postMessage('loggedIn', '*')
     }
 
-    onAuthorizationFailure(authorizeUserResponse) {
+    onAuthFailure(authorizeUserResponse) {
         if (authorizeUserResponse.status === 401) {
-            this.authorizationFailed = true;
+            this.authFailed = true;
         }
     }
 }
