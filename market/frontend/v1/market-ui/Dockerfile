@@ -6,7 +6,8 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 RUN npm install
 COPY . .
-RUN npm run build
+ARG selene_env
+RUN npm run build-${selene_env}
 
 # STAGE TWO: build the web server and copy the compiled angular app to it.
 FROM nginx:latest
