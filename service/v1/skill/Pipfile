@@ -7,7 +7,7 @@ name = "pypi"
 flask-restful = "*"
 mongoengine = "*"
 pygithub = "*"
-gunicorn = "*"
+uwsgi = "*"
 
 [dev-packages]
 selene-util = {path = "./../../../shared"}

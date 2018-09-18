@@ -9,6 +9,7 @@ requests = "*"
 pyjwt = "*"
 flask-restful = "*"
 certifi = "*"
+gunicorn = "*"
 
 [dev-packages]
 

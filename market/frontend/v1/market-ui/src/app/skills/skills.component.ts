@@ -1,12 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 
-import { faQuestion } from '@fortawesome/free-solid-svg-icons';
-
 import { SkillsService } from './skills.service'
-
-const categories = [
-    {'name': 'Undefined', 'icon': faQuestion}
-];
 
 @Component({
   selector: 'marketplace-skills',
@@ -14,7 +8,7 @@ const categories = [
   styleUrls: ['./skills.component.scss']
 })
 export class SkillsComponent implements OnInit {
-    public skillCategories: Object[];
+    public skillCategories: string[];
     public skills: Object;
 
     constructor(private skillsService: SkillsService) { }
@@ -34,13 +28,10 @@ export class SkillsComponent implements OnInit {
 
     get_skill_categories(skills): void {
         this.skillCategories = [];
-        Object.keys(skills).forEach(category_name => {
-            categories.forEach(category => {
-                if (category.name === category_name) {
-                    this.skillCategories.push(category)
-                }
-            })
-        })
+        Object.keys(skills).forEach(
+            category_name => {this.skillCategories.push(category_name);}
+        );
+        this.skillCategories.sort()
     }
 
     showSearchResults(searchResults): void {

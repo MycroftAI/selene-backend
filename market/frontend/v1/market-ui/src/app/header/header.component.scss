@@ -3,6 +3,18 @@
 mat-toolbar {
     background-color: $mycroft-primary;
     color: $mycroft-white;
+    img {
+        padding-right: 10px;
+        height: 40px;
+    }
+    mat-divider {
+        border-color: #FFFFFF;
+        border-top-width: 0;
+        border-right-width: 1px;
+        border-right-style: solid;
+        height: 60%;
+        margin-right: 10px;
+    }
     fa-icon {
         padding-right: 5px;
     }

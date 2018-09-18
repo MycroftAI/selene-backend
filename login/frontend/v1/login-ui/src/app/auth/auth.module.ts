@@ -15,6 +15,7 @@ import {
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 
 import { AuthComponent } from './auth.component';
+import { AuthService } from "./auth.service";
 import { AuthSocialComponent } from './auth-social/auth-social.component';
 import { AuthAntisocialComponent } from './auth-antisocial/auth-antisocial.component';
 
@@ -33,6 +34,7 @@ import { AuthAntisocialComponent } from './auth-antisocial/auth-antisocial.compo
         MatFormFieldModule,
         MatInputModule,
         MatTabsModule
-    ]
+    ],
+    providers: [ AuthService ]
 })
 export class AuthModule { }

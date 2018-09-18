@@ -2,6 +2,7 @@
 from collections import defaultdict
 
 from flask import request
+from markdown import markdown
 import requests as service_request
 
 from selene_util.api import SeleneBaseView, AuthorizationError
@@ -39,11 +40,15 @@ class SkillSummaryView(SeleneBaseView):
     def _reformat_skills(self):
         """Build the response data from the skill service response"""
         for skill in self.skill_service_response.json():
+            if not skill['icon']:
+                skill['icon'] = dict(icon='comment-alt', color='#6C7A89')
             skill_summary = dict(
-                author=skill['author'],
+                credits=skill['credits'],
+                icon=skill['icon'],
+                icon_image=skill.get('icon_image'),
                 id=skill['id'],
                 title=skill['title'],
-                summary=skill['summary'],
+                summary=markdown(skill['summary'], output_format='html5'),
                 triggers=skill['triggers']
             )
             search_term_match = (
@@ -51,7 +56,13 @@ class SkillSummaryView(SeleneBaseView):
                 self.search_term in skill['title'].lower()
             )
             if search_term_match:
-                skill_category = skill.get('category', UNDEFINED)
+                # a skill may have many categories.  the first one in the
+                # list is considered the "primary" category.  This is the
+                # category the marketplace will use to group the skill.
+                if skill['categories']:
+                    skill_category = skill['categories'][0]
+                else:
+                    skill_category = UNDEFINED
                 self.response_data[skill_category].append(skill_summary)
 
     def _sort_skills(self):

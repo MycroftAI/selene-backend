@@ -12,7 +12,6 @@ import { faMicrophoneAlt } from "@fortawesome/free-solid-svg-icons";
     styleUrls: ['./skill-card-header.component.scss']
 })
 export class SkillCardHeaderComponent implements OnInit {
-    public skillIcon = faMicrophoneAlt;
     @Input() public skill: Skill;
     public isMycroftMade: boolean;
 
@@ -22,7 +21,8 @@ export class SkillCardHeaderComponent implements OnInit {
      * Include the Mycroft AI logo in the card header if Mycroft authored the skill
      */
     ngOnInit() {
-        this.isMycroftMade = this.skill.author.toLowerCase().includes('mycroft')
+        if (this.skill.credits) {
+            this.isMycroftMade = this.skill.credits[0]['name'] == 'Mycroft AI';
+        }
     }
-
 }

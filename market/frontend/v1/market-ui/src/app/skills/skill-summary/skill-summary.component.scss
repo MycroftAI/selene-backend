@@ -7,6 +7,7 @@
 mat-card {
     @include card-width;
     border-radius: 10px;
+    cursor: pointer;
     margin: 15px;
     padding: 15px;
     mat-card-title {
@@ -33,4 +34,8 @@ mat-card {
             margin-bottom: 15px;
         }
     }
+}
+
+mat-card:hover{
+  box-shadow: -1px 10px 29px 0px;
 }
