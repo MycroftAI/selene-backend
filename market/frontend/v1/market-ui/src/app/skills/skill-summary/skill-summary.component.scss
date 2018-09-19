@@ -15,19 +15,23 @@ mat-card {
         color: $mycroft-secondary;
         font-family: 'Roboto Mono', monospace;
         font-weight: bold;
+        text-align: center;
     }
     mat-card-subtitle {
         button {
             @include skill-trigger-button;
             @include ellipsis-overflow;
+            @include card-width;
             margin: 0;
-            width: 310px;
         }
     }
     mat-card-content {
         @include ellipsis-overflow;
+        text-align: center;
     }
     mat-card-actions {
+        margin-left: 0;
+        margin-bottom: 0;
         button {
             @include action-button;
             @include card-width;
