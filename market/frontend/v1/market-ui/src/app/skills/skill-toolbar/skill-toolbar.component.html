@@ -7,11 +7,16 @@
             <fa-icon [icon]="searchIcon" (click)="onClick()"></fa-icon>
         </button>
     </div>
-    <mat-form-field class="language-field" fxFlex="20">
-        <mat-select placeholder="Language" [(ngModel)]="selectedLanguage">
-            <mat-option *ngFor="let language of languages" [value]="language.value">
-                {{language.display}}
-            </mat-option>
-        </mat-select>
-    </mat-form-field>
+
+    <!-- commenting out the language picker until such time as there are -->
+    <!-- languages to pick -->
+
+    <!--<mat-form-field class="language-field" fxFlex="20">-->
+        <!--<mat-select placeholder="Language" [(ngModel)]="selectedLanguage">-->
+            <!--<mat-option *ngFor="let language of languages" [value]="language.value">-->
+                <!--{{language.display}}-->
+            <!--</mat-option>-->
+        <!--</mat-select>-->
+    <!--</mat-form-field>-->
+
 </div>
