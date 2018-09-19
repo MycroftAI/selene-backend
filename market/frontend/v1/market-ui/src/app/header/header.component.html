@@ -2,20 +2,25 @@
     <img src="../../assets/header-logo.png">
     <mat-divider [vertical]="true"></mat-divider>
     <div class="mat-subheading-1" style="margin-bottom: 0">MARKETPLACE</div>
+
     <div fxFlex fxLayout="row" fxLayoutAlign="end center">
-        <button mat-button (click)="login()" *ngIf="!isLoggedIn">
-            <fa-icon [icon]="signInIcon"></fa-icon>
-            LOG IN
-        </button>
-        <button mat-button class="menu-button" [matMenuTriggerFor]="menu" *ngIf="isLoggedIn">
-            {{userMenuButtonText}}
-            <fa-icon [icon]="menuButtonIcon"></fa-icon>
-        </button>
-        <mat-menu [overlapTrigger]="false" #menu="matMenu">
-            <button mat-menu-item (click)="logout()">
-                <fa-icon [icon]="signOutIcon"></fa-icon>
-                Logout
-            </button>
-        </mat-menu>
+        <div class="mat-subheading-1" style="margin-bottom: 0">PREVIEW</div>
+
+        <!--commenting out the below code temporarily until the login API is ready-->
+
+        <!--<button mat-button (click)="login()" *ngIf="!isLoggedIn">-->
+            <!--<fa-icon [icon]="signInIcon"></fa-icon>-->
+            <!--LOG IN-->
+        <!--</button>-->
+        <!--<button mat-button class="menu-button" [matMenuTriggerFor]="menu" *ngIf="isLoggedIn">-->
+            <!--{{userMenuButtonText}}-->
+            <!--<fa-icon [icon]="menuButtonIcon"></fa-icon>-->
+        <!--</button>-->
+        <!--<mat-menu [overlapTrigger]="false" #menu="matMenu">-->
+            <!--<button mat-menu-item (click)="logout()">-->
+                <!--<fa-icon [icon]="signOutIcon"></fa-icon>-->
+                <!--Logout-->
+            <!--</button>-->
+        <!--</mat-menu>-->
     </div>
 </mat-toolbar>
