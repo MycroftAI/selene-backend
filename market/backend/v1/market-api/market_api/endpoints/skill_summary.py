@@ -47,8 +47,10 @@ class SkillSummaryView(SeleneBaseView):
                 icon=skill['icon'],
                 icon_image=skill.get('icon_image'),
                 id=skill['id'],
-                title=skill['title'],
+                # TODO remove skill_name when login/install is implemented
+                skill_name=skill['skill_name'],
                 summary=markdown(skill['summary'], output_format='html5'),
+                title=skill['title'],
                 triggers=skill['triggers']
             )
             search_term_match = (

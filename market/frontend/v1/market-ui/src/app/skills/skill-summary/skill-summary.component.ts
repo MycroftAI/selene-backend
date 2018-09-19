@@ -12,6 +12,7 @@ import { SkillsService, Skill } from "../skills.service";
 })
 export class SkillSummaryComponent implements OnInit {
     @Input() public skills: Skill[];
+    private skillToInstall: Skill;
     public voiceIcon = faComment;
 
     constructor(public loginSnackbar: MatSnackBar, private skillsService: SkillsService) { }
@@ -24,6 +25,7 @@ export class SkillSummaryComponent implements OnInit {
      * @param {Skill} skill
      */
     install_skill(skill: Skill) : void {
+        this.skillToInstall = skill;
         this.skillsService.installSkill(skill).subscribe(
             (response) => {
                 this.onInstallSuccess(response)
@@ -53,16 +55,37 @@ export class SkillSummaryComponent implements OnInit {
      * If a user attempts to install a skill without being logged in, show a
      * snackbar to notify the user and give them the ability to log in.
      *
-     * @param response
+     * @param response - object representing the response from the API call
      */
     onInstallFailure(response) : void {
         if (response.status === 401) {
+            let skillNameParts = this.skillToInstall.skill_name.split('-');
+            let installName = [];
+            skillNameParts.forEach(
+                (part) => {
+                    if (part.toLowerCase() != 'mycroft' && part.toLowerCase() != 'skill') {
+                        installName.push(part);
+                    }
+                }
+            );
             this.loginSnackbar.open(
-                'To install a skill, log in to your account.',
-                'LOG IN',
+                'Skill installation functionality coming soon.  ' +
+                    'In the meantime use your voice to install skills ' +
+                    'by saying: "Hey Mycroft, install ' + installName.join(' ') + '"',
+                '',
                 {panelClass: 'mycroft-snackbar', duration: 5000}
 
             );
+
+            // This is the snackbar logic for when the login and install
+            // functionality is in place
+            //
+            // this.loginSnackbar.open(
+            //     'To install a skill, log in to your account.',
+            //     'LOG IN',
+            //     {panelClass: 'mycroft-snackbar', duration: 5000}
+            //
+            // );
         }
     }
 }
