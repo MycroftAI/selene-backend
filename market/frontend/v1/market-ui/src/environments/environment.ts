@@ -7,7 +7,7 @@ export const environment = {
 
     // URL of development API
     apiUrl: 'http://localhost:5000/',
-    loginUrl: 'http://login.mycroft.test'
+    loginUrl: 'http://localhost:4201'
 };
 
 /*
