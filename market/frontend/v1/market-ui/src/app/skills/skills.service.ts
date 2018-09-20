@@ -10,7 +10,7 @@ export class Skill {
     description: string;
     icon: Object;
     icon_image: string;
-    skill_name: string;
+    installed: boolean;
     title: string;
     summary: string;
     repository_url: string;

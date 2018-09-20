@@ -1,7 +1,12 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Subscription } from "rxjs/internal/Subscription";
 
-import { faCaretDown, faSignInAlt, faSignOutAlt } from "@fortawesome/free-solid-svg-icons";
+import {
+    faCaretDown,
+    faCircle,
+    faSignInAlt,
+    faSignOutAlt
+} from "@fortawesome/free-solid-svg-icons";
 
 import { LoginService } from "../shared/login.service";
 
@@ -13,6 +18,7 @@ import { LoginService } from "../shared/login.service";
 export class HeaderComponent implements OnInit, OnDestroy {
     public isLoggedIn: boolean;
     private loginStatus: Subscription;
+    public separatorIcon = faCircle;
     public signInIcon = faSignInAlt;
     public signOutIcon = faSignOutAlt;
     public menuButtonIcon = faCaretDown;

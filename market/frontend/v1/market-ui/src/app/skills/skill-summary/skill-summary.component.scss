@@ -37,6 +37,13 @@ mat-card {
             @include card-width;
             margin-bottom: 15px;
         }
+        .installed-button {
+            background-color: $mycroft-tertiary-green;
+            fa-icon {
+                padding-right: 10px;
+            }
+
+        }
     }
 }
 

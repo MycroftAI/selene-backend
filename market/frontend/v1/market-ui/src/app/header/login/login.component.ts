@@ -30,7 +30,7 @@ export class LoginComponent implements OnInit {
     }
 
     redirectAfterLogin(loginEvent) {
-        if (loginEvent.origin.includes('login.mycroft') && loginEvent.data === 'loggedIn') {
+        if ((loginEvent.origin.includes('login.mycroft') || loginEvent.origin.includes('localhost')) && loginEvent.data === 'loggedIn') {
             this.loginService.setLoginStatus();
             if (this.loginService.isLoggedIn) {
                 let redirect = this.loginService.redirectUrl ? this.loginService.redirectUrl : '/';
