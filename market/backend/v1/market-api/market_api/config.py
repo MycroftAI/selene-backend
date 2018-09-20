@@ -23,12 +23,16 @@ class TestConfig(BaseConfig):
     pass
 
 
+class ProdConfig(BaseConfig):
+    pass
+
+
 def get_config_location():
     """Determine which config to load based on environment"""
     environment_configs = dict(
         dev='market_api.config.DevelopmentConfig',
         test=TestConfig,
-        # prod=ProdConfig
+        prod=ProdConfig
     )
 
     try:
