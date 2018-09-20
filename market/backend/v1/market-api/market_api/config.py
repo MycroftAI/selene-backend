@@ -10,20 +10,24 @@ class BaseConfig:
     """Base configuration."""
     DEBUG = False
     SECRET_KEY = os.environ['JWT_SECRET']
+    SELENE_BASE_URL = os.environ['SELENE_BASE_URL']
+    TARTARUS_BASE_URL = os.environ['TARTARUS_BASE_URL']
 
 
 class DevelopmentConfig(BaseConfig):
     """Development configuration."""
     DEBUG = True
-    SELENE_BASE_URL = os.environ['SELENE_BASE_URL']
-    TARTARUS_BASE_URL = os.environ['TARTARUS_BASE_URL']
+
+
+class TestConfig(BaseConfig):
+    pass
 
 
 def get_config_location():
     """Determine which config to load based on environment"""
     environment_configs = dict(
         dev='market_api.config.DevelopmentConfig',
-        # test=TestConfig,
+        test=TestConfig,
         # prod=ProdConfig
     )
 
