@@ -1,5 +1,6 @@
 """Endpoint to provide skill summary data to the marketplace."""
 from collections import defaultdict
+from http import HTTPStatus
 
 from flask import request, current_app
 from markdown import markdown
@@ -64,10 +65,11 @@ class SkillSummaryView(SeleneBaseView):
                 service_url,
                 headers=service_request_headers
             )
-            # self.check_for_tartarus_errors(service_url)
-            response_skills = user_service_response.json()
-            for skill in response_skills['skills']:
-                installed_skills.append(skill['skill']['name'])
+            if user_service_response.status_code != HTTPStatus.UNAUTHORIZED:
+                # self.check_for_tartarus_errors(service_url)
+                response_skills = user_service_response.json()
+                for skill in response_skills['skills']:
+                    installed_skills.append(skill['skill']['name'])
 
         return installed_skills
 
