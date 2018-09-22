@@ -39,7 +39,7 @@ class SeleneBaseView(Resource):
         self.user_uuid: str = None
         self.user_is_authenticated: bool = False
 
-    def get(self):
+    def get(self, *args):
         self._build_method_not_allowed_response('GET')
 
     def post(self):
