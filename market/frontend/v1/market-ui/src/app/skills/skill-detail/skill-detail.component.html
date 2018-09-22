@@ -1,25 +1,34 @@
-<div fxLayout="row" fxLayoutAlign="center">
-    <div class="skill-detail" *ngIf="skill$ | async as skill">
+<div class="skill-detail" *ngIf="skill$ | async as skill">
+    <button mat-icon-button class="back-button" [routerLink]="['/skills']">
+        <fa-icon [icon]="backArrow"></fa-icon>
+        Back to Summary
+    </button>
+    <!-- Header block -->
+    <div class="skill-detail-header" fxLayout="row wrap">
 
-        <!-- Header block -->
-        <div class="skill-detail-header" fxLayout="row wrap">
-            <div class="skill-detail-header-left">
-                <h1>
-                    <!-- there cannot be an icon and an icon_image.  show the
-                         image if it exists otherwise show the icon -->
-                    <img *ngIf="skill.icon_image" src={{skill.icon_image}} height="30" width="30">
-                    <fa
-                        *ngIf="!skill.icon_image"
-                        [ngStyle]="{'color': skill.icon.color}"
-                        name={{skill.icon.icon}}
-                    >
-                    </fa>
-                    {{skill.title}}
-                </h1>
-                <div class="mat-subheading-1" [innerHTML]="skill.summary"></div>
-            </div>
-            <div class="skill-detail-header-right">
+        <!-- Left Side -->
+        <div class="skill-detail-header-left" fxFlex>
+            <h1>
+                <!-- there cannot be an icon and an icon_image.  show the
+                     image if it exists otherwise show the icon -->
+                <img *ngIf="skill.icon_image" src={{skill.icon_image}} height="30" width="30">
+                <fa
+                    *ngIf="!skill.icon_image"
+                    [ngStyle]="{'color': skill.icon.color}"
+                    name={{skill.icon.icon}}
+                >
+                </fa>
+                {{skill.title}}
+            </h1>
+            <div class="mat-body-2" [innerHTML]="skill.summary"></div>
+        </div>
+
+        <!-- Right Side -->
+        <div class="skill-detail-header-right" fxFlex="30">
+            <div class="install-button">
                 <button mat-button>INSTALL</button>
+            </div>
+            <div>
                 <button
                     mat-flat-button
                     class="github-button"
@@ -31,55 +40,59 @@
             </div>
         </div>
 
-        <!-- Detail block -->
-        <div class="skill-detail-body" fxLayout="row">
-            <!-- Left Side -->
-            <div class="skill-detail-body-left">
-                <div class="skill-detail-section">
-                    <div class="mat-subheading-1">HEY MYCROFT</div>
-                    <button mat-flat-button [disabled]="true" *ngFor="let trigger of skill.triggers">
-                        <fa-icon [icon]="triggerIcon"></fa-icon>
-                        {{trigger}}
-                    </button>
-                </div>
-                <div class="skill-detail-section">
-                    <div class="mat-subheading-1">DESCRIPTION</div>
-                    <div class="mat-body-1" [innerHTML]="skill.description"></div>
-                </div>
-                <div class="skill-detail-section">
-                    <div class="mat-subheading-1">CREDITS</div>
-                    <div *ngFor="let credit of skill.credits">
-                        <div class="mat-body-1">{{credit.name}}</div>
-                    </div>
-                </div>
+    </div>
+
+    <!-- Detail block -->
+    <div class="skill-detail-body" fxLayout="row wrap">
+
+        <!-- Left Side -->
+        <div class="skill-detail-body-left" fxFlex>
+            <div class="skill-detail-section">
+                <div class="mat-subheading-1">HEY MYCROFT</div>
+                <button mat-flat-button [disabled]="true" *ngFor="let trigger of skill.triggers">
+                    <fa-icon [icon]="triggerIcon"></fa-icon>
+                    {{trigger}}
+                </button>
             </div>
-            <!-- Right Side -->
-            <div class="skill-detail-body-right">
-                <div class="skill-detail-section">
-                    <div class="mat-subheading-1">SUPPORTED DEVICES</div>
-                    <div class="mat-body-1" fxLayoutAlign="none center">
-                        <img src="../../../assets/mark-1-icon.svg">
-                        Mark I
-                    </div>
-                    <div class="mat-body-1" fxLayoutAlign="none center">
-                        <img src="../../../assets/mark-2-icon.svg">
-                        Mark II
-                    </div>
-                    <div class="mat-body-1" fxLayoutAlign="none center">
-                        <img src="../../../assets/picroft-icon.svg">
-                        Picroft
-                    </div>
-                </div>
-                <div class="skill-detail-section">
-                    <div class="mat-subheading-1">SUPPORTED LANGUAGES</div>
-                    <div class="mat-body-1">English</div>
-                </div>
-                <div class="skill-detail-section">
-                    <div class="mat-subheading-1">CATEGORY</div>
-                    <div class="mat-body-1">{{skill.categories[0]}}</div>
+            <div>
+                <div class="mat-subheading-1">DESCRIPTION</div>
+                <div class="mat-body-1" [innerHTML]="skill.description"></div>
+            </div>
+            <div>
+                <div class="mat-subheading-1">CREDITS</div>
+                <div *ngFor="let credit of skill.credits">
+                    <div class="mat-body-1">{{credit.name}}</div>
                 </div>
             </div>
         </div>
 
+        <!-- Right Side -->
+        <div class="skill-detail-body-right" fxFlex="30">
+            <div>
+                <div class="mat-subheading-1">SUPPORTED DEVICES</div>
+                <div class="mat-body-1" fxLayoutAlign="none center">
+                    <img src="../../../assets/mark-1-icon.svg">
+                    Mark I
+                </div>
+                <div class="mat-body-1" fxLayoutAlign="none center">
+                    <img src="../../../assets/mark-2-icon.svg">
+                    Mark II
+                </div>
+                <div class="mat-body-1" fxLayoutAlign="none center">
+                    <img src="../../../assets/picroft-icon.svg">
+                    Picroft
+                </div>
+            </div>
+            <div>
+                <div class="mat-subheading-1">SUPPORTED LANGUAGES</div>
+                <div class="mat-body-1">English</div>
+            </div>
+            <div class="skill-detail-section">
+                <div class="mat-subheading-1">CATEGORY</div>
+                <div class="mat-body-1">{{skill.categories[0]}}</div>
+            </div>
+        </div>
+
     </div>
+
 </div>

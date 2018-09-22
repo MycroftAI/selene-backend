@@ -1,31 +1,29 @@
 @import '../../../stylesheets/global';
 
+.back-button {
+    color: $mycroft-dark-grey;
+}
 .skill-detail {
     max-width: 1000px;
+    margin: 0 auto;
     .skill-detail-header {
         background-color: $mycroft-blue-grey;
         border-top-left-radius: 10px;
         border-top-right-radius: 10px;
-        height: 150px;
-        padding: 30px;
+        padding: 20px;
         .skill-detail-header-left {
             color: $mycroft-secondary;
-            width: 70%;
+            min-width: 330px;
+            margin-right: 20px;
             h1 {
                 font-family: 'Roboto Mono', monospace;
-                margin-bottom: 15px;
-                margin-top: 0;
-            }
-            .mat-subheading-1 {
-                padding-right: 30px;
-                @include ellipsis-overflow
+                margin: 0;
             }
         }
         .skill-detail-header-right {
-            width: 30%;
+            margin-right: 20px;
             button {
                 @include action-button;
-                margin-top: 5px;
                 width: 160px;
             }
             .github-button {
@@ -41,27 +39,29 @@
         background-color: $mycroft-white;
         border-bottom-left-radius: 10px;
         border-bottom-right-radius: 10px;
-        padding: 30px;
+        padding: 20px;
         .mat-subheading-1 {
-            color: $mycroft-dark-grey
+            color: $mycroft-dark-grey;
+            margin-bottom: 10px;
+        }
+        .mat-body-1 {
+            margin-bottom: 20px;
         }
         .skill-detail-body-left {
-            width: 70%;
+            min-width: 330px;
+            margin-right: 20px;
             button {
                 @include skill-trigger-button;
                 @include ellipsis-overflow;
-                max-width: 100%;
+                max-width: 330px;
             }
         }
         .skill-detail-body-right {
-            width: 30%;
+            margin-right: 20px;
+            white-space: nowrap;
             img {
-                padding-right: 15px;
+                padding-right: 10px;
             }
-        }
-        .skill-detail-section {
-            padding-bottom: 30px;
-            padding-right: 30px;
         }
     }
 }
