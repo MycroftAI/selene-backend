@@ -1,11 +1,11 @@
-<div class="skill-toolbar" fxLayout="row">
-    <div fxFlex="80" (keydown.enter)="onClick()">
-        <mat-form-field class="search-field">
-            <input matInput placeholder="Search" type="text" [(ngModel)]="searchTerm">
+<div fxLayout="row" fxLayoutAlign="center" class="skill-toolbar">
+    <div fxFlex="60" (keydown.enter)="searchSkills()" class="search-field">
+        <mat-form-field>
+            <input matInput placeholder="Search Skills" type="text" [(ngModel)]="searchTerm">
+            <button mat-icon-button matSuffix="">
+                <fa-icon [icon]="searchIcon" (click)="searchSkills()"></fa-icon>
+            </button>
         </mat-form-field>
-        <button mat-icon-button>
-            <fa-icon [icon]="searchIcon" (click)="onClick()"></fa-icon>
-        </button>
     </div>
 
     <!-- commenting out the language picker until such time as there are -->
