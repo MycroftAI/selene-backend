@@ -54,11 +54,11 @@
                     {{trigger}}
                 </button>
             </div>
-            <div>
+            <div class="skill-detail-section">
                 <div class="mat-subheading-1">DESCRIPTION</div>
                 <div class="mat-body-1" [innerHTML]="skill.description"></div>
             </div>
-            <div>
+            <div class="skill-detail-section">
                 <div class="mat-subheading-1">CREDITS</div>
                 <div *ngFor="let credit of skill.credits">
                     <div class="mat-body-1">{{credit.name}}</div>
@@ -68,7 +68,7 @@
 
         <!-- Right Side -->
         <div class="skill-detail-body-right" fxFlex="30">
-            <div>
+            <div class="skill-detail-section">
                 <div class="mat-subheading-1">SUPPORTED DEVICES</div>
                 <div class="mat-body-1" fxLayoutAlign="none center">
                     <img src="../../../assets/mark-1-icon.svg">
@@ -83,7 +83,7 @@
                     Picroft
                 </div>
             </div>
-            <div>
+            <div  class="skill-detail-section">
                 <div class="mat-subheading-1">SUPPORTED LANGUAGES</div>
                 <div class="mat-body-1">English</div>
             </div>
