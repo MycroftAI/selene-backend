@@ -1,6 +1,6 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 
-import { faSearch, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { faSearch } from '@fortawesome/free-solid-svg-icons';
 
 import { SkillsService } from "../skills.service";
 
@@ -21,17 +21,6 @@ export class SkillToolbarComponent implements OnInit {
     constructor(private skillsService: SkillsService) { }
 
     ngOnInit() { }
-
-    onClick(): void {
-        if (this.searchIcon === faSearch) {
-            this.searchSkills();
-            this.searchIcon = faTimes;
-        } else {
-            this.searchTerm = '';
-            this.searchSkills();
-            this.searchIcon = faSearch;
-        }
-    }
 
     searchSkills(): void {
         this.skillsService.searchSkills(this.searchTerm).subscribe(

@@ -1,7 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { MatSnackBar } from "@angular/material";
 
-import { faComment } from '@fortawesome/free-solid-svg-icons';
+import { faCheck, faComment } from '@fortawesome/free-solid-svg-icons';
 
 import { SkillsService, Skill } from "../skills.service";
 
@@ -11,6 +11,7 @@ import { SkillsService, Skill } from "../skills.service";
     styleUrls: ['./skill-summary.component.scss'],
 })
 export class SkillSummaryComponent implements OnInit {
+    public installedIcon = faCheck;
     @Input() public skills: Skill[];
     public voiceIcon = faComment;
 

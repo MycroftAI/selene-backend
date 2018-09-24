@@ -27,6 +27,7 @@ class SeleneBaseView(Resource):
     # The logger is initialized here but this should be overridden with a
     # package-specific logger (e.g. _log = getLogger(__package__)
     _log = getLogger()
+    allowed_methods: str = None
 
     def __init__(self):
         self.base_url = current_app.config['SELENE_BASE_URL']
@@ -36,10 +37,31 @@ class SeleneBaseView(Resource):
         self.selene_token: str = None
         self.service_response = None
         self.user_uuid: str = None
+        self.user_is_authenticated: bool = False
+
+    def get(self, *args):
+        self._build_method_not_allowed_response('GET')
+
+    def post(self):
+        self._build_method_not_allowed_response('POST')
+
+    def put(self):
+        self._build_method_not_allowed_response('PUT')
+
+    def delete(self):
+        self._build_method_not_allowed_response('PUT')
+
+    def _build_method_not_allowed_response(self, method):
+        self.response(
+            'HTTP {method} not implemented'.format(method=method),
+            HTTPStatus.METHOD_NOT_ALLOWED,
+            {'Allow': self.allowed_methods}
+        )
 
     def _authenticate(self):
         self._get_auth_token()
         self._validate_auth_token()
+        self.user_is_authenticated = True
 
     def _get_auth_token(self):
         try:
@@ -83,28 +105,13 @@ class SeleneBaseView(Resource):
         try:
             self._build_response_data()
         except AuthorizationError as ae:
-            self._build_unauthorized_response(str(ae))
+            self.response = (str(ae), HTTPStatus.UNAUTHORIZED)
         except ServiceUrlNotFound as nf:
-            self._build_server_error_response(str(nf))
+            self.response = (str(nf), HTTPStatus.INTERNAL_SERVER_ERROR)
         except ServiceServerError as se:
-            self._build_server_error_response(str(se))
+            self.response = (str(se), HTTPStatus.INTERNAL_SERVER_ERROR)
         else:
-            self._build_success_response()
+            self.response = (self.response_data, HTTPStatus.OK)
 
     def _build_response_data(self):
         raise NotImplementedError
-
-    def _build_unauthorized_response(self, error_message):
-        self.response = (
-            dict(errorMessage=error_message),
-            HTTPStatus.UNAUTHORIZED
-        )
-
-    def _build_server_error_response(self, error_message):
-        self.response = (
-            dict(errorMessage=error_message),
-            HTTPStatus.INTERNAL_SERVER_ERROR
-        )
-
-    def _build_success_response(self):
-            self.response = (self.response_data, HTTPStatus.OK)

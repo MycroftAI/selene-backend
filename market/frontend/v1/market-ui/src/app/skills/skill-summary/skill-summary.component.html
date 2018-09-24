@@ -13,7 +13,17 @@
             <mat-card-content *ngIf="!skill.summary">&nbsp;</mat-card-content>
         </div>
             <mat-card-actions>
-            <button mat-button (click)="install_skill(skill)">INSTALL</button>
+            <button
+                *ngIf="!skill.installed"
+                mat-button
+                (click)="install_skill(skill)"
+            >
+                INSTALL
+            </button>
+            <button *ngIf="skill.installed" mat-button class="installed-button">
+                <fa-icon [icon]="installedIcon"></fa-icon>
+                INSTALLED
+            </button>
         </mat-card-actions>
     </mat-card>
 </div>
