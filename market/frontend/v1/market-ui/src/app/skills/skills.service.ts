@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 
 import { Observable } from 'rxjs';
+import { Subject } from "rxjs/internal/Subject";
 
 export class Skill {
     id: number;
@@ -19,10 +20,11 @@ export class Skill {
 
 @Injectable()
 export class SkillsService {
-    private installUrl = '/api/install-skill';
+    private installUrl = '/api/install';
     private skillUrl = '/api/skill/';
     private skillsUrl = '/api/skills';
     private searchQuery = '?search=';
+    public isFiltered = new Subject<boolean>();
 
     constructor(private http: HttpClient) { }
 
@@ -35,6 +37,7 @@ export class SkillsService {
     }
 
     searchSkills(searchTerm: string): Observable<Skill[]> {
+        this.isFiltered.next(!!searchTerm);
         return this.http.get<Skill[]>(this.skillsUrl + this.searchQuery + searchTerm)
     }
 
@@ -43,6 +46,5 @@ export class SkillsService {
             this.installUrl,
             {skill_url: skill.repository_url}
         )
-
     }
 }
