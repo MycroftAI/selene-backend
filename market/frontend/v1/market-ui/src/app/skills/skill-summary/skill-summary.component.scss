@@ -19,6 +19,7 @@ mat-card {
     }
     mat-card-subtitle {
         .skill-trigger {
+            @include ellipsis-overflow;
             @include skill-trigger;
         }
     }
