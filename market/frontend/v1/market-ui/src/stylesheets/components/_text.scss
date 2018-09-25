@@ -1,5 +1,19 @@
+@import "../base/mycroft-colors";
+
 @mixin ellipsis-overflow {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+
+@mixin skill-trigger {
+    background-color: $mycroft-blue-grey;
+    border-radius: 4px;
+    color: $mycroft-secondary;
+    font-weight: normal;
+    padding: 10px;
+    fa-icon {
+        color: $mycroft-primary;
+        margin-right: 5px;
+    }
 }

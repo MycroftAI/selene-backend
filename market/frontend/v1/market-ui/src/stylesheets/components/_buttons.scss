@@ -7,16 +7,3 @@ $button-border-radius: 4px;
     color: $mycroft-white;
     font-weight: normal;
 }
-
-@mixin skill-trigger-button {
-    background-color: $mycroft-blue-grey;
-    border-radius: $button-border-radius;
-    color: $mycroft-secondary;
-    font-weight: normal;
-    margin-bottom: 15px;
-    margin-right: 15px;
-    fa-icon {
-        color: $mycroft-secondary;
-        margin-right: 5px;
-    }
-}
