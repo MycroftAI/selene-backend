@@ -51,9 +51,10 @@
         .skill-detail-body-left {
             min-width: 330px;
             margin-right: 20px;
-            button {
-                @include skill-trigger-button;
-                @include ellipsis-overflow;
+            .skill-trigger {
+                @include skill-trigger;
+                margin-right: 10px;
+                margin-bottom: 10px;
                 max-width: 330px;
             }
         }
