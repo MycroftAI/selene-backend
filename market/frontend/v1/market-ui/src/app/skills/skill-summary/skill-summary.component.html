@@ -3,17 +3,18 @@
         <div [routerLink]="['/skill', skill.id]">
             <market-skill-card-header [skill]="skills[i]"></market-skill-card-header>
             <mat-card-title align="center">{{skill.title}}</mat-card-title>
-            <mat-card-subtitle>
-                <button mat-flat-button [disabled]="true">
+            <mat-card-subtitle fxLayoutAlign="center">
+                <div class="skill-trigger">
                     <fa-icon [icon]="voiceIcon"></fa-icon>
                     {{skill.triggers[0]}}
-                </button>
+                </div>
             </mat-card-subtitle>
             <mat-card-content *ngIf="skill.summary" [innerHTML]="skill.summary"></mat-card-content>
             <mat-card-content *ngIf="!skill.summary">&nbsp;</mat-card-content>
         </div>
             <mat-card-actions>
             <button
+                class="install-button"
                 *ngIf="!skill.installed"
                 mat-button
                 (click)="install_skill(skill)"

@@ -18,11 +18,8 @@ mat-card {
         text-align: center;
     }
     mat-card-subtitle {
-        button {
-            @include skill-trigger-button;
-            @include ellipsis-overflow;
-            @include card-width;
-            margin: 0;
+        .skill-trigger {
+            @include skill-trigger;
         }
     }
     mat-card-content {
@@ -42,11 +39,14 @@ mat-card {
             fa-icon {
                 padding-right: 10px;
             }
-
+        }
+        .install-button:hover {
+            background-color: #fd8e4c;
+            color: #2c3e50;
         }
     }
 }
 
 mat-card:hover{
-  box-shadow: -1px 10px 29px 0px;
+  box-shadow: -1px 5px 15px 0px;
 }
