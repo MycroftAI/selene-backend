@@ -8,8 +8,8 @@ mat-card {
     @include card-width;
     border-radius: 10px;
     cursor: pointer;
-    margin: 15px;
-    padding: 15px;
+    margin: 10px;
+    padding: 18px;
     mat-card-title {
         @include ellipsis-overflow;
         color: $mycroft-secondary;
@@ -24,6 +24,7 @@ mat-card {
         }
     }
     mat-card-content {
+        color: $mycroft-secondary;
         @include ellipsis-overflow;
         text-align: center;
     }
