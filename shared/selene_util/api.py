@@ -1,5 +1,4 @@
 """Reusable code for the API layer"""
-from enum import Enum
 from http import HTTPStatus
 from logging import getLogger
 
@@ -13,14 +12,8 @@ from .auth import decode_auth_token, AuthenticationError
 _log = getLogger()
 
 
-class HTTPMethod(Enum):
-    DELETE = 'DELETE'
-    GET = 'GET'
-    POST = 'POST'
-    PUT = 'PUT'
-
-
 class APIError(Exception):
+    """Raise this exception whenever a non-successful response is built"""
     pass
 
 
@@ -33,57 +26,16 @@ class SeleneBaseView(Resource):
            HTTP methods.  Each list member must be a HTTPMethod enum
         -  override the _build_response_data method
     """
-    allowed_methods: list = None
+    authentication_required: bool = True
+    config = current_app.config
 
     def __init__(self):
-        self.base_url = current_app.config['SELENE_BASE_URL']
-        self.authentication_required: bool = True
+        self.authenticated = False
+        self.request = request
         self.response = None
-        self.response_data = None
         self.selene_token: str = None
-        self.service_response = None
         self.tartarus_token: str = None
         self.user_uuid: str = None
-
-    def get(self, *args):
-        """Handle a HTTP GET request."""
-        self._process_api_request(HTTPMethod.GET)
-        return self.response
-
-    def post(self):
-        """Handle a HTTP POST request."""
-        self._process_api_request(HTTPMethod.POST)
-        return self.response
-
-    def put(self):
-        """Handle a HTTP PUT request."""
-        self._process_api_request(HTTPMethod.PUT)
-        return self.response
-
-    def delete(self):
-        """Handle a HTTP DELETE request."""
-        self._process_api_request(HTTPMethod.DELETE)
-        return self.response
-
-    def _process_api_request(self, http_method):
-        if http_method in self.allowed_methods:
-            try:
-                self._authenticate()
-                if http_method == HTTPMethod.GET:
-                    self._get_requested_data()
-                self._build_response_data()
-            except APIError:
-                # the response object should have been built when the error
-                # was encountered so no action is needed here
-                pass
-            else:
-                self.response = (self.response_data, HTTPStatus.OK)
-        else:
-            self.response = (
-                'HTTP {} not implemented'.format(http_method.value),
-                HTTPStatus.METHOD_NOT_ALLOWED,
-                {'Allow': ','.join(self.allowed_methods)}
-            )
 
     def _authenticate(self):
         """
@@ -95,8 +47,11 @@ class SeleneBaseView(Resource):
             self._get_auth_token()
             self._validate_auth_token()
         except AuthenticationError as ae:
-            self.response = (str(ae), HTTPStatus.UNAUTHORIZED)
-            raise APIError()
+            if self.authentication_required:
+                self.response = (str(ae), HTTPStatus.UNAUTHORIZED)
+                raise APIError()
+        else:
+            self.authenticated = True
 
     def _get_auth_token(self):
         """Get the Selene JWT (and the tartarus token) from cookies.
@@ -121,14 +76,6 @@ class SeleneBaseView(Resource):
             current_app.config['SECRET_KEY']
         )
 
-    def _get_requested_data(self):
-        """Override this method for GET requests."""
-        pass
-
-    def _build_response_data(self):
-        """Override for all HTTP methods; build the response when successful"""
-        raise NotImplementedError
-
     def _check_for_service_errors(self, service_response):
         """Common logic to handle non-successful returns from service calls."""
         if service_response.status_code != HTTPStatus.OK:
@@ -139,5 +86,8 @@ class SeleneBaseView(Resource):
                 )
             )
             _log.error(error_message)
-            self.response = (error_message, HTTPStatus.INTERNAL_SERVER_ERROR)
+            if service_response.status_code == HTTPStatus.UNAUTHORIZED:
+                self.response = (error_message, HTTPStatus.UNAUTHORIZED)
+            else:
+                self.response = (error_message, HTTPStatus.INTERNAL_SERVER_ERROR)
             raise APIError()
