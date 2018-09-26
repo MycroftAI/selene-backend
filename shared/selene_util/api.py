@@ -17,7 +17,7 @@ class APIError(Exception):
     pass
 
 
-class SeleneResource(Resource):
+class SeleneEndpoint(Resource):
     """
     Abstract base class for Selene Flask Restful API calls.
 
