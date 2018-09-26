@@ -2,75 +2,35 @@ from http import HTTPStatus
 from logging import getLogger
 import json
 
-from flask import request, current_app
-from flask_restful import Resource
+from flask import current_app
 import requests
 
-from selene_util.auth import decode_auth_token, AuthorizationError
+from selene_util.api import SeleneBaseView, HTTPMethod, APIError
 
 _log = getLogger(__package__)
 
 
-class ServiceUrlNotFound(Exception):
-    pass
-
-
-class ServiceServerError(Exception):
-    pass
-
-
-class SkillInstallView(Resource):
+class SkillInstallView(SeleneBaseView):
     """
     Install a skill on user device(s).
     """
+    # Implemented as a PUT because installing a skill is actually an update
+    # to the install skill's settings
+    allowed_methods = [HTTPMethod.PUT]
+
     def __init__(self):
-        self.service_response = None
-        self.frontend_response = None
-        self.frontend_response_status_code = HTTPStatus.OK
+        super(SkillInstallView, self).__init__()
         self.user_uuid: str = None
-        self.tartarus_token: str = None
-        self.selene_token: str = None
-        self.device_uuid = None
-        self.installer_skill_settings = []
+        self.device_uuid: str = None
+        self.installer_skill_settings: list = []
+        self.installer_update_response = None
 
-    def put(self):
-        try:
-            self._get_auth_tokens()
-            self._validate_auth_token()
-            self._install_skill()
-        except AuthorizationError as ae:
-            self._build_unauthorized_response(str(ae))
-        except ServiceUrlNotFound as nf:
-            self._build_server_error_response(str(nf))
-        except ServiceServerError as se:
-            self._build_server_error_response(str(se))
-        else:
-            self._build_frontend_response()
-
-        return self.frontend_response
-
-    def _get_auth_tokens(self):
-        try:
-            self.selene_token = request.cookies['seleneToken']
-            self.tartarus_token = request.cookies['tartarusToken']
-        except KeyError:
-            raise AuthorizationError(
-                'no authentication tokens found in request'
-            )
-
-    def _validate_auth_token(self):
-        self.user_uuid = decode_auth_token(
-            self.selene_token,
-            current_app.config['SECRET_KEY']
-        )
-
-    def _install_skill(self):
-        self._get_users_installer_skill_settings()
-        installer_skill = self._find_installer_skill()
+    def _get_data_to_update(self):
+        installed_skills = self._get_installed_skills()
+        installer_skill = self._find_installer_skill(installed_skills)
         self._find_installer_settings(installer_skill)
-        self._update_skill_installer_settings()
 
-    def _get_users_installer_skill_settings(self):
+    def _get_installed_skills(self):
         service_request_headers = {
             'Authorization': 'Bearer ' + self.tartarus_token
         }
@@ -80,16 +40,23 @@ class SkillInstallView(Resource):
             self.user_uuid +
             '/skill'
         )
-        self.service_response = requests.get(
+        user_service_response = requests.get(
             service_url,
             headers=service_request_headers
         )
-        self.check_for_tartarus_errors(service_url)
+        if user_service_response.status_code != HTTPStatus.OK:
+            self._check_for_service_errors(user_service_response)
+        if user_service_response.status_code == HTTPStatus.UNAUTHORIZED:
+            # override response built in _build_service_error_response()
+            # so that user knows there is a authentication issue
+            self.response = (self.response[0], HTTPStatus.UNAUTHORIZED)
+            raise APIError()
 
-    def _find_installer_skill(self):
-        service_response_data = json.loads(self.service_response.content)
+        return json.loads(user_service_response.content)
+
+    def _find_installer_skill(self, installed_skills):
         installer_skill = None
-        for skill in service_response_data['skills']:
+        for skill in installed_skills['skills']:
             if skill['skill']['name'] == 'Installer':
                 self.device_uuid = skill['deviceUuid']
                 installer_skill = skill['skill']
@@ -103,23 +70,30 @@ class SkillInstallView(Resource):
                 if setting['type'] != 'label':
                     self.installer_skill_settings.append(setting)
 
-    def _update_skill_installer_settings(self):
+    def _apply_update(self):
         service_url = current_app.config['TARTARUS_BASE_URL'] + '/skill/field'
         service_request_headers = {
-            'Authorization': 'Bearer ' + self.tartarus_token
+            'Authorization': 'Bearer ' + self.tartarus_token,
+            'Content-Type': 'application/json'
         }
-        self.service_response = requests.patch(
+        service_request_data = json.dumps(self._build_update_request_body())
+        skill_service_response = requests.patch(
             service_url,
-            data=json.dumps(self._build_install_request_body()),
+            data=service_request_data,
             headers=service_request_headers
         )
-        self.check_for_tartarus_errors(service_url)
+        if skill_service_response.status_code != HTTPStatus.OK:
+            self._check_for_service_errors(skill_service_response)
 
-    def _build_install_request_body(self):
+        self.installer_update_response = json.loads(
+            skill_service_response.content
+        )
+
+    def _build_update_request_body(self):
         install_request_body = []
         for setting in self.installer_skill_settings:
             if setting['name'] == 'installer_link':
-                setting_value = 'foo'
+                setting_value = self.request.json['skill_url']
             elif setting['name'] == 'auto_install':
                 setting_value = True
             else:
@@ -130,53 +104,13 @@ class SkillInstallView(Resource):
                 raise ValueError(error_message.format(setting['name']))
             install_request_body.append(
                 dict(
-                    fieldUiud=setting['uuid'],
-                    deviceUuid=self.device_uuid, value=setting_value
+                    fieldUuid=setting['uuid'],
+                    deviceUuid=self.device_uuid,
+                    value=setting_value
                 )
             )
+
         return dict(batch=install_request_body)
 
-    def check_for_tartarus_errors(self, service_url):
-        if self.service_response.status_code == HTTPStatus.UNAUTHORIZED:
-            error_message = 'invalid Tartarus token'
-            _log.error(error_message)
-            raise AuthorizationError(error_message)
-        elif self.service_response.status_code == HTTPStatus.NOT_FOUND:
-            error_message = 'service url {} not found'.format(service_url)
-            _log.error(error_message)
-            raise ServiceUrlNotFound(error_message)
-        elif self.service_response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR:
-            error_message = (
-                'error occurred during GET request to URL ' + service_url
-            )
-            _log.error(error_message)
-            raise ServiceServerError(error_message)
-
-    def _build_unauthorized_response(self, error_message):
-        self.frontend_response = (
-            dict(errorMessage=error_message),
-            HTTPStatus.UNAUTHORIZED
-        )
-
-    def _build_server_error_response(self, error_message):
-        self.frontend_response = (
-            dict(errorMessage=error_message),
-            HTTPStatus.INTERNAL_SERVER_ERROR
-        )
-
-    def _build_frontend_response(self):
-        if self.service_response.status_code == HTTPStatus.OK:
-            service_response_data = json.loads(self.service_response.content)
-            self.frontend_response = (
-                dict(name=service_response_data.get('name')),
-                HTTPStatus.OK
-            )
-        elif self.service_response.status_code == HTTPStatus.NOT_FOUND:
-            error_message = 'service url {} not found'
-            _log.error(error_message)
-            self.frontend_response = (
-                dict(error_message=error_message),
-                HTTPStatus.INTERNAL_SERVER_ERROR
-            )
-        else:
-            self.frontend_response = ({}, self.service_response.status_code)
+    def _build_response_data(self):
+        self.response_data = self.installer_update_response
