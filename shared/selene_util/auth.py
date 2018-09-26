@@ -5,7 +5,7 @@ import jwt
 _log = getLogger(__package__)
 
 
-class AuthorizationError(Exception):
+class AuthenticationError(Exception):
     pass
 
 
@@ -23,10 +23,10 @@ def decode_auth_token(auth_token: str, secret_key: str) -> tuple:
     except jwt.ExpiredSignatureError:
         error_msg = 'Selene token expired'
         _log.info(error_msg)
-        raise AuthorizationError(error_msg)
+        raise AuthenticationError(error_msg)
     except jwt.InvalidTokenError:
         error_msg = 'Invalid Selene token'
         _log.info(error_msg)
-        raise AuthorizationError(error_msg)
+        raise AuthenticationError(error_msg)
 
     return user_uuid
