@@ -20,3 +20,9 @@
     <!--</mat-form-field>-->
 
 </div>
+<div *ngIf="showBackButton">
+    <button mat-icon-button class="back-button" (click)="clearSearch()">
+        <fa-icon [icon]="backArrow"></fa-icon>
+        All Skills
+    </button>
+</div>

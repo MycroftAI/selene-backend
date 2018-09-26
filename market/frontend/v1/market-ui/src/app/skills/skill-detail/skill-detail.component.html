@@ -49,10 +49,12 @@
         <div class="skill-detail-body-left" fxFlex>
             <div class="skill-detail-section">
                 <div class="mat-subheading-1">HEY MYCROFT</div>
-                <button mat-flat-button [disabled]="true" *ngFor="let trigger of skill.triggers">
-                    <fa-icon [icon]="triggerIcon"></fa-icon>
-                    {{trigger}}
-                </button>
+                <div fxLayout="row wrap">
+                    <div class="mat-body-1 skill-trigger" *ngFor="let trigger of skill.triggers">
+                        <fa-icon [icon]="triggerIcon"></fa-icon>
+                        {{trigger}}
+                    </div>
+                </div>
             </div>
             <div class="skill-detail-section">
                 <div class="mat-subheading-1">DESCRIPTION</div>
@@ -60,8 +62,8 @@
             </div>
             <div class="skill-detail-section">
                 <div class="mat-subheading-1">CREDITS</div>
-                <div *ngFor="let credit of skill.credits">
-                    <div class="mat-body-1">{{credit.name}}</div>
+                <div class="mat-body-1" *ngFor="let credit of skill.credits">
+                    {{credit.name}}
                 </div>
             </div>
         </div>
