@@ -119,6 +119,7 @@ class SkillSummaryView(SeleneBaseView):
                 icon_image=skill.get('icon_image'),
                 id=skill['id'],
                 installed=skill['title'] in self.installed_skills,
+                repository_url=skill['repository_url'],
                 summary=markdown(skill['summary'], output_format='html5'),
                 title=skill['title'],
                 triggers=skill['triggers']
