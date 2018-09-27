@@ -12,6 +12,7 @@ certifi = "*"
 gunicorn = "*"
 
 [dev-packages]
+selene-util = {path = "./../../../../shared"}
 
 [requires]
 python_version = "3.7"
