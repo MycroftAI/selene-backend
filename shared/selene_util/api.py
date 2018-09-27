@@ -27,9 +27,9 @@ class SeleneEndpoint(Resource):
         -  override the _build_response_data method
     """
     authentication_required: bool = True
-    config = current_app.config
 
     def __init__(self):
+        self.config = current_app.config
         self.authenticated = False
         self.request = request
         self.response = None
