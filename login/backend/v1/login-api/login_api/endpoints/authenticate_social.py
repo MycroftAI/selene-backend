@@ -15,12 +15,13 @@ class AuthenticateSocialEndpoint(SeleneEndpoint):
     def get(self):
         self._get_tartarus_token()
         self._build_front_end_response()
+        return self.response
 
     def _get_tartarus_token(self):
         args = self.request.args
         if "data" in args:
             self.tartarus_token = args['data']
-            token_json = json.load(self.tartarus_token)
+            token_json = json.loads(self.tartarus_token)
             self.users_uuid = token_json["uuid"]
 
     def _build_front_end_response(self):
