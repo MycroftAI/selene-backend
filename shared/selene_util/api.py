@@ -27,9 +27,9 @@ class SeleneEndpoint(Resource):
         -  override the _build_response_data method
     """
     authentication_required: bool = True
-    config = current_app.config
 
     def __init__(self):
+        self.config = current_app.config
         self.authenticated = False
         self.request = request
         self.response = None
@@ -73,7 +73,7 @@ class SeleneEndpoint(Resource):
         """
         self.user_uuid = decode_auth_token(
             self.selene_token,
-            current_app.config['SECRET_KEY']
+            self.config['SECRET_KEY']
         )
 
     def _check_for_service_errors(self, service_response):

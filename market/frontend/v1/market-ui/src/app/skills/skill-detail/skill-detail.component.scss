@@ -8,14 +8,17 @@
     max-width: 1000px;
     margin: 0 auto;
     .skill-detail-header {
-        background-color: $mycroft-blue-grey;
+        background-color: #f7f9fa;
         border-top-left-radius: 10px;
         border-top-right-radius: 10px;
-        padding: 20px;
+        padding-bottom: 40px;
+        padding-left: 50px;
+        padding-right: 50px;
+        padding-top: 50px;
         .skill-detail-header-left {
             color: $mycroft-secondary;
-            min-width: 330px;
-            margin-right: 20px;
+            min-width: 280px;
+            margin-right: 40px;
             h1 {
                 font-family: 'Roboto Mono', monospace;
                 margin: 0;
@@ -23,13 +26,20 @@
         }
         .skill-detail-header-right {
             margin-right: 20px;
-            button {
+            .install-button {
                 @include action-button;
-                width: 160px;
+                width: 180px;
             }
+            .install-button:hover {
+                background-color: #fd8e4c;
+                color: #2c3e50;
+            }
+
             .github-button {
-                background-color: $mycroft-blue-grey;
+                background-color: #f7f9fa;
                 color: $mycroft-dark-grey;
+                font-weight: normal;
+                width: 180px;
                 fa-icon {
                     padding-right: 5px;
                 }
@@ -40,25 +50,28 @@
         background-color: $mycroft-white;
         border-bottom-left-radius: 10px;
         border-bottom-right-radius: 10px;
-        padding: 20px;
+        padding-bottom: 10px;
+        padding-left: 50px;
+        padding-right: 50px;
+        padding-top: 50px;
         .mat-subheading-1 {
             color: $mycroft-dark-grey;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
         }
         .mat-body-1 {
             color: $mycroft-secondary;
         }
         .skill-detail-section {
-            margin-bottom: 20px;
+            margin-bottom: 30px;
         }
         .skill-detail-body-left {
-            min-width: 330px;
-            margin-right: 20px;
+            min-width: 280px;
+            margin-right: 40px;
             .skill-trigger {
                 @include skill-trigger;
                 margin-right: 10px;
                 margin-bottom: 10px;
-                max-width: 330px;
+                max-width: 280px;
             }
         }
         .skill-detail-body-right {

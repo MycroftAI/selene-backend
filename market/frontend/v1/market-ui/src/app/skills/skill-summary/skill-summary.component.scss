@@ -15,6 +15,7 @@ mat-card {
         color: $mycroft-secondary;
         font-family: 'Roboto Mono', monospace;
         font-weight: bold;
+        padding-bottom: 5px;
         text-align: center;
     }
     mat-card-subtitle {
@@ -50,5 +51,5 @@ mat-card {
 }
 
 mat-card:hover{
-  box-shadow: -1px 5px 15px 0px;
+  box-shadow: 0 10px 20px 0 rgba(0, 0, 0, 0.2);
 }
