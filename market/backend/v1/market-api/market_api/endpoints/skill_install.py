@@ -2,30 +2,36 @@ from http import HTTPStatus
 from logging import getLogger
 import json
 
-from flask import current_app
 import requests
 
-from selene_util.api import SeleneBaseView, HTTPMethod, APIError
+from selene_util.api import SeleneEndpoint, APIError
 
 _log = getLogger(__package__)
 
 
-class SkillInstallView(SeleneBaseView):
+class SkillInstallEndpoint(SeleneEndpoint):
     """
     Install a skill on user device(s).
     """
-    # Implemented as a PUT because installing a skill is actually an update
-    # to the install skill's settings
-    allowed_methods = [HTTPMethod.PUT]
-
     def __init__(self):
-        super(SkillInstallView, self).__init__()
-        self.user_uuid: str = None
+        super(SkillInstallEndpoint, self).__init__()
         self.device_uuid: str = None
         self.installer_skill_settings: list = []
         self.installer_update_response = None
 
-    def _get_data_to_update(self):
+    def put(self):
+        try:
+            self._authenticate()
+            self._get_installer_skill()
+            self._apply_update()
+        except APIError:
+            pass
+        else:
+            self.response = (self.installer_update_response, HTTPStatus.OK)
+
+        return self.response
+
+    def _get_installer_skill(self):
         installed_skills = self._get_installed_skills()
         installer_skill = self._find_installer_skill(installed_skills)
         self._find_installer_settings(installer_skill)
@@ -35,7 +41,7 @@ class SkillInstallView(SeleneBaseView):
             'Authorization': 'Bearer ' + self.tartarus_token
         }
         service_url = (
-            current_app.config['TARTARUS_BASE_URL'] +
+            self.config['TARTARUS_BASE_URL'] +
             '/user/' +
             self.user_uuid +
             '/skill'
@@ -71,7 +77,7 @@ class SkillInstallView(SeleneBaseView):
                     self.installer_skill_settings.append(setting)
 
     def _apply_update(self):
-        service_url = current_app.config['TARTARUS_BASE_URL'] + '/skill/field'
+        service_url = self.config['TARTARUS_BASE_URL'] + '/skill/field'
         service_request_headers = {
             'Authorization': 'Bearer ' + self.tartarus_token,
             'Content-Type': 'application/json'
@@ -111,6 +117,3 @@ class SkillInstallView(SeleneBaseView):
             )
 
         return dict(batch=install_request_body)
-
-    def _build_response_data(self):
-        self.response_data = self.installer_update_response

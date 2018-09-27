@@ -3,54 +3,45 @@ from collections import defaultdict
 from http import HTTPStatus
 from logging import getLogger
 
-from flask import request, current_app
 from markdown import markdown
 import requests as service_request
 
-from selene_util.api import SeleneBaseView, APIError, HTTPMethod
+from selene_util.api import SeleneEndpoint, APIError
 
 UNDEFINED = 'Undefined'
 
 _log = getLogger(__package__)
 
 
-class SkillSummaryView(SeleneBaseView):
-    allowed_methods = [HTTPMethod.GET]
+class SkillSummaryEndpoint(SeleneEndpoint):
+    authentication_required = False
 
     def __init__(self):
-        super(SkillSummaryView, self).__init__()
+        super(SkillSummaryEndpoint, self).__init__()
         self.available_skills = []
         self.installed_skills = []
-        self.response_data = defaultdict(list)
+        self.response_skills = defaultdict(list)
         self.user_is_authenticated: bool = False
 
-    def _authenticate(self):
-        """Override the default behavior of requiring authentication
-
-        The marketplace is viewable without authenticating.  Installing a
-        skill requires authentication though.
-        """
+    def get(self):
         try:
-            super(SkillSummaryView, self)._authenticate()
+            self._authenticate()
+            self._get_skills()
         except APIError:
-            self.response_status = HTTPStatus.OK
-            self.response_error_message = None
+            pass
         else:
-            self.user_is_authenticated = True
+            self._build_response_data()
+            self.response = (self.response_skills, HTTPStatus.OK)
 
-    def _get_requested_data(self):
+        return self.response
+
+    def _get_skills(self):
         self._get_available_skills()
         self._get_installed_skills()
 
-    def _build_response_data(self):
-        """Build the data to include in the response."""
-        skills_to_include = self._filter_skills()
-        self._reformat_skills(skills_to_include)
-        self._sort_skills()
-
     def _get_available_skills(self):
         skill_service_response = service_request.get(
-            self.base_url + '/skill/all'
+            self.config['SELENE_BASE_URL'] + '/skill/all'
         )
         if skill_service_response.status_code != HTTPStatus.OK:
             self._check_for_service_errors(skill_service_response)
@@ -71,7 +62,7 @@ class SkillSummaryView(SeleneBaseView):
                 'Authorization': 'Bearer ' + self.tartarus_token
             }
             service_url = (
-                current_app.config['TARTARUS_BASE_URL'] +
+                self.config['TARTARUS_BASE_URL'] +
                 '/user/' +
                 self.user_uuid +
                 '/skill'
@@ -82,21 +73,22 @@ class SkillSummaryView(SeleneBaseView):
             )
             if user_service_response.status_code != HTTPStatus.OK:
                 self._check_for_service_errors(user_service_response)
-            if user_service_response.status_code == HTTPStatus.UNAUTHORIZED:
-                # override response built in _build_service_error_response()
-                # so that user knows there is a authentication issue
-                self.response = (self.response[0], HTTPStatus.UNAUTHORIZED)
-                raise APIError()
 
             response_skills = user_service_response.json()
             for skill in response_skills['skills']:
                 self.installed_skills.append(skill['skill']['name'])
 
+    def _build_response_data(self):
+        """Build the data to include in the response."""
+        skills_to_include = self._filter_skills()
+        self._reformat_skills(skills_to_include)
+        self._sort_skills()
+
     def _filter_skills(self) -> list:
         skills_to_include = []
         search_term = None
-        if request.query_string:
-            query_string = request.query_string.decode()
+        if self.request.query_string:
+            query_string = self.request.query_string.decode()
             search_term = query_string.lower().split('=')[1]
         for skill in self.available_skills:
             search_term_match = (
@@ -131,10 +123,10 @@ class SkillSummaryView(SeleneBaseView):
                 skill_category = skill['categories'][0]
             else:
                 skill_category = UNDEFINED
-            self.response_data[skill_category].append(skill_summary)
+            self.response_skills[skill_category].append(skill_summary)
 
     def _sort_skills(self):
         """Sort the skills in alphabetical order"""
-        for skill_category, skills in self.response_data.items():
+        for skill_category, skills in self.response_skills.items():
             sorted_skills = sorted(skills, key=lambda skill: skill['title'])
-            self.response_data[skill_category] = sorted_skills
+            self.response_skills[skill_category] = sorted_skills

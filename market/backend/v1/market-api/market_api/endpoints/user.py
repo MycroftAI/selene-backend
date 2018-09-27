@@ -1,55 +1,45 @@
 """API endpoint to return the user's name to the marketplace"""
 from http import HTTPStatus
-import json
 
-from flask import request, current_app
-from flask_restful import Resource
 import requests
 
-from selene_util.auth import decode_auth_token
+from selene_util.api import SeleneEndpoint, APIError
 
 
-class UserView(Resource):
-    """
-    User Login Resource
-    """
+class UserEndpoint(SeleneEndpoint):
+    """Retrieve information about the user based on their UUID"""
     def __init__(self):
-        self.service_response = None
+        super(UserEndpoint, self).__init__()
+        self.user = None
         self.frontend_response = None
 
     def get(self):
-        self._get_user_from_service()
-        self._build_frontend_response()
+        try:
+            self._authenticate()
+            self._get_user()
+        except APIError:
+            pass
+        else:
+            self._build_response()
 
-        return self.frontend_response
+        return self.response
 
-    def _get_user_from_service(self):
-        selene_token = request.cookies.get('seleneToken')
-        user_uuid = decode_auth_token(
-            selene_token,
-            current_app.config['SECRET_KEY']
-        )
-        tartarus_token = request.cookies.get('tartarusToken')
-        service_request_headers = {'Authorization': 'Bearer ' + tartarus_token}
+    def _get_user(self):
+        service_request_headers = {
+            'Authorization': 'Bearer ' + self.tartarus_token
+        }
         service_url = (
-            current_app.config['TARTARUS_BASE_URL'] +
+            self.config['TARTARUS_BASE_URL'] +
             '/user/' +
-            user_uuid
+            self.user_uuid
         )
-        self.service_response = requests.get(
+        user_service_response = requests.get(
             service_url,
             headers=service_request_headers
         )
+        self._check_for_service_errors(user_service_response)
+        self.user = user_service_response.json()
 
-    def _build_frontend_response(self):
-        if self.service_response.status_code == HTTPStatus.OK:
-            service_response_data = json.loads(self.service_response.content)
-            frontend_response_data = dict(
-                name=service_response_data.get('name')
-            )
-        else:
-            frontend_response_data = {}
-        self.frontend_response = (
-            frontend_response_data,
-            self.service_response.status_code
-        )
+    def _build_response(self):
+        response_data = dict(name=self.user['name'])
+        self.response = (response_data, HTTPStatus.OK)
