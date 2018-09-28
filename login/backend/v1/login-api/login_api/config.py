@@ -9,7 +9,7 @@ class BaseConfig:
     """Base configuration."""
     DEBUG = False
     SECRET_KEY = os.environ['JWT_SECRET']
-    SERVICE_API_BASE_URL = os.environ['SERVICE_API_BASE_URL']
+    SELENE_BASE_URL = os.environ['SELENE_BASE_URL']
     TARTARUS_BASE_URL = os.environ['TARTARUS_BASE_URL']
 
 
