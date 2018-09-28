@@ -4,9 +4,9 @@ from flask_restful import Api
 from .endpoints import (
     AuthenticateAntisocialEndpoint,
     AuthenticateSocialEndpoint,
-    AuthorizeFacebookView,
-    AuthorizeGithubView,
-    AuthorizeGoogleView,
+    AuthorizeFacebookEndpoint,
+    AuthorizeGithubEndpoint,
+    AuthorizeGoogleEndpoint,
     LogoutEndpoint
 )
 from .config import get_config_location
@@ -17,9 +17,9 @@ login_api = Api(login, catch_all_404s=True)
 
 # Define the endpoints
 login_api.add_resource(AuthenticateAntisocialEndpoint, '/api/antisocial')
-login_api.add_resource(AuthorizeFacebookView, '/api/social/facebook')
-login_api.add_resource(AuthorizeGithubView, '/api/social/github')
-login_api.add_resource(AuthorizeGoogleView, '/api/social/google')
+login_api.add_resource(AuthorizeFacebookEndpoint, '/api/social/facebook')
+login_api.add_resource(AuthorizeGithubEndpoint, '/api/social/github')
+login_api.add_resource(AuthorizeGoogleEndpoint, '/api/social/google')
 login_api.add_resource(AuthenticateSocialEndpoint, '/api/social')
 login_api.add_resource(LogoutEndpoint, '/api/logout')
 
@@ -38,4 +38,4 @@ def add_cors_headers(response):
     return response
 
 
-login.after_request(add_cors_headers)
+#login.after_request(add_cors_headers)
