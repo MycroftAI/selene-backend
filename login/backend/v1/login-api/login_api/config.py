@@ -9,20 +9,28 @@ class BaseConfig:
     """Base configuration."""
     DEBUG = False
     SECRET_KEY = os.environ['JWT_SECRET']
+    SERVICE_API_BASE_URL = os.environ['SERVICE_API_BASE_URL']
+    TARTARUS_BASE_URL = os.environ['TARTARUS_BASE_URL']
 
 
 class DevelopmentConfig(BaseConfig):
     """Development configuration."""
     DEBUG = True
-    TARTARUS_BASE_URL = 'https://api-test.mycroft.ai/v1'
-    SELENE_BASE_URL = 'https://market-test.mycroft.ai'
+
+
+class TestConfig(BaseConfig):
+    pass
+
+
+class ProdConfig(BaseConfig):
+    pass
 
 
 def get_config_location():
     environment_configs = dict(
         dev='login_api.config.DevelopmentConfig',
-        # test=TestConfig,
-        # prod=ProdConfig
+        test=TestConfig,
+        prod=ProdConfig
     )
 
     try:
