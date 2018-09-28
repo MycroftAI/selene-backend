@@ -1,4 +1,4 @@
 export const environment = {
     production: false,
-    loginUrl: 'http://login.mycroft-test.net'
+    loginUrl: 'https://login.mycroft-test.net'
 };
