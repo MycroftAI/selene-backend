@@ -37,7 +37,7 @@ export class AuthAntisocialComponent implements OnInit {
         document.cookie = 'tartarusToken=' + authResponse.tartarusToken +
             '; expires=' + expirationDate.toUTCString() +
             '; domain=' + domain;
-        window.parent.postMessage('loggedIn', '*')
+        window.history.back();
     }
 
     onAuthFailure(authorizeUserResponse) {
