@@ -51,14 +51,18 @@ export class HeaderComponent implements OnInit, OnDestroy {
     }
 
     logout() {
-        let expiration = new Date();
-        let domain = document.domain.replace('market.', '');
-        document.cookie = 'seleneToken=""' +
-            '; expires=' + expiration.toUTCString() +
-            '; domain=' + domain;
-        document.cookie = 'tartarusToken=""' +
-            '; expires=' + expiration.toUTCString() +
-            '; domain=' + domain;
-        this.loginService.setLoginStatus();
+        this.loginService.logout().subscribe(
+            (response) => {
+                let expiration = new Date();
+                let domain = document.domain.replace('market.', '');
+                document.cookie = 'seleneToken=""' +
+                    '; expires=' + expiration.toUTCString() +
+                    '; domain=' + domain;
+                document.cookie = 'tartarusToken=""' +
+                    '; expires=' + expiration.toUTCString() +
+                    '; domain=' + domain;
+                this.loginService.setLoginStatus();
+            }
+        )
     }
 }
