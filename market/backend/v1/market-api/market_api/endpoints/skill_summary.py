@@ -80,21 +80,32 @@ class SkillSummaryEndpoint(SeleneEndpoint):
 
     def _build_response_data(self):
         """Build the data to include in the response."""
-        skills_to_include = self._filter_skills()
+        if self.request.query_string:
+            skills_to_include = self._filter_skills()
+        else:
+            skills_to_include = self.available_skills
         self._reformat_skills(skills_to_include)
         self._sort_skills()
 
     def _filter_skills(self) -> list:
         skills_to_include = []
-        search_term = None
-        if self.request.query_string:
-            query_string = self.request.query_string.decode()
-            search_term = query_string.lower().split('=')[1]
+
+        query_string = self.request.query_string.decode()
+        search_term = query_string.lower().split('=')[1]
         for skill in self.available_skills:
             search_term_match = (
                 search_term is None or
-                search_term in skill['title'].lower()
+                search_term in skill['title'].lower() or
+                search_term in skill['description'].lower() or
+                search_term in skill['summary'].lower()
             )
+            if skill['categories'] and not search_term_match:
+                search_term_match = (
+                    search_term in skill['categories'][0].lower()
+                )
+            for trigger in skill['triggers']:
+                if search_term in trigger.lower():
+                    search_term_match = True
             if search_term_match:
                 skills_to_include.append(skill)
 
