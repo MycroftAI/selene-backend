@@ -11,8 +11,10 @@ export class AuthResponse {
 
 @Injectable()
 export class AuthService {
-    private antisocialAuthUrl = '/api/auth/antisocial';
-    private facebookAuthUrl = '/api/auth/facebook';
+    private antisocialAuthUrl = '/api/antisocial';
+    private facebookAuthUrl = '/api/social/facebook';
+    private githubAuthUrl = '/api/social/github';
+    private googleAuthUrl = '/api/social/google';
 
     constructor(private http: HttpClient) { }
 
@@ -25,8 +27,15 @@ export class AuthService {
         return this.http.get<AuthResponse>(this.antisocialAuthUrl, {headers: httpHeaders})
     }
 
-    authorizeFacebook(userData: any) {
-        const httpHeaders = new HttpHeaders({'token': userData.token});
-        return this.http.get<AuthResponse>(this.facebookAuthUrl, {headers: httpHeaders})
+    authenticateWithFacebook() {
+        return this.http.get<any>(this.facebookAuthUrl)
+    }
+
+    authenticateWithGithub() {
+        return this.http.get<any>(this.githubAuthUrl)
+    }
+
+    authenticateWithGoogle() {
+        return this.http.get<any>(this.googleAuthUrl)
     }
 }
