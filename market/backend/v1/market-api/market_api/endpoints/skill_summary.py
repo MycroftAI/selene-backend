@@ -116,10 +116,12 @@ class SkillSummaryEndpoint(SeleneEndpoint):
                 title=skill['title'],
                 triggers=skill['triggers']
             )
-            # a skill may have many categories.  the first one in the
-            # list is considered the "primary" category.  This is the
-            # category the marketplace will use to group the skill.
-            if skill['categories']:
+            if 'system' in skill['tags']:
+                skill_category = 'System'
+            elif skill['categories']:
+                # a skill may have many categories.  the first one in the
+                # list is considered the "primary" category.  This is the
+                # category the marketplace will use to group the skill.
                 skill_category = skill['categories'][0]
             else:
                 skill_category = UNDEFINED
