@@ -28,14 +28,14 @@ export class AuthService {
     }
 
     authenticateWithFacebook() {
-        return this.http.get<any>(this.facebookAuthUrl)
+        window.open(this.facebookAuthUrl)
     }
 
     authenticateWithGithub() {
-        return this.http.get<any>(this.githubAuthUrl)
+        window.open(this.githubAuthUrl);
     }
 
     authenticateWithGoogle() {
-        return this.http.get<any>(this.googleAuthUrl)
+        window.open(this.googleAuthUrl)
     }
 }
