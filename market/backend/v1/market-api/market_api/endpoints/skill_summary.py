@@ -8,7 +8,7 @@ import requests as service_request
 
 from selene_util.api import SeleneEndpoint, APIError
 
-UNDEFINED = 'Undefined'
+UNDEFINED = 'Not Categorized'
 
 _log = getLogger(__package__)
 
