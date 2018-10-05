@@ -2,7 +2,8 @@
     <mat-card *ngFor="let skill of skills; let i = index">
         <div [routerLink]="['/skill', skill.id]">
             <market-skill-card-header [skill]="skills[i]"></market-skill-card-header>
-            <mat-card-title align="center">{{skill.title}}</mat-card-title>
+            <mat-card-title *ngIf="skill.title" align="center">{{skill.title}}</mat-card-title>
+            <mat-card-title *ngIf="!skill.title" align="center">&nbsp;</mat-card-title>
             <mat-card-subtitle fxLayoutAlign="center">
                 <div class="skill-trigger">
                     <fa-icon [icon]="voiceIcon"></fa-icon>
