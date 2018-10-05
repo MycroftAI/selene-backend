@@ -18,10 +18,9 @@ class SkillSummaryEndpoint(SeleneEndpoint):
 
     def __init__(self):
         super(SkillSummaryEndpoint, self).__init__()
-        self.available_skills = []
-        self.installed_skills = []
+        self.available_skills: list = []
+        self.installed_skills: list = []
         self.response_skills = defaultdict(list)
-        self.user_is_authenticated: bool = False
 
     def get(self):
         try:
@@ -57,7 +56,7 @@ class SkillSummaryEndpoint(SeleneEndpoint):
         Installed skills will be marked as such in the marketplace so a user
         knows it is already installed.
         """
-        if self.user_is_authenticated:
+        if self.authenticated:
             service_request_headers = {
                 'Authorization': 'Bearer ' + self.tartarus_token
             }
