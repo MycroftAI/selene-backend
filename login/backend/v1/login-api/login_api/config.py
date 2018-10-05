@@ -8,6 +8,7 @@ class LoginConfigException(Exception):
 class BaseConfig:
     """Base configuration."""
     DEBUG = False
+    LOGIN_BASE_URL = os.environ['LOGIN_BASE_URL']
     SECRET_KEY = os.environ['JWT_SECRET']
     SELENE_BASE_URL = os.environ['SELENE_BASE_URL']
     TARTARUS_BASE_URL = os.environ['TARTARUS_BASE_URL']

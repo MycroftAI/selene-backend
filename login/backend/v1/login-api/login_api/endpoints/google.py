@@ -1,14 +1,19 @@
-from flask import current_app, redirect
+"""Endpoint for single sign on through Google"""
+from flask import redirect
+
 from selene_util.api import SeleneEndpoint
 
 
 class AuthorizeGoogleEndpoint(SeleneEndpoint):
 
     def get(self):
-        return self._validate_token()
-
-    def _validate_token(self):
-        tartarus = current_app.config['TARTARUS_BASE_URL']
-        selene = current_app.config['SELENE_BASE_URL']
-        auth_endpoint = f'{tartarus}/social/auth/google?clientUri={selene}/api/social&path=/social/login'
-        return redirect(auth_endpoint)
+        """Call a Tartarus endpoint that will redirect to Google login."""
+        tartarus_auth_endpoint = (
+            '{tartarus_url}/social/auth/google'
+            '?clientUri={login_url}'
+            '&path=/social/login'.format(
+                login_url=self.config['LOGIN_BASE_URL'],
+                tartarus_url=self.config['TARTARUS_BASE_URL']
+            )
+        )
+        return redirect(tartarus_auth_endpoint)
