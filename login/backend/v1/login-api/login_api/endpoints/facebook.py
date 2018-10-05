@@ -9,8 +9,7 @@ class AuthorizeFacebookEndpoint(SeleneEndpoint):
         """Call a Tartarus endpoint that will redirect to Facebook login."""
         tartarus_auth_endpoint = (
             '{tartarus_url}/social/auth/facebook'
-            '?clientUri={login_url}/api/social'
-            '&path=/social/login'.format(
+            '?clientUri={login_url}&path=/social/login'.format(
                 tartarus_url=self.config['TARTARUS_BASE_URL'],
                 login_url=self.config['LOGIN_BASE_URL']
             )

@@ -10,8 +10,7 @@ class AuthorizeGoogleEndpoint(SeleneEndpoint):
         """Call a Tartarus endpoint that will redirect to Google login."""
         tartarus_auth_endpoint = (
             '{tartarus_url}/social/auth/google'
-            '?clientUri={login_url}'
-            '&path=/social/login'.format(
+            '?clientUri={login_url}&path=/social/login'.format(
                 login_url=self.config['LOGIN_BASE_URL'],
                 tartarus_url=self.config['TARTARUS_BASE_URL']
             )
