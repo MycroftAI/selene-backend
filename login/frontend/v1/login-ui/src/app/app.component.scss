@@ -30,9 +30,9 @@ mat-tab-group {
 }
 
 .login-options {
-    border-radius: 10px;
     background-color: $mycroft-white;
-    //height: 485px;
+    border-radius: 10px;
+    box-shadow: 0 1px 5px 0 rgba(0, 0, 0, 0.12);
     width: 320px;
 }
 
