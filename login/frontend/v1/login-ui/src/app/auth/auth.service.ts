@@ -40,11 +40,13 @@ export class AuthService {
     }
 
     authenticateWithFacebook() {
-        window.open(this.facebookAuthUrl)
+        window.open(this.facebookAuthUrl);
+        window.onmessage = (event) => {this.generateSocialLoginTokens(event)};
     }
 
     authenticateWithGithub() {
         window.open(this.githubAuthUrl);
+        window.onmessage = (event) => {this.generateSocialLoginTokens(event)};
     }
 
     authenticateWithGoogle() {
