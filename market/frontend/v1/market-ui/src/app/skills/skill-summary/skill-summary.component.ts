@@ -62,7 +62,6 @@ export class SkillSummaryComponent implements OnInit {
                 'To install a skill, log in to your account.',
                 'LOG IN',
                 {panelClass: 'mycroft-snackbar', duration: 5000}
-
             );
         }
     }
