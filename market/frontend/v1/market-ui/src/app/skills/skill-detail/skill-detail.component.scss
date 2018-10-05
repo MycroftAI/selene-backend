@@ -47,8 +47,8 @@
                 width: 140px;
             }
             .install-button:hover {
-                background-color: #fd8e4c;
-                color: #2c3e50;
+                background-color: $mycroft-tertiary-green;
+                color: $mycroft-secondary;
             }
 
             .github-button {
