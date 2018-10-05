@@ -1,13 +1,73 @@
 @import '../../stylesheets/global';
 
-mat-tab-group {
-    height: 485px;
-    width: 320px;
+button {
+    @include login-button;
 }
 
-.login-options {
-    border-radius: 10px;
+.social {
+    padding: 20px;
+    button {
+        margin-bottom: 15px;
+    }
+    fa-icon {
+        margin-right: 15px;
+        font-size: 28px;
+    }
+    .facebook-button {
+        background-color: #3b5998;
+        padding-left: 5px;
+    }
+    .github-button {
+        background-color: #333333;
+        margin-right: 12px;
+        padding-left: 5px;
+    }
+    .google-button {
+        background-color: #4285F4;
+        padding-left: 1px;
+        img {
+            margin-right: 10px;
+            width: 14%;
+        }
+    }
+}
+
+button {
+    @include login-button;
+}
+
+form {
     background-color: $mycroft-white;
+    border-radius: 10px;
+    padding: 20px;
+    fa-icon {
+        color: $mycroft-dark-grey;
+        margin-right: 15px;
+    }
+    //mat-form-field {
+    //    width: 230px;
+    //}
+    mat-checkbox {
+        color: $mycroft-dark-grey;
+    }
+    .forgot-password {
+        margin-left: 30px;
+    }
+    button {
+        background-color: $mycroft-primary;
+        margin-top: 30px;
+        text-align: center;
+    }
+    button:hover {
+        background-color: #fd8e4c;
+        color: #2c3e50;
+    }
+
+}
+
+.mat-body-2 {
+    color: $mycroft-tertiary-red;
+    padding: 15px;
 }
 
 .mat-subheading-2 {
@@ -15,10 +75,4 @@ mat-tab-group {
     margin-bottom: -15px;
     margin-top: -15px;
     text-align: center;
-}
-
-img {
-    margin-bottom: 50px;
-    margin-top: 50px;
-    width: 600px;
 }

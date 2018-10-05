@@ -1,19 +1,49 @@
-<div fxLayout="column" fxLayoutAlign="center center">
-    <div align="center">
-        <img src="../../assets/mycroft-ai-no-logo.svg"/>
-    </div>
-    <div class="login-options">
-        <mat-tab-group>
-            <mat-tab label="LOG IN">
-                <login-auth-social></login-auth-social>
-                <div class="mat-subheading-2">OR</div>
-                <login-auth-antisocial></login-auth-antisocial>
-            </mat-tab>
-            <!--<mat-tab label="SIGN UP">-->
-                <!--<login-auth-social></login-auth-social>-->
-                <!--<div class="mat-subheading-2">OR</div>-->
-                <!--<login-auth-antisocial></login-auth-antisocial>-->
-            <!--</mat-tab>-->
-        </mat-tab-group>
-    </div>
+<div class="social">
+    <button mat-button class="google-button"  (click)="authenticateGoogle()">
+        <img src="../../../assets/google-logo.svg">
+        Log in with Google
+    </button>
+    <button mat-button class="facebook-button" (click)="authenticateFacebook()">
+        <fa-icon [icon]="facebookIcon"></fa-icon>
+        Continue with Facebook
+    </button>
+    <button mat-button class="github-button" (click)="authenticateGithub()">
+        <fa-icon [icon]="githubIcon"></fa-icon>
+        Log in with GitHub
+    </button>
 </div>
+<div class="mat-subheading-2">OR</div>
+<form
+    fxLayout="column"
+    #loginForm="ngForm"
+    (ngSubmit)="authorizeUser()"
+    (keydown.enter)="authorizeUser()"
+>
+    <mat-form-field>
+        <fa-icon [icon]="usernameIcon" matPrefix></fa-icon>
+        <input
+            id="username"
+            matInput
+            name="username"
+            placeholder="Email or Username"
+            required
+            type="text"
+            [(ngModel)]="username"
+        >
+    </mat-form-field>
+    <mat-form-field>
+        <fa-icon [icon]="passwordIcon" matPrefix></fa-icon>
+        <input
+            id="password"
+            matInput
+            name="password"
+            placeholder="Password"
+            required
+            type="password"
+            [(ngModel)]="password"
+        >
+        <mat-hint>Forgot password?</mat-hint>
+    </mat-form-field>
+    <button mat-button type="submit" class="login-button">LOG IN</button>
+</form>
+<div class="mat-body-2" *ngIf="authFailed">Invalid username/password combination; try again</div>

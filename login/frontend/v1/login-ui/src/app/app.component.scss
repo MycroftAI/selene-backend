@@ -2,24 +2,42 @@
 
 /* Split the screen in half */
 .split {
-  height: 50%;
-  left: 0;
-  overflow-x: hidden;
-  padding-top: 20px;
-  position: fixed;
-  width: 100%;
-  z-index: -1;
+    height: 50%;
+    left: 0;
+    overflow-x: hidden;
+    padding-top: 20px;
+    position: fixed;
+    width: 100%;
+    z-index: -1;
 }
 
-/* Control the top side */
+/* Top Half */
 .top {
-  top: 0;
-  background-color: $mycroft-primary;
+    top: 0;
+    background-color: $mycroft-primary;
 }
 
-/* Control the bottom side */
+/* Bottom Half */
 .bottom {
-  bottom: 0;
-  background-color: #e5e5e5;
+    bottom: 0;
+    background-color: #e5e5e5;
 }
 
+
+mat-tab-group {
+    height: 485px;
+    width: 320px;
+}
+
+.login-options {
+    border-radius: 10px;
+    background-color: $mycroft-white;
+    //height: 485px;
+    width: 320px;
+}
+
+img {
+    margin-bottom: 50px;
+    margin-top: 50px;
+    width: 600px;
+}
