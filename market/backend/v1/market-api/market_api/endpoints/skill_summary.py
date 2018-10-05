@@ -74,7 +74,7 @@ class SkillSummaryEndpoint(SeleneEndpoint):
                 self._check_for_service_errors(user_service_response)
 
             response_skills = user_service_response.json()
-            for skill in response_skills['skills']:
+            for skill in response_skills.get('skills', []):
                 self.installed_skills.append(skill['skill']['name'])
 
     def _build_response_data(self):
