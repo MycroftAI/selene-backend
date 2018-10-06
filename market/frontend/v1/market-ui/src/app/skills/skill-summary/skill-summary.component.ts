@@ -14,6 +14,7 @@ export class SkillSummaryComponent implements OnInit {
     public installedIcon = faCheck;
     @Input() public skills: Skill[];
     public voiceIcon = faComment;
+    private skillInstalling: Skill;
 
     constructor(public loginSnackbar: MatSnackBar, private skillsService: SkillsService) { }
 
@@ -25,6 +26,7 @@ export class SkillSummaryComponent implements OnInit {
      * @param {Skill} skill
      */
     install_skill(skill: Skill) : void {
+        this.skillInstalling = skill;
         this.skillsService.installSkill(skill).subscribe(
             (response) => {
                 this.onInstallSuccess(response)
@@ -45,7 +47,15 @@ export class SkillSummaryComponent implements OnInit {
      * @param response
      */
     onInstallSuccess(response) : void {
-        console.log('success!')
+        this.loginSnackbar.open(
+            'The ' + this.skillInstalling.title + ' skill is ' +
+            'installing.  Please allow up to two minutes for installation' +
+            'to complete before using the skill.  Only one skill can be ' +
+            'installed at a time so please wait before selecting another' +
+            'skill to install',
+            null,
+            {panelClass: 'mycroft-snackbar', duration:20000}
+        );
     }
 
     /**
