@@ -1,15 +1,15 @@
 import { TestBed, inject } from '@angular/core/testing';
 
-import { SkillService } from './skill.service';
+import { SkillsService } from './skills.service';
 
 describe('SkillsService', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [SkillService]
+      providers: [SkillsService]
     });
   });
 
-  it('should be created', inject([SkillService], (service: SkillService) => {
+  it('should be created', inject([SkillsService], (service: SkillsService) => {
     expect(service).toBeTruthy();
   }));
 });

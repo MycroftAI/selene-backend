@@ -4,10 +4,8 @@
 
 export const environment = {
     production: false,
-
-    // URL of development API
-    apiUrl: 'http://localhost:5000/',
-    loginUrl: 'http://login.mycroft.test'
+    apiUrl: 'http://localhost:5002',
+    loginUrl: 'http://localhost:4201'
 };
 
 /*

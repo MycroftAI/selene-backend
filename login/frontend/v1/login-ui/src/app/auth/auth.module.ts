@@ -9,18 +9,16 @@ import {
     MatDividerModule,
     MatFormFieldModule,
     MatInputModule,
-    MatTabsModule
+    MatSnackBarModule
 } from "@angular/material";
 
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 
 import { AuthComponent } from './auth.component';
 import { AuthService } from "./auth.service";
-import { AuthSocialComponent } from './auth-social/auth-social.component';
-import { AuthAntisocialComponent } from './auth-antisocial/auth-antisocial.component';
 
 @NgModule({
-    declarations: [ AuthComponent, AuthSocialComponent, AuthAntisocialComponent ],
+    declarations: [ AuthComponent ],
     exports: [ AuthComponent ],
     imports: [
         CommonModule,
@@ -33,7 +31,7 @@ import { AuthAntisocialComponent } from './auth-antisocial/auth-antisocial.compo
         MatDividerModule,
         MatFormFieldModule,
         MatInputModule,
-        MatTabsModule
+        MatSnackBarModule
     ],
     providers: [ AuthService ]
 })

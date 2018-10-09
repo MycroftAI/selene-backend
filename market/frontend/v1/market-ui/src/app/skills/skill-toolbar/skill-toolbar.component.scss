@@ -1,13 +1,27 @@
 @import '../../../stylesheets/global';
 
+.back-button {
+    color: $mycroft-dark-grey;
+    margin-left: 20px;
+    width: 100px;
+}
+
 fa-icon {
     color: $mycroft-dark-grey;
 }
 
 .skill-toolbar {
     margin-left: 15px;
-    margin-right: 15px;
     .search-field {
-        width: 80%;
+        background-color: white;
+        border-radius: 10px;
+        color: $mycroft-dark-grey;
+        min-width: 330px;
+        padding-left: 20px;
+        padding-right: 20px;
+        padding-top: 10px;
+        mat-form-field {
+            width: 100%;
+        }
     }
 }

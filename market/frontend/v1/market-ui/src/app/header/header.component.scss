@@ -4,16 +4,16 @@ mat-toolbar {
     background-color: $mycroft-primary;
     color: $mycroft-white;
     img {
-        padding-right: 10px;
-        height: 40px;
+        height: 20px;
+        margin-top: -7px;
     }
-    mat-divider {
-        border-color: #FFFFFF;
-        border-top-width: 0;
-        border-right-width: 1px;
-        border-right-style: solid;
-        height: 60%;
-        margin-right: 10px;
+    .separator {
+        font-size: 5px;
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+    .mat-subheading-1 {
+        margin-bottom: 0;
     }
     fa-icon {
         padding-right: 5px;
