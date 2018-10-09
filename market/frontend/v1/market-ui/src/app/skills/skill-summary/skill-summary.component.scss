@@ -8,24 +8,24 @@ mat-card {
     @include card-width;
     border-radius: 10px;
     cursor: pointer;
-    margin: 15px;
-    padding: 15px;
+    margin: 10px;
+    padding: 18px;
     mat-card-title {
         @include ellipsis-overflow;
         color: $mycroft-secondary;
         font-family: 'Roboto Mono', monospace;
         font-weight: bold;
+        padding-bottom: 5px;
         text-align: center;
     }
     mat-card-subtitle {
-        button {
-            @include skill-trigger-button;
+        .skill-trigger {
             @include ellipsis-overflow;
-            @include card-width;
-            margin: 0;
+            @include skill-trigger;
         }
     }
     mat-card-content {
+        color: $mycroft-secondary;
         @include ellipsis-overflow;
         text-align: center;
     }
@@ -37,9 +37,19 @@ mat-card {
             @include card-width;
             margin-bottom: 15px;
         }
+        .installed-button {
+            background-color: $mycroft-tertiary-green;
+            fa-icon {
+                padding-right: 10px;
+            }
+        }
+        .install-button:hover {
+            background-color: $mycroft-tertiary-green;
+            color: $mycroft-secondary;
+        }
     }
 }
 
 mat-card:hover{
-  box-shadow: -1px 10px 29px 0px;
+  box-shadow: 0 10px 20px 0 rgba(0, 0, 0, 0.2);
 }

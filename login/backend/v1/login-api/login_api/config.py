@@ -8,20 +8,30 @@ class LoginConfigException(Exception):
 class BaseConfig:
     """Base configuration."""
     DEBUG = False
+    LOGIN_BASE_URL = os.environ['LOGIN_BASE_URL']
     SECRET_KEY = os.environ['JWT_SECRET']
+    SELENE_BASE_URL = os.environ['SELENE_BASE_URL']
+    TARTARUS_BASE_URL = os.environ['TARTARUS_BASE_URL']
 
 
 class DevelopmentConfig(BaseConfig):
     """Development configuration."""
     DEBUG = True
-    TARTARUS_BASE_URL = 'https://api-test.mycroft.ai/v1'
+
+
+class TestConfig(BaseConfig):
+    pass
+
+
+class ProdConfig(BaseConfig):
+    pass
 
 
 def get_config_location():
     environment_configs = dict(
         dev='login_api.config.DevelopmentConfig',
-        # test=TestConfig,
-        # prod=ProdConfig
+        test=TestConfig,
+        prod=ProdConfig
     )
 
     try:

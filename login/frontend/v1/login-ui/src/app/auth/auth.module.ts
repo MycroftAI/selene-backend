@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from "@angular/forms";
-import { FlexModule } from "@angular/flex-layout";
+import { FlexLayoutModule } from "@angular/flex-layout";
 import { HttpClientModule } from "@angular/common/http";
 import {
     MatButtonModule,
@@ -9,22 +9,20 @@ import {
     MatDividerModule,
     MatFormFieldModule,
     MatInputModule,
-    MatTabsModule
+    MatSnackBarModule
 } from "@angular/material";
 
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 
 import { AuthComponent } from './auth.component';
 import { AuthService } from "./auth.service";
-import { AuthSocialComponent } from './auth-social/auth-social.component';
-import { AuthAntisocialComponent } from './auth-antisocial/auth-antisocial.component';
 
 @NgModule({
-    declarations: [ AuthComponent, AuthSocialComponent, AuthAntisocialComponent ],
+    declarations: [ AuthComponent ],
     exports: [ AuthComponent ],
     imports: [
         CommonModule,
-        FlexModule,
+        FlexLayoutModule,
         FontAwesomeModule,
         FormsModule,
         HttpClientModule,
@@ -33,7 +31,7 @@ import { AuthAntisocialComponent } from './auth-antisocial/auth-antisocial.compo
         MatDividerModule,
         MatFormFieldModule,
         MatInputModule,
-        MatTabsModule
+        MatSnackBarModule
     ],
     providers: [ AuthService ]
 })

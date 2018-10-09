@@ -13,28 +13,6 @@
         <link href="https://fonts.googleapis.com/css?family=Roboto+Mono:300,400,500" rel="stylesheet">
     </head>
     <body>
-        <!-- Facebook SDK -->
-        <script>
-            window.fbAsyncInit = function() {
-                FB.init({
-                      appId      : '2266714353557295',
-                      cookie     : true,
-                      xfbml      : true,
-                      version    : 'v3.1'
-                });
-                FB.AppEvents.logPageView();
-            };
-
-            (function(d, s, id) {
-                 let js, fjs = d.getElementsByTagName(s)[0];
-                 if (d.getElementById(id)) {
-                     return;
-                 }
-                 js = d.createElement(s); js.id = id;
-                 js.src = "https://connect.facebook.net/en_US/sdk.js";
-                 fjs.parentNode.insertBefore(js, fjs);
-            }(document, 'script', 'facebook-jssdk'));
-        </script>
         <app-root></app-root>
     </body>
 </html>

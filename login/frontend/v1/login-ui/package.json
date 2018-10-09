@@ -4,7 +4,9 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve --open --proxy-config proxy.config.json",
-    "build": "ng build",
+    "build-dev": "ng build",
+    "build-test": "ng build",
+    "build-prod": "ng build --prod",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e"
@@ -16,7 +18,7 @@
     "@angular/common": "^6.0.3",
     "@angular/compiler": "^6.0.3",
     "@angular/core": "^6.0.3",
-    "@angular/flex-layout": "^6.0.0-beta.16",
+    "@angular/flex-layout": "6.0.0-beta.16",
     "@angular/forms": "^6.0.3",
     "@angular/http": "^6.0.9",
     "@angular/material": "^6.4.1",
@@ -29,7 +31,7 @@
     "@fortawesome/free-regular-svg-icons": "^5.2.0",
     "@fortawesome/free-solid-svg-icons": "^5.2.0",
     "core-js": "^2.5.4",
-    "rxjs": "^6.0.0",
+    "rxjs": "6.2.2",
     "zone.js": "^0.8.26"
   },
   "devDependencies": {
