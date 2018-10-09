@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from "@angular/forms";
-import { FlexModule } from "@angular/flex-layout";
+import { FlexLayoutModule } from "@angular/flex-layout";
 import { HttpClientModule } from "@angular/common/http";
 import {
     MatButtonModule,
@@ -24,7 +24,7 @@ import { AuthAntisocialComponent } from './auth-antisocial/auth-antisocial.compo
     exports: [ AuthComponent ],
     imports: [
         CommonModule,
-        FlexModule,
+        FlexLayoutModule,
         FontAwesomeModule,
         FormsModule,
         HttpClientModule,
