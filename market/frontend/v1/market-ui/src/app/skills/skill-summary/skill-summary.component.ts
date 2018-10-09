@@ -1,7 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { MatSnackBar } from "@angular/material";
 
-import { faComment } from '@fortawesome/free-solid-svg-icons';
+import { faCheck, faComment } from '@fortawesome/free-solid-svg-icons';
 
 import { SkillsService, Skill } from "../skills.service";
 
@@ -11,9 +11,10 @@ import { SkillsService, Skill } from "../skills.service";
     styleUrls: ['./skill-summary.component.scss'],
 })
 export class SkillSummaryComponent implements OnInit {
+    public installedIcon = faCheck;
     @Input() public skills: Skill[];
-    private skillToInstall: Skill;
     public voiceIcon = faComment;
+    private skillInstalling: Skill;
 
     constructor(public loginSnackbar: MatSnackBar, private skillsService: SkillsService) { }
 
@@ -25,7 +26,7 @@ export class SkillSummaryComponent implements OnInit {
      * @param {Skill} skill
      */
     install_skill(skill: Skill) : void {
-        this.skillToInstall = skill;
+        this.skillInstalling = skill;
         this.skillsService.installSkill(skill).subscribe(
             (response) => {
                 this.onInstallSuccess(response)
@@ -46,7 +47,15 @@ export class SkillSummaryComponent implements OnInit {
      * @param response
      */
     onInstallSuccess(response) : void {
-        console.log('success!')
+        this.loginSnackbar.open(
+            'The ' + this.skillInstalling.title + ' skill is ' +
+            'installing.  Please allow up to two minutes for installation' +
+            'to complete before using the skill.  Only one skill can be ' +
+            'installed at a time so please wait before selecting another' +
+            'skill to install',
+            null,
+            {panelClass: 'mycroft-snackbar', duration:20000}
+        );
     }
 
     /**
@@ -59,33 +68,11 @@ export class SkillSummaryComponent implements OnInit {
      */
     onInstallFailure(response) : void {
         if (response.status === 401) {
-            let skillNameParts = this.skillToInstall.skill_name.split('-');
-            let installName = [];
-            skillNameParts.forEach(
-                (part) => {
-                    if (part.toLowerCase() != 'mycroft' && part.toLowerCase() != 'skill') {
-                        installName.push(part);
-                    }
-                }
-            );
             this.loginSnackbar.open(
-                'Skill installation functionality coming soon.  ' +
-                    'In the meantime use your voice to install skills ' +
-                    'by saying: "Hey Mycroft, install ' + installName.join(' ') + '"',
-                '',
+                'To install a skill, log in to your account.',
+                'LOG IN',
                 {panelClass: 'mycroft-snackbar', duration: 5000}
-
             );
-
-            // This is the snackbar logic for when the login and install
-            // functionality is in place
-            //
-            // this.loginSnackbar.open(
-            //     'To install a skill, log in to your account.',
-            //     'LOG IN',
-            //     {panelClass: 'mycroft-snackbar', duration: 5000}
-            //
-            // );
         }
     }
 }

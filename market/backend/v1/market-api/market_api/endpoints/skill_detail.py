@@ -1,37 +1,47 @@
 """View to return detailed information about a skill"""
+from http import HTTPStatus
+
 from markdown import markdown
 import requests as service_request
 
-from selene_util.api import SeleneBaseView, AuthorizationError
+from selene_util.api import SeleneEndpoint, APIError
 
 
-class SkillDetailView(SeleneBaseView):
+class SkillDetailEndpoint(SeleneEndpoint):
+    authentication_required = False
+
     def __init__(self):
-        super(SkillDetailView, self).__init__()
+        super(SkillDetailEndpoint, self).__init__()
         self.skill_id = None
+        self.response_skill = None
 
     def get(self, skill_id):
-        """Handle and HTTP GET request."""
         self.skill_id = skill_id
         try:
             self._authenticate()
-        except AuthorizationError:
+            self._get_skill_details()
+        except APIError:
             pass
-        self._build_response()
+        else:
+            self._build_response_data()
+            self.response = (self.response_skill, HTTPStatus.OK)
 
         return self.response
 
-    def _build_response_data(self):
+    def _get_skill_details(self):
         """Build the data to include in the response."""
-        self.service_response = service_request.get(
-            self.base_url + '/skill/id/' + self.skill_id
+        skill_service_response = service_request.get(
+            self.config['SELENE_BASE_URL'] + '/skill/id/' + self.skill_id
         )
-        self.response_data = self.service_response.json()
-        self.response_data['description'] = markdown(
-            self.response_data['description'],
+        self._check_for_service_errors(skill_service_response)
+        self.response_skill = skill_service_response.json()
+
+    def _build_response_data(self):
+        self.response_skill['description'] = markdown(
+            self.response_skill['description'],
             output_format='html5'
         )
-        self.response_data['summary'] = markdown(
-            self.response_data['summary'],
+        self.response_skill['summary'] = markdown(
+            self.response_skill['summary'],
             output_format='html5'
         )

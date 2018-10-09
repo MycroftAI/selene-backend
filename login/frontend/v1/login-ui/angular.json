@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "frontend": {
+    "mycroft-login": {
       "root": "",
       "sourceRoot": "src",
       "projectType": "application",

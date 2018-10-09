@@ -16,7 +16,7 @@
     "@angular/common": "^6.0.3",
     "@angular/compiler": "^6.0.3",
     "@angular/core": "^6.0.3",
-    "@angular/flex-layout": "^6.0.0-beta.16",
+    "@angular/flex-layout": "6.0.0-beta.16",
     "@angular/forms": "^6.0.3",
     "@angular/http": "^6.0.9",
     "@angular/material": "^6.4.1",
@@ -29,7 +29,7 @@
     "@fortawesome/free-regular-svg-icons": "^5.2.0",
     "@fortawesome/free-solid-svg-icons": "^5.2.0",
     "core-js": "^2.5.4",
-    "rxjs": "^6.0.0",
+    "rxjs": "6.2.2",
     "zone.js": "^0.8.26"
   },
   "devDependencies": {

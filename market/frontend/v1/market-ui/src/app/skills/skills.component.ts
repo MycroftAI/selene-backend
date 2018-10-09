@@ -27,11 +27,27 @@ export class SkillsComponent implements OnInit {
     }
 
     get_skill_categories(skills): void {
+        let skillCategories = [],
+            systemCategoryFound = false;
         this.skillCategories = [];
         Object.keys(skills).forEach(
-            category_name => {this.skillCategories.push(category_name);}
+            categoryName => {skillCategories.push(categoryName);}
         );
-        this.skillCategories.sort()
+        skillCategories.sort();
+
+        // Make the "System" category display last, if it exists
+        skillCategories.forEach(
+            categoryName => {
+                if (categoryName === 'System') {
+                    systemCategoryFound = true;
+                } else {
+                    this.skillCategories.push(categoryName)
+                }
+            }
+        );
+        if (systemCategoryFound) {
+            this.skillCategories.push('System')
+        }
     }
 
     showSearchResults(searchResults): void {

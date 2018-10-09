@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "624569e9bc0207f58dca3a683d5868e374e78a5be00a34b442aae4a656e4eac2"
+            "sha256": "7cf1dde24d5a966645f3e49d93dde93dad42c6b6fa62f9b254b79d6b58e93e06"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -40,10 +40,11 @@
         },
         "click": {
             "hashes": [
-                "sha256:29f99fc6125fbc931b758dc053b3114e55c77a6e4c6c3a2674a2dc986016381d",
-                "sha256:f15516df478d5a56180fbf80e68f206010e6d160fc39fa508b65e035fd75130b"
+                "sha256:2335065e6395b9e67ca716de5f7526736bfa6ceead690adf616d925bdc622b13",
+                "sha256:5b94b49521f6456670fdb30cd82a4eca9412788a93fa6dd6df72c94d5a8ff2d7"
             ],
-            "version": "==6.7"
+            "markers": "python_version >= '2.7' and python_version != '3.3.*' and python_version != '3.0.*' and python_version != '3.2.*' and python_version != '3.1.*'",
+            "version": "==7.0"
         },
         "flask": {
             "hashes": [
@@ -60,14 +61,6 @@
             ],
             "index": "pypi",
             "version": "==0.3.6"
-        },
-        "gunicorn": {
-            "hashes": [
-                "sha256:aa8e0b40b4157b36a5df5e599f45c9c76d6af43845ba3b3b0efe2c70473c2471",
-                "sha256:fa2662097c66f920f53f70621c6c58ca4a3c4d3434205e608e121b5b3b71f4f3"
-            ],
-            "index": "pypi",
-            "version": "==19.9.0"
         },
         "idna": {
             "hashes": [
@@ -133,6 +126,13 @@
             "markers": "python_version >= '2.6' and python_version != '3.1.*' and python_version != '3.3.*' and python_version < '4' and python_version != '3.0.*' and python_version != '3.2.*'",
             "version": "==1.23"
         },
+        "uwsgi": {
+            "hashes": [
+                "sha256:d2318235c74665a60021a4fc7770e9c2756f9fc07de7b8c22805efe85b5ab277"
+            ],
+            "index": "pypi",
+            "version": "==2.0.17.1"
+        },
         "werkzeug": {
             "hashes": [
                 "sha256:c3fd7a7d41976d9f44db327260e263132466836cef6f91512889ed60ad26557c",
@@ -141,5 +141,9 @@
             "version": "==0.14.1"
         }
     },
-    "develop": {}
+    "develop": {
+        "selene-util": {
+            "path": "./../../../../shared"
+        }
+    }
 }

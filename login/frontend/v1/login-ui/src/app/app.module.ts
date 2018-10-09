@@ -12,7 +12,7 @@ import { AuthModule } from "./auth/auth.module";
         BrowserModule,
         AuthModule,
         BrowserAnimationsModule,
-        FlexModule,
+        FlexModule
     ],
     providers: [ ],
     bootstrap: [ AppComponent ]

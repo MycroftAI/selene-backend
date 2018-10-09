@@ -5,106 +5,89 @@ from logging import getLogger
 from flask import request, current_app
 from flask_restful import Resource
 
-from .auth import decode_auth_token, AuthorizationError
+from .auth import decode_auth_token, AuthenticationError
+
+# The logger is initialized here but this should be overridden with a
+# package-specific logger (e.g. _log = getLogger(__package__)
+_log = getLogger()
 
 
-class ServiceUrlNotFound(Exception):
+class APIError(Exception):
+    """Raise this exception whenever a non-successful response is built"""
     pass
 
 
-class ServiceServerError(Exception):
-    pass
-
-
-class MethodNotAllowedError(Exception):
-    pass
-
-
-class SeleneBaseView(Resource):
+class SeleneEndpoint(Resource):
     """
-    Install a skill on user device(s).
+    Abstract base class for Selene Flask Restful API calls.
+
+    Subclasses must do the following:
+        -  override the allowed_methods class attribute to a list of all allowed
+           HTTP methods.  Each list member must be a HTTPMethod enum
+        -  override the _build_response_data method
     """
-    # The logger is initialized here but this should be overridden with a
-    # package-specific logger (e.g. _log = getLogger(__package__)
-    _log = getLogger()
+    authentication_required: bool = True
 
     def __init__(self):
-        self.base_url = current_app.config['SELENE_BASE_URL']
+        self.config = current_app.config
+        self.authenticated = False
+        self.request = request
         self.response = None
-        self.response_data = None
-        self.tartarus_token: str = None
         self.selene_token: str = None
-        self.service_response = None
+        self.tartarus_token: str = None
         self.user_uuid: str = None
 
     def _authenticate(self):
-        self._get_auth_token()
-        self._validate_auth_token()
+        """
+        Authenticate the user using tokens passed via cookies.
+
+        :raises: APIError()
+        """
+        try:
+            self._get_auth_token()
+            self._validate_auth_token()
+        except AuthenticationError as ae:
+            if self.authentication_required:
+                self.response = (str(ae), HTTPStatus.UNAUTHORIZED)
+                raise APIError()
+        else:
+            self.authenticated = True
 
     def _get_auth_token(self):
+        """Get the Selene JWT (and the tartarus token) from cookies.
+
+        :raises: AuthenticationError
+        """
         try:
             self.selene_token = request.cookies['seleneToken']
             self.tartarus_token = request.cookies['tartarusToken']
         except KeyError:
-            raise AuthorizationError(
+            raise AuthenticationError(
                 'no authentication token found in request'
             )
 
     def _validate_auth_token(self):
+        """Decode the Selene JWT.
+
+        :raises: AuthenticationError
+        """
         self.user_uuid = decode_auth_token(
             self.selene_token,
-            current_app.config['SECRET_KEY']
+            self.config['SECRET_KEY']
         )
 
-    def check_for_service_errors(self, service, response):
-        if response.status_code == HTTPStatus.UNAUTHORIZED:
-            error_message = 'invalid authentication token'
-            self._log.error(error_message)
-            raise AuthorizationError(error_message)
-        elif response.status_code == HTTPStatus.NOT_FOUND:
-            error_message = '{service} service URL {url} not found'.format(
-                service=service,
-                url=response.request.url
-            )
-            self._log.error(error_message)
-            raise ServiceUrlNotFound(error_message)
-        elif response.status_code != HTTPStatus.OK:
+    def _check_for_service_errors(self, service_response):
+        """Common logic to handle non-successful returns from service calls."""
+        if service_response.status_code != HTTPStatus.OK:
             error_message = (
-                '{service} service URL {url} HTTP status {status}'.format(
-                    service=service,
-                    status=response.status_code,
-                    url=response.request.url
+                'service URL {url} returned HTTP status {status}'.format(
+                    status=service_response.status_code,
+                    url=service_response.request.url
                 )
             )
-            self._log.error(error_message)
-            raise ServiceServerError(error_message)
-
-    def _build_response(self):
-        try:
-            self._build_response_data()
-        except AuthorizationError as ae:
-            self._build_unauthorized_response(str(ae))
-        except ServiceUrlNotFound as nf:
-            self._build_server_error_response(str(nf))
-        except ServiceServerError as se:
-            self._build_server_error_response(str(se))
-        else:
-            self._build_success_response()
-
-    def _build_response_data(self):
-        raise NotImplementedError
-
-    def _build_unauthorized_response(self, error_message):
-        self.response = (
-            dict(errorMessage=error_message),
-            HTTPStatus.UNAUTHORIZED
-        )
-
-    def _build_server_error_response(self, error_message):
-        self.response = (
-            dict(errorMessage=error_message),
-            HTTPStatus.INTERNAL_SERVER_ERROR
-        )
-
-    def _build_success_response(self):
-            self.response = (self.response_data, HTTPStatus.OK)
+            _log.error(error_message)
+            if service_response.status_code == HTTPStatus.UNAUTHORIZED:
+                self.response = (error_message, HTTPStatus.UNAUTHORIZED)
+            else:
+                self.response = (error_message, HTTPStatus.INTERNAL_SERVER_ERROR)
+            raise APIError()
