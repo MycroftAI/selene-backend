@@ -160,7 +160,7 @@ class SkillSummaryEndpoint(SeleneEndpoint):
                 icon=skill.icon,
                 iconImage=skill.icon_image,
                 id=skill.id,
-                install_status=install_status,
+                installStatus=install_status,
                 repositoryUrl=skill.repository_url,
                 summary=markdown(skill.summary, output_format='html5'),
                 title=skill.title,

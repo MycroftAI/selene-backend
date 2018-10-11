@@ -74,5 +74,10 @@ class SkillDetailEndpoint(SeleneEndpoint):
                 self.response_skill['summary'],
                 output_format='html5'
             ),
-            install_status=aggregated_manifest_skill.installation,
+            installStatus=aggregated_manifest_skill.installation,
+            repositoryUrl=self.response_skill['repository_url'],
+            iconImage=self.response_skill['icon_image']
         )
+
+        del(self.response_skill['repository_url'])
+        del(self.response_skill['icon_image'])
