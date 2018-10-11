@@ -8,8 +8,12 @@ from typing import List
 from markdown import markdown
 import requests as service_request
 
-from .common import SkillEndpointBase
-from selene_util.api import APIError
+from .common import (
+    aggregate_manifest_skills,
+    call_skill_manifest_endpoint,
+    parse_skill_manifest_response
+)
+from selene_util.api import APIError, SeleneEndpoint
 
 DEFAULT_ICON_COLOR = '#6C7A89'
 DEFAULT_ICON_NAME = 'comment-alt'
@@ -22,18 +26,25 @@ _log = getLogger(__package__)
 @dataclass
 class RepositorySkill(object):
     """Represents a single skill defined in the Mycroft Skills repository."""
-    title: str
-    summary: str
-    description: str
+    branch: str
     categories: List[str]
-    triggers: List[str]
+    created: str
     credits: List[str]
-    tags: List[str]
+    description: str
+    id: str
+    last_update: str
+    platforms: List[str]
+    repository_owner: str
     repository_url: str
-    icon_image: str
+    skill_name: str
+    summary: str
+    tags: List[str]
+    title: str
+    triggers: List[str]
     icon: dict = field(
         default=lambda: dict(icon=DEFAULT_ICON_NAME, color=DEFAULT_ICON_COLOR)
     )
+    icon_image: str = field(default=None)
     marketplace_category: str = field(init=False, default=UNDEFINED_CATEGORY)
 
     def __post_init__(self):
@@ -46,13 +57,14 @@ class RepositorySkill(object):
             self.marketplace_category = self.categories[0]
 
 
-class SkillSummaryEndpoint(SkillEndpointBase):
+class SkillSummaryEndpoint(SeleneEndpoint):
     authentication_required = False
 
     def __init__(self):
         super(SkillSummaryEndpoint, self).__init__()
         self.available_skills: List[RepositorySkill] = []
         self.response_skills = defaultdict(list)
+        self.skills_in_manifests = defaultdict(list)
 
     def get(self):
         try:
@@ -69,8 +81,8 @@ class SkillSummaryEndpoint(SkillEndpointBase):
     def _get_skills(self):
         """Retrieve the skill data that will be used to build the response."""
         self._get_available_skills()
-        if self.authenticated:
-            self._get_skill_manifests()
+        # if self.authenticated:
+        #     self._get_skill_manifests()
 
     def _get_available_skills(self):
         """Retrieve all skills in the skill repository.
@@ -87,6 +99,18 @@ class SkillSummaryEndpoint(SkillEndpointBase):
         self.available_skills = [
             RepositorySkill(**skill) for skill in skill_service_response.json()
         ]
+
+    def _get_skill_manifests(self):
+        service_response = call_skill_manifest_endpoint(
+            self.tartarus_token,
+            self.config['TARTARUS_BASE_URL'],
+            self.user_uuid
+        )
+        if service_response.status_code != HTTPStatus.OK:
+            self._check_for_service_errors(service_response)
+        self.skills_in_manifest = parse_skill_manifest_response(
+            service_response
+        )
 
     def _build_response_data(self):
         """Build the data to include in the response."""
@@ -125,17 +149,19 @@ class SkillSummaryEndpoint(SkillEndpointBase):
     def _reformat_skills(self, skills_to_include: list):
         """Build the response data from the skill service response"""
         for skill in skills_to_include:
-            install_status = self._determine_skill_install_status(skill)
-            is_installed, is_installing, install_failed = install_status
+            install_status = None
+            manifest_skills = self.skills_in_manifests.get(skill.skill_name)
+            if manifest_skills is not None:
+                aggregated_manifest = aggregate_manifest_skills(manifest_skills)
+                install_status = aggregated_manifest.installation
+
             skill_summary = dict(
                 credits=skill.credits,
                 icon=skill.icon,
-                icon_image=skill.icon_image,
-                id=skill['id'],
-                is_installed=is_installed,
-                is_installing=is_installing,
-                install_failed=install_failed,
-                repository_url=skill.repository_url,
+                iconImage=skill.icon_image,
+                id=skill.id,
+                install_status=install_status,
+                repositoryUrl=skill.repository_url,
                 summary=markdown(skill.summary, output_format='html5'),
                 title=skill.title,
                 triggers=skill.triggers

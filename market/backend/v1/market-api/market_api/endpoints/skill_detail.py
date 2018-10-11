@@ -4,11 +4,15 @@ from http import HTTPStatus
 from markdown import markdown
 import requests as service_request
 
-from .common import SkillEndpointBase
-from selene_util.api import APIError
+from .common import (
+    aggregate_manifest_skills,
+    call_skill_manifest_endpoint,
+    parse_skill_manifest_response
+)
+from selene_util.api import APIError, SeleneEndpoint
 
 
-class SkillDetailEndpoint(SkillEndpointBase):
+class SkillDetailEndpoint(SeleneEndpoint):
     """"Supply the data that will populate the skill detail page."""
     authentication_required = False
 
@@ -16,6 +20,7 @@ class SkillDetailEndpoint(SkillEndpointBase):
         super(SkillDetailEndpoint, self).__init__()
         self.skill_id = None
         self.response_skill = None
+        self.manifest_skills = []
 
     def get(self, skill_id):
         """Process an HTTP GET request"""
@@ -40,12 +45,26 @@ class SkillDetailEndpoint(SkillEndpointBase):
         self._check_for_service_errors(skill_service_response)
         self.response_skill = skill_service_response.json()
 
+    def _get_skill_manifests(self):
+        service_response = call_skill_manifest_endpoint(
+            self.tartarus_token,
+            self.config['TARTARUS_BASE_URL'],
+            self.user_uuid
+        )
+        if service_response.status_code != HTTPStatus.OK:
+            self._check_for_service_errors(service_response)
+        skills_in_manifest = parse_skill_manifest_response(
+            service_response
+        )
+        self.manifest_skills = skills_in_manifest[
+            self.response_skill['skill_name']
+        ]
+
     def _build_response_data(self):
         """Make some modifications to the response skill for the marketplace"""
-        install_status = self._determine_skill_install_status(
-            self.response_skill
+        aggregated_manifest_skill = aggregate_manifest_skills(
+            self.manifest_skills
         )
-        is_installed, is_installing, install_failed = install_status
         self.response_skill.update(
             description=markdown(
                 self.response_skill['description'],
@@ -55,7 +74,5 @@ class SkillDetailEndpoint(SkillEndpointBase):
                 self.response_skill['summary'],
                 output_format='html5'
             ),
-            is_installed=is_installed,
-            is_installing=is_installing,
-            install_failed=install_failed
+            install_status=aggregated_manifest_skill.installation,
         )

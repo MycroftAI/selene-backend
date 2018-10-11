@@ -1,10 +1,10 @@
 from collections import defaultdict
-from dataclasses import dataclass, field
-from http import HTTPStatus
+from dataclasses import asdict, dataclass
+from typing import List
 
 import requests as service_request
 
-from selene_util.api import SeleneEndpoint
+VALID_INSTALLATION_VALUES = ('failed', 'installed', 'installing', 'uninstalled')
 
 
 @dataclass
@@ -14,66 +14,75 @@ class ManifestSkill(object):
     Mycroft core keeps a manifest off all skills associated with a device.
     This manifest shows the status of each skill as it relates to the device.
     """
-    name: str
-    installed: bool
-    method: str
-    blocked: bool
-    status: str
     beta: bool
+    failure_message: str
+    installation: str
     installed_on: int
+    name: str
+    origin: str
+    status: str
     updated: int
-    is_installing: bool = field(init=False)
-    install_failed: bool = field(init=False)
-
-    def __post_init__(self):
-        if self.method == 'installing':
-            self.is_installing = True
-        else:
-            self.is_installing = False
-        if self.method == 'failed':
-            self.install_failed = True
-        else:
-            self.install_failed = False
 
 
-class SkillEndpointBase(SeleneEndpoint):
+def call_skill_manifest_endpoint(token: str, base_url: str, user_uuid: str):
+    """Get the skill manifests from each of a user's devices
+
+    The skill manifests will be used to determine the status of each
+    skill as it relates to the marketplace.
+    """
+    service_request_headers = {'Authorization': 'Bearer ' + token}
+    service_url = base_url + '/user/' + user_uuid + '/skillJson'
+    response = service_request.get(
+        service_url,
+        headers=service_request_headers
+    )
+
+    return response
+
+
+def parse_skill_manifest_response(response) -> defaultdict:
+    skills_in_manifests = defaultdict(list)
+    response_skills = response.json()
+    for device in response_skills.get('devices', []):
+        for skill in device['skills']:
+            manifest_skill = ManifestSkill(**skill)
+            skills_in_manifests[manifest_skill.name].append(
+                manifest_skill
+            )
+
+    return skills_in_manifests
+
+
+class SkillManifestAggregator(object):
     """Base class containing functionality shared by summary and detail"""
-    def __init__(self):
-        super(SkillEndpointBase, self).__init__()
-        self.skills_in_manifests = defaultdict(list)
 
-    def _get_skill_manifests(self):
-        """Get the skill manifests from each of a user's devices
+    def __init__(self, manifest_skills: List[ManifestSkill]):
+        self.manifest_skills = manifest_skills
+        self.aggregate_skill = ManifestSkill(**asdict(manifest_skills[0]))
 
-        The skill manifests will be used to determine the status of each
-        skill as it relates to the marketplace.
+    def aggregate_manifest_skills(self):
+        """Aggregate skill data on all devices into a single skill.
+
+        Each skill is represented once on the Marketplace, even though it can
+        be present on multiple devices.
         """
-        service_request_headers = {
-            'Authorization': 'Bearer ' + self.tartarus_token
-        }
-        service_url = (
-            self.config['TARTARUS_BASE_URL'] +
-            '/user/' +
-            self.user_uuid +
-            '/skillJson'
-        )
-        user_service_response = service_request.get(
-            service_url,
-            headers=service_request_headers
-        )
-        if user_service_response.status_code != HTTPStatus.OK:
-            self._check_for_service_errors(user_service_response)
+        self._validate_install_status()
+        self._determine_install_status()
+        if self.aggregate_skill.installation == 'failed':
+            self._determine_failure_reason()
 
-        response_skills = user_service_response.json()
-        for device in response_skills.get('devices', []):
-            for skill in device['skills']:
-                manifest_skill = ManifestSkill(**skill)
-                self.skills_in_manifests[manifest_skill.name].append(
-                    manifest_skill
+    def _validate_install_status(self):
+        for manifest_skill in self.manifest_skills:
+            if manifest_skill.installation not in VALID_INSTALLATION_VALUES:
+                raise ValueError(
+                    '"{install_status}" is not a supported value of the '
+                    'installation field in the skill manifest'.format(
+                        install_status=manifest_skill.installation
+                    )
                 )
 
-    def _determine_skill_install_status(self, skill):
-        """Use skill data from all devices to determine install status
+    def _determine_install_status(self):
+        """Use skill data from all devices to determine install status.
 
         When a skill is installed via the Marketplace, it is installed to all
         devices.  The Marketplace will not mark a skill as "installed" until
@@ -83,16 +92,39 @@ class SkillEndpointBase(SeleneEndpoint):
         If the install fails on any device, the install will be flagged as a
         failed install in the Marketplace.
         """
-        manifest_skill_id = skill['name'] + '.' + skill['github_username']
-        is_installed = False
-        is_installing = False
-        install_failed = False
-        manifest_skills = self.skills_in_manifests[manifest_skill_id]
-        if any([s.install_failed for s in manifest_skills]):
-            install_failed = True
-        elif any([s.is_installing for s in manifest_skills]):
-            is_installing = True
-        elif all([s.is_installed for s in manifest_skills]):
-            is_installed = True
+        failed = [s.installation == 'failed' for s in self.manifest_skills]
+        installing = [
+            s.installation == 'installing' for s in self.manifest_skills
+        ]
+        uninstalling = [
+            s.installation == 'uninstalling' for s in self.manifest_skills
+        ]
+        installed = [
+            s.installation == 'installed' for s in self.manifest_skills
+        ]
+        if any(failed):
+            self.aggregate_skill.installation = 'failed'
+        elif any(installing):
+            self.aggregate_skill.installation = 'installing'
+        elif any(uninstalling):
+            self.aggregate_skill.installation = 'uninstalling'
+        elif all(installed):
+            self.aggregate_skill.installation = 'installed'
 
-        return is_installed, is_installing, install_failed
+    def _determine_failure_reason(self):
+        """When a skill fails to install, determine the reason"""
+        for manifest_skill in self.manifest_skills:
+            if manifest_skill.installation == 'failed':
+                self.aggregate_skill.failure_reason = (
+                    manifest_skill.failure_message
+                )
+                break
+
+
+def aggregate_manifest_skills(
+        manifest_skills: List[ManifestSkill]
+) -> ManifestSkill:
+    skill_aggregator = SkillManifestAggregator(manifest_skills)
+    skill_aggregator.aggregate_manifest_skills()
+
+    return skill_aggregator.aggregate_skill
