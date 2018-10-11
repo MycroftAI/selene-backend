@@ -4,10 +4,12 @@ from http import HTTPStatus
 from markdown import markdown
 import requests as service_request
 
-from selene_util.api import SeleneEndpoint, APIError
+from .common import SkillEndpointBase
+from selene_util.api import APIError
 
 
-class SkillDetailEndpoint(SeleneEndpoint):
+class SkillDetailEndpoint(SkillEndpointBase):
+    """"Supply the data that will populate the skill detail page."""
     authentication_required = False
 
     def __init__(self):
@@ -16,10 +18,12 @@ class SkillDetailEndpoint(SeleneEndpoint):
         self.response_skill = None
 
     def get(self, skill_id):
+        """Process an HTTP GET request"""
         self.skill_id = skill_id
         try:
             self._authenticate()
             self._get_skill_details()
+            self._get_skill_manifests()
         except APIError:
             pass
         else:
@@ -37,11 +41,21 @@ class SkillDetailEndpoint(SeleneEndpoint):
         self.response_skill = skill_service_response.json()
 
     def _build_response_data(self):
-        self.response_skill['description'] = markdown(
-            self.response_skill['description'],
-            output_format='html5'
+        """Make some modifications to the response skill for the marketplace"""
+        install_status = self._determine_skill_install_status(
+            self.response_skill
         )
-        self.response_skill['summary'] = markdown(
-            self.response_skill['summary'],
-            output_format='html5'
+        is_installed, is_installing, install_failed = install_status
+        self.response_skill.update(
+            description=markdown(
+                self.response_skill['description'],
+                output_format='html5'
+            ),
+            summary=markdown(
+                self.response_skill['summary'],
+                output_format='html5'
+            ),
+            is_installed=is_installed,
+            is_installing=is_installing,
+            install_failed=install_failed
         )

@@ -1,25 +1,57 @@
 """Endpoint to provide skill summary data to the marketplace."""
 from collections import defaultdict
+from dataclasses import dataclass, field
 from http import HTTPStatus
 from logging import getLogger
+from typing import List
 
 from markdown import markdown
 import requests as service_request
 
-from selene_util.api import SeleneEndpoint, APIError
+from .common import SkillEndpointBase
+from selene_util.api import APIError
 
-UNDEFINED = 'Not Categorized'
+DEFAULT_ICON_COLOR = '#6C7A89'
+DEFAULT_ICON_NAME = 'comment-alt'
+SYSTEM_CATEGORY = 'System'
+UNDEFINED_CATEGORY = 'Not Categorized'
 
 _log = getLogger(__package__)
 
 
-class SkillSummaryEndpoint(SeleneEndpoint):
+@dataclass
+class RepositorySkill(object):
+    """Represents a single skill defined in the Mycroft Skills repository."""
+    title: str
+    summary: str
+    description: str
+    categories: List[str]
+    triggers: List[str]
+    credits: List[str]
+    tags: List[str]
+    repository_url: str
+    icon_image: str
+    icon: dict = field(
+        default=lambda: dict(icon=DEFAULT_ICON_NAME, color=DEFAULT_ICON_COLOR)
+    )
+    marketplace_category: str = field(init=False, default=UNDEFINED_CATEGORY)
+
+    def __post_init__(self):
+        if 'system' in self.tags:
+            self.marketplace_category = SYSTEM_CATEGORY
+        elif self.categories:
+            # a skill may have many categories.  the first one in the
+            # list is considered the "primary" category.  This is the
+            # category the marketplace will use to group the skill.
+            self.marketplace_category = self.categories[0]
+
+
+class SkillSummaryEndpoint(SkillEndpointBase):
     authentication_required = False
 
     def __init__(self):
         super(SkillSummaryEndpoint, self).__init__()
-        self.available_skills: list = []
-        self.installed_skills: list = []
+        self.available_skills: List[RepositorySkill] = []
         self.response_skills = defaultdict(list)
 
     def get(self):
@@ -35,47 +67,26 @@ class SkillSummaryEndpoint(SeleneEndpoint):
         return self.response
 
     def _get_skills(self):
+        """Retrieve the skill data that will be used to build the response."""
         self._get_available_skills()
-        self._get_installed_skills()
+        if self.authenticated:
+            self._get_skill_manifests()
 
     def _get_available_skills(self):
+        """Retrieve all skills in the skill repository.
+
+        The data is retrieved from a database table that is populated with
+        the contents of a JSON object in the mycroft-skills-data Github
+        repository.  The JSON object contains metadata about each skill.
+        """
         skill_service_response = service_request.get(
             self.config['SELENE_BASE_URL'] + '/skill/all'
         )
         if skill_service_response.status_code != HTTPStatus.OK:
             self._check_for_service_errors(skill_service_response)
-        self.available_skills = skill_service_response.json()
-
-    # TODO: this is a temporary measure until skill IDs can be assigned
-    # the list of installed skills returned by Tartarus are keyed by a value
-    # that is not guaranteed to be the same as the skill title in the skill
-    # metadata.  a skill ID needs to be defined and propagated.
-    def _get_installed_skills(self):
-        """Get the skills a user has already installed on their device(s)
-
-        Installed skills will be marked as such in the marketplace so a user
-        knows it is already installed.
-        """
-        if self.authenticated:
-            service_request_headers = {
-                'Authorization': 'Bearer ' + self.tartarus_token
-            }
-            service_url = (
-                self.config['TARTARUS_BASE_URL'] +
-                '/user/' +
-                self.user_uuid +
-                '/skill'
-            )
-            user_service_response = service_request.get(
-                service_url,
-                headers=service_request_headers
-            )
-            if user_service_response.status_code != HTTPStatus.OK:
-                self._check_for_service_errors(user_service_response)
-
-            response_skills = user_service_response.json()
-            for skill in response_skills.get('skills', []):
-                self.installed_skills.append(skill['skill']['name'])
+        self.available_skills = [
+            RepositorySkill(**skill) for skill in skill_service_response.json()
+        ]
 
     def _build_response_data(self):
         """Build the data to include in the response."""
@@ -87,6 +98,7 @@ class SkillSummaryEndpoint(SeleneEndpoint):
         self._sort_skills()
 
     def _filter_skills(self) -> list:
+        """If search criteria exist, only return those skills that match."""
         skills_to_include = []
 
         query_string = self.request.query_string.decode()
@@ -94,15 +106,15 @@ class SkillSummaryEndpoint(SeleneEndpoint):
         for skill in self.available_skills:
             search_term_match = (
                 search_term is None or
-                search_term in skill['title'].lower() or
-                search_term in skill['description'].lower() or
-                search_term in skill['summary'].lower()
+                search_term in skill.title.lower() or
+                search_term in skill.description.lower() or
+                search_term in skill.summary.lower()
             )
-            if skill['categories'] and not search_term_match:
+            if skill.categories and not search_term_match:
                 search_term_match = (
-                    search_term in skill['categories'][0].lower()
+                    search_term in skill.categories[0].lower()
                 )
-            for trigger in skill['triggers']:
+            for trigger in skill.triggers:
                 if search_term in trigger.lower():
                     search_term_match = True
             if search_term_match:
@@ -113,29 +125,24 @@ class SkillSummaryEndpoint(SeleneEndpoint):
     def _reformat_skills(self, skills_to_include: list):
         """Build the response data from the skill service response"""
         for skill in skills_to_include:
-            if not skill['icon']:
-                skill['icon'] = dict(icon='comment-alt', color='#6C7A89')
+            install_status = self._determine_skill_install_status(skill)
+            is_installed, is_installing, install_failed = install_status
             skill_summary = dict(
-                credits=skill['credits'],
-                icon=skill['icon'],
-                icon_image=skill.get('icon_image'),
+                credits=skill.credits,
+                icon=skill.icon,
+                icon_image=skill.icon_image,
                 id=skill['id'],
-                installed=skill['title'] in self.installed_skills,
-                repository_url=skill['repository_url'],
-                summary=markdown(skill['summary'], output_format='html5'),
-                title=skill['title'],
-                triggers=skill['triggers']
+                is_installed=is_installed,
+                is_installing=is_installing,
+                install_failed=install_failed,
+                repository_url=skill.repository_url,
+                summary=markdown(skill.summary, output_format='html5'),
+                title=skill.title,
+                triggers=skill.triggers
             )
-            if 'system' in skill['tags']:
-                skill_category = 'System'
-            elif skill['categories']:
-                # a skill may have many categories.  the first one in the
-                # list is considered the "primary" category.  This is the
-                # category the marketplace will use to group the skill.
-                skill_category = skill['categories'][0]
-            else:
-                skill_category = UNDEFINED
-            self.response_skills[skill_category].append(skill_summary)
+            self.response_skills[skill.marketplace_category].append(
+                skill_summary
+            )
 
     def _sort_skills(self):
         """Sort the skills in alphabetical order"""
