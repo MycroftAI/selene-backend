@@ -41,9 +41,7 @@ class RepositorySkill(object):
     tags: List[str]
     title: str
     triggers: List[str]
-    icon: dict = field(
-        default=lambda: dict(icon=DEFAULT_ICON_NAME, color=DEFAULT_ICON_COLOR)
-    )
+    icon: dict
     icon_image: str = field(default=None)
     marketplace_category: str = field(init=False, default=UNDEFINED_CATEGORY)
 
@@ -55,6 +53,8 @@ class RepositorySkill(object):
             # list is considered the "primary" category.  This is the
             # category the marketplace will use to group the skill.
             self.marketplace_category = self.categories[0]
+        if not self.icon:
+            self.icon = dict(icon=DEFAULT_ICON_NAME, color=DEFAULT_ICON_COLOR)
 
 
 class SkillSummaryEndpoint(SeleneEndpoint):
@@ -151,7 +151,9 @@ class SkillSummaryEndpoint(SeleneEndpoint):
         for skill in skills_to_include:
             install_status = None
             manifest_skills = self.skills_in_manifests.get(skill.skill_name)
-            if manifest_skills is not None:
+            if skill.marketplace_category == SYSTEM_CATEGORY:
+                install_status = SYSTEM_CATEGORY.lower()
+            elif manifest_skills is not None:
                 aggregated_manifest = aggregate_manifest_skills(manifest_skills)
                 install_status = aggregated_manifest.installation
 
