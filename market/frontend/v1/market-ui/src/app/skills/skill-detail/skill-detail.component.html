@@ -12,9 +12,9 @@
         <div class="skill-detail-header-left" fxFlex>
             <!-- there cannot be an icon and an icon_image.  show the
                  image if it exists otherwise show the icon -->
-            <img *ngIf="skill.icon_image" src={{skill.icon_image}} height="70" width="70">
+            <img *ngIf="skill.iconImage" src={{skill.iconImage}} height="70" width="70">
             <fa
-                *ngIf="!skill.icon_image"
+                *ngIf="!skill.iconImage"
                 [ngStyle]="{'color': skill.icon.color}"
                 name={{skill.icon.icon}}
             >
@@ -34,7 +34,7 @@
                 <button
                     mat-icon-button
                     class="github-button"
-                    (click)="navigateToGithubRepo(skill.repository_url)"
+                    (click)="navigateToGithubRepo(skill.repositoryUrl)"
                 >
                     <fa-icon [icon]="githubIcon"></fa-icon>
                     GitHub Repository
