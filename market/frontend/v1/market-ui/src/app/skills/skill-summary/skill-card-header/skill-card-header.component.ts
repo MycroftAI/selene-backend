@@ -4,7 +4,7 @@
  */
 import { Component, Input, OnInit } from '@angular/core';
 import { Skill } from "../../skills.service";
-import { faMicrophoneAlt } from "@fortawesome/free-solid-svg-icons";
+import { faCheckCircle } from "@fortawesome/free-solid-svg-icons";
 
 @Component({
     selector: 'market-skill-card-header',
@@ -14,6 +14,8 @@ import { faMicrophoneAlt } from "@fortawesome/free-solid-svg-icons";
 export class SkillCardHeaderComponent implements OnInit {
     @Input() public skill: Skill;
     public isMycroftMade: boolean;
+    public isInstalled: boolean;
+    public installedIcon = faCheckCircle;
 
     constructor() { }
 
@@ -23,6 +25,9 @@ export class SkillCardHeaderComponent implements OnInit {
     ngOnInit() {
         if (this.skill.credits) {
             this.isMycroftMade = this.skill.credits[0]['name'] == 'Mycroft AI';
+        }
+        if (this.skill.installStatus === 'installed') {
+            this.isInstalled = true;
         }
     }
 }

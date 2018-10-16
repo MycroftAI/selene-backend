@@ -5,19 +5,14 @@ mat-card-header {
     margin-bottom: 15px;
     .mycroft-icon {
         left: 18px;
-        position: absolute;
         top: 18px;
         img {
             height: 20px;
             width: 20px;
         }
     }
-    .skill-icon {
-        //offset the skill icon by the width of the
-        // mycroft icon to center it on card
-        margin-left: -15px;
-        fa-icon {
-            font-size: 28px;
-        }
+    fa-icon {
+        color: $mycroft-tertiary-green;
+        font-size: 20px;
     }
 }

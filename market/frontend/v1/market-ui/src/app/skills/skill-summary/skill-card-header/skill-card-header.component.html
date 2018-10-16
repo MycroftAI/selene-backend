@@ -1,14 +1,15 @@
-<mat-card-header>
+<div fxLayout="row" fxLayoutAlign="space-between center">
     <div class="mycroft-icon">
         <img src="../../../../assets/mycroft-logo.svg"  *ngIf="isMycroftMade"  matTooltip="Mycroft Made">
     </div>
     <div class="skill-icon">
         <fa
-            *ngIf="!skill.icon_image"
+            *ngIf="!skill.iconImage"
             [ngStyle]="{'color': skill.icon.color}"
             name={{skill.icon.icon}} size="2x"
         >
         </fa>
-        <img *ngIf="skill.icon_image" src={{skill.icon_image}} height="30" width="30">
+        <img *ngIf="skill.iconImage" src={{skill.iconImage}} height="30" width="30">
     </div>
-</mat-card-header>
+    <fa-icon *ngIf="isInstalled" class="installed-icon" [icon]="installedIcon"></fa-icon>
+</div>
