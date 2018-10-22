@@ -30,7 +30,7 @@ class ProdConfig(BaseConfig):
 def get_config_location():
     """Determine which config to load based on environment"""
     environment_configs = dict(
-        dev='market_api.config.DevelopmentConfig',
+        dev=DevelopmentConfig,
         test=TestConfig,
         prod=ProdConfig
     )
