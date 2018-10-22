@@ -1,10 +1,7 @@
-from collections import defaultdict
-from dataclasses import asdict, dataclass, field
+from dataclasses import dataclass, field
 from typing import List
 
 from markdown import markdown
-
-import requests as service_request
 
 DEFAULT_ICON_COLOR = '#6C7A89'
 DEFAULT_ICON_NAME = 'comment-alt'
