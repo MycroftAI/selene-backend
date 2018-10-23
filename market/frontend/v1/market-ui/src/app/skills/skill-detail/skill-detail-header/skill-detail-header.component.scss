@@ -1,0 +1,48 @@
+@import '../../../../stylesheets/global';
+
+.skill-detail-header {
+    background-color: #f7f9fa;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    padding-bottom: 3vh;
+    padding-left: 4vw;
+    padding-right: 4vw;
+    padding-top: 4vh;
+    .skill-detail-header-left {
+        color: $mycroft-secondary;
+        margin-right: 50px;
+        min-width: 340px;
+        fa {
+            font-size: 70px;
+            margin-right: 20px;
+        }
+        img {
+            margin-right: 20px;
+        }
+        h1 {
+            font-family: 'Roboto Mono', monospace;
+            margin-bottom: 10px;
+            margin-top: 0;
+        }
+    }
+    .skill-detail-header-right {
+        margin-right: 20px;
+        .install-button {
+            @include action-button;
+            width: 140px;
+        }
+        .install-button:hover {
+            background-color: $mycroft-tertiary-green;
+            color: $mycroft-secondary;
+        }
+
+        .github-button {
+            color: $mycroft-dark-grey;
+            font-weight: normal;
+            width: 135px;
+            fa-icon {
+                padding-right: 5px;
+            }
+        }
+    }
+}

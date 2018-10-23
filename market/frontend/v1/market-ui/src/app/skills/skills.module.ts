@@ -10,8 +10,10 @@ import { InstallButtonComponent } from './shared/install-button/install-button.c
 import { InstallService } from "./install.service";
 import { MaterialModule } from "../shared/material.module";
 import { SkillCardComponent } from './skill-summary/skill-card/skill-card.component';
+import { SkillDetailBodyComponent } from './skill-detail/skill-detail-body/skill-detail-body.component';
 import { SkillCardHeaderComponent } from "./skill-summary/skill-card/skill-card-header.component";
 import { SkillDetailComponent } from "./skill-detail/skill-detail.component";
+import { SkillDetailHeaderComponent } from './skill-detail/skill-detail-header/skill-detail-header.component';
 import { SkillSearchComponent} from "./skill-summary/skill-search/skill-search.component";
 import { SkillsRoutingModule } from "./skills-routing.module";
 import { SkillsService } from "./skills.service";
@@ -32,6 +34,8 @@ import { SkillSummaryComponent } from "./skill-summary/skill-summary.component";
             SkillCardComponent,
             SkillCardHeaderComponent,
             SkillDetailComponent,
+            SkillDetailBodyComponent,
+            SkillDetailHeaderComponent,
             SkillSearchComponent,
             SkillSummaryComponent,
             InstallButtonComponent
