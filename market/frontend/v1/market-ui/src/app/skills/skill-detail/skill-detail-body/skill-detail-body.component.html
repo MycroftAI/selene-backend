@@ -27,19 +27,19 @@
     <div class="skill-detail-body-right" fxFlex="20">
         <div class="skill-detail-section">
             <div class="mat-subheading-1">supported devices</div>
-            <div class="mat-body-1" fxLayoutAlign="none center">
+            <div *ngIf="skill.worksOnMarkOne" class="mat-body-1" fxLayoutAlign="none center">
                 <img src="../../../../assets/mark-1-icon.svg">
                 Mark I
             </div>
-            <div class="mat-body-1" fxLayoutAlign="none center">
+            <div *ngIf="skill.worksOnMarkTwo" class="mat-body-1" fxLayoutAlign="none center">
                 <img src="../../../../assets/mark-2-icon.svg">
                 Mark II
             </div>
-            <div class="mat-body-1" fxLayoutAlign="none center">
+            <div *ngIf="skill.worksOnPicroft" class="mat-body-1" fxLayoutAlign="none center">
                 <img src="../../../../assets/picroft-icon.svg">
                 Picroft
             </div>
-            <div class="mat-body-1" fxLayoutAlign="none center">
+            <div *ngIf="skill.worksOnKDE" class="mat-body-1" fxLayoutAlign="none center">
                 <img src="../../../../assets/kde.svg" class="kde-icon">
                 KDE
             </div>

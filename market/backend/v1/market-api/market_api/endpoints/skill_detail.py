@@ -56,7 +56,22 @@ class SkillDetailEndpoint(SeleneEndpoint):
             iconImage=repository_skill.icon_image,
             isSystemSkill=repository_skill.is_system_skill,
             name=repository_skill.skill_name,
-            platforms=repository_skill.platforms,
+            worksOnMarkOne=(
+                'all' in repository_skill.platforms or
+                'platform_mark1' in repository_skill.platforms
+            ),
+            worksOnMarkTwo=(
+                'all' in repository_skill.platforms or
+                'platform_mark2' in repository_skill.platforms
+            ),
+            worksOnPicroft=(
+                'all' in repository_skill.platforms or
+                'platform_picroft' in repository_skill.platforms
+            ),
+            worksOnKDE=(
+                'all' in repository_skill.platforms or
+                'platform_plasmoid' in repository_skill.platforms
+            ),
             repositoryUrl=repository_skill.repository_url,
             summary=markdown(
                 repository_skill.summary,

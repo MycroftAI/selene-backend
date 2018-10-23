@@ -30,11 +30,14 @@ export interface SkillDetail {
     iconImage: string;
     isSystemSkill: boolean;
     name: string;
-    platforms: string[];
     repositoryUrl: string;
     summary: string;
     title: string;
     triggers: string;
+    worksOnKDE: boolean;
+    worksOnMarkOne: boolean;
+    worksOnMarkTwo: boolean;
+    worksOnPicroft: boolean;
 }
 
 const availableSkillsUrl = '/api/skill/available';
