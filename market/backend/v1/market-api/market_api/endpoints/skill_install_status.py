@@ -84,18 +84,20 @@ class SkillInstallationsEndpoint(SeleneEndpoint):
         for device in skill_manifests.get('devices', []):
             for skill in device['skills']:
                 manifest_skill = ManifestSkill(
-                    failure_message=skill['failure_message'],
+                    failure_message=skill.get('failure_message'),
                     installation=skill['installation'],
                     name=skill['name']
                 )
                 self.skills_in_manifests[manifest_skill.name].append(
                     manifest_skill
                 )
-            self.skills_in_manifests['mycroft-audio-record'].append(ManifestSkill(
-                failure_message='',
-                installation='installed',
-                name='mycroft-audio-record'
-            ))
+            self.skills_in_manifests['mycroft-audio-record'].append(
+                ManifestSkill(
+                    failure_message='',
+                    installation='installed',
+                    name='mycroft-audio-record'
+                )
+            )
 
     def _build_response_data(self) -> dict:
         install_statuses = {}
