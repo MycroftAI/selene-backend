@@ -36,6 +36,7 @@ export class InstallService {
 
     constructor(private http: HttpClient) { }
 
+    /** Issue API call to get the current state of skill installations */
     getSkillInstallations() {
         this.http.get<Installations>(installStatusUrl).subscribe(
             (installations) => {
@@ -47,6 +48,7 @@ export class InstallService {
         )
     }
 
+    /** Emit changes to install statuses */
     applyInstallStatusChanges() {
         if (this.prevInstallStatuses) {
             Object.keys(this.newInstallStatuses).forEach(
@@ -57,6 +59,21 @@ export class InstallService {
         this.installStatuses.next(this.newInstallStatuses);
     }
 
+    /** Compare the new status to the previous status looking for changes
+     *
+     * There is a race condition where the skill status on the device may not
+     * change between the time a user clicks a button in the marketplace and
+     * the next call of the status endpoint.
+     *
+     * For example, there is a period of time between the install button
+     * on the marketplace being clicked and device(s) retrieving that request.
+     * If the skill status endpoint is called within this time frame the status
+     * on the response object will not be "installing".  This would result in
+     * the status reverting to its previous state.
+     *
+     * To combat this, we check that skill status changes follow a predefined
+     * progression before reflecting the status change on the UI.
+     */
     compareStatuses(skillName: string) {
         let prevSkillStatus = this.prevInstallStatuses[skillName];
         let newSkillStatus = this.newInstallStatuses[skillName];
@@ -95,6 +112,15 @@ export class InstallService {
 
     }
 
+    /***
+     * Return the install status for the specified skill.
+     *
+     * System skills are treated differently than installed skills because they
+     * cannot be removed from the device.  This function will make the differentiation.
+     *
+     * @param skill: single skill object, available or detail
+     * @param installStatuses: object containing all device skills and their status
+     */
     getSkillInstallStatus(
             skill: AvailableSkill | SkillDetail,
             installStatuses: SkillInstallStatus
@@ -124,6 +150,11 @@ export class InstallService {
         }
     }
 
+    /**
+     * Call the API endpoint for installing a skill.
+     *
+     * @param skill: the skill being installed
+     */
     installSkill(skill: AvailableSkill): Observable<Object> {
         return this.http.put<Object>(
             installUrl,
@@ -131,6 +162,11 @@ export class InstallService {
         )
     }
 
+    /**
+     * Call the API endpoint for uninstalling a skill.
+     *
+     * @param skill: the skill being removed
+     */
     uninstallSkill(skill: AvailableSkill): Observable<Object> {
         return this.http.put<Object>(
             uninstallUrl,

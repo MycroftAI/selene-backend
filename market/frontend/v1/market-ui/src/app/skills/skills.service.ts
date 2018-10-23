@@ -48,12 +48,18 @@ export class SkillsService {
 
     constructor(private http: HttpClient) { }
 
+    /**
+     * API call to retrieve all the skills available to the user
+     */
     getAvailableSkills(): Observable<AvailableSkill[]> {
         return this.http.get<AvailableSkill[]>(availableSkillsUrl).pipe(
             tap((skills) => {this.availableSkills = skills;})
         )
     }
 
+    /**
+     * Loop through the available skills to build a list of distinct categories.
+     */
     getSkillCategories(): string[] {
         let orderedSkillCategories: string[] = [],
             skillCategories: string[] = [],
@@ -83,10 +89,20 @@ export class SkillsService {
         return orderedSkillCategories;
     }
 
+    /**
+     * API call to retrieve detailed information about a specified skill.
+     *
+     * @param skillName: name of the skill to retrieve
+     */
     getSkillById(skillName: string): Observable<SkillDetail> {
         return this.http.get<SkillDetail>(skillUrl + skillName)
     }
 
+    /**
+     *  API call to retrieve available skills that match the specified search term.
+     *
+     * @param searchTerm string used to search skills
+     */
     searchSkills(searchTerm: string): Observable<AvailableSkill[]> {
         this.isFiltered.next(!!searchTerm);
         return this.http.get<AvailableSkill[]>(

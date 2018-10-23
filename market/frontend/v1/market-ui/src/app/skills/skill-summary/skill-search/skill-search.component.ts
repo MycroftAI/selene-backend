@@ -30,11 +30,13 @@ export class SkillSearchComponent implements OnInit, OnDestroy {
         this.skillsAreFiltered.unsubscribe();
     }
 
+    /** Clear out the contents of the search bar. */
     clearSearch(): void {
         this.searchTerm = '';
         this.searchSkills()
     }
 
+    /** Call the skill search API to return skills matching the search criteria. */
     searchSkills(): void {
         this.skillsService.searchSkills(this.searchTerm).subscribe(
             (skills) => {
@@ -43,6 +45,7 @@ export class SkillSearchComponent implements OnInit, OnDestroy {
         );
     }
 
+    /** Determine whether or not to show the back button. */
     onFilteredStateChange (isFiltered) {
         this.showBackButton = isFiltered
     }

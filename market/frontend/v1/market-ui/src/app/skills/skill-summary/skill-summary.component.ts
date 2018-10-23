@@ -22,6 +22,7 @@ export class SkillSummaryComponent implements OnInit {
         this.getAvailableSkills();
     }
 
+    /** Issue and API call to retrieve all the available skills. */
     getAvailableSkills(): void {
         this.skillsService.getAvailableSkills().subscribe(
             (skills) => {
@@ -32,12 +33,14 @@ export class SkillSummaryComponent implements OnInit {
         )
     }
 
+    /** Skills are displayed by category; this function will do the filtering */
     filterSkillsByCategory(category: string): AvailableSkill[] {
         return this.availableSkills.filter(
             (skill) => skill.marketCategory === category
         );
     }
 
+    /** Change the view to display only those matching the search criteria. */
     showSearchResults(searchResults): void {
         this.availableSkills = searchResults;
         this.skillCategories = this.skillsService.getSkillCategories();
