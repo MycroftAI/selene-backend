@@ -1,3 +1,4 @@
+"""Entry point for the API that supports the Mycroft Marketplace."""
 from flask import Flask
 from flask_restful import Api
 
@@ -10,10 +11,11 @@ from market_api.endpoints import (
     UserEndpoint
 )
 
-
+# Define the Flask application
 marketplace = Flask(__name__)
 marketplace.config.from_object(get_config_location())
 
+# Define the API and its endpoints.
 marketplace_api = Api(marketplace)
 marketplace_api.add_resource(AvailableSkillsEndpoint, '/api/skill/available')
 marketplace_api.add_resource(
