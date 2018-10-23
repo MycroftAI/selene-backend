@@ -14,6 +14,7 @@ class UserEndpoint(SeleneEndpoint):
         self.frontend_response = None
 
     def get(self):
+        """Process HTTP GET request for a user."""
         try:
             self._authenticate()
             self._get_user()
@@ -25,6 +26,7 @@ class UserEndpoint(SeleneEndpoint):
         return self.response
 
     def _get_user(self):
+        """Call the Tartarus endpoint for retrieving user information."""
         service_request_headers = {
             'Authorization': 'Bearer ' + self.tartarus_token
         }
@@ -41,5 +43,6 @@ class UserEndpoint(SeleneEndpoint):
         self.user = user_service_response.json()
 
     def _build_response(self):
+        """Build the response to the user info request."""
         response_data = dict(name=self.user['name'])
         self.response = (response_data, HTTPStatus.OK)
