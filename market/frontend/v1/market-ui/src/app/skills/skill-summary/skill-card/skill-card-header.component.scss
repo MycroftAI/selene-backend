@@ -1,0 +1,20 @@
+@import '../../../../stylesheets/global.scss';
+
+.card-header {
+    margin-bottom: 20px;
+}
+.mycroft-icon {
+    width: 20px;
+    img {
+        height: 20px;
+        width: 20px;
+    }
+}
+.installed-icon {
+    width: 20px;
+    fa-icon {
+        color: $mycroft-tertiary-green;
+        font-size: 20px;
+    }
+}
+

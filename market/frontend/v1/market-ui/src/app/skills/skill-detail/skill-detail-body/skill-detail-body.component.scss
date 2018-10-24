@@ -1,0 +1,46 @@
+@import '../../../../stylesheets/global';
+
+.skill-detail-body {
+    background-color: $mycroft-white;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    margin-bottom: 50px;
+    padding-bottom: 3vh;
+    padding-left: 4vw;
+    padding-right: 4vw;
+    padding-top: 3vh;
+    .mat-subheading-1 {
+        color: $mycroft-dark-grey;
+        font-variant: small-caps;
+        font-weight: 500;
+        margin-bottom: 5px;
+    }
+    .mat-body-1 {
+        color: $mycroft-secondary;
+    }
+    .kde-icon {
+        height: 40px;
+        width: 40px;
+    }
+    .skill-detail-section {
+        margin-bottom: 30px;
+    }
+    .skill-detail-body-left {
+        min-width: 340px;
+        margin-right: 50px;
+        .skill-trigger {
+            @include skill-trigger;
+            @include ellipsis-overflow;
+            margin-right: 10px;
+            margin-bottom: 10px;
+            max-width: 340px;
+        }
+    }
+    .skill-detail-body-right {
+        margin-right: 20px;
+        white-space: nowrap;
+        img {
+            padding-right: 10px;
+        }
+    }
+}

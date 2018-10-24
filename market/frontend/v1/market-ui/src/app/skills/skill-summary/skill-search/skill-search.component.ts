@@ -3,22 +3,18 @@ import { Component, EventEmitter, OnInit, OnDestroy, Output } from '@angular/cor
 import { Subscription } from "rxjs/internal/Subscription";
 import { faArrowLeft, faSearch } from '@fortawesome/free-solid-svg-icons';
 
-import { SkillsService } from "../skills.service";
+import { SkillsService } from "../../skills.service";
 
 @Component({
-    selector: 'market-skill-toolbar',
-    templateUrl: './skill-toolbar.component.html',
-    styleUrls: ['./skill-toolbar.component.scss']
+    selector: 'market-skill-search',
+    templateUrl: './skill-search.component.html',
+    styleUrls: ['./skill-search.component.scss']
 })
-export class SkillToolbarComponent implements OnInit, OnDestroy {
+export class SkillSearchComponent implements OnInit, OnDestroy {
     public backArrow = faArrowLeft;
-    public languages = [
-        {value: 'english', display: 'English'}
-    ];
     public searchIcon = faSearch;
     @Output() public searchResults = new EventEmitter();
     public searchTerm: string;
-    public selectedLanguage = this.languages[0].value;
     public skillsAreFiltered: Subscription;
     public showBackButton: boolean = false;
 
@@ -34,20 +30,22 @@ export class SkillToolbarComponent implements OnInit, OnDestroy {
         this.skillsAreFiltered.unsubscribe();
     }
 
+    /** Clear out the contents of the search bar. */
     clearSearch(): void {
         this.searchTerm = '';
         this.searchSkills()
     }
 
+    /** Call the skill search API to return skills matching the search criteria. */
     searchSkills(): void {
         this.skillsService.searchSkills(this.searchTerm).subscribe(
             (skills) => {
                 this.searchResults.emit(skills);
-                console.log(this.skillsAreFiltered);
             }
         );
     }
 
+    /** Determine whether or not to show the back button. */
     onFilteredStateChange (isFiltered) {
         this.showBackButton = isFiltered
     }

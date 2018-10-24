@@ -6,14 +6,18 @@ import { FormsModule } from "@angular/forms";
 import { AngularFontAwesomeModule } from 'angular-font-awesome';
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 
+import { InstallButtonComponent } from './shared/install-button/install-button.component';
+import { InstallService } from "./install.service";
 import { MaterialModule } from "../shared/material.module";
-import { SkillsComponent } from './skills.component'
+import { SkillCardComponent } from './skill-summary/skill-card/skill-card.component';
+import { SkillDetailBodyComponent } from './skill-detail/skill-detail-body/skill-detail-body.component';
+import { SkillCardHeaderComponent } from "./skill-summary/skill-card/skill-card-header.component";
 import { SkillDetailComponent } from "./skill-detail/skill-detail.component";
+import { SkillDetailHeaderComponent } from './skill-detail/skill-detail-header/skill-detail-header.component';
+import { SkillSearchComponent} from "./skill-summary/skill-search/skill-search.component";
 import { SkillsRoutingModule } from "./skills-routing.module";
-import { SkillToolbarComponent } from "./skill-toolbar/skill-toolbar.component";
 import { SkillsService } from "./skills.service";
 import { SkillSummaryComponent } from "./skill-summary/skill-summary.component";
-import { SkillCardHeaderComponent } from './skill-summary/skill-card-header/skill-card-header.component';
 
 @NgModule(
     {
@@ -27,15 +31,18 @@ import { SkillCardHeaderComponent } from './skill-summary/skill-card-header/skil
             SkillsRoutingModule
         ],
         declarations: [
+            SkillCardComponent,
+            SkillCardHeaderComponent,
             SkillDetailComponent,
-            SkillsComponent,
-            SkillToolbarComponent,
+            SkillDetailBodyComponent,
+            SkillDetailHeaderComponent,
+            SkillSearchComponent,
             SkillSummaryComponent,
-            SkillCardHeaderComponent
+            InstallButtonComponent
         ],
-        exports: [ SkillsComponent, SkillDetailComponent ],
+        exports: [ SkillSummaryComponent, SkillDetailComponent ],
         entryComponents: [ SkillDetailComponent ],
-        providers: [ SkillsService ]
+        providers: [ InstallService, SkillsService ]
     }
 )
 export class SkillsModule { }

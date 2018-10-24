@@ -4,12 +4,8 @@ from http import HTTPStatus
 from markdown import markdown
 import requests as service_request
 
-from .common import (
-    aggregate_manifest_skills,
-    call_skill_manifest_endpoint,
-    parse_skill_manifest_response
-)
 from selene_util.api import APIError, SeleneEndpoint
+from .common import RepositorySkill
 
 
 class SkillDetailEndpoint(SeleneEndpoint):
@@ -18,61 +14,69 @@ class SkillDetailEndpoint(SeleneEndpoint):
 
     def __init__(self):
         super(SkillDetailEndpoint, self).__init__()
-        self.skill_id = None
+        self.skill_name = None
         self.response_skill = None
         self.manifest_skills = []
 
-    def get(self, skill_id):
+    def get(self, skill_name):
         """Process an HTTP GET request"""
-        self.skill_id = skill_id
+        self.skill_name = skill_name
         try:
-            self._authenticate()
-            self._get_skill_details()
-            self._get_skill_manifests()
+            repository_skill = self._get_skill_details()
         except APIError:
             pass
         else:
-            self._build_response_data()
+            self._build_response_data(repository_skill)
             self.response = (self.response_skill, HTTPStatus.OK)
 
         return self.response
 
-    def _get_skill_details(self):
+    def _get_skill_details(self) -> RepositorySkill:
         """Build the data to include in the response."""
         skill_service_response = service_request.get(
-            self.config['SELENE_BASE_URL'] + '/skill/id/' + self.skill_id
+            self.config['SELENE_BASE_URL'] + '/skill/name/' + self.skill_name
         )
         self._check_for_service_errors(skill_service_response)
-        self.response_skill = skill_service_response.json()
 
-    def _get_skill_manifests(self):
-        service_response = call_skill_manifest_endpoint(
-            self.tartarus_token,
-            self.config['TARTARUS_BASE_URL'],
-            self.user_uuid
-        )
-        if service_response.status_code != HTTPStatus.OK:
-            self._check_for_service_errors(service_response)
-        skills_in_manifest = parse_skill_manifest_response(
-            service_response
-        )
-        self.manifest_skills = skills_in_manifest[
-            self.response_skill['skill_name']
-        ]
+        service_response = skill_service_response.json()
+        repository_skill = RepositorySkill(**service_response)
 
-    def _build_response_data(self):
+        return repository_skill
+
+    def _build_response_data(self, repository_skill: RepositorySkill):
         """Make some modifications to the response skill for the marketplace"""
-        aggregated_manifest_skill = aggregate_manifest_skills(
-            self.manifest_skills
-        )
-        self.response_skill.update(
+        self.response_skill = dict(
+            categories=repository_skill.categories,
+            credits=repository_skill.credits,
             description=markdown(
-                self.response_skill['description'],
+                repository_skill.description,
                 output_format='html5'
             ),
+            icon=repository_skill.icon,
+            iconImage=repository_skill.icon_image,
+            isSystemSkill=repository_skill.is_system_skill,
+            name=repository_skill.skill_name,
+            worksOnMarkOne=(
+                'all' in repository_skill.platforms or
+                'platform_mark1' in repository_skill.platforms
+            ),
+            worksOnMarkTwo=(
+                'all' in repository_skill.platforms or
+                'platform_mark2' in repository_skill.platforms
+            ),
+            worksOnPicroft=(
+                'all' in repository_skill.platforms or
+                'platform_picroft' in repository_skill.platforms
+            ),
+            worksOnKDE=(
+                'all' in repository_skill.platforms or
+                'platform_plasmoid' in repository_skill.platforms
+            ),
+            repositoryUrl=repository_skill.repository_url,
             summary=markdown(
-                self.response_skill['summary'],
+                repository_skill.summary,
                 output_format='html5'
             ),
-            install_status=aggregated_manifest_skill.installation,
+            title=repository_skill.title,
+            triggers=repository_skill.triggers
         )

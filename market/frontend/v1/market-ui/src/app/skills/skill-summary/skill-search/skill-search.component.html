@@ -1,3 +1,4 @@
+<!-- Search bar at top of skill listing page -->
 <div fxLayout="row" fxLayoutAlign="center" class="skill-toolbar">
     <div fxFlex="60" (keydown.enter)="searchSkills()" class="search-field">
         <mat-form-field>
@@ -7,19 +8,9 @@
             </button>
         </mat-form-field>
     </div>
-
-    <!-- commenting out the language picker until such time as there are -->
-    <!-- languages to pick -->
-
-    <!--<mat-form-field class="language-field" fxFlex="20">-->
-        <!--<mat-select placeholder="Language" [(ngModel)]="selectedLanguage">-->
-            <!--<mat-option *ngFor="let language of languages" [value]="language.value">-->
-                <!--{{language.display}}-->
-            <!--</mat-option>-->
-        <!--</mat-select>-->
-    <!--</mat-form-field>-->
-
 </div>
+
+<!-- Back to all skills button shown when skill listing is filtered -->
 <div *ngIf="showBackButton">
     <button mat-icon-button class="back-button" (click)="clearSearch()">
         <fa-icon [icon]="backArrow"></fa-icon>

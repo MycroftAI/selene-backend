@@ -1,9 +1,7 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { MatSnackBar } from "@angular/material";
+import { Component, OnInit } from '@angular/core';
 
-import { faCheck, faComment } from '@fortawesome/free-solid-svg-icons';
-
-import { SkillsService, Skill } from "../skills.service";
+import { SkillsService, AvailableSkill } from "../skills.service";
+import { InstallService } from "../install.service";
 
 @Component({
     selector: 'market-skill-summary',
@@ -11,68 +9,41 @@ import { SkillsService, Skill } from "../skills.service";
     styleUrls: ['./skill-summary.component.scss'],
 })
 export class SkillSummaryComponent implements OnInit {
-    public installedIcon = faCheck;
-    @Input() public skills: Skill[];
-    public voiceIcon = faComment;
-    private skillInstalling: Skill;
+    public skillCategories: string[];
+    public availableSkills: AvailableSkill[];
 
-    constructor(public loginSnackbar: MatSnackBar, private skillsService: SkillsService) { }
 
-    ngOnInit() { }
+    constructor(
+        private installService: InstallService,
+        private skillsService: SkillsService,
+    ) { }
 
-    /**
-     * Install a skill onto one or many devices
-     *
-     * @param {Skill} skill
-     */
-    install_skill(skill: Skill) : void {
-        this.skillInstalling = skill;
-        this.skillsService.installSkill(skill).subscribe(
-            (response) => {
-                this.onInstallSuccess(response)
-            },
-            (response) => {
-                this.onInstallFailure(response)
+    ngOnInit() {
+        this.getAvailableSkills();
+    }
+
+    /** Issue and API call to retrieve all the available skills. */
+    getAvailableSkills(): void {
+        this.skillsService.getAvailableSkills().subscribe(
+            (skills) => {
+                this.availableSkills = skills;
+                this.skillCategories = this.skillsService.getSkillCategories();
+                this.installService.getSkillInstallations();
             }
+        )
+    }
+
+    /** Skills are displayed by category; this function will do the filtering */
+    filterSkillsByCategory(category: string): AvailableSkill[] {
+        return this.availableSkills.filter(
+            (skill) => skill.marketCategory === category
         );
     }
 
-    /**
-     * Handle the successful install attempt
-     *
-     * This does not indicate that the install of the skill completed, only
-     * that the request to install a skill succeeded.  Change the install
-     * button to an "installing" state.
-     *
-     * @param response
-     */
-    onInstallSuccess(response) : void {
-        this.loginSnackbar.open(
-            'The ' + this.skillInstalling.title + ' skill is ' +
-            'installing.  Please allow up to two minutes for installation' +
-            'to complete before using the skill.  Only one skill can be ' +
-            'installed at a time so please wait before selecting another' +
-            'skill to install',
-            null,
-            {panelClass: 'mycroft-snackbar', duration:20000}
-        );
+    /** Change the view to display only those matching the search criteria. */
+    showSearchResults(searchResults): void {
+        this.availableSkills = searchResults;
+        this.skillCategories = this.skillsService.getSkillCategories();
     }
 
-    /**
-     * Handle the failure to install a skill.
-     *
-     * If a user attempts to install a skill without being logged in, show a
-     * snackbar to notify the user and give them the ability to log in.
-     *
-     * @param response - object representing the response from the API call
-     */
-    onInstallFailure(response) : void {
-        if (response.status === 401) {
-            this.loginSnackbar.open(
-                'To install a skill, log in to your account.',
-                'LOG IN',
-                {panelClass: 'mycroft-snackbar', duration: 5000}
-            );
-        }
-    }
 }

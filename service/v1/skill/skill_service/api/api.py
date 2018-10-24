@@ -12,4 +12,4 @@ skill = Flask(__name__)
 
 skill_api = Api(skill)
 skill_api.add_resource(AllSkillsEndpoint, '/skill/all')
-skill_api.add_resource(SkillDetailEndpoint, '/skill/id/<string:skill_id>')
+skill_api.add_resource(SkillDetailEndpoint, '/skill/name/<string:skill_name>')

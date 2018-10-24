@@ -1,0 +1,34 @@
+<div fxLayout="row" fxLayoutAlign="space-between start" class="card-header">
+
+    <!-- Show a Mycroft icon in the upper left corner of the skill card
+    if the skill is written by the Mycroft staff.
+    -->
+    <div class="mycroft-icon">
+        <img
+            src="../../../../assets/mycroft-logo.svg"
+            *ngIf="skill.isMycroftMade"
+            matTooltip="Mycroft Made"
+        >
+    </div>
+
+    <!-- Show the icon corresponding to the skill on the card -->
+    <div class="skill-icon">
+        <fa
+            *ngIf="!skill.iconImage"
+            [ngStyle]="{'color': skill.icon.color}"
+            name={{skill.icon.icon}} size="2x"
+        >
+        </fa>
+        <img *ngIf="skill.iconImage" src={{skill.iconImage}} height="30" width="30">
+    </div>
+
+    <!-- Show a check mark icon in the upper right corner when skill is installed -->
+    <div class="installed-icon">
+        <fa-icon
+            *ngIf="isInstalled"
+            [icon]="installedIcon"
+             matTooltip="Skill Installed"
+        >
+        </fa-icon>
+    </div>
+</div>
