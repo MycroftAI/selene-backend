@@ -40,6 +40,8 @@ export class SkillSearchComponent implements OnInit, OnDestroy {
     searchSkills(): void {
         this.skillsService.searchSkills(this.searchTerm).subscribe(
             (skills) => {
+                this.skillsService.availableSkills = skills;
+                this.skillsService.getSkillCategories();
                 this.searchResults.emit(skills);
             }
         );
