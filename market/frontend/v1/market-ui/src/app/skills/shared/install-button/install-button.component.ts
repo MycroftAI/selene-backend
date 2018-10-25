@@ -11,7 +11,7 @@ import { faLock } from "@fortawesome/free-solid-svg-icons/faLock";
 import { MatSnackBar } from "@angular/material";
 
 const fiveSeconds = 5000;
-const twentySeconds = 20000;
+const tenSeconds = 10000;
 
 
 @Component({
@@ -59,7 +59,7 @@ export class InstallButtonComponent implements OnInit {
      * Install a skill onto one or many devices
      */
     install_skill() : void {
-        this.installService.installSkill(this.skill).subscribe(
+        this.installService.addToInstallQueue(this.skill.name).subscribe(
             (response) => {
                 this.onInstallSuccess(response)
             },
@@ -86,7 +86,7 @@ export class InstallButtonComponent implements OnInit {
             'to your devices.  Please allow up to two minutes for ' +
             'installation to complete before using the skill.',
             null,
-            {panelClass: 'mycroft-snackbar', duration: twentySeconds}
+            {panelClass: 'mycroft-snackbar', duration: tenSeconds}
         );
     }
 
@@ -112,7 +112,7 @@ export class InstallButtonComponent implements OnInit {
      * Remove a skill from one or many devices
      */
     uninstallSkill() : void {
-        this.installService.uninstallSkill(this.skill).subscribe(
+        this.installService.addToUninstallQueue(this.skill.name).subscribe(
             (response) => {
                 this.onUninstallSuccess(response)
             },
@@ -136,7 +136,7 @@ export class InstallButtonComponent implements OnInit {
             'uninstalling.  Please allow up to a minute for the skill to be ' +
             'removed from devices.',
             null,
-            {panelClass: 'mycroft-snackbar', duration: twentySeconds}
+            {panelClass: 'mycroft-snackbar', duration: tenSeconds}
         );
     }
 }
