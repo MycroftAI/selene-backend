@@ -66,6 +66,9 @@ class SkillInstallEndpoint(SeleneEndpoint):
 
     def _find_installer_skill(self, installed_skills):
         installer_skill = None
+        error_message = (
+            'install failed: installer skill not found'
+        )
         if "skills" in installed_skills:
             for skill in installed_skills['skills']:
                 if skill['skill']['name'] == 'Installer':
@@ -73,14 +76,12 @@ class SkillInstallEndpoint(SeleneEndpoint):
                     installer_skill = skill['skill']
                     break
             if installer_skill is None:
-                error_message = (
-                    'found no skill installer'
-                )
                 _log.error(error_message)
-                self.response = (error_message, HTTPStatus.PARTIAL_CONTENT)
+                self.response = (error_message, HTTPStatus.INTERNAL_SERVER_ERROR)
                 raise APIError()
         else:
-            self.response = HTTPStatus.NO_CONTENT
+            _log.error(error_message)
+            self.response = (error_message, HTTPStatus.INTERNAL_SERVER_ERROR)
             raise APIError()
 
         return installer_skill
