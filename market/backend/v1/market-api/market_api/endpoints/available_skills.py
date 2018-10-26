@@ -81,6 +81,9 @@ class AvailableSkillsEndpoint(SeleneEndpoint):
     def _reformat_skills(self, skills_to_include: List[RepositorySkill]):
         """Build the response data from the skill service response"""
         for skill in skills_to_include:
+            trigger = None
+            if skill.triggers:
+                trigger = skill.triggers[0]
             skill_info = dict(
                 icon=skill.icon,
                 iconImage=skill.icon_image,
@@ -90,7 +93,7 @@ class AvailableSkillsEndpoint(SeleneEndpoint):
                 name=skill.skill_name,
                 summary=skill.summary,
                 title=skill.title,
-                trigger=skill.triggers[0]
+                trigger=trigger
             )
             self.response_skills.append(skill_info)
 
