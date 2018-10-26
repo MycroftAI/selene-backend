@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable, Subject } from "rxjs";
 import { AvailableSkill, SkillDetail } from "./skills.service";
 
+// Status values that can be expected in the install status endpoint response.
 type InstallStatus = 'failed' | 'installed' | 'installing' | 'uninstalling';
 
 export interface SkillInstallStatus {
@@ -18,11 +19,9 @@ export interface Installations {
     installStatuses: SkillInstallStatus;
 }
 
-// const inProgressStatuses = ['installing', 'uninstalling', 'failed'];
-const inProgressStatuses = ['installing', 'uninstalling'];
+const inProgressStatuses = ['installing', 'uninstalling', 'failed'];
 const installStatusUrl = '/api/skill/installations';
-const installUrl = '/api/skill/install';
-const uninstallUrl = '/api/skill/uninstall';
+const installerSettingsUrl = '/api/skill/install';
 
 @Injectable({
     providedIn: 'root'
@@ -32,7 +31,7 @@ export class InstallService {
     public installStatuses = new Subject<SkillInstallStatus>();
     public newInstallStatuses: SkillInstallStatus;
     private prevInstallStatuses: SkillInstallStatus;
-    public statusNotifications = new Subject<SkillInstallStatus>();
+    public statusNotifications = new Subject<string[]>();
 
     constructor(private http: HttpClient) { }
 
@@ -52,7 +51,7 @@ export class InstallService {
     applyInstallStatusChanges() {
         if (this.prevInstallStatuses) {
             Object.keys(this.newInstallStatuses).forEach(
-                () => this.compareStatuses
+                (skillName) => {this.compareStatuses(skillName);}
             );
         }
         this.prevInstallStatuses = this.newInstallStatuses;
@@ -77,39 +76,41 @@ export class InstallService {
     compareStatuses(skillName: string) {
         let prevSkillStatus = this.prevInstallStatuses[skillName];
         let newSkillStatus = this.newInstallStatuses[skillName];
-        let statusNotifications: SkillInstallStatus = {};
 
         switch (prevSkillStatus) {
             case ('installing'): {
-                if (['installed', 'failed'].includes(newSkillStatus)) {
-                    statusNotifications[skillName] = newSkillStatus;
+                if (newSkillStatus === 'installed') {
+                    this.statusNotifications.next([skillName, newSkillStatus]);
+                    this.removeFromInstallQueue(skillName);
+                } else if (newSkillStatus === 'failed') {
+                    this.statusNotifications.next([skillName, 'install failed']);
                 } else {
                     this.newInstallStatuses[skillName] = prevSkillStatus;
                 }
                 break;
             }
             case ('uninstalling'): {
-                if (!newSkillStatus || newSkillStatus === 'failed') {
-                    statusNotifications[skillName] = newSkillStatus;
+                if (!newSkillStatus) {
+                    this.statusNotifications.next([skillName, 'uninstalled']);
+                    this.removeFromUninstallQueue(skillName);
+                } else if (newSkillStatus === 'failed') {
+                    this.statusNotifications.next([skillName, 'uninstall failed']);
                 } else {
                     this.newInstallStatuses[skillName] = prevSkillStatus;
                 }
                 break;
             }
             case ('failed'): {
-                if (!newSkillStatus || newSkillStatus != 'installed') {
-                    statusNotifications[skillName] = newSkillStatus;
+                if (!newSkillStatus) {
+                    this.statusNotifications.next([skillName, 'uninstalled']);
+                } else if (newSkillStatus != 'installed') {
+                    this.statusNotifications.next([skillName, newSkillStatus]);
                 } else {
                     this.newInstallStatuses[skillName] = prevSkillStatus;
                 }
                 break;
             }
         }
-
-        if (statusNotifications) {
-            this.statusNotifications.next(statusNotifications)
-        }
-
     }
 
     /***
@@ -142,7 +143,7 @@ export class InstallService {
      * the result of a requested install/uninstall.
      */
     checkInstallationsInProgress() {
-        let inProgress = Object.values(this.installStatuses).filter(
+        let inProgress = Object.values(this.newInstallStatuses).filter(
             (installStatus) => inProgressStatuses.includes(installStatus)
         );
         if (inProgress.length > 0) {
@@ -151,26 +152,66 @@ export class InstallService {
     }
 
     /**
-     * Call the API endpoint for installing a skill.
+     * Call the API to add a skill to the Installer skill's "to_install" setting.
      *
-     * @param skill: the skill being installed
+     * @param skillName: the skill being installed
      */
-    installSkill(skill: AvailableSkill): Observable<Object> {
+    addToInstallQueue(skillName: string): Observable<Object> {
         return this.http.put<Object>(
-            installUrl,
-            {skill_name: skill.name}
+            installerSettingsUrl,
+            {
+                action: "add",
+                section: "to_install",
+                skill_name: skillName
+            }
         )
     }
 
     /**
-     * Call the API endpoint for uninstalling a skill.
+     * Call the API to add a skill to the Installer skill's "to_remove" setting.
      *
-     * @param skill: the skill being removed
+     * @param skillName: the skill being removed
      */
-    uninstallSkill(skill: AvailableSkill): Observable<Object> {
+    addToUninstallQueue(skillName: string): Observable<Object> {
         return this.http.put<Object>(
-            uninstallUrl,
-            {skill_name: skill.name}
+            installerSettingsUrl,
+            {
+                action: "add",
+                section: "to_remove",
+                skill_name: skillName
+            }
+        )
+    }
+
+    /**
+     * Call the API to remove a skill to the Installer skill's "to_install" setting.
+     *
+     * @param skillName: the skill being installed
+     */
+    removeFromInstallQueue(skillName: string): Observable<Object> {
+        return this.http.put<Object>(
+            installerSettingsUrl,
+            {
+                action: "remove",
+                section: "to_install",
+                skill_name: skillName
+            }
+        )
+    }
+
+    /**
+     * Call the API to remove a skill to the Installer skill's "to_remove" setting.
+     *
+     * @param skillName: the skill being removed
+     */
+    removeFromUninstallQueue(skillName: string): Observable<Object> {
+        return this.http.put<Object>(
+            installerSettingsUrl,
+            {
+                action: "remove",
+                section: "to_remove",
+                skill_name: skillName
+            }
         )
     }
 }

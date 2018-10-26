@@ -14,7 +14,7 @@ class LogoutEndpoint(SeleneEndpoint):
     def __init__(self):
         super(LogoutEndpoint, self).__init__()
 
-    def put(self):
+    def get(self):
         try:
             self._authenticate()
             self._logout()
