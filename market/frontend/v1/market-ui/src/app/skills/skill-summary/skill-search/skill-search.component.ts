@@ -3,6 +3,7 @@ import { Component, EventEmitter, OnInit, OnDestroy, Output } from '@angular/cor
 import { Subscription } from "rxjs/internal/Subscription";
 import { faArrowLeft, faSearch } from '@fortawesome/free-solid-svg-icons';
 
+import { InstallService } from "../../install.service";
 import { SkillsService } from "../../skills.service";
 
 @Component({
@@ -18,7 +19,11 @@ export class SkillSearchComponent implements OnInit, OnDestroy {
     public skillsAreFiltered: Subscription;
     public showBackButton: boolean = false;
 
-    constructor(private skillsService: SkillsService) { }
+    constructor(
+        private installService: InstallService,
+        private skillsService: SkillsService
+    ) {
+    }
 
     ngOnInit() {
         this.skillsAreFiltered = this.skillsService.isFiltered.subscribe(
@@ -43,6 +48,7 @@ export class SkillSearchComponent implements OnInit, OnDestroy {
                 this.skillsService.availableSkills = skills;
                 this.skillsService.getSkillCategories();
                 this.searchResults.emit(skills);
+                this.installService.getSkillInstallations();
             }
         );
     }
