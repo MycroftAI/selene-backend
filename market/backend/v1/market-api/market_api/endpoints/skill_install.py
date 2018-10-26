@@ -40,6 +40,9 @@ class SkillInstallEndpoint(SeleneEndpoint):
         service_request_headers = {
             'Authorization': 'Bearer ' + self.tartarus_token
         }
+        service_request_parameters = {
+            'disableHide': 'true'
+        }
         service_url = (
             self.config['TARTARUS_BASE_URL'] +
             '/user/' +
@@ -48,7 +51,8 @@ class SkillInstallEndpoint(SeleneEndpoint):
         )
         user_service_response = requests.get(
             service_url,
-            headers=service_request_headers
+            headers=service_request_headers,
+            params=service_request_parameters
         )
         if user_service_response.status_code != HTTPStatus.OK:
             self._check_for_service_errors(user_service_response)
@@ -116,7 +120,8 @@ class SkillInstallEndpoint(SeleneEndpoint):
                 raise ValueError(error_message.format(action, setting_section[0]))
             else:
                 if action == 'add':
-                    block.append({'name': skill_name})
+                    if not any(list(filter(lambda a: a['name'] == skill_name, block))):
+                        block.append({'name': skill_name})
                 elif action == 'remove':
                     block = list(filter(lambda x: x['name'] != skill_name, block))
                 else:
