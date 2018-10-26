@@ -50,7 +50,7 @@ export class InstallService {
     /** Emit changes to install statuses */
     applyInstallStatusChanges() {
         if (this.prevInstallStatuses) {
-            Object.keys(this.newInstallStatuses).forEach(
+            Object.keys(this.prevInstallStatuses).forEach(
                 (skillName) => {this.compareStatuses(skillName);}
             );
         }
@@ -81,7 +81,7 @@ export class InstallService {
             case ('installing'): {
                 if (newSkillStatus === 'installed') {
                     this.statusNotifications.next([skillName, newSkillStatus]);
-                    this.removeFromInstallQueue(skillName);
+                    this.removeFromInstallQueue(skillName).subscribe();
                 } else if (newSkillStatus === 'failed') {
                     this.statusNotifications.next([skillName, 'install failed']);
                 } else {
@@ -92,7 +92,7 @@ export class InstallService {
             case ('uninstalling'): {
                 if (!newSkillStatus) {
                     this.statusNotifications.next([skillName, 'uninstalled']);
-                    this.removeFromUninstallQueue(skillName);
+                    this.removeFromUninstallQueue(skillName).subscribe();
                 } else if (newSkillStatus === 'failed') {
                     this.statusNotifications.next([skillName, 'uninstall failed']);
                 } else {
