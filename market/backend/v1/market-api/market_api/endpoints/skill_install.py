@@ -66,11 +66,23 @@ class SkillInstallEndpoint(SeleneEndpoint):
 
     def _find_installer_skill(self, installed_skills):
         installer_skill = None
-        for skill in installed_skills['skills']:
-            if skill['skill']['name'] == 'Installer':
-                self.device_uuid = skill['deviceUuid']
-                installer_skill = skill['skill']
-                break
+        error_message = (
+            'install failed: installer skill not found'
+        )
+        if "skills" in installed_skills:
+            for skill in installed_skills['skills']:
+                if skill['skill']['name'] == 'Installer':
+                    self.device_uuid = skill['deviceUuid']
+                    installer_skill = skill['skill']
+                    break
+            if installer_skill is None:
+                _log.error(error_message)
+                self.response = (error_message, HTTPStatus.INTERNAL_SERVER_ERROR)
+                raise APIError()
+        else:
+            _log.error(error_message)
+            self.response = (error_message, HTTPStatus.INTERNAL_SERVER_ERROR)
+            raise APIError()
 
         return installer_skill
 
