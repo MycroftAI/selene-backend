@@ -4,15 +4,17 @@ import { FlexLayoutModule } from "@angular/flex-layout";
 import { NgModule } from '@angular/core';
 
 import { AppComponent } from './app.component';
-import { AuthModule } from "./auth/auth.module";
+import { AppRoutingModule } from "./app-routing.module";
+import { LoginModule } from "./login/login.module";
 
 @NgModule({
     declarations: [ AppComponent ],
     imports: [
         BrowserModule,
-        AuthModule,
+        LoginModule,
         BrowserAnimationsModule,
-        FlexLayoutModule
+        FlexLayoutModule,
+        AppRoutingModule
     ],
     providers: [ ],
     bootstrap: [ AppComponent ]

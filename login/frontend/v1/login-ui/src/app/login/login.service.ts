@@ -20,7 +20,7 @@ export interface SocialLoginData {
 }
 
 @Injectable()
-export class AuthService {
+export class LoginService {
     private antisocialAuthUrl = '/api/antisocial';
     private facebookAuthUrl = '/api/social/facebook';
     private githubAuthUrl = '/api/social/github';

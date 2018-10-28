@@ -14,12 +14,21 @@ import {
 
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 
-import { AuthComponent } from './auth.component';
-import { AuthService } from "./auth.service";
+import { AntisocialComponent } from './antisocial/antisocial.component';
+import { LoginComponent } from './login.component';
+import { LoginService } from "./login.service";
+import { BackgroundComponent } from '../background/background.component';
+import { SocialComponent } from './social/social.component';
 
 @NgModule({
-    declarations: [ AuthComponent ],
-    exports: [ AuthComponent ],
+    declarations: [
+        AntisocialComponent,
+        LoginComponent,
+        BackgroundComponent,
+        SocialComponent
+    ],
+    entryComponents: [ LoginComponent ],
+    exports: [ LoginComponent ],
     imports: [
         CommonModule,
         FlexLayoutModule,
@@ -33,6 +42,6 @@ import { AuthService } from "./auth.service";
         MatInputModule,
         MatSnackBarModule
     ],
-    providers: [ AuthService ]
+    providers: [ LoginService ]
 })
-export class AuthModule { }
+export class LoginModule { }

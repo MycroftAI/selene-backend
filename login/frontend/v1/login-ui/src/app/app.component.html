@@ -8,24 +8,5 @@ This condition is temporary it should be removed when the social login logic
 is refactored and moved into Selene.
 -->
 <div *ngIf="!socialLoginDataFound">
-    <div class="split top"></div>
-    <div class="split bottom"></div>
-    <div fxLayout="column" fxLayoutAlign="center center">
-        <div align="center">
-            <img src="../../assets/mycroft-ai-no-logo.svg"/>
-        </div>
-        <div class="login-options">
-            <login-authenticate></login-authenticate>
-            <!--<mat-tab-group>-->
-                <!--<mat-tab label="LOG IN">-->
-                    <!--<login-authenticate></login-authenticate>-->
-                <!--</mat-tab>-->
-                <!--<mat-tab label="SIGN UP">-->
-                    <!--<login-auth-social></login-auth-social>-->
-                    <!--<div class="mat-subheading-2">OR</div>-->
-                    <!--<login-auth-antisocial></login-auth-antisocial>-->
-                <!--</mat-tab>-->
-            <!--</mat-tab-group>-->
-        </div>
-    </div>
+    <router-outlet></router-outlet>
 </div>

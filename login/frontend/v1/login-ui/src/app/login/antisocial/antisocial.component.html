@@ -1,18 +1,3 @@
-<div class="social">
-    <button mat-button class="google-button"  (click)="authenticateGoogle()">
-        <img src="../../../assets/google-logo.svg">
-        Log in with Google
-    </button>
-    <button mat-button class="facebook-button" (click)="authenticateFacebook()">
-        <fa-icon [icon]="facebookIcon"></fa-icon>
-        Continue with Facebook
-    </button>
-    <button mat-button class="github-button" (click)="authenticateGithub()">
-        <fa-icon [icon]="githubIcon"></fa-icon>
-        Log in with GitHub
-    </button>
-</div>
-<div class="mat-subheading-2">OR</div>
 <form
     fxLayout="column"
     #loginForm="ngForm"
