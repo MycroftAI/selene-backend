@@ -1,11 +1,11 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Router } from "@angular/router";
 
 import { Observable } from "rxjs/internal/Observable";
 import { Subject } from "rxjs/internal/Subject";
 import { environment } from "../../environments/environment";
 
+const redirectQuery = '?redirect=';
 export class User {
     name: string;
 }
@@ -13,29 +13,29 @@ export class User {
 @Injectable()
 export class LoginService {
     public isLoggedIn = new Subject<boolean>();
-    public redirectUrl: string;
-    private logoutUrl = environment.loginUrl + '/api/logout';
+    public loginUrl: string = environment.loginUrl + '/login';
+    private logoutUrl = environment.loginUrl + '/logout';
     private userUrl = '/api/user';
 
-    constructor(private http: HttpClient, private router: Router) {
+    constructor(private http: HttpClient) {
     }
 
     getUser(): Observable<User> {
         return this.http.get<User>(this.userUrl);
     }
 
-    setLoginStatus() {
+    setLoginStatus(): void {
         let cookies = document.cookie,
             seleneTokenExists = cookies.includes('seleneToken'),
             seleneTokenEmpty = cookies.includes('seleneToken=""');
         this.isLoggedIn.next( seleneTokenExists && !seleneTokenEmpty);
     }
 
-    login() {
-        window.location.assign(environment.loginUrl);
+    login(): void {
+        window.location.assign(this.loginUrl + redirectQuery + window.location.href);
     }
 
-    logout(): Observable<any> {
-        return this.http.get(this.logoutUrl);
+    logout(): void {
+        window.location.assign(this.logoutUrl + redirectQuery + window.location.href);
     }
 }
