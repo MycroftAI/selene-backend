@@ -10,7 +10,5 @@ export class LoginComponent implements OnInit {
 
     constructor() { }
 
-    ngOnInit() {
-        this.redirectUri = decodeURIComponent(window.location.search).slice(10);
-    }
+    ngOnInit() { }
 }

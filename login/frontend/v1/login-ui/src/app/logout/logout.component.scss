@@ -1,0 +1,28 @@
+@import "../../stylesheets/global";
+
+// The angular material spinner was limiting in color choices we built our own
+@mixin spinner-common {
+    animation: spin 1s ease-in-out infinite;
+    border: 2px solid rgba(255,255,255,.3);
+    border-radius: 50%;
+    display: inline-block;
+    height: 25px;
+    margin-right: 10px;
+    width: 25px;
+}
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.mat-h3 {
+    color: $mycroft-secondary;
+    font-size: 40px;
+    margin-top: 50px;
+    text-align: center;
+}
+
+.logout-spinner {
+    @include spinner-common;
+    border-right-color: $mycroft-secondary;
+    border-top-color: $mycroft-secondary;
+}
