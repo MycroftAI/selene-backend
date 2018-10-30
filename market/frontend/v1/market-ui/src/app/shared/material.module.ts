@@ -6,6 +6,7 @@ import { MatDividerModule} from "@angular/material";
 import { MatFormFieldModule} from "@angular/material/form-field";
 import { MatInputModule} from "@angular/material/input";
 import { MatMenuModule } from "@angular/material";
+import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatSelectModule } from "@angular/material/select";
 import { MatSnackBarModule } from "@angular/material/snack-bar";
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -21,6 +22,7 @@ import { MatTooltipModule } from "@angular/material/tooltip";
             MatFormFieldModule,
             MatFormFieldModule,
             MatMenuModule,
+            MatProgressSpinnerModule,
             MatSelectModule,
             MatSnackBarModule,
             MatToolbarModule,
@@ -34,6 +36,7 @@ import { MatTooltipModule } from "@angular/material/tooltip";
             MatFormFieldModule,
             MatInputModule,
             MatMenuModule,
+            MatProgressSpinnerModule,
             MatSelectModule,
             MatSnackBarModule,
             MatToolbarModule,

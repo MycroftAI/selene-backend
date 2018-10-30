@@ -1,31 +1,9 @@
-<div fxLayout="row wrap">
-    <mat-card *ngFor="let skill of skills; let i = index">
-        <div [routerLink]="['/skill', skill.id]">
-            <market-skill-card-header [skill]="skills[i]"></market-skill-card-header>
-            <mat-card-title *ngIf="skill.title" align="center">{{skill.title}}</mat-card-title>
-            <mat-card-title *ngIf="!skill.title" align="center">&nbsp;</mat-card-title>
-            <mat-card-subtitle fxLayoutAlign="center">
-                <div class="skill-trigger">
-                    <fa-icon [icon]="voiceIcon"></fa-icon>
-                    {{skill.triggers[0]}}
-                </div>
-            </mat-card-subtitle>
-            <mat-card-content *ngIf="skill.summary" [innerHTML]="skill.summary"></mat-card-content>
-            <mat-card-content *ngIf="!skill.summary">&nbsp;</mat-card-content>
-        </div>
-            <mat-card-actions>
-            <button
-                class="install-button"
-                *ngIf="!skill.installed"
-                mat-flat-button
-                (click)="install_skill(skill)"
-            >
-                INSTALL
-            </button>
-            <button *ngIf="skill.installed" mat-button class="installed-button">
-                <fa-icon [icon]="installedIcon"></fa-icon>
-                INSTALLED
-            </button>
-        </mat-card-actions>
-    </mat-card>
+<market-skill-search (searchResults)="showSearchResults($event)"></market-skill-search>
+<div class="skill-category" *ngFor="let category of skillCategories">
+    <mat-toolbar align="center">{{category}}</mat-toolbar>
+    <div fxLayout="row wrap">
+        <ng-container *ngFor="let skill of filterSkillsByCategory(category)">
+            <market-skill-card [skill]="skill"></market-skill-card>
+        </ng-container>
+    </div>
 </div>

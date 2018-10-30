@@ -1,0 +1,36 @@
+@import '../../../stylesheets/global';
+
+button {
+    @include login-button;
+}
+
+form {
+    background-color: $mycroft-white;
+    border-radius: 10px;
+    padding: 20px;
+    fa-icon {
+        color: $mycroft-dark-grey;
+        margin-right: 15px;
+    }
+    mat-checkbox {
+        color: $mycroft-dark-grey;
+    }
+    .forgot-password {
+        margin-left: 30px;
+    }
+    button {
+        background-color: $mycroft-primary;
+        margin-top: 30px;
+        text-align: center;
+    }
+    button:hover {
+        background-color: $mycroft-tertiary-green;
+        color: $mycroft-secondary;
+    }
+
+}
+
+.mat-body-2 {
+    color: $mycroft-tertiary-red;
+    padding: 15px;
+}

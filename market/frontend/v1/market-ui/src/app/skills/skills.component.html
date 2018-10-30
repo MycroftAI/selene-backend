@@ -1,7 +1,0 @@
-<market-skill-toolbar (searchResults)="showSearchResults($event)"></market-skill-toolbar>
-<div class="skill-category" *ngFor="let category of skillCategories">
-    <mat-toolbar align="center">
-        {{category}}
-    </mat-toolbar>
-    <market-skill-summary [skills]="skills[category]"></market-skill-summary>
-</div>

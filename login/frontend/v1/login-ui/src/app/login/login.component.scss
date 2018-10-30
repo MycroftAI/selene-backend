@@ -1,0 +1,15 @@
+@import '../../stylesheets/global';
+
+.login-options {
+    background-color: $mycroft-white;
+    border-radius: 10px;
+    box-shadow: 0 1px 5px 0 rgba(0, 0, 0, 0.12);
+    width: 320px;
+}
+
+.mat-subheading-2 {
+    color: $mycroft-dark-grey;
+    margin-bottom: -15px;
+    margin-top: -15px;
+    text-align: center;
+}

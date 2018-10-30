@@ -1,0 +1,21 @@
+@import '../../../../stylesheets/global';
+
+fa-icon {
+    color: $mycroft-dark-grey;
+}
+
+.skill-toolbar {
+    margin-left: 15px;
+    .search-field {
+        background-color: white;
+        border-radius: 10px;
+        color: $mycroft-dark-grey;
+        min-width: 330px;
+        padding-left: 20px;
+        padding-right: 20px;
+        padding-top: 10px;
+        mat-form-field {
+            width: 100%;
+        }
+    }
+}

@@ -16,7 +16,7 @@ class SkillInstallEndpoint(SeleneEndpoint):
     def __init__(self):
         super(SkillInstallEndpoint, self).__init__()
         self.device_uuid: str = None
-        self.installer_skill_settings: list = []
+        self.installer_skill_settings: dict = {}
         self.installer_update_response = None
 
     def put(self):
@@ -40,6 +40,9 @@ class SkillInstallEndpoint(SeleneEndpoint):
         service_request_headers = {
             'Authorization': 'Bearer ' + self.tartarus_token
         }
+        service_request_parameters = {
+            'disableHide': 'true'
+        }
         service_url = (
             self.config['TARTARUS_BASE_URL'] +
             '/user/' +
@@ -48,7 +51,8 @@ class SkillInstallEndpoint(SeleneEndpoint):
         )
         user_service_response = requests.get(
             service_url,
-            headers=service_request_headers
+            headers=service_request_headers,
+            params=service_request_parameters
         )
         if user_service_response.status_code != HTTPStatus.OK:
             self._check_for_service_errors(user_service_response)
@@ -62,19 +66,33 @@ class SkillInstallEndpoint(SeleneEndpoint):
 
     def _find_installer_skill(self, installed_skills):
         installer_skill = None
-        for skill in installed_skills['skills']:
-            if skill['skill']['name'] == 'Installer':
-                self.device_uuid = skill['deviceUuid']
-                installer_skill = skill['skill']
-                break
+        error_message = (
+            'install failed: installer skill not found'
+        )
+        if "skills" in installed_skills:
+            for skill in installed_skills['skills']:
+                if skill['skill']['name'] == 'Installer':
+                    self.device_uuid = skill['deviceUuid']
+                    installer_skill = skill['skill']
+                    break
+            if installer_skill is None:
+                _log.error(error_message)
+                self.response = (error_message, HTTPStatus.INTERNAL_SERVER_ERROR)
+                raise APIError()
+        else:
+            _log.error(error_message)
+            self.response = (error_message, HTTPStatus.INTERNAL_SERVER_ERROR)
+            raise APIError()
 
         return installer_skill
 
     def _find_installer_settings(self, installer_skill):
         for section in installer_skill['skillMetadata']['sections']:
             for setting in section['fields']:
-                if setting['type'] != 'label':
-                    self.installer_skill_settings.append(setting)
+                if setting['name'] == 'to_install':
+                    self.installer_skill_settings['to_install'] = (setting['value'], setting['uuid'])
+                elif setting['name'] == 'to_remove':
+                    self.installer_skill_settings['to_remove'] = (setting['value'], setting['uuid'])
 
     def _apply_update(self):
         service_url = self.config['TARTARUS_BASE_URL'] + '/skill/field'
@@ -97,23 +115,44 @@ class SkillInstallEndpoint(SeleneEndpoint):
 
     def _build_update_request_body(self):
         install_request_body = []
-        for setting in self.installer_skill_settings:
-            if setting['name'] == 'installer_link':
-                setting_value = self.request.json['skill_url']
-            elif setting['name'] == 'auto_install':
-                setting_value = True
-            else:
-                error_message = (
-                    'found unexpected setting "{}" in installer skill settings'
-                )
-                _log.error(error_message.format(setting['name']))
-                raise ValueError(error_message.format(setting['name']))
-            install_request_body.append(
-                dict(
-                    fieldUuid=setting['uuid'],
-                    deviceUuid=self.device_uuid,
-                    value=setting_value
-                )
-            )
 
+        action = self.request.json['action']
+        section = self.request.json['section']
+        skill_name = self.request.json['skill_name']
+
+        setting_section = self.installer_skill_settings[section]
+        if setting_section is not None:
+            try:
+                block = json.loads(setting_section[0])
+            except ValueError:
+                error_message = (
+                    'found unexpected section {}: {}'
+                )
+                _log.error(error_message.format(action, setting_section[0]))
+                raise ValueError(error_message.format(action, setting_section[0]))
+            else:
+                if action == 'add':
+                    if not any(list(filter(lambda a: a['name'] == skill_name, block))):
+                        block.append({'name': skill_name})
+                elif action == 'remove':
+                    block = list(filter(lambda x: x['name'] != skill_name, block))
+                else:
+                    error_message = (
+                        'found unexpected action{}'
+                    )
+                    _log.error(error_message.format(action))
+                    raise ValueError(error_message.format(action))
+        else:
+            error_message = (
+                'found unexpected section {}'
+            )
+            _log.error(error_message.format(section))
+            raise ValueError(error_message.format(section))
+        install_request_body.append(
+            dict(
+                fieldUuid=setting_section[1],
+                deviceUuid=self.device_uuid,
+                value=json.dumps(block).replace('"', '\\"')
+            )
+        )
         return dict(batch=install_request_body)

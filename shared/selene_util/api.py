@@ -89,5 +89,8 @@ class SeleneEndpoint(Resource):
             if service_response.status_code == HTTPStatus.UNAUTHORIZED:
                 self.response = (error_message, HTTPStatus.UNAUTHORIZED)
             else:
-                self.response = (error_message, HTTPStatus.INTERNAL_SERVER_ERROR)
+                self.response = (
+                    error_message,
+                    HTTPStatus.INTERNAL_SERVER_ERROR
+                )
             raise APIError()

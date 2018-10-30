@@ -14,7 +14,7 @@ class LogoutEndpoint(SeleneEndpoint):
     def __init__(self):
         super(LogoutEndpoint, self).__init__()
 
-    def put(self):
+    def get(self):
         try:
             self._authenticate()
             self._logout()
@@ -33,5 +33,5 @@ class LogoutEndpoint(SeleneEndpoint):
             headers=service_request_headers
         )
         self._check_for_service_errors(auth_service_response)
-        logout_response = auth_service_response.json()
+        logout_response = auth_service_response.content.decode()
         self.response = (logout_response, HTTPStatus.OK)

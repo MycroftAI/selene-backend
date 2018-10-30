@@ -1,0 +1,71 @@
+<ng-container [ngSwitch]="installStatus">
+
+    <!-- Give the user the ability to remove an installed skill -->
+    <button
+        *ngSwitchCase="'installed'"
+        fxLayout="row"
+        fxLayoutAlign="center center"
+        mat-flat-button
+        class="uninstall-button"
+        (click)="uninstallSkill()"
+        [ngStyle]="installButtonStyle"
+    >
+        <fa-icon [icon]="removeIcon"></fa-icon>
+        <span>REMOVE</span>
+    </button>
+
+    <!-- System skills cannot be removed so show a lock icon and disable -->
+    <button
+        *ngSwitchCase="'system'"
+        fxLayout="row"
+        fxLayoutAlign="center center"
+        mat-flat-button
+        class="installed-button"
+        [disabled]="true"
+        [ngStyle]="installButtonStyle"
+    >
+        <fa-icon [icon]="skillLocked"></fa-icon>
+        <span>ADDED</span>
+    </button>
+
+    <!-- Use the button to indicate to the user that the install is in progress -->
+    <button
+        *ngSwitchCase="'installing'"
+        fxLayout="row"
+        fxLayoutAlign="center center"
+        mat-flat-button
+        class="installing-button"
+        [ngStyle]="installButtonStyle"
+    >
+        <div class="installing-spinner"></div>
+        ADDING...
+    </button>
+
+    <!-- Use the button to indicate to the user that an uninstall is in progress -->
+    <button
+        *ngSwitchCase="'uninstalling'"
+        fxLayout="row"
+        fxLayoutAlign="center center"
+        mat-flat-button
+        class="uninstalling-button"
+        [ngStyle]="installButtonStyle"
+    >
+        <div class="uninstalling-spinner"></div>
+        REMOVING...
+    </button>
+
+    <!-- Allow the user to add a skill to their devices -->
+    <button
+        *ngSwitchDefault
+        fxLayout="row"
+        fxLayoutAlign="center center"
+        class="install-button"
+        mat-flat-button
+        (click)="install_skill()"
+        [ngStyle]="installButtonStyle"
+    >
+        <fa-icon [icon]="addIcon"></fa-icon>
+        <span>ADD</span>
+    </button>
+
+</ng-container>

@@ -8,6 +8,7 @@ import {
     faSignOutAlt
 } from "@fortawesome/free-solid-svg-icons";
 
+import { InstallService } from "../skills/install.service";
 import { LoginService } from "../shared/login.service";
 
 @Component({
@@ -24,7 +25,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
     public menuButtonIcon = faCaretDown;
     public userMenuButtonText: string;
 
-    constructor(private loginService: LoginService) { }
+    constructor(
+        private installService: InstallService,
+        private loginService: LoginService
+    ) { }
 
     ngOnInit() {
         this.loginStatus = this.loginService.isLoggedIn.subscribe(
@@ -51,18 +55,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
     }
 
     logout() {
-        this.loginService.logout().subscribe(
-            (response) => {
-                let expiration = new Date();
-                let domain = document.domain.replace('market.', '');
-                document.cookie = 'seleneToken=""' +
-                    '; expires=' + expiration.toUTCString() +
-                    '; domain=' + domain;
-                document.cookie = 'tartarusToken=""' +
-                    '; expires=' + expiration.toUTCString() +
-                    '; domain=' + domain;
-                this.loginService.setLoginStatus();
-            }
-        )
+        this.loginService.logout();
     }
 }

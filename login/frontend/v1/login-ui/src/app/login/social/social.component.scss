@@ -1,0 +1,33 @@
+@import '../../../stylesheets/global';
+
+button {
+    @include login-button;
+}
+
+.social {
+    padding: 20px;
+    button {
+        margin-bottom: 15px;
+    }
+    fa-icon {
+        margin-right: 15px;
+        font-size: 28px;
+    }
+    .facebook-button {
+        background-color: #3b5998;
+        padding-left: 5px;
+    }
+    .github-button {
+        background-color: #333333;
+        padding-left: 5px;
+    }
+    .google-button {
+        background-color: #4285F4;
+        padding-left: 1px;
+        img {
+            margin-right: 10px;
+            width: 14%;
+        }
+    }
+}
+
