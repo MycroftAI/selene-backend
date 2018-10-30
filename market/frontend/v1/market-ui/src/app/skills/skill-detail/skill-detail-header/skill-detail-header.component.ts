@@ -11,5 +11,9 @@ export class SkillDetailHeaderComponent {
     public githubIcon = faCodeBranch;
     @Input() public skill: SkillDetail;
 
-  constructor() { }
+    constructor() { }
+
+    navigateToGithubRepo(githubRepoUrl) {
+        window.open(githubRepoUrl);
+    }
 }

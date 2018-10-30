@@ -36,8 +36,4 @@ export class SkillDetailComponent implements OnInit {
             )
         );
     }
-
-    navigateToGithubRepo(githubRepoUrl) {
-        window.open(githubRepoUrl);
-    }
 }
