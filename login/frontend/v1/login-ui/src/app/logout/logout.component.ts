@@ -13,7 +13,14 @@ export class LogoutComponent implements OnInit {
     constructor(private appService: AppService) { }
 
     ngOnInit() {
-        this.appService.extractRedirectURI();
+        let uriQuery = decodeURIComponent(window.location.search);
+        if (uriQuery.startsWith('?redirect')) {
+            localStorage.setItem(
+                'redirect',
+                decodeURIComponent(window.location.search).slice(10)
+            );
+        }
+
         this.appService.logout().subscribe(
           (response) => {this.onLogoutSuccess()},
         );

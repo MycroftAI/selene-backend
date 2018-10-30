@@ -20,9 +20,7 @@ export class AntisocialComponent implements OnInit {
 
   constructor(private authService: AppService) { }
 
-  ngOnInit() {
-        this.authService.extractRedirectURI();
-  }
+  ngOnInit() { }
 
   authorizeUser(): void {
       this.authService.authorizeAntisocial(this.username, this.password).subscribe(

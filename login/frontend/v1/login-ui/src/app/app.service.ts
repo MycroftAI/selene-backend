@@ -2,11 +2,6 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders} from "@angular/common/http";
 
 import { Observable } from 'rxjs';
-import { isArray } from "util";
-
-import { MatSnackBar } from "@angular/material";
-
-const noDelay = 0;
 
 export interface AuthResponse {
     expiration: number;
@@ -31,17 +26,14 @@ const logoutUrl = '/api/logout';
 
 @Injectable()
 export class AppService {
-    public redirectURI: string;
     private cookieDomain: string = document.domain.replace('login.', '');
 
-    constructor(private http: HttpClient, public loginSnackbar: MatSnackBar) { }
-
-    extractRedirectURI() {
-        this.redirectURI = decodeURIComponent(window.location.search).slice(10);
-    }
+    constructor(private http: HttpClient) { }
 
     navigateToRedirectURI(delay: number): void {
-        setTimeout(() => { window.location.assign(this.redirectURI) }, delay);
+        let redirectURI = localStorage.getItem('redirect');
+        localStorage.removeItem('redirect');
+        setTimeout(() => { window.location.assign(redirectURI) }, delay);
     }
 
     authorizeAntisocial (username, password): Observable<AuthResponse> {
@@ -54,57 +46,22 @@ export class AppService {
     }
 
     authenticateWithFacebook() {
-        window.open(facebookAuthUrl);
-        window.onmessage = (event) => {this.generateSocialLoginTokens(event)};
+        window.location.assign(facebookAuthUrl);
     }
 
     authenticateWithGithub() {
-        window.open(githubAuthUrl);
-        window.onmessage = (event) => {this.generateSocialLoginTokens(event)};
+        window.location.assign(githubAuthUrl);
     }
 
     authenticateWithGoogle() {
-        window.open(googleAuthUrl);
-        window.onmessage = (event) => {this.generateSocialLoginTokens(event)};
+        window.location.assign(googleAuthUrl);
     }
 
-    generateSocialLoginTokens(event: any) {
-        let socialLoginData = this.parseUriParams(event.data);
-        if (socialLoginData) {
-            this.http.post<AuthResponse>(
-                generateTokensUrl,
-                socialLoginData
-            ).subscribe(
-                (response) => {
-                    this.generateTokenCookies(response);
-                    this.navigateToRedirectURI(noDelay);
-                }
-            );
-        }
-    }
-
-    parseUriParams (uriParams: string) {
-        let socialLoginData: SocialLoginData = null;
-
-        if (uriParams.startsWith('?data=')) {
-            let parsedUriParams = JSON.parse(uriParams.slice(6));
-            if (isArray(parsedUriParams)) {
-                let socialLoginErrorMsg = 'An account exists for the email ' +
-                    'address associated with the social network log in ' +
-                    'attempt.  To enable log in using a social network, log ' +
-                    'in with your username and password and enable the ' +
-                    'social network in your account preferences.';
-                this.loginSnackbar.open(
-                    socialLoginErrorMsg,
-                    null,
-                    {duration: 30000}
-                );
-            } else {
-                socialLoginData = <SocialLoginData>parsedUriParams;
-            }
-        }
-
-        return socialLoginData
+    generateSocialLoginTokens(socialLoginData: any) {
+        return this.http.post<AuthResponse>(
+            generateTokensUrl,
+            socialLoginData
+        );
     }
 
     generateTokenCookies(authResponse: AuthResponse) {

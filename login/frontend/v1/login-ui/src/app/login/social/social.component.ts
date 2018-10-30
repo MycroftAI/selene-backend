@@ -15,9 +15,7 @@ export class SocialComponent implements OnInit {
 
     constructor(private authService: AppService) { }
 
-    ngOnInit() {
-        this.authService.extractRedirectURI();
-    }
+    ngOnInit() { }
 
     authenticateFacebook(): void {
         this.authService.authenticateWithFacebook()
