@@ -17,7 +17,7 @@ export class LogoutService {
 
     expireTokenCookies(): void {
         let expiration = new Date();
-        let domain = document.domain.replace('market.', '');
+        let domain = document.domain.replace('login.', '');
         document.cookie = 'seleneToken=""' +
             '; expires=' + expiration.toUTCString() +
             '; domain=' + domain;
