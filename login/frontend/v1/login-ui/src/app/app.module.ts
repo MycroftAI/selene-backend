@@ -14,10 +14,10 @@ import { LogoutModule } from "./logout/logout.module";
     imports: [
         BrowserModule,
         BackgroundModule,
-        LoginModule,
-        LogoutModule,
         BrowserAnimationsModule,
         FlexLayoutModule,
+        LoginModule,
+        LogoutModule,
         AppRoutingModule
     ],
     providers: [ ],
