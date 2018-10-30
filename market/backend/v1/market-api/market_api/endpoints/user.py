@@ -44,5 +44,5 @@ class UserEndpoint(SeleneEndpoint):
 
     def _build_response(self):
         """Build the response to the user info request."""
-        response_data = dict(name=self.user['name'])
+        response_data = dict(name=self.user.get('name'))
         self.response = (response_data, HTTPStatus.OK)
