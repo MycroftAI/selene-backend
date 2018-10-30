@@ -16,7 +16,7 @@ export class AppComponent implements OnInit {
     ngOnInit () {
         let uriParams = decodeURIComponent(window.location.search);
 
-        if (uriParams) {
+        if (!window.location.pathname && uriParams) {
             this.socialLoginDataFound = true;
             window.opener.postMessage(uriParams, window.location.origin);
             window.close();

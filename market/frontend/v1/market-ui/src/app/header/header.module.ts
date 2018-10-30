@@ -4,8 +4,9 @@ import { FlexLayoutModule } from "@angular/flex-layout";
 
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 
-import { MaterialModule } from "../shared/material.module";
+import { InstallService } from "../skills/install.service";
 import { HeaderComponent } from './header.component';
+import { MaterialModule } from "../shared/material.module";
 
 @NgModule({
     imports: [
@@ -16,5 +17,6 @@ import { HeaderComponent } from './header.component';
     ],
     declarations: [ HeaderComponent],
     exports: [ HeaderComponent ],
+    providers: [ InstallService ]
 })
 export class HeaderModule { }

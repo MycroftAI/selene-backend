@@ -1,0 +1,44 @@
+@import '../../../../stylesheets/global.scss';
+
+@mixin card-width {
+    width: 320px;
+}
+
+mat-card {
+    @include card-width;
+    border-radius: 10px;
+    cursor: pointer;
+    margin: 10px;
+    padding: 18px;
+    mat-card-title {
+        @include ellipsis-overflow;
+        color: $mycroft-secondary;
+        font-family: 'Roboto Mono', monospace;
+        font-weight: bold;
+        padding-bottom: 5px;
+        text-align: center;
+    }
+    mat-card-subtitle {
+        .skill-trigger {
+            @include ellipsis-overflow;
+            @include skill-trigger;
+        }
+    }
+    mat-card-content {
+        color: $mycroft-secondary;
+        @include ellipsis-overflow;
+        text-align: center;
+    }
+    mat-card-actions {
+        margin-left: 0;
+        margin-bottom: 0;
+    }
+}
+
+mat-card:hover{
+  box-shadow: 0 10px 20px 0 rgba(0, 0, 0, 0.2);
+}
+
+.login-snackbar {
+    text-align: center;
+}

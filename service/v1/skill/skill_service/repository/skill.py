@@ -47,14 +47,14 @@ def select_all_skills() -> list:
     return Skill.objects
 
 
-def select_skill_by_id(skill_id: str) -> Skill:
+def select_skill_by_name(skill_name: str) -> Skill:
     """
     Query the database for a specified skill ID
 
     :return: the Skill object with an ID matching the argument
     """
     connect_to_skill_db()
-    return Skill.objects(id=skill_id).first()
+    return Skill.objects(skill_name=skill_name).first()
 
 
 def upsert_skill(skill: Skill):

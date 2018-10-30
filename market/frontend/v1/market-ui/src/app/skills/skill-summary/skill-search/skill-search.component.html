@@ -1,0 +1,19 @@
+<!-- Search bar at top of skill listing page -->
+<div fxLayout="row" fxLayoutAlign="center" class="skill-toolbar">
+    <div fxFlex="60" (keydown.enter)="searchSkills()" class="search-field">
+        <mat-form-field>
+            <input matInput placeholder="Search Skills" type="text" [(ngModel)]="searchTerm">
+            <button mat-icon-button matSuffix="">
+                <fa-icon [icon]="searchIcon" (click)="searchSkills()"></fa-icon>
+            </button>
+        </mat-form-field>
+    </div>
+</div>
+
+<!-- Back to all skills button shown when skill listing is filtered -->
+<div *ngIf="showBackButton">
+    <button mat-icon-button class="back-button" (click)="clearSearch()">
+        <fa-icon [icon]="backArrow"></fa-icon>
+        All Skills
+    </button>
+</div>

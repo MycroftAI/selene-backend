@@ -1,12 +1,12 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
-import { SkillsComponent } from "./skills.component";
+import { SkillSummaryComponent } from "./skill-summary/skill-summary.component";
 import { SkillDetailComponent } from "./skill-detail/skill-detail.component";
 
 const routes: Routes = [
-    { path: 'skills', component: SkillsComponent },
-    { path: 'skill/:id', component: SkillDetailComponent}
+    { path: 'skills', component: SkillSummaryComponent },
+    { path: 'skill/:skillName', component: SkillDetailComponent}
 ];
 
 @NgModule({

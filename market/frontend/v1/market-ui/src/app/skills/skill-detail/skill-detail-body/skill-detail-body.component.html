@@ -1,0 +1,57 @@
+<div class="skill-detail-body" fxLayout="row wrap">
+
+    <!-- Left Side -->
+    <div class="skill-detail-body-left" fxFlex>
+        <div class="skill-detail-section">
+            <div class="mat-subheading-1">hey mycroft</div>
+            <div fxLayout="row wrap">
+                <div class="mat-body-1 skill-trigger" *ngFor="let trigger of skill.triggers">
+                    <fa-icon [icon]="triggerIcon"></fa-icon>
+                    {{trigger}}
+                </div>
+            </div>
+        </div>
+        <div class="skill-detail-section">
+            <div class="mat-subheading-1">description</div>
+            <div class="mat-body-1" [innerHTML]="skill.description"></div>
+        </div>
+        <div class="skill-detail-section">
+            <div class="mat-subheading-1">credits</div>
+            <div class="mat-body-1" *ngFor="let credit of skill.credits">
+                {{credit.name}}
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Side -->
+    <div class="skill-detail-body-right" fxFlex="20">
+        <div class="skill-detail-section">
+            <div class="mat-subheading-1">supported devices</div>
+            <div *ngIf="skill.worksOnMarkOne" class="mat-body-1" fxLayoutAlign="none center">
+                <img src="../../../../assets/mark-1-icon.svg">
+                Mark I
+            </div>
+            <div *ngIf="skill.worksOnMarkTwo" class="mat-body-1" fxLayoutAlign="none center">
+                <img src="../../../../assets/mark-2-icon.svg">
+                Mark II
+            </div>
+            <div *ngIf="skill.worksOnPicroft" class="mat-body-1" fxLayoutAlign="none center">
+                <img src="../../../../assets/picroft-icon.svg">
+                Picroft
+            </div>
+            <div *ngIf="skill.worksOnKDE" class="mat-body-1" fxLayoutAlign="none center">
+                <img src="../../../../assets/kde.svg" class="kde-icon">
+                KDE
+            </div>
+        </div>
+        <div  class="skill-detail-section">
+            <div class="mat-subheading-1">supported languages</div>
+            <div class="mat-body-1">English</div>
+        </div>
+        <div class="skill-detail-section">
+            <div class="mat-subheading-1">category</div>
+            <div class="mat-body-1">{{skill.categories[0]}}</div>
+        </div>
+    </div>
+
+</div>
