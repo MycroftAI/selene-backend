@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 
-import { LogoutService } from "./logout.service";
+import { AppService } from "../app.service";
+
+const oneSecond = 1000;
 
 @Component({
     selector: 'login-logout',
@@ -8,20 +10,17 @@ import { LogoutService } from "./logout.service";
     styleUrls: ['./logout.component.scss']
 })
 export class LogoutComponent implements OnInit {
-    private redirectUri: string;
-
-    constructor(private logoutService: LogoutService) { }
+    constructor(private appService: AppService) { }
 
     ngOnInit() {
-        this.redirectUri = decodeURIComponent(window.location.search).slice(10);
-        this.logoutService.logout().subscribe(
+        this.appService.extractRedirectURI();
+        this.appService.logout().subscribe(
           (response) => {this.onLogoutSuccess()},
         );
     }
 
     onLogoutSuccess(): void {
-        this.logoutService.expireTokenCookies();
-        setTimeout(() => { window.location.assign(this.redirectUri) }, 1000);
+        this.appService.expireTokenCookies();
+        this.appService.navigateToRedirectURI(oneSecond);
     }
-
 }

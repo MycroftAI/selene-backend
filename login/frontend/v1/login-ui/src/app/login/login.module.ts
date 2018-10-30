@@ -16,7 +16,7 @@ import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 
 import { AntisocialComponent } from './antisocial/antisocial.component';
 import { LoginComponent } from './login.component';
-import { LoginService } from "./login.service";
+import { AppService } from "../app.service";
 import { SocialComponent } from './social/social.component';
 
 @NgModule({
@@ -40,6 +40,6 @@ import { SocialComponent } from './social/social.component';
         MatInputModule,
         MatSnackBarModule
     ],
-    providers: [ LoginService ]
+    providers: [ AppService ]
 })
 export class LoginModule { }

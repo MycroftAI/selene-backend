@@ -2,8 +2,9 @@ import { Component, OnInit } from '@angular/core';
 
 import { faLock, faUser } from "@fortawesome/free-solid-svg-icons";
 
-import { AuthResponse, LoginService } from "../login.service";
+import { AuthResponse, AppService } from "../../app.service";
 
+const noDelay = 0;
 @Component({
   selector: 'login-antisocial',
   templateUrl: './antisocial.component.html',
@@ -17,10 +18,10 @@ export class AntisocialComponent implements OnInit {
     public username: string;
     public usernameIcon = faUser;
 
-  constructor(private authService: LoginService) { }
+  constructor(private authService: AppService) { }
 
   ngOnInit() {
-        this.redirectUri = decodeURIComponent(window.location.search).slice(10);
+        this.authService.extractRedirectURI();
   }
 
   authorizeUser(): void {
@@ -33,7 +34,7 @@ export class AntisocialComponent implements OnInit {
   onAuthSuccess(authResponse: AuthResponse): void {
       this.authFailed = false;
       this.authService.generateTokenCookies(authResponse);
-      window.location.assign(this.redirectUri);
+      this.authService.navigateToRedirectURI(noDelay);
   }
 
   onAuthFailure(authorizeUserResponse): void {

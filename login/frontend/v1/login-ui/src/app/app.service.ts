@@ -6,6 +6,8 @@ import { isArray } from "util";
 
 import { MatSnackBar } from "@angular/material";
 
+const noDelay = 0;
+
 export interface AuthResponse {
     expiration: number;
     seleneToken: string;
@@ -19,15 +21,27 @@ export interface SocialLoginData {
     expiration: string;
 }
 
-@Injectable()
-export class LoginService {
-    private antisocialAuthUrl = '/api/antisocial';
-    private facebookAuthUrl = '/api/social/facebook';
-    private githubAuthUrl = '/api/social/github';
-    private googleAuthUrl = '/api/social/google';
-    private generateTokensUrl = 'api/social/tokens';
+const antisocialAuthUrl = '/api/antisocial';
+const facebookAuthUrl = '/api/social/facebook';
+const githubAuthUrl = '/api/social/github';
+const googleAuthUrl = '/api/social/google';
+const generateTokensUrl = 'api/social/tokens';
+const logoutUrl = '/api/logout';
 
-    constructor(private http: HttpClient, public loginSnackbar: MatSnackBar) {
+
+@Injectable()
+export class AppService {
+    public redirectURI: string;
+    private cookieDomain: string = document.domain.replace('login.', '');
+
+    constructor(private http: HttpClient, public loginSnackbar: MatSnackBar) { }
+
+    extractRedirectURI() {
+        this.redirectURI = decodeURIComponent(window.location.search).slice(10);
+    }
+
+    navigateToRedirectURI(delay: number): void {
+        setTimeout(() => { window.location.assign(this.redirectURI) }, delay);
     }
 
     authorizeAntisocial (username, password): Observable<AuthResponse> {
@@ -36,21 +50,21 @@ export class LoginService {
         const httpHeaders = new HttpHeaders(
             {"Authorization": "Basic " + codedCredentials}
         );
-        return this.http.get<AuthResponse>(this.antisocialAuthUrl, {headers: httpHeaders})
+        return this.http.get<AuthResponse>(antisocialAuthUrl, {headers: httpHeaders})
     }
 
     authenticateWithFacebook() {
-        window.open(this.facebookAuthUrl);
+        window.open(facebookAuthUrl);
         window.onmessage = (event) => {this.generateSocialLoginTokens(event)};
     }
 
     authenticateWithGithub() {
-        window.open(this.githubAuthUrl);
+        window.open(githubAuthUrl);
         window.onmessage = (event) => {this.generateSocialLoginTokens(event)};
     }
 
     authenticateWithGoogle() {
-        window.open(this.googleAuthUrl);
+        window.open(googleAuthUrl);
         window.onmessage = (event) => {this.generateSocialLoginTokens(event)};
     }
 
@@ -58,16 +72,15 @@ export class LoginService {
         let socialLoginData = this.parseUriParams(event.data);
         if (socialLoginData) {
             this.http.post<AuthResponse>(
-                this.generateTokensUrl,
+                generateTokensUrl,
                 socialLoginData
             ).subscribe(
-                (response) => {this.generateTokenCookies(response)}
+                (response) => {
+                    this.generateTokenCookies(response);
+                    this.navigateToRedirectURI(noDelay);
+                }
             );
         }
-        return this.http.post<AuthResponse>(
-            this.generateTokensUrl,
-            socialLoginData
-        )
     }
 
     parseUriParams (uriParams: string) {
@@ -96,14 +109,26 @@ export class LoginService {
 
     generateTokenCookies(authResponse: AuthResponse) {
         let expirationDate = new Date(authResponse.expiration * 1000);
-        let domain = document.domain.replace('login.', '');
         document.cookie = 'seleneToken=' + authResponse.seleneToken +
             '; expires=' + expirationDate.toUTCString() +
-            '; domain=' + domain;
+            '; domain=' + this.cookieDomain;
         document.cookie = 'tartarusToken=' + authResponse.tartarusToken +
             '; expires=' + expirationDate.toUTCString() +
-            '; domain=' + domain;
+            '; domain=' + this.cookieDomain;
     }
 
+    logout(): Observable<any> {
+        return this.http.get(logoutUrl);
+    }
 
+    expireTokenCookies(): void {
+        let expiration = new Date();
+        document.cookie = 'seleneToken=""' +
+            '; expires=' + expiration.toUTCString() +
+            '; domain=' + this.cookieDomain;
+        document.cookie = 'tartarusToken=""' +
+            '; expires=' + expiration.toUTCString() +
+            '; domain=' + this.cookieDomain;
+
+  }
 }

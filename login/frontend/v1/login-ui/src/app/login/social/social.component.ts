@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 
 import { faFacebook, faGithub } from "@fortawesome/free-brands-svg-icons";
 
-import { LoginService } from "../login.service";
+import { AppService } from "../../app.service";
 
 @Component({
   selector: 'login-social',
@@ -13,10 +13,12 @@ export class SocialComponent implements OnInit {
     public facebookIcon = faFacebook;
     public githubIcon = faGithub;
 
-  constructor(private authService: LoginService) { }
+    constructor(private authService: AppService) { }
 
-  ngOnInit() {
-  }
+    ngOnInit() {
+        this.authService.extractRedirectURI();
+    }
+
     authenticateFacebook(): void {
         this.authService.authenticateWithFacebook()
     }

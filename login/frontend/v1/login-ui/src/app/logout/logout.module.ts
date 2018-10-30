@@ -2,11 +2,11 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import { LogoutComponent } from "./logout.component";
-import { LogoutService } from "./logout.service";
+import { AppService } from "../app.service";
 
 @NgModule({
     imports: [ CommonModule ],
     declarations: [ LogoutComponent ],
-    providers: [ LogoutService ]
+    providers: [ AppService ]
 })
 export class LogoutModule { }
