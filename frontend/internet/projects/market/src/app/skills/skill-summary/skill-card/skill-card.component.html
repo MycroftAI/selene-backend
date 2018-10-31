@@ -1,0 +1,22 @@
+<!-- This represents a single skill on the skill summary page -->
+<mat-card>
+    <!-- Make the entire card a clickable button that routes to the details -->
+    <div [routerLink]="['/skill', skill.name]">
+        <market-skill-card-header [skill]="skill"></market-skill-card-header>
+        <mat-card-title align="center">
+            {{skill.title ? skill.title : '&nbsp;'}}
+        </mat-card-title>
+        <mat-card-subtitle fxLayoutAlign="center">
+            <div class="skill-trigger">
+                <fa-icon [icon]="voiceIcon"></fa-icon>
+                {{skill.trigger}}
+            </div>
+        </mat-card-subtitle>
+        <mat-card-content [innerHTML]="skill.summary ? skill.summary : '&nbsp;'">
+        </mat-card-content>
+    </div>
+    <mat-card-actions>
+        <market-skill-install-button [skill]="skill" [component]="'skillSummary'">
+        </market-skill-install-button>
+    </mat-card-actions>
+</mat-card>

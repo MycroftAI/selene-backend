@@ -1,0 +1,80 @@
+@import '../../../stylesheets/global.scss';
+
+@mixin install-status {
+    border-radius: 4px;
+    letter-spacing: 0.5px;
+}
+
+// The angular material spinner was limiting in color choices we built our own
+@mixin spinner-common {
+    animation: spin 1s ease-in-out infinite;
+    border: 2px solid rgba(255,255,255,.3);
+    border-radius: 50%;
+    display: inline-block;
+    height: 15px;
+    margin-right: 10px;
+    width: 15px;
+}
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+fa-icon {
+    margin-right: 10px;
+    opacity: 0.6;
+}
+
+.install-button {
+    @include install-status;
+    background-color: $mycroft-primary ;
+    color: $mycroft-white;
+}
+.install-button:hover {
+    @include install-status;
+    background-color: $mycroft-tertiary-green;
+    color: $mycroft-secondary;
+}
+
+.installed-button {
+    @include install-status;
+}
+
+.installing-button {
+    @include install-status;
+    background-color: $mycroft-tertiary-green;
+    color: $mycroft-secondary;
+    mat-spinner {
+        float: left;
+        margin-right: 10px;
+        margin-top: 7px;
+    }
+}
+.installing-spinner {
+    @include spinner-common;
+    border-right-color: $mycroft-secondary;
+    border-top-color: $mycroft-secondary;
+}
+
+
+.uninstall-button {
+    @include install-status;
+    background-color: $mycroft-dark-grey;
+    color: $mycroft-white;
+}
+.uninstall-button:hover {
+    @include install-status;
+    border: none;
+    background-color: #eb5757;
+    color: $mycroft-white;
+}
+
+.uninstalling-button {
+    @include install-status;
+    background-color: #eb5757;
+    color: $mycroft-white;
+}
+.uninstalling-spinner {
+    @include spinner-common;
+    border-right-color: $mycroft-white;
+    border-top-color: $mycroft-white;
+}

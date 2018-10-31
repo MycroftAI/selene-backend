@@ -1,0 +1,37 @@
+    <!-- Header block -->
+    <div class="skill-detail-header" fxLayout="row wrap">
+
+        <!-- Left Side -->
+        <div class="skill-detail-header-left" fxFlex>
+            <!-- there cannot be an icon and an icon_image.  show the
+                 image if it exists otherwise show the icon -->
+            <img *ngIf="skill.iconImage" src={{skill.iconImage}} height="70" width="70">
+            <fa
+                *ngIf="!skill.iconImage"
+                [ngStyle]="{'color': skill.icon.color}"
+                name={{skill.icon.icon}}
+            >
+            </fa>
+            <div fxFlex>
+                <h1>{{skill.title}}</h1>
+                <div class="mat-body-1" [innerHTML]="skill.summary"></div>
+            </div>
+        </div>
+
+        <!-- Right Side -->
+        <div class="skill-detail-header-right" fxFlex="20">
+            <market-skill-install-button [skill]="skill" [component]="'skillDetail'">
+            </market-skill-install-button>
+            <div>
+                <button
+                    mat-icon-button
+                    class="github-button"
+                    (click)="navigateToGithubRepo(skill.repositoryUrl)"
+                >
+                    <fa-icon [icon]="githubIcon"></fa-icon>
+                    GitHub Repository
+                </button>
+            </div>
+        </div>
+
+    </div>
