@@ -133,7 +133,7 @@ export class InstallService {
         if (isSystemSkill) {
             installStatus = 'system';
         } else {
-            installStatus = installStatuses[name];
+            installStatus = installStatuses[skillName];
         }
 
         return installStatus;
