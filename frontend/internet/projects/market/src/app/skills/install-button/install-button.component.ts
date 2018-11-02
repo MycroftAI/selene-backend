@@ -52,7 +52,7 @@ export class InstallButtonComponent implements OnInit {
         if (this.component === 'skillDetail') {
             this.installButtonStyle = {'width': '140px'};
         } else if (this.component === 'skillSummary') {
-            this.installButtonStyle = {'width': '320px', 'margin-bottom': '15px'};
+            this.installButtonStyle = {'width': '320px', 'margin-bottom': '8px'};
         }
     }
 
