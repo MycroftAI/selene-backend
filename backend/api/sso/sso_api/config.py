@@ -29,7 +29,7 @@ class ProdConfig(BaseConfig):
 
 def get_config_location():
     environment_configs = dict(
-        dev='login_api.config.DevelopmentConfig',
+        dev='sso_api.config.DevelopmentConfig',
         test=TestConfig,
         prod=ProdConfig
     )

@@ -4,13 +4,14 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
+flask = "*"
+requests = "*"
 flask-restful = "*"
-mongoengine = "*"
-pygithub = "*"
+pyjwt = "*"
 uwsgi = "*"
+markdown = "*"
 
 [dev-packages]
-selene-util = {path = "./../../../shared"}
 
 [requires]
 python_version = "3.7"

@@ -3,7 +3,7 @@
 from flask import Flask
 from flask_restful import Api
 
-from skill_service.api.endpoints import AllSkillsEndpoint, SkillDetailEndpoint
+from .endpoints import AllSkillsEndpoint, SkillDetailEndpoint
 # from .config import get_config_location
 
 

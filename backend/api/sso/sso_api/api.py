@@ -11,17 +11,17 @@ from .endpoints import (
 )
 from .config import get_config_location
 # Initialize the Flask application and the Flask Restful API
-login = Flask(__name__)
-login.config.from_object(get_config_location())
-login_api = Api(login, catch_all_404s=True)
+sso = Flask(__name__)
+sso.config.from_object(get_config_location())
+sso_api = Api(sso, catch_all_404s=True)
 
 # Define the endpoints
-login_api.add_resource(AuthenticateAntisocialEndpoint, '/api/antisocial')
-login_api.add_resource(AuthorizeFacebookEndpoint, '/api/social/facebook')
-login_api.add_resource(AuthorizeGithubEndpoint, '/api/social/github')
-login_api.add_resource(AuthorizeGoogleEndpoint, '/api/social/google')
-login_api.add_resource(SocialLoginTokensEndpoint, '/api/social/tokens')
-login_api.add_resource(LogoutEndpoint, '/api/logout')
+sso_api.add_resource(AuthenticateAntisocialEndpoint, '/api/antisocial')
+sso_api.add_resource(AuthorizeFacebookEndpoint, '/api/social/facebook')
+sso_api.add_resource(AuthorizeGithubEndpoint, '/api/social/github')
+sso_api.add_resource(AuthorizeGoogleEndpoint, '/api/social/google')
+sso_api.add_resource(SocialLoginTokensEndpoint, '/api/social/tokens')
+sso_api.add_resource(LogoutEndpoint, '/api/logout')
 
 
 def add_cors_headers(response):
@@ -38,4 +38,4 @@ def add_cors_headers(response):
     return response
 
 
-login.after_request(add_cors_headers)
+sso.after_request(add_cors_headers)

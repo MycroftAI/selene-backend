@@ -16,7 +16,7 @@ RUN rm Pipfile
 RUN rm Pipfile.lock
 
 # Load the skill service application to the image
-COPY login_api /opt/selene/login_api
+COPY sso_api /opt/selene/login_api
 WORKDIR /opt/selene/
 
 EXPOSE 7102

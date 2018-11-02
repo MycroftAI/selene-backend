@@ -12,19 +12,19 @@ from market_api.endpoints import (
 )
 
 # Define the Flask application
-marketplace = Flask(__name__)
-marketplace.config.from_object(get_config_location())
+market = Flask(__name__)
+market.config.from_object(get_config_location())
 
 # Define the API and its endpoints.
-marketplace_api = Api(marketplace)
-marketplace_api.add_resource(AvailableSkillsEndpoint, '/api/skill/available')
-marketplace_api.add_resource(
+market_api = Api(market)
+market_api.add_resource(AvailableSkillsEndpoint, '/api/skill/available')
+market_api.add_resource(
     SkillDetailEndpoint,
     '/api/skill/detail/<skill_name>'
 )
-marketplace_api.add_resource(SkillInstallEndpoint, '/api/skill/install')
-marketplace_api.add_resource(
+market_api.add_resource(SkillInstallEndpoint, '/api/skill/install')
+market_api.add_resource(
     SkillInstallationsEndpoint,
     '/api/skill/installations'
 )
-marketplace_api.add_resource(UserEndpoint, '/api/user')
+market_api.add_resource(UserEndpoint, '/api/user')
