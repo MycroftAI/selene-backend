@@ -4,7 +4,7 @@ from time import time
 
 import jwt
 
-THIRTY_DAYS = 2592000
+ONE_DAY = 2592000
 
 _log = getLogger(__package__)
 
@@ -18,7 +18,7 @@ def encode_auth_token(secret_key, user_uuid):
     Generates the Auth Token
     :return: string
     """
-    token_expiration = time() + THIRTY_DAYS
+    token_expiration = time() + ONE_DAY
     payload = dict(iat=datetime.utcnow(), exp=token_expiration, sub=user_uuid)
     selene_token = jwt.encode(
         payload,
