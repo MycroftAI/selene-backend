@@ -4,7 +4,7 @@ from time import time
 
 import jwt
 
-ONE_DAY = 2592000
+ONE_DAY = 86400
 
 _log = getLogger(__package__)
 
