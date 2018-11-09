@@ -83,10 +83,6 @@ $mycroft-theme: mat-light-theme($mycroft-palette-primary, $mycroft-palette-accen
 // include the custom theme object into the angular material theme
 @include angular-material-theme($mycroft-theme);
 
-body {
-    background-color: #f1f1f1;
-}
-
 .mycroft-snackbar {
     width: 500px;
 }
