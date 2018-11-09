@@ -1,0 +1,23 @@
+// Use inline css to display the logo at top of sidebar because Angular
+// libraries do not support static assets yet.
+.globalnav-logo {
+    background: url("sidenav-logo.svg") no-repeat;
+    height: 30px;
+    margin: 20px;
+}
+
+mat-sidenav {
+    width: 220px;
+
+    mat-divider {
+        width: 200px;
+        margin-left: 10px;
+    }
+    mat-nav-list {
+        overflow-y: auto;
+    }
+}
+
+mat-sidenav-content {
+    background-color: #f1f3f4;
+}

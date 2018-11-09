@@ -1,0 +1,29 @@
+<mat-sidenav-container>
+    <mat-sidenav [mode]="'side'" [disableClose]="true" [opened]="true" [fixedInViewport]="true">
+        <div fxFill fxLayout="column">
+            <div fxFlex="initial">
+                <div class="globalnav-logo"></div>
+                <mat-divider></mat-divider>
+            </div>
+            <div fxFlex>
+                <mat-nav-list >
+                    <globalnav-primary-nav-item
+                        *ngFor="let nav of navigationItems"
+                        [primaryNavItem]="nav"
+                    >
+                    </globalnav-primary-nav-item>
+                </mat-nav-list>
+            </div>
+            <globalnav-footer
+                [contactUsUrl]="contactUsUrl"
+                [mediaKitUrl]="mediaKitUrl"
+                [privacyPolicyUrl]="privacyPolicyUrl"
+                [termsOfUseUrl]="termsOfUseUrl"
+            >
+            </globalnav-footer>
+        </div>
+    </mat-sidenav>
+    <mat-sidenav-content>
+        <ng-content select="[appBody]"></ng-content>
+    </mat-sidenav-content>
+</mat-sidenav-container>

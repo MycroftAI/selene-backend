@@ -433,6 +433,41 @@
           }
         }
       }
+    },
+    "globalnav": {
+      "root": "projects/globalnav",
+      "sourceRoot": "projects/globalnav/src",
+      "projectType": "library",
+      "prefix": "globalnav",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-ng-packagr:build",
+          "options": {
+            "tsConfig": "projects/globalnav/tsconfig.lib.json",
+            "project": "projects/globalnav/ng-package.json"
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/globalnav/src/test.ts",
+            "tsConfig": "projects/globalnav/tsconfig.spec.json",
+            "karmaConfig": "projects/globalnav/karma.conf.js"
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "projects/globalnav/tsconfig.lib.json",
+              "projects/globalnav/tsconfig.spec.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        }
+      }
     }
   },
   "defaultProject": "internet"

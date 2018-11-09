@@ -1,0 +1,25 @@
+<div fxFlex="nogrow" class="nav-footer">
+    <mat-divider></mat-divider>
+    <div fxLayout="row wrap" fxLayoutAlign="start" style="margin-left: -10px;">
+        <button
+            *ngFor="let media of socialMediaIcons"
+            mat-icon-button
+            (click)="navigateToSocialMedia(media.url)"
+        >
+            <fa-icon [icon]="media.icon"></fa-icon>
+        </button>
+    </div>
+    <div>
+        <button mat-flat-button (click)="navigateToContactUs()" class="footer-text">Contact Us</button>
+    </div>
+    <div>
+        <button mat-flat-button (click)="navigateToMediaKit()" class="footer-text">Media Kit</button>
+    </div>
+    <div>
+        <button mat-flat-button (click)="navigateToTermsOfUse()" class="footer-text">Terms of Use</button>
+    </div>
+    <div>
+        <button mat-flat-button (click)="navigateToPrivacyPolicy()" class="footer-text">Privacy Policy</button>
+    </div>
+    <div class="mat-body-2">&copy; Mycroft AI, Inc.</div>
+</div>

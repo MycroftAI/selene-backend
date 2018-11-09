@@ -4,8 +4,13 @@
 
 export const environment = {
     production: false,
-    apiUrl: 'http://localhost:5002',
-    loginUrl: 'http://localhost:4201'
+    chatUrl: 'https://chat.mycroft.ai',
+    forumUrl: 'https://forum.mycroft.ai',
+    singleSignOnUrl: 'http://localhost:4201',
+    accountUrl: 'https://home-test.mycroft.ai',
+    marketplaceUrl: 'http://localhost:4202',
+    translateUrl: 'https://translate-test.mycroft.ai',
+    wordpressUrl: 'https://test.mycroft.ai'
 };
 
 /*

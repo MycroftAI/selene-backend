@@ -16,6 +16,14 @@
     "lib": [
       "es2018",
       "dom"
-    ]
+    ],
+    "paths": {
+      "globalnav": [
+        "dist/globalnav"
+      ],
+      "globalnav/*": [
+        "dist/globalnav/*"
+      ]
+    }
   }
 }
