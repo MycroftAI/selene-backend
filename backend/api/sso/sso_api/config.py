@@ -8,9 +8,9 @@ class LoginConfigException(Exception):
 class BaseConfig:
     """Base configuration."""
     DEBUG = False
-    LOGIN_BASE_URL = os.environ['LOGIN_BASE_URL']
     SECRET_KEY = os.environ['JWT_SECRET']
-    SELENE_BASE_URL = os.environ['SELENE_BASE_URL']
+    SERVICE_BASE_URL = os.environ['SERVICE_BASE_URL']
+    SSO_BASE_URL = os.environ['SSO_BASE_URL']
     TARTARUS_BASE_URL = os.environ['TARTARUS_BASE_URL']
 
 
@@ -29,7 +29,7 @@ class ProdConfig(BaseConfig):
 
 def get_config_location():
     environment_configs = dict(
-        dev='sso_api.config.DevelopmentConfig',
+        dev=DevelopmentConfig,
         test=TestConfig,
         prod=ProdConfig
     )
