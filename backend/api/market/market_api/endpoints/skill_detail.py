@@ -34,7 +34,7 @@ class SkillDetailEndpoint(SeleneEndpoint):
     def _get_skill_details(self) -> RepositorySkill:
         """Build the data to include in the response."""
         skill_service_response = service_request.get(
-            self.config['SELENE_BASE_URL'] + '/skill/name/' + self.skill_name
+            self.config['SERVICE_BASE_URL'] + '/skill/name/' + self.skill_name
         )
         self._check_for_service_errors(skill_service_response)
 

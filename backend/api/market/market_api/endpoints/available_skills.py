@@ -40,7 +40,7 @@ class AvailableSkillsEndpoint(SeleneEndpoint):
         repository.  The JSON object contains metadata about each skill.
         """
         skill_service_response = service_request.get(
-            self.config['SELENE_BASE_URL'] + '/skill/all'
+            self.config['SERVICE_BASE_URL'] + '/skill/all'
         )
         if skill_service_response.status_code != HTTPStatus.OK:
             self._check_for_service_errors(skill_service_response)
