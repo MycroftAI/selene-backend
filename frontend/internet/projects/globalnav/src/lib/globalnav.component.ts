@@ -108,7 +108,7 @@ export class GlobalnavComponent implements OnInit {
     buildAccountNav() {
         const accountNav: PrimaryNavItem = {
             icon: faUser,
-            text: 'Account'
+            text: 'My Account'
         };
         if (this.isLoggedIn) {
             accountNav.children = [
