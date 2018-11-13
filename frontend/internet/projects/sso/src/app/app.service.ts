@@ -26,7 +26,7 @@ const logoutUrl = '/api/logout';
 
 @Injectable()
 export class AppService {
-    private cookieDomain: string = document.domain.replace('login.', '');
+    private cookieDomain: string = document.domain.replace('sso.', '');
 
     constructor(private http: HttpClient) { }
 
