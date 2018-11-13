@@ -9,10 +9,6 @@ LABEL maintainer="Mycroft AI <devops@mycroft.ai>"
 # Install the software required for this image
 RUN pip install pipenv
 
-# Copy the applicaction code to the image
-COPY selene_util /opt/selene/selene_util
-WORKDIR /opt/selene/
-
 # Use pipenv to install the dependencies for selene-util
 COPY Pipfile Pipfile
 COPY Pipfile.lock Pipfile.lock
@@ -24,3 +20,7 @@ RUN pipenv install --system
 # or applications that will use this Docker config
 RUN rm /opt/selene/Pipfile
 RUN rm /opt/selene/Pipfile.lock
+
+# Copy the applicaction code to the image
+COPY selene_util /opt/selene/selene_util
+WORKDIR /opt/selene/
