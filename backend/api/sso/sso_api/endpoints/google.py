@@ -11,7 +11,7 @@ class AuthorizeGoogleEndpoint(SeleneEndpoint):
         tartarus_auth_endpoint = (
             '{tartarus_url}/social/auth/google'
             '?clientUri={login_url}&path=/social/login'.format(
-                login_url=self.config['LOGIN_BASE_URL'],
+                login_url=self.config['SSO_BASE_URL'],
                 tartarus_url=self.config['TARTARUS_BASE_URL']
             )
         )
