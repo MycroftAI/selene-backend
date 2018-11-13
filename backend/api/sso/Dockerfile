@@ -2,7 +2,7 @@
 
 # The selene-shared parent image contains all the common Docker configs for
 # all Selene apps and services see the "shared" directory in this repository.
-FROM docker.mycroft.ai/selene-shared:latest
+FROM docker.mycroft.ai/selene-shared:2018.4
 LABEL description="Run the API for the Mycroft login screen"
 
 # Use pipenv to install the package's dependencies in the container
@@ -16,7 +16,7 @@ RUN rm Pipfile
 RUN rm Pipfile.lock
 
 # Load the skill service application to the image
-COPY sso_api /opt/selene/login_api
+COPY sso_api /opt/selene/sso_api
 WORKDIR /opt/selene/
 
 EXPOSE 7102
