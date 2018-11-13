@@ -205,6 +205,22 @@
                   "maximumError": "5mb"
                 }
               ]
+            },
+            "test": {
+              "fileReplacements": [
+                {
+                  "replace": "projects/market/src/environments/environment.ts",
+                  "with": "projects/market/src/environments/environment.test.ts"
+                }
+              ]
+            },
+            "development": {
+              "fileReplacements": [
+                {
+                  "replace": "projects/market/src/environments/environment.ts",
+                  "with": "projects/market/src/environments/environment.dev.ts"
+                }
+              ]
             }
           }
         },
@@ -353,6 +369,22 @@
                   "type": "initial",
                   "maximumWarning": "2mb",
                   "maximumError": "5mb"
+                }
+              ]
+            },
+            "test": {
+              "fileReplacements": [
+                {
+                  "replace": "projects/market/src/environments/environment.ts",
+                  "with": "projects/market/src/environments/environment.test.ts"
+                }
+              ]
+            },
+            "development": {
+              "fileReplacements": [
+                {
+                  "replace": "projects/market/src/environments/environment.ts",
+                  "with": "projects/market/src/environments/environment.dev.ts"
                 }
               ]
             }
