@@ -8,6 +8,7 @@ RUN npm install
 COPY . .
 ARG selene_env
 ARG application_name
+RUN npm run build -- --project=globalnav
 RUN npm run build-${selene_env} -- --project=${application_name}
 
 # STAGE TWO: build the web server and copy the compiled angular app to it.
