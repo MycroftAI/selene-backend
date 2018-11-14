@@ -4,6 +4,11 @@
     //position: fixed;
 }
 
+.social-icons {
+    width: 180px;
+    margin-left: -10px;
+}
+
 fa-icon {
     color: #6c7a89;
     font-size: 20px;
@@ -11,6 +16,7 @@ fa-icon {
 
 .footer-text {
     color: #6c7a89;
+    font-weight: 400;
     line-height: 30px;
     padding: 0;
 }
