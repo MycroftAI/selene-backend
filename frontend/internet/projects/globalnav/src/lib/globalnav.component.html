@@ -9,10 +9,12 @@
 </mat-toolbar>
 
 <mat-sidenav-container>
-    <mat-sidenav #snav
-            [mode]="mobileQuery.matches ? 'over' : 'side'"
-            [opened]="!mobileQuery.matches"
-            [fixedInViewport]="true">
+    <mat-sidenav
+        #snav
+        [mode]="mobileQuery.matches ? 'over' : 'side'"
+        [opened]="!mobileQuery.matches"
+        [fixedInViewport]="true"
+    >
         <div fxFill fxLayout="column">
             <div fxFlex="initial">
                 <a href="{{environment.wordpressUrl}}">
