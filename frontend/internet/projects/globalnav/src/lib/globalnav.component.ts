@@ -7,7 +7,7 @@ import {
     faRocket,
     faRss,
     faStore,
-    faUser,
+    faUserCircle,
     faUsers
 } from '@fortawesome/free-solid-svg-icons';
 
@@ -107,7 +107,7 @@ export class GlobalnavComponent implements OnInit {
 
     buildAccountNav() {
         const accountNav: PrimaryNavItem = {
-            icon: faUser,
+            icon: faUserCircle,
             text: 'My Account'
         };
         if (this.isLoggedIn) {
