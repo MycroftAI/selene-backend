@@ -1,7 +1,8 @@
 import { Component, Input, OnInit } from '@angular/core';
-
+import { MediaMatcher } from '@angular/cdk/layout';
 import { PrimaryNavItem } from './globalnav.service';
 import {
+    faBars,
     faLightbulb,
     faRobot,
     faRocket,
@@ -18,15 +19,18 @@ import {
 })
 
 export class GlobalnavComponent implements OnInit {
-    public navigationItems: PrimaryNavItem[];
     @Input() environment: any;
     public contactUsUrl: string;
-    public mediaKitUrl: string;
-    public termsOfUseUrl: string;
-    public privacyPolicyUrl: string;
     public isLoggedIn: boolean;
+    public mediaKitUrl: string;
+    public menuIcon = faBars;
+    public mobileQuery: MediaQueryList;
+    public navigationItems: PrimaryNavItem[];
+    public privacyPolicyUrl: string;
+    public termsOfUseUrl: string;
 
-    constructor() {
+    constructor(media: MediaMatcher) {
+        this.mobileQuery = media.matchMedia('(max-width: 600px)');
     }
 
     ngOnInit() {
@@ -61,8 +65,8 @@ export class GlobalnavComponent implements OnInit {
             children: [
                 {text: 'GitHub', url: 'https://github.com/MycroftAI'},
                 {text: 'Translate', url: this.environment.translateUrl},
-                {text: 'Wake Word Tagger', url: this.environment.accountUrl + '/#/precise'},
-                {text: 'Text-to-Speech Tagger', url: this.environment.accountUrl + '/#/deepspeech'}
+                {text: 'Wake Words', url: this.environment.accountUrl + '/#/precise'},
+                {text: 'Text to Speech', url: this.environment.accountUrl + '/#/deepspeech'}
             ],
             icon: faLightbulb,
             text: 'Contribute'

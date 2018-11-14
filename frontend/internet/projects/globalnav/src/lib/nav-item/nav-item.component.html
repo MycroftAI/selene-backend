@@ -1,6 +1,4 @@
 <mat-list-item (click)="navigateToUrl()">
-    <div fxLayout="row" [ngStyle]="navItemStyle">
-        <span fxFlex="20"></span>
-        <span fxFlex class="mat-body-1">{{item.text}}</span>
-    </div>
+        <div style="width: 40px"></div>
+        <span class="mat-body-1" [ngStyle]="navItemStyle">{{item.text}}</span>
 </mat-list-item>

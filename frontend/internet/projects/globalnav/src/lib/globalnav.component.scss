@@ -1,21 +1,49 @@
+.app-container {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
 // Use inline css to display the logo at top of sidebar because Angular
 // libraries do not support static assets yet.
-.globalnav-logo {
-    background: url("sidenav-logo.svg") no-repeat;
-    height: 30px;
-    margin: 20px;
+mat-toolbar {
+    height: 50px;
+    position: fixed;
+    z-index: 2;
+    button {
+        margin-right: 20px;
+        fa-icon {
+            color: white;
+            font-size: 20px;
+        }
+    }
+    .globalnav-logo {
+        background: url("toolbar-logo.svg") no-repeat;
+        height: 25px;
+        margin-top: -5px;
+        width: 168px;
+    }
 }
 
-mat-sidenav {
-    mat-divider {
-        width: 200px;
-        margin-left: 10px;
+mat-sidenav-container {
+    mat-sidenav {
+        border: none;
+        margin-top: 50px;
+        mat-divider {
+            width: 200px;
+            margin-left: 10px;
+        }
+        mat-nav-list {
+            overflow-y: auto;
+        }
     }
-    mat-nav-list {
-        overflow-y: auto;
-    }
+    mat-sidenav-content {
+        margin-top: 50px;
+        background-color: #f1f3f4;
+}
 }
 
-mat-sidenav-content {
-    background-color: #f1f3f4;
-}

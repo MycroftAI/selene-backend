@@ -19,11 +19,8 @@ export class NavItemComponent implements OnInit {
     }
 
     buildNavItemStyle() {
-        this.navItemStyle = {'width': '100%'};
         if (window.location.href.includes(this.item.url)) {
-            this.navItemStyle['background-color'] = '#22a7f0';
-            this.navItemStyle['color'] = 'white';
-            this.navItemStyle['border-radius'] = '4px';
+            this.navItemStyle = {'color': '#22a7f0'};
         }
     }
     navigateToUrl() {

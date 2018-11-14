@@ -1,7 +1,10 @@
 <mat-list-item (click)="onItemSelected()" class="nav-item">
     <div fxLayout="row" style="width: 100%;">
-        <fa-icon fxFlex="20" [icon]="primaryNavItem.icon" class="nav-item-icon"></fa-icon>
-        <span fxFlex>
+        <!-- Not all of the icons are the same width so center them -->
+        <span style="text-align: center; width: 20px; margin-right: 20px">
+            <fa-icon [icon]="primaryNavItem.icon" style="color: #22a7f0"></fa-icon>
+        </span>
+        <span>
             {{primaryNavItem.text}}
         </span>
     </div>

@@ -4,6 +4,7 @@
         <button
             *ngFor="let media of socialMediaIcons"
             mat-icon-button
+            class="social-icon-button"
             (click)="navigateToSocialMedia(media.url)"
         >
             <fa-icon [icon]="media.icon"></fa-icon>

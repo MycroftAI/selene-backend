@@ -6,6 +6,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatListModule } from '@angular/material';
 import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatToolbarModule } from '@angular/material/toolbar';
 
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
@@ -24,7 +25,8 @@ import { FooterComponent } from './footer/footer.component';
         MatDividerModule,
         MatExpansionModule,
         MatListModule,
-        MatSidenavModule
+        MatSidenavModule,
+        MatToolbarModule,
     ],
     declarations: [
         GlobalnavComponent,
