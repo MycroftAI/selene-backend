@@ -1,0 +1,13 @@
+{
+    "$schema": "../../node_modules/ng-packagr/ng-package.schema.json",
+    "dest": "../../dist/globalnav",
+    "lib": {
+        "entryFile": "src/public_api.ts",
+        "cssUrl": "inline",
+        "umdModuleIds": {
+            "@fortawesome/angular-fontawesome": "angularFontawesome",
+            "@fortawesome/free-brands-svg-icons": "freeBrandsSvgIcons",
+            "@fortawesome/free-solid-svg-icons": "freeSolidSvgIcons"
+        }
+    }
+}

@@ -1,0 +1,228 @@
+swagger: '2.0'
+info:
+  description: >-
+    The marketplace is where users can access the skills available to install on
+    their devices.  In the future, other products like voices and hardware will
+    be available through the store.
+  version: '2018.3'
+  title: Mycroft Marketplace
+host: market.mycroft.ai
+basePath: /api
+tags:
+  - name: skill
+    description: >-
+      Browse information about available skills and manage skills on your
+      devices.
+schemes:
+  - https
+paths:
+  /skill/available:
+    get:
+      tags:
+        - skill
+      summary: Retrieve all available skills for devices using Mycroft.
+      description: >-
+        The data retrieved is based on the skill metadata found in the
+        mycroft-skills-data Github repository.
+      parameters:
+        - name: search
+          in: query
+          description: >-
+            Filter skills by comparing the value of this parameter to a skill's
+            title, summary, description, categories and tags.  All skills are
+            returned when this parameter is omitted.
+          required: false
+          type: string
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/SkillSummary'
+  '/skill/detail/{skillName}':
+    get:
+      tags:
+        - skill
+      summary: Retrieve more detailed information about a selected skill.
+      description: >-
+        This endpoint provides more information about a skill than is provided
+        in the available skills endpoint.
+      parameters:
+        - name: skillName
+          in: path
+          description: Unique name of the skill to return.
+          required: true
+          type: string
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/SkillDetail'
+  '/skill/installations':
+    get:
+      tags:
+        - skill
+      summary: Retrieve the installation status of skills for a user.
+      description: >-
+        When a user is logged in, this endpoint will return the skills known by that user's device(s).  It will communicate the installation status of each skill as it relates to a user's devices.
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Installations'
+definitions:
+  SkillSummary:
+    description: >-
+      Subset of the skill metadata used for generating a list of available
+      skills.
+    type: object
+    properties:
+      icon:
+        $ref: '#/definitions/Icon'
+      iconImage:
+        description: >-
+          Url to an icon image.  When provided it will take precedence over the
+          value of the icon field.
+        format: uri
+        type: string
+      isMycroftMade:
+        description: Denotes a skill that is written by someone on the Mycroft team.
+        type: boolean
+      isSystemSkill:
+        description: >-
+          System skills are treated differently than others in that they are all
+          installed on a device by default and cannot be installed.  Volume
+          control is an example.
+        type: boolean
+      marketCategory:
+        description: >-
+          A skill may have many categories.  The first category defined is used
+          when displaying the list of available skills.
+        example: Music
+        type: string
+      name:
+        description: >-
+          uniquely identifying name of skill that is the same as the skill's
+          submodule name in the mycroft-skills Github repository
+        example: spotify
+        type: string
+      summary:
+        description: A short phrase describing the skill's function
+        example: Listen to music from your Spotify account
+        type: string
+      title:
+        example: Spotify
+        type: string
+      trigger:
+        description: Example of a voice command that triggers the skill.
+        example: Play Rush on Spotify
+        type: string
+  SkillDetail:
+    type: object
+    properties:
+      categories:
+        description: All categories related to the skill
+        example:
+          - Music
+          - Entertainment
+        type: array
+        items:
+          type: string
+      credits:
+        $ref: '#/definitions/Credits'
+      description:
+        description: Detailed description of the skill and its capabilities.
+        type: string
+      icon:
+        $ref: '#/definitions/Icon'
+      iconImage:
+        description: >-
+          Url to an icon image.  When provided it will take precedence over the
+          value of the icon field.
+        format: uri
+        type: string
+      isSystemSkill:
+        description: >-
+          System skills are treated differently than others in that they are all
+          installed on a device by default and cannot be installed.  Volume
+          control is an example.
+        type: boolean
+      marketCategory:
+        description: >-
+          A skill may have many categories.  The first category defined is used
+          when displaying the list of available skills.
+        example: Music
+        type: string
+      name:
+        description: >-
+          uniquely identifying name of skill that is the same as the skill's
+          submodule name in the mycroft-skills Github repository
+        example: Spotify
+        type: string
+      platforms:
+        description: Lists the platforms this skill can run on. Defaults to "any"
+        example:
+          - Mark I
+          - Mark II
+        type: array
+        items:
+          type: string
+      repositoryUrl:
+        description: A URL representing the Github page for that skill.
+      summary:
+        description: A short phrase describing the skill's function
+        example: Listen to music from your Spotify account
+        type: string
+      title:
+        example: Spotify
+        type: string
+      triggers:
+        description: Examples of a voice commands that trigger the skill.
+        example:
+          - Play Rush on Spotify
+          - Play Discover Weekly
+        type: array
+        items:
+          type: string
+  Credits:
+    type: object
+    properties:
+      name:
+        example: Mycroft AI
+        type: string
+      githubId:
+        type: string
+  Icon:
+    description: >-
+      Identifies a FontAwesome icon representing the skill and the color of the
+      icon
+    type: object
+    properties:
+      name:
+        description: Name of the icon as defined in the FontAwesome library
+        example: music
+        type: string
+      color:
+        description: The color that will be applied to the icon in the UI.
+        example: '#22a7f0'
+        type: string
+        format: hex
+  Installations:
+    description: >-
+      Install status of all skills on a user's device(s) and the reason for installation failures, if there are any.
+    properties:
+      installStatuses:
+        type: object
+      failureReasons:
+        type: object
