@@ -3,7 +3,7 @@ import json
 from time import time
 
 from selene_util.api import SeleneEndpoint
-from selene_util.auth import encode_auth_token, THIRTY_DAYS
+from selene_util.auth import encode_auth_token, ONE_DAY
 
 
 class SocialLoginTokensEndpoint(SeleneEndpoint):
@@ -25,7 +25,7 @@ class SocialLoginTokensEndpoint(SeleneEndpoint):
 
     def _build_response(self):
         response_data = dict(
-            expiration=time() + THIRTY_DAYS,
+            expiration=time() + ONE_DAY,
             seleneToken=self.selene_token,
             tartarusToken=self.tartarus_token,
         )

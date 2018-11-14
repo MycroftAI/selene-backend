@@ -5,7 +5,7 @@ from time import time
 import requests as service_request
 
 from selene_util.api import SeleneEndpoint, APIError
-from selene_util.auth import encode_auth_token, THIRTY_DAYS
+from selene_util.auth import encode_auth_token, ONE_DAY
 
 
 class AuthenticateAntisocialEndpoint(SeleneEndpoint):
@@ -47,7 +47,7 @@ class AuthenticateAntisocialEndpoint(SeleneEndpoint):
             self.config['SECRET_KEY'], self.users_uuid
         )
         response_data = dict(
-            expiration=time() + THIRTY_DAYS,
+            expiration=time() + ONE_DAY,
             seleneToken=self.selene_token,
             tartarusToken=self.tartarus_token,
         )
