@@ -71,7 +71,7 @@ class SkillInstallEndpoint(SeleneEndpoint):
         )
         if "skills" in installed_skills:
             for skill in installed_skills['skills']:
-                if skill['skill']['name'] == 'Installer':
+                if skill['skill']['name'] == 'Installer' and self.validate_skill_installer(skill['skill']):
                     self.device_uuid = skill['deviceUuid']
                     installer_skill = skill['skill']
                     break
@@ -85,6 +85,16 @@ class SkillInstallEndpoint(SeleneEndpoint):
             raise APIError()
 
         return installer_skill
+
+    def validate_skill_installer(self, skill):
+        has_to_install = False
+        has_to_remove = False
+        for field in skill['skillMetadata']['sections'][0]['fields']:
+            if field['name'] == 'to_install':
+                has_to_install = True
+            elif field['name'] == 'to_remove':
+                has_to_remove = True
+        return has_to_install and has_to_remove
 
     def _find_installer_settings(self, installer_skill):
         for section in installer_skill['skillMetadata']['sections']:
