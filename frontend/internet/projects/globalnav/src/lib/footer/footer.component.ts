@@ -21,14 +21,14 @@ export class FooterComponent implements OnInit {
     @Input() mediaKitUrl: string;
     @Input() privacyPolicyUrl: string;
     public socialMediaIcons = [
+        {icon: faTwitter, url: 'https://twitter.com/mycroft_ai'},
         {icon: faFacebook, url: 'https://www.facebook.com/aiforeveryone/'},
         {icon: faInstagram, url: 'https://www.instagram.com/mycroft_ai/'},
-        {icon: faLinkedin, url: 'https://www.linkedin.com/company/mycroft-a.i./'},
-        {icon: faMedium, url: 'https://medium.com/@mycroftai'},
-        {icon: faReddit, url: 'https://www.reddit.com/r/Mycroftai/'},
+        {icon: faYoutube, url: 'https://www.youtube.com/channel/UC1dlmB1lup9RwFQBSGnhA-g'},
         {icon: faTelegram, url: 'https://t.me/mycroft_ai'},
-        {icon: faTwitter, url: 'https://twitter.com/mycroft_ai'},
-        {icon: faYoutube, url: 'https://www.youtube.com/channel/UC1dlmB1lup9RwFQBSGnhA-g'}
+        {icon: faReddit, url: 'https://www.reddit.com/r/Mycroftai/'},
+        {icon: faLinkedin, url: 'https://www.linkedin.com/company/mycroft-a.i./'},
+        {icon: faMedium, url: 'https://medium.com/@mycroftai'}
     ];
     @Input() termsOfUseUrl: string;
 
