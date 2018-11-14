@@ -8,7 +8,7 @@
                 <mat-divider></mat-divider>
             </div>
             <div fxFlex>
-                <mat-nav-list >
+                <mat-nav-list [disableRipple]="true">
                     <globalnav-primary-nav-item
                         *ngFor="let nav of navigationItems"
                         [primaryNavItem]="nav"
