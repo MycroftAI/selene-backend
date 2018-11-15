@@ -1,4 +1,5 @@
 export const environment = {
+    production: true,
     chatUrl: 'https://chat.mycroft.ai',
     forumUrl: 'https://forum.mycroft.ai',
     singleSignOnUrl: 'https://sso.mycroft.ai',

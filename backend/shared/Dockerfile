@@ -18,8 +18,8 @@ RUN pipenv install --system
 # the Pipfile can be removed from the container.  This makes way for the
 # pepenv to use these files to install dependencies for the Selene services
 # or applications that will use this Docker config
-RUN rm /opt/selene/Pipfile
-RUN rm /opt/selene/Pipfile.lock
+RUN rm Pipfile
+RUN rm Pipfile.lock
 
 # Copy the applicaction code to the image
 COPY selene_util /opt/selene/selene_util
