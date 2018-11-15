@@ -1,7 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
-import { AvailableSkill, SkillDetail } from './skills.service';
 
 // Status values that can be expected in the install status endpoint response.
 type InstallStatus = 'failed' | 'installed' | 'installing' | 'uninstalling';
