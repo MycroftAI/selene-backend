@@ -14,7 +14,7 @@ mat-toolbar {
     height: 50px;
     position: fixed;
     z-index: 2;
-    button {
+    .menu-button {
         margin-right: 20px;
         fa-icon {
             color: white;
@@ -26,6 +26,16 @@ mat-toolbar {
         height: 25px;
         margin-top: -5px;
         width: 168px;
+    }
+    .sign-in-button {
+        background-color: #22a7f0;
+        color: white;
+        font-size: 16px;
+        fa-icon {
+            color: white;
+            font-size: 16px;
+            margin-right: 10px
+        }
     }
 }
 

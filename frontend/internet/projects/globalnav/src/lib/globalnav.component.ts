@@ -1,12 +1,14 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { MediaMatcher } from '@angular/cdk/layout';
-import { PrimaryNavItem } from './globalnav.service';
+import { NavItem, PrimaryNavItem } from './globalnav.service';
 import {
     faBars,
     faLightbulb,
     faRobot,
     faRocket,
     faRss,
+    faSignInAlt,
+    faSignOutAlt,
     faStore,
     faUserCircle,
     faUsers
@@ -19,15 +21,15 @@ import {
 })
 
 export class GlobalnavComponent implements OnInit {
-    @Input() environment: any;
-    public contactUsUrl: string;
+    @Input() mycroftUrls: any;
+    @Input() userName: string;
+    public footerItems: NavItem[];
     public isLoggedIn: boolean;
-    public mediaKitUrl: string;
+    public signInIcon = faSignInAlt;
+    public signOutIcon = faSignInAlt;
     public menuIcon = faBars;
     public mobileQuery: MediaQueryList;
     public navigationItems: PrimaryNavItem[];
-    public privacyPolicyUrl: string;
-    public termsOfUseUrl: string;
 
     constructor(media: MediaMatcher) {
         this.mobileQuery = media.matchMedia('(max-width: 600px)');
@@ -42,8 +44,8 @@ export class GlobalnavComponent implements OnInit {
     buildNavigationItems(): void {
         const aboutMycroftNav: PrimaryNavItem = {
             children: [
-                {text: 'Team', url: this.environment.wordpressUrl + '/team'},
-                {text: 'Careers', url: this.environment.wordpressUrl + '/careers'}
+                {text: 'Team', url: this.mycroftUrls.wordpress + '/team'},
+                {text: 'Careers', url: this.mycroftUrls.wordpress + '/careers'}
             ],
             icon: faRobot,
             text: 'About Mycroft'
@@ -51,12 +53,12 @@ export class GlobalnavComponent implements OnInit {
         const blogNav: PrimaryNavItem = {
             icon: faRss,
             text: 'Blog',
-            url: this.environment.wordpressUrl + '/blog'
+            url: this.mycroftUrls.wordpress + '/blog'
         };
         const communityNav: PrimaryNavItem = {
             children: [
-                {text: 'Chat', url: this.environment.chatUrl},
-                {text: 'Forum', url: this.environment.forumUrl}
+                {text: 'Chat', url: this.mycroftUrls.chat},
+                {text: 'Forum', url: this.mycroftUrls.forum}
             ],
             icon: faUsers,
             text: 'Community'
@@ -64,25 +66,26 @@ export class GlobalnavComponent implements OnInit {
         const contributeNav: PrimaryNavItem = {
             children: [
                 {text: 'GitHub', url: 'https://github.com/MycroftAI'},
-                {text: 'Translate', url: this.environment.translateUrl},
-                {text: 'Wake Words', url: this.environment.accountUrl + '/#/precise'},
-                {text: 'Text to Speech', url: this.environment.accountUrl + '/#/deepspeech'}
+                {text: 'Translate', url: this.mycroftUrls.translate},
+                {text: 'Wake Words', url: this.mycroftUrls.account + '/#/precise'},
+                {text: 'Speech to Text', url: this.mycroftUrls.account + '/#/deepspeech'},
+                {text: 'Mimic', url: this.mycroftUrls.mimic}
             ],
             icon: faLightbulb,
             text: 'Contribute'
         };
         const getStartedNav: PrimaryNavItem = {
             children: [
-                {text: 'Get Mycroft', url: this.environment.wordpressUrl + '/download'},
-                {text: 'Documentation', url: this.environment.wordpressUrl + '/documentation'}
+                {text: 'Get Mycroft', url: this.mycroftUrls.wordpress + '/download'},
+                {text: 'Documentation', url: this.mycroftUrls.wordpress + '/documentation'}
             ],
             icon: faRocket,
             text: 'Get Started'
         };
         const marketplaceNav: PrimaryNavItem = {
             children: [
-                {text: 'Skills', url: this.environment.marketplaceUrl + '/skills'},
-                {text: 'Hardware', url: this.environment.wordpressUrl + '/shop'}
+                {text: 'Skills', url: this.mycroftUrls.marketplace + '/skills'},
+                {text: 'Hardware', url: this.mycroftUrls.wordpress + '/shop'}
             ],
             icon: faStore,
             text: 'Marketplace'
@@ -96,10 +99,13 @@ export class GlobalnavComponent implements OnInit {
             contributeNav,
             marketplaceNav,
         ];
-        this.contactUsUrl = this.environment.wordpressUrl + '/contact';
-        this.mediaKitUrl = this.environment.wordpressUrl + '/media';
-        this.privacyPolicyUrl = this.environment.accountUrl + '/#/privacy-policy';
-        this.termsOfUseUrl = this.environment.accountUrl + '/#/terms-of-use';
+
+        this.footerItems = [
+            {text: 'Contact Us', url: this.mycroftUrls.wordpress + '/contact'},
+            {text: 'Media Kit', url: this.mycroftUrls.wordpress + '/media'},
+            {text: 'Privacy Policy', url: this.mycroftUrls.account + '/#/privacy-policy'},
+            {text: 'Terms of Use', url: this.mycroftUrls.account + '/#/terms-of-use'}
+        ];
     }
 
     setLoginStatus(): void {
@@ -111,24 +117,32 @@ export class GlobalnavComponent implements OnInit {
 
     buildAccountNav() {
         const accountNav: PrimaryNavItem = {
+            children: [
+                {text: 'Devices', url: this.mycroftUrls.account + '/#/device'},
+                {text: 'Profile', url: this.mycroftUrls.account + '/#/profile'},
+                {text: 'Skill Settings', url: this.mycroftUrls.account + '/#/skill'},
+                {text: 'Subscription', url: this.mycroftUrls.account + '/#/account'},
+                {text: 'User Settings', url: this.mycroftUrls.account + '/#/setting/basic'},
+                {text: 'Logout', url: this.mycroftUrls.singleSignOn + '/logout?redirect=' + window.location.href}
+            ],
             icon: faUserCircle,
-            text: 'My Account'
+            text: 'My Account',
         };
+
         if (this.isLoggedIn) {
-            accountNav.children = [
-                {text: 'Devices', url: this.environment.accountUrl + '/#/device'},
-                {text: 'Profile', url: this.environment.accountUrl + '/#/profile'},
-                {text: 'Skill Settings', url: this.environment.accountUrl + '/#/skill'},
-                {text: 'Subscription', url: this.environment.accountUrl + '/#/account'},
-                {text: 'User Settings', url: this.environment.accountUrl + '/#/setting/basic'},
-                {text: 'Logout', url: this.environment.singleSignOnUrl + '/logout?redirect=' + window.location.href}
-            ];
-        } else {
-            accountNav.children = [
-                {text: 'Log In', url: this.environment.singleSignOnUrl + '/login?redirect=' + window.location.href},
-                {text: 'Sign Up', url: this.environment.singleSignOnUrl + '/signup'}
-            ];
+            this.navigationItems.push(accountNav);
         }
-        this.navigationItems.push(accountNav);
+    }
+
+    navigateToSignIn() {
+        window.location.assign(
+            this.mycroftUrls.singleSignOn + '/login?redirect=' + window.location.href
+        );
+    }
+
+    navigateToSignOut() {
+        window.location.assign(
+            this.mycroftUrls.singleSignOn + '/logout?redirect=' + window.location.href
+        );
     }
 }

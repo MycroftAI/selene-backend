@@ -1,47 +1,67 @@
 <div class="app">
-<mat-toolbar color="primary">
-    <button mat-icon-button (click)="snav.toggle()">
-        <fa-icon [icon]="menuIcon"></fa-icon>
-    </button>
-    <a href="{{environment.wordpressUrl}}">
-        <div class="globalnav-logo"></div>
-    </a>
-</mat-toolbar>
-
-<mat-sidenav-container>
-    <mat-sidenav
-        #snav
-        [mode]="mobileQuery.matches ? 'over' : 'side'"
-        [opened]="!mobileQuery.matches"
-        [fixedInViewport]="true"
-    >
-        <div fxFill fxLayout="column">
-            <div fxFlex="initial">
-                <a href="{{environment.wordpressUrl}}">
-                    <div class="globalnav-logo"></div>
-                </a>
-                <mat-divider></mat-divider>
-            </div>
-            <div fxFlex>
-                <mat-nav-list [disableRipple]="true">
-                    <globalnav-primary-nav-item
-                        *ngFor="let nav of navigationItems"
-                        [primaryNavItem]="nav"
-                    >
-                    </globalnav-primary-nav-item>
-                </mat-nav-list>
-            </div>
-            <globalnav-footer
-                [contactUsUrl]="contactUsUrl"
-                [mediaKitUrl]="mediaKitUrl"
-                [privacyPolicyUrl]="privacyPolicyUrl"
-                [termsOfUseUrl]="termsOfUseUrl"
+    <mat-toolbar fxLayout="row" fxLayoutAlign="space-between" color="primary">
+        <span fxLayout="row" fxLayoutAlign="start center" fxFlex>
+            <button mat-icon-button class="menu-button" (click)="snav.toggle()">
+                <fa-icon [icon]="menuIcon"></fa-icon>
+            </button>
+            <a href="{{mycroftUrls.wordpress}}">
+                <div class="globalnav-logo"></div>
+            </a>
+        </span>
+        <div *ngIf="isLoggedIn" fxLayout="row" fxLayoutAlign="end center">
+            <button
+                mat-flat-button
+                class="sign-in-button"
+                [matMenuTriggerFor]="authMenu"
             >
-            </globalnav-footer>
+                {{userName}}
+            </button>
+            <mat-menu #authMenu="matMenu">
+                <button mat-menu-item (click)="navigateToSignOut()">
+                    <fa-icon [icon]="signOutIcon" style="margin-right: 10px;"></fa-icon>
+                    Logout
+                </button>
+            </mat-menu>
         </div>
-    </mat-sidenav>
-    <mat-sidenav-content>
-        <ng-content select="[appBody]"></ng-content>
-    </mat-sidenav-content>
-</mat-sidenav-container>
+        <button
+            *ngIf="!isLoggedIn"
+            mat-flat-button
+            class="sign-in-button"
+            (click)="navigateToSignIn()"
+        >
+            <fa-icon [icon]="signInIcon"></fa-icon>
+            SIGN IN
+        </button>
+    </mat-toolbar>
+
+    <mat-sidenav-container>
+        <mat-sidenav
+            #snav
+            [mode]="mobileQuery.matches ? 'over' : 'side'"
+            [opened]="!mobileQuery.matches"
+            [fixedInViewport]="true"
+        >
+            <div fxFill fxLayout="column">
+                <div fxFlex="initial">
+                    <a href="{{mycroftUrls.wordpress}}">
+                        <div class="globalnav-logo"></div>
+                    </a>
+                    <mat-divider></mat-divider>
+                </div>
+                <div fxFlex>
+                    <mat-nav-list [disableRipple]="true">
+                        <globalnav-primary-nav-item
+                            *ngFor="let nav of navigationItems"
+                            [primaryNavItem]="nav"
+                        >
+                        </globalnav-primary-nav-item>
+                    </mat-nav-list>
+                </div>
+                <globalnav-footer [footerItems]="footerItems"></globalnav-footer>
+            </div>
+        </mat-sidenav>
+        <mat-sidenav-content>
+            <ng-content select="[appBody]"></ng-content>
+        </mat-sidenav-content>
+    </mat-sidenav-container>
 </div>
