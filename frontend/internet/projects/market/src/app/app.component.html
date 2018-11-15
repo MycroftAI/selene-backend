@@ -1,4 +1,7 @@
-<globalnav-sidenav [environment]="environment">
+<globalnav-sidenav
+    [mycroftUrls]="environment.mycroftUrls"
+    [userName]="userName"
+>
     <!--
         Inject the marketplace app into the <mat-sidenav-content> component
         of the global navigation menu library.
