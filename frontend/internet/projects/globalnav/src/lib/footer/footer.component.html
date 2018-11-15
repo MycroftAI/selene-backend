@@ -1,26 +1,16 @@
 <div fxFlex="nogrow" class="nav-footer">
     <mat-divider></mat-divider>
     <div fxLayout="row wrap" fxLayoutAlign="start" class="social-icons">
-        <button
-            *ngFor="let media of socialMediaIcons"
-            mat-icon-button
-            class="social-icon-button"
-            (click)="navigateToSocialMedia(media.url)"
-        >
-            <fa-icon [icon]="media.icon"></fa-icon>
-        </button>
+        <a *ngFor="let media of socialMediaIcons" href="{{media.url}}">
+            <button mat-icon-button class="social-icon-button">
+                <fa-icon [icon]="media.icon"></fa-icon>
+            </button>
+        </a>
     </div>
-    <div>
-        <button mat-flat-button (click)="navigateToContactUs()" class="footer-text">Contact Us</button>
-    </div>
-    <div>
-        <button mat-flat-button (click)="navigateToMediaKit()" class="footer-text">Media Kit</button>
-    </div>
-    <div>
-        <button mat-flat-button (click)="navigateToTermsOfUse()" class="footer-text">Terms of Use</button>
-    </div>
-    <div>
-        <button mat-flat-button (click)="navigateToPrivacyPolicy()" class="footer-text">Privacy Policy</button>
+    <div *ngFor="let item of footerItems">
+        <a href="{{item.url}}">
+            <button mat-flat-button class="footer-text">{{item.text}}</button>
+        </a>
     </div>
     <div class="mat-body-2">&copy; Mycroft AI, Inc.</div>
 </div>
