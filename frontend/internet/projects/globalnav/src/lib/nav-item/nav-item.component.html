@@ -1,4 +1,6 @@
-<mat-list-item (click)="navigateToUrl()">
+<a href="{{item.url}}">
+    <mat-list-item>
         <div style="width: 40px"></div>
         <span class="mat-body-1" [ngStyle]="navItemStyle">{{item.text}}</span>
-</mat-list-item>
+    </mat-list-item>
+</a>
