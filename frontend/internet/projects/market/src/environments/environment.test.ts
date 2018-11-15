@@ -1,10 +1,12 @@
 export const environment = {
     production: false,
-    chatUrl: 'https://chat.mycroft.ai',
-    forumUrl: 'https://community.mycroft.ai',
-    singleSignOnUrl: 'https://sso.mycroft-test.net',
-    accountUrl: 'https://home-test.mycroft.ai',
-    marketplaceUrl: 'https://market.mycroft-test.net',
-    translateUrl: 'https://translate-test.mycroft.ai',
-    wordpressUrl: 'https://test.mycroft.ai'
+    mycroftUrls: {
+        chat: 'https://chat.mycroft.ai',
+        forum: 'https://community.mycroft.ai',
+        singleSignOn: 'https://sso.mycroft-test.net',
+        account: 'https://home-test.mycroft.ai',
+        marketplace: 'https://market.mycroft-test.net',
+        translate: 'https://translate-test.mycroft.ai',
+        wordpress: 'https://test.mycroft.ai'
+    }
 };

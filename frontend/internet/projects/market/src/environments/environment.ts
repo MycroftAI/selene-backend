@@ -4,13 +4,16 @@
 
 export const environment = {
     production: false,
-    chatUrl: 'https://chat.mycroft.ai',
-    forumUrl: 'https://community.mycroft.ai',
-    singleSignOnUrl: 'http://localhost:4201',
-    accountUrl: 'https://home-test.mycroft.ai',
-    marketplaceUrl: 'http://localhost:4202',
-    translateUrl: 'https://translate-test.mycroft.ai',
-    wordpressUrl: 'https://test.mycroft.ai'
+    mycroftUrls: {
+        chat: 'https://chat.mycroft.ai',
+        forum: 'https://community.mycroft.ai',
+        singleSignOn: 'http://localhost:4201',
+        account: 'https://home-test.mycroft.ai',
+        marketplace: 'http://localhost:4202',
+        mimic: 'http://mimic.mycroft,ai',
+        translate: 'https://translate-test.mycroft.ai',
+        wordpress: 'https://test.mycroft.ai'
+    }
 };
 
 /*
