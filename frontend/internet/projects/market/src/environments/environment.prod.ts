@@ -1,12 +1,12 @@
 export const environment = {
     production: true,
     chatUrl: 'https://chat.mycroft.ai',
-    forumUrl: 'https://forum.mycroft.ai',
+    forumUrl: 'https://community.mycroft.ai',
     singleSignOnUrl: 'https://sso.mycroft.ai',
     accountUrl: 'https://home.mycroft.ai',
     marketplaceUrl: 'https://market.mycroft.ai',
     translateUrl: 'https://translate.mycroft.ai',
-    wordpressUrl: 'https://test.mycroft.ai'
+    wordpressUrl: 'https://mycroft.ai'
 };
 
 document.write(

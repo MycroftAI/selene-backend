@@ -5,7 +5,7 @@
 export const environment = {
     production: false,
     chatUrl: 'https://chat.mycroft.ai',
-    forumUrl: 'https://forum.mycroft.ai',
+    forumUrl: 'https://community.mycroft.ai',
     singleSignOnUrl: 'http://localhost:4201',
     accountUrl: 'https://home-test.mycroft.ai',
     marketplaceUrl: 'http://localhost:4202',
