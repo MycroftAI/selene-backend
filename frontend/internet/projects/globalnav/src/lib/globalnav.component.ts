@@ -146,7 +146,6 @@ export class GlobalnavComponent implements OnInit {
                 {text: 'Skill Settings', url: this.mycroftUrls.account + '/#/skill'},
                 {text: 'Subscription', url: this.mycroftUrls.account + '/#/account'},
                 {text: 'User Settings', url: this.mycroftUrls.account + '/#/setting/basic'},
-                {text: 'Logout', url: this.mycroftUrls.singleSignOn + '/logout?redirect=' + window.location.href}
             ],
             icon: faUserCircle,
             text: 'My Account',
