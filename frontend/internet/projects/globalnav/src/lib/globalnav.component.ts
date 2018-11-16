@@ -95,11 +95,11 @@ export class GlobalnavComponent implements OnInit {
         };
         const contributeNav: PrimaryNavItem = {
             children: [
-                {text: 'GitHub', url: 'https://github.com/MycroftAI'},
+                {text: 'Source Code', url: 'https://github.com/MycroftAI'},
                 {text: 'Translate', url: this.mycroftUrls.translate},
-                {text: 'Wake Words', url: this.mycroftUrls.account + '/#/precise'},
+                {text: 'Wake Word', url: this.mycroftUrls.account + '/#/precise'},
                 {text: 'Speech to Text', url: this.mycroftUrls.account + '/#/deepspeech'},
-                {text: 'Mimic', url: this.mycroftUrls.mimic}
+                {text: 'Text to Speech', url: this.mycroftUrls.mimic}
             ],
             icon: faLightbulb,
             text: 'Contribute'
