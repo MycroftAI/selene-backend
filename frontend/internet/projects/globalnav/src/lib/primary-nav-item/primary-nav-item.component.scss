@@ -5,3 +5,12 @@
 .nav-item:hover {
     background-color: #e4f1fe;
 }
+
+.nav-item-icon {
+    margin-right: 10px;
+    text-align: center;
+    width: 20px;
+    fa-icon {
+        color: #22a7f0
+    }
+}
