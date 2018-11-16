@@ -5,6 +5,10 @@ import { Observable } from 'rxjs';
 
 const userUrl = '/api/user';
 
+export interface User {
+    name: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })

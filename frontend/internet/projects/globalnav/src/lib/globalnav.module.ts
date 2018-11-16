@@ -12,7 +12,6 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 import { GlobalnavComponent } from './globalnav.component';
-import { GlobalnavService } from './globalnav.service';
 import { NavItemComponent } from './nav-item/nav-item.component';
 import { PrimaryNavItemComponent } from './primary-nav-item/primary-nav-item.component';
 import { FooterComponent } from './footer/footer.component';
@@ -39,8 +38,6 @@ import { FooterComponent } from './footer/footer.component';
     exports: [
         GlobalnavComponent
     ],
-    providers: [
-        GlobalnavService
-    ]
+    providers: []
 })
 export class GlobalnavModule { }

@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { MediaMatcher } from '@angular/cdk/layout';
-import { NavItem, PrimaryNavItem } from './globalnav.service';
+import { Observable } from 'rxjs';
 import {
     faBars,
     faLightbulb,
@@ -14,6 +14,14 @@ import {
     faUsers
 } from '@fortawesome/free-solid-svg-icons';
 
+import {
+    expireTokenCookies,
+    NavItem,
+    PrimaryNavItem,
+    setLoginStatus,
+    User
+} from './globalnav.service';
+
 @Component({
     selector: 'globalnav-sidenav',
     templateUrl: './globalnav.component.html',
@@ -22,23 +30,45 @@ import {
 
 export class GlobalnavComponent implements OnInit {
     @Input() mycroftUrls: any;
-    @Input() userName: string;
+    @Input() user$: Observable<User>;
     public footerItems: NavItem[];
     public isLoggedIn: boolean;
     public signInIcon = faSignInAlt;
-    public signOutIcon = faSignInAlt;
+    public signOutIcon = faSignOutAlt;
     public menuIcon = faBars;
     public mobileQuery: MediaQueryList;
     public navigationItems: PrimaryNavItem[];
+    public userName: string;
 
-    constructor(media: MediaMatcher) {
+    constructor(private media: MediaMatcher) {
         this.mobileQuery = media.matchMedia('(max-width: 600px)');
     }
 
     ngOnInit() {
+        this.isLoggedIn = setLoginStatus();
+        this.getUser();
         this.buildNavigationItems();
-        this.setLoginStatus();
         this.buildAccountNav();
+    }
+
+    getUser() {
+        if (this.isLoggedIn) {
+            this.user$.subscribe(
+                (user) => {
+                    if (user.name) {
+                        this.userName = user.name;
+                    } else {
+                        this.userName = 'Logged In';
+                    }
+                },
+                (response) => {
+                    if (response.status === 401) {
+                        expireTokenCookies();
+                        this.isLoggedIn = setLoginStatus();
+                    }
+                }
+            );
+        }
     }
 
     buildNavigationItems(): void {
@@ -106,13 +136,6 @@ export class GlobalnavComponent implements OnInit {
             {text: 'Privacy Policy', url: this.mycroftUrls.account + '/#/privacy-policy'},
             {text: 'Terms of Use', url: this.mycroftUrls.account + '/#/terms-of-use'}
         ];
-    }
-
-    setLoginStatus(): void {
-        const cookies = document.cookie;
-        const seleneTokenExists = cookies.includes('seleneToken');
-        const seleneTokenEmpty = cookies.includes('seleneToken=""');
-        this.isLoggedIn = seleneTokenExists && !seleneTokenEmpty;
     }
 
     buildAccountNav() {
