@@ -14,6 +14,7 @@
                 class="sign-in-button"
                 [matMenuTriggerFor]="authMenu"
             >
+                <fa-icon [icon]="userIcon"></fa-icon>
                 {{userName}}
             </button>
             <mat-menu #authMenu="matMenu">

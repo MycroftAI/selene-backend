@@ -38,6 +38,7 @@ export class GlobalnavComponent implements OnInit {
     public menuIcon = faBars;
     public mobileQuery: MediaQueryList;
     public navigationItems: PrimaryNavItem[];
+    public userIcon = faUserCircle;
     public userName: string;
 
     constructor(private media: MediaMatcher) {
