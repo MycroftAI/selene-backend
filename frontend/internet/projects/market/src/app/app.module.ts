@@ -5,6 +5,7 @@ import { NgModule } from '@angular/core';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
+import { AppService } from './app.service';
 import { GlobalnavModule } from 'globalnav';
 import { MaterialModule } from './shared/material.module';
 import { SkillsModule } from './skills/skills.module';
@@ -22,7 +23,7 @@ import { PageNotFoundComponent } from './page-not-found/page-not-found.component
             SkillsModule,
             AppRoutingModule
         ],
-        providers: [ ],
+        providers: [ AppService ],
         bootstrap: [ AppComponent ]
     }
 )

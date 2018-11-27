@@ -20,6 +20,10 @@ export class LoginComponent implements OnInit {
     ) { }
 
     ngOnInit() {
+        this.storeRedirectUrl();
+    }
+
+    storeRedirectUrl() {
         const uriQuery = decodeURIComponent(window.location.search);
         if (uriQuery.startsWith('?data')) {
             this.parseUriQuery(uriQuery);

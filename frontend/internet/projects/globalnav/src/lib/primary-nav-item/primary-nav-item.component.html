@@ -1,12 +1,26 @@
 <mat-list-item (click)="onItemSelected()" class="nav-item">
-    <div fxLayout="row" style="width: 100%;">
-        <!-- Not all of the icons are the same width so center them -->
-        <span style="text-align: center; width: 20px; margin-right: 20px">
-            <fa-icon [icon]="primaryNavItem.icon" style="color: #22a7f0"></fa-icon>
-        </span>
-        <span>
+    <div fxLayout="row" fxLayoutAlign="space-between" style="width: 100%;">
+        <div fxLayout="row">
+            <!-- Not all of the icons are the same width so center them -->
+            <div class="nav-item-icon">
+                <fa-icon [icon]="primaryNavItem.icon"></fa-icon>
+            </div>
             {{primaryNavItem.text}}
-        </span>
+        </div>
+        <div>
+            <fa-icon
+                *ngIf="!expanded && primaryNavItem.children"
+                [icon]="expandIcon"
+                style="color: #2c3e50"
+            >
+            </fa-icon>
+            <fa-icon
+                *ngIf="expanded"
+                [icon]="collapseIcon"
+                style="color: #2c3e50"
+            >
+            </fa-icon>
+        </div>
     </div>
 </mat-list-item>
 <div *ngIf="expanded">
