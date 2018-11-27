@@ -1,5 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 
+import { NavItem } from '../globalnav.service';
+
 import {
     faFacebook,
     faInstagram,
@@ -17,9 +19,7 @@ import {
   styleUrls: ['./footer.component.scss']
 })
 export class FooterComponent implements OnInit {
-    @Input() contactUsUrl: string;
-    @Input() mediaKitUrl: string;
-    @Input() privacyPolicyUrl: string;
+    @Input() footerItems: NavItem[];
     public socialMediaIcons = [
         {icon: faTwitter, url: 'https://twitter.com/mycroft_ai'},
         {icon: faFacebook, url: 'https://www.facebook.com/aiforeveryone/'},
@@ -30,30 +30,9 @@ export class FooterComponent implements OnInit {
         {icon: faLinkedin, url: 'https://www.linkedin.com/company/mycroft-a.i./'},
         {icon: faMedium, url: 'https://medium.com/@mycroftai'}
     ];
-    @Input() termsOfUseUrl: string;
 
     constructor() { }
 
     ngOnInit() {
-    }
-
-    navigateToSocialMedia(url) {
-        window.location.assign(url);
-    }
-
-    navigateToTermsOfUse() {
-        window.location.assign(this.termsOfUseUrl);
-    }
-
-    navigateToPrivacyPolicy() {
-        window.location.assign(this.privacyPolicyUrl);
-    }
-
-    navigateToContactUs() {
-        window.location.assign(this.contactUsUrl);
-    }
-
-    navigateToMediaKit() {
-        window.location.assign(this.mediaKitUrl);
     }
 }

@@ -1,5 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 
+import { faChevronUp, faChevronDown } from '@fortawesome/free-solid-svg-icons';
+
 import { PrimaryNavItem } from '../globalnav.service';
 
 @Component({
@@ -9,6 +11,8 @@ import { PrimaryNavItem } from '../globalnav.service';
 })
 export class PrimaryNavItemComponent implements OnInit {
     public expanded = false;
+    public expandIcon = faChevronDown;
+    public collapseIcon = faChevronUp;
     @Input() primaryNavItem: PrimaryNavItem;
 
     constructor() { }

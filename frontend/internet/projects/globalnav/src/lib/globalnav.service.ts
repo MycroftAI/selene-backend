@@ -14,12 +14,25 @@ export interface PrimaryNavItem {
   url?: string;
 }
 
+export interface User {
+    name: string;
+}
 
-@Injectable({
-  providedIn: 'root'
-})
-export class GlobalnavService {
+export function expireTokenCookies(): void {
+    const expiration = new Date();
+    const cookieDomain: string = document.domain.replace('market.', '');
 
-    constructor() {
-    }
+    document.cookie = 'seleneToken=""' +
+        '; expires=' + expiration.toUTCString() +
+        '; domain=' + cookieDomain;
+    document.cookie = 'tartarusToken=""' +
+        '; expires=' + expiration.toUTCString() +
+        '; domain=' + cookieDomain;
+}
+
+export function setLoginStatus(): boolean {
+    const cookies = document.cookie;
+    const seleneTokenExists = cookies.includes('seleneToken');
+    const seleneTokenEmpty = cookies.includes('seleneToken=""');
+    return seleneTokenExists && !seleneTokenEmpty;
 }
