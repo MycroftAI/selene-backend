@@ -1,9 +1,10 @@
-@import "../base/mycroft-colors";
+@import "mycroft-colors";
 $button-border-radius: 4px;
 
 @mixin action-button {
     border-radius: $button-border-radius;
     background-color: $mycroft-primary;
     color: $mycroft-white;
+    font-weight: normal;
     letter-spacing: 0.5px;
 }

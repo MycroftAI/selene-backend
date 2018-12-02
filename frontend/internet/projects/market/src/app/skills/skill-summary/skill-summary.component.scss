@@ -1,22 +1,17 @@
-@import '../../../stylesheets/global';
+@import 'mycroft-colors';
 
-.skill-category {
+#skill-category {
     background-color: $market-background;
+
     mat-toolbar {
         background-color: $market-background;
         color: $mycroft-dark-grey;
         font-size: xx-large;
         margin-top: 20px;
         padding-left: 10px;
+
         fa-icon {
             margin-right: 15px;
         }
     }
 }
-
-.back-button {
-    color: $mycroft-dark-grey;
-    margin-left: 20px;
-    width: 100px;
-}
-

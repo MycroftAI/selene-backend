@@ -1,8 +1,8 @@
     <!-- Header block -->
-    <div class="skill-detail-header" fxLayout="row wrap">
+    <div id="skill-detail-header" fxLayout="row wrap">
 
         <!-- Left Side -->
-        <div class="skill-detail-header-left" fxFlex>
+        <div id="skill-detail-header-left" fxFlex>
             <!-- there cannot be an icon and an icon_image.  show the
                  image if it exists otherwise show the icon -->
             <img *ngIf="skill.iconImage" src={{skill.iconImage}} height="70" width="70">
@@ -19,13 +19,13 @@
         </div>
 
         <!-- Right Side -->
-        <div class="skill-detail-header-right" fxFlex="20">
+        <div id="skill-detail-header-right" fxFlex="20">
             <market-skill-install-button [skill]="skill" [component]="'skillDetail'">
             </market-skill-install-button>
             <div>
                 <button
                     mat-icon-button
-                    class="github-button"
+                    id="github-button"
                     (click)="navigateToGithubRepo(skill.repositoryUrl)"
                 >
                     <fa-icon [icon]="githubIcon"></fa-icon>

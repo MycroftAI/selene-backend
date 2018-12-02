@@ -1,6 +1,7 @@
-@import '../../../../stylesheets/global';
+@import 'mycroft-colors';
+@import "components/buttons";
 
-.skill-detail-header {
+#skill-detail-header {
     background-color: #f7f9fa;
     border-top-left-radius: 10px;
     border-top-right-radius: 10px;
@@ -8,7 +9,7 @@
     padding-left: 4vw;
     padding-right: 4vw;
     padding-top: 4vh;
-    .skill-detail-header-left {
+    #skill-detail-header-left {
         color: $mycroft-secondary;
         margin-right: 50px;
         min-width: 340px;
@@ -25,18 +26,20 @@
             margin-top: 0;
         }
     }
-    .skill-detail-header-right {
+
+    #skill-detail-header-right {
         margin-right: 20px;
-        .install-button {
+
+        #install-button {
             @include action-button;
             width: 140px;
-        }
-        .install-button:hover {
-            background-color: $mycroft-tertiary-green;
-            color: $mycroft-secondary;
+            &:hover {
+                background-color: $mycroft-tertiary-green;
+                color: $mycroft-secondary;
+            }
         }
 
-        .github-button {
+        #github-button {
             color: $mycroft-dark-grey;
             font-weight: normal;
             width: 135px;

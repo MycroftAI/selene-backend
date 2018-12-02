@@ -1,13 +1,13 @@
-<div class="social" fxLayout="column" fxLayoutAlign="center center">
-    <button mat-button class="google-button"  (click)="authenticateGoogle()">
+<div id="social" fxLayout="column" fxLayoutAlign="center center">
+    <button mat-button id="google-button"  (click)="authenticateGoogle()">
         <img src="../../../assets/google-logo.svg">
         Log in with Google
     </button>
-    <button mat-button class="facebook-button" (click)="authenticateFacebook()">
+    <button mat-button id="facebook-button" (click)="authenticateFacebook()">
         <fa-icon [icon]="facebookIcon"></fa-icon>
         Continue with Facebook
     </button>
-    <button mat-button class="github-button" (click)="authenticateGithub()">
+    <button mat-button id="github-button" (click)="authenticateGithub()">
         <fa-icon [icon]="githubIcon"></fa-icon>
         Log in with GitHub
     </button>

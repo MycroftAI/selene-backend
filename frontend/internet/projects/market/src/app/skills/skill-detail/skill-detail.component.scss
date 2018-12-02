@@ -1,17 +1,17 @@
-@import '../../../stylesheets/global';
+@import 'mycroft-colors';
 
 @mixin skill-detail-size {
     margin: 0 auto;
     max-width: 1000px;
 }
 
-.navigate-back {
+#navigate-back {
     @include skill-detail-size;
     color: $mycroft-dark-grey;
     padding-bottom: 10px;
 }
 
-.skill-detail {
+#skill-detail {
     @include skill-detail-size;
     box-shadow: 0 1px 5px 0 rgba(0, 0, 0, 0.12);
     border-radius: 10px;

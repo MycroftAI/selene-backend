@@ -1,4 +1,5 @@
-@import '../../../../stylesheets/global.scss';
+@import 'mycroft-colors';
+@import "components/text";
 
 @mixin card-width {
     width: 320px;
@@ -6,10 +7,16 @@
 
 mat-card {
     @include card-width;
+
+    &:hover {
+      box-shadow: 0 10px 20px 0 rgba(0, 0, 0, 0.2);
+    }
+
     border-radius: 10px;
     cursor: pointer;
     margin: 10px;
     padding: 18px;
+
     mat-card-title {
         @include ellipsis-overflow;
         color: $mycroft-secondary;
@@ -18,25 +25,24 @@ mat-card {
         margin-bottom: 16px;
         text-align: center;
     }
+
     mat-card-subtitle {
-        .skill-trigger {
+        #skill-trigger {
             @include ellipsis-overflow;
             @include skill-trigger;
         }
     }
+
     mat-card-content {
         color: $mycroft-secondary;
         @include ellipsis-overflow;
         text-align: center;
     }
+
     mat-card-actions {
         margin-left: 0;
         margin-bottom: 0;
     }
-}
-
-mat-card:hover{
-  box-shadow: 0 10px 20px 0 rgba(0, 0, 0, 0.2);
 }
 
 .login-snackbar {

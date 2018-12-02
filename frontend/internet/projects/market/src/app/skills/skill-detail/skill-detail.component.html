@@ -1,10 +1,10 @@
-<div class="navigate-back">
+<div id="navigate-back">
     <button mat-icon-button [routerLink]="['/skills']">
         <fa-icon [icon]="backArrow"></fa-icon>
         Back to Skill Listing
     </button>
 </div>
-<div class="skill-detail" *ngIf="skill$ | async as skill">
+<div id="skill-detail" *ngIf="skill$ | async as skill">
     <market-skill-detail-header [skill]="skill"></market-skill-detail-header>
     <market-skill-detail-body [skill]="skill"></market-skill-detail-body>
 </div>
