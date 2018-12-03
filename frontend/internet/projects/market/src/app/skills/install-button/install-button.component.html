@@ -6,7 +6,7 @@
         fxLayout="row"
         fxLayoutAlign="center center"
         mat-flat-button
-        class="uninstall-button"
+        id="uninstall-button"
         (click)="uninstallSkill()"
         [ngStyle]="installButtonStyle"
     >
@@ -20,7 +20,7 @@
         fxLayout="row"
         fxLayoutAlign="center center"
         mat-flat-button
-        class="installed-button"
+        id="installed-button"
         [disabled]="true"
         [ngStyle]="installButtonStyle"
     >
@@ -34,10 +34,10 @@
         fxLayout="row"
         fxLayoutAlign="center center"
         mat-flat-button
-        class="installing-button"
+        id="installing-button"
         [ngStyle]="installButtonStyle"
     >
-        <div class="installing-spinner"></div>
+        <div id="installing-spinner"></div>
         ADDING...
     </button>
 
@@ -47,10 +47,10 @@
         fxLayout="row"
         fxLayoutAlign="center center"
         mat-flat-button
-        class="uninstalling-button"
+        id="uninstalling-button"
         [ngStyle]="installButtonStyle"
     >
-        <div class="uninstalling-spinner"></div>
+        <div id="uninstalling-spinner"></div>
         REMOVING...
     </button>
 
@@ -59,7 +59,7 @@
         *ngSwitchDefault
         fxLayout="row"
         fxLayoutAlign="center center"
-        class="install-button"
+        id="install-button"
         mat-flat-button
         (click)="install_skill()"
         [ngStyle]="installButtonStyle"

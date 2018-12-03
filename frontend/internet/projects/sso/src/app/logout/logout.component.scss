@@ -1,4 +1,4 @@
-@import "../../stylesheets/global";
+@import "mycroft-colors";
 
 // The angular material spinner was limiting in color choices we built our own
 @mixin spinner-common {
@@ -21,7 +21,7 @@
     text-align: center;
 }
 
-.logout-spinner {
+#logout-spinner {
     @include spinner-common;
     border-right-color: $mycroft-secondary;
     border-top-color: $mycroft-secondary;

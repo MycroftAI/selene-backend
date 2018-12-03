@@ -1,7 +1,7 @@
-@import "../../stylesheets/global";
+@import "mycroft-colors";
 
 /* Split the screen in half */
-.split {
+@mixin half-screen {
     height: 50%;
     left: 0;
     overflow-x: hidden;
@@ -12,13 +12,15 @@
 }
 
 /* Top Half */
-.top {
+#top-half {
+    @include half-screen;
     top: 0;
     background-color: $mycroft-primary;
 }
 
 /* Bottom Half */
-.bottom {
+#bottom-half {
+    @include half-screen;
     bottom: 0;
     background-color: #e5e5e5;
 }

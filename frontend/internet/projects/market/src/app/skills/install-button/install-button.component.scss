@@ -1,4 +1,4 @@
-@import '../../../stylesheets/global.scss';
+@import 'mycroft-colors';
 
 @mixin install-status {
     border-radius: 4px;
@@ -24,22 +24,22 @@ fa-icon {
     opacity: 0.6;
 }
 
-.install-button {
+#install-button {
     @include install-status;
     background-color: $mycroft-primary ;
     color: $mycroft-white;
 }
-.install-button:hover {
+#install-button:hover {
     @include install-status;
     background-color: $mycroft-tertiary-green;
     color: $mycroft-secondary;
 }
 
-.installed-button {
+#installed-button {
     @include install-status;
 }
 
-.installing-button {
+#installing-button {
     @include install-status;
     background-color: $mycroft-tertiary-green;
     color: $mycroft-secondary;
@@ -49,14 +49,14 @@ fa-icon {
         margin-top: 7px;
     }
 }
-.installing-spinner {
+#installing-spinner {
     @include spinner-common;
     border-right-color: $mycroft-secondary;
     border-top-color: $mycroft-secondary;
 }
 
 
-.uninstall-button {
+#uninstall-button {
     @include install-status;
     background-color: $mycroft-dark-grey;
     color: $mycroft-white;
@@ -68,12 +68,12 @@ fa-icon {
     color: $mycroft-white;
 }
 
-.uninstalling-button {
+#uninstalling-button {
     @include install-status;
     background-color: #eb5757;
     color: $mycroft-white;
 }
-.uninstalling-spinner {
+#uninstalling-spinner {
     @include spinner-common;
     border-right-color: $mycroft-white;
     border-top-color: $mycroft-white;

@@ -1,5 +1,5 @@
 <market-skill-search (searchResults)="showSearchResults($event)"></market-skill-search>
-<div class="skill-category" *ngFor="let category of skillCategories">
+<div id="skill-category" *ngFor="let category of skillCategories">
     <mat-toolbar align="center">{{category}}</mat-toolbar>
     <div fxLayout="row wrap">
         <ng-container *ngFor="let skill of filterSkillsByCategory(category)">
