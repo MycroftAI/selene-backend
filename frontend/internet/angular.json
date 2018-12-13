@@ -27,7 +27,8 @@
               "src/assets"
             ],
             "styles": [
-              "src/styles.scss"
+              "src/styles.scss",
+              "src/theme.scss"
             ],
             "stylePreprocessorOptions": {
                 "includePaths": [
@@ -88,7 +89,8 @@
             "tsConfig": "src/tsconfig.spec.json",
             "karmaConfig": "src/karma.conf.js",
             "styles": [
-              "src/styles.scss"
+              "src/styles.scss",
+              "src/theme.scss"
             ],
             "stylePreprocessorOptions": {
                 "includePaths": [
@@ -187,7 +189,8 @@
               "projects/market/src/assets"
             ],
             "styles": [
-              "src/styles.scss"
+              "src/styles.scss",
+              "src/theme.scss"
             ],
             "stylePreprocessorOptions": {
                 "includePaths": [
@@ -264,7 +267,8 @@
             "tsConfig": "projects/market/tsconfig.spec.json",
             "karmaConfig": "projects/market/karma.conf.js",
             "styles": [
-              "src/styles.scss"
+              "src/styles.scss",
+              "src/theme.scss"
             ],
             "stylePreprocessorOptions": {
                 "includePaths": [
@@ -363,7 +367,8 @@
               "projects/sso/src/assets"
             ],
             "styles": [
-              "src/styles.scss"
+              "src/styles.scss",
+              "src/theme.scss"
             ],
             "stylePreprocessorOptions": {
                 "includePaths": [
@@ -440,7 +445,8 @@
             "tsConfig": "projects/sso/tsconfig.spec.json",
             "karmaConfig": "projects/sso/karma.conf.js",
             "styles": [
-              "src/styles.scss"
+              "src/styles.scss",
+              "src/theme.scss"
             ],
             "stylePreprocessorOptions": {
                 "includePaths": [
@@ -574,7 +580,8 @@
               "projects/account/src/assets"
             ],
             "styles": [
-              "src/styles.scss"
+              "src/styles.scss",
+              "src/theme.scss"
             ],
             "stylePreprocessorOptions": {
                 "includePaths": [
@@ -635,7 +642,8 @@
             "tsConfig": "projects/account/tsconfig.spec.json",
             "karmaConfig": "projects/account/karma.conf.js",
             "styles": [
-              "src/styles.scss"
+              "src/styles.scss",
+              "src/theme.scss"
             ],
             "stylePreprocessorOptions": {
                 "includePaths": [
