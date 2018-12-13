@@ -1,0 +1,11 @@
+<mat-card>
+    <mat-toolbar class="form-title">SUPPORT MYCROFT</mat-toolbar>
+    <form id="subscription-form">
+        <ng-container *ngFor="let subscription of subscriptionTypes">
+        <mat-card class="subscription-card">
+            <mat-card-title class="mat-h2">{{subscription.name}}</mat-card-title>
+            <mat-card-subtitle>{{subscription.price}}</mat-card-subtitle>
+        </mat-card>
+        </ng-container>
+    </form>
+</mat-card>

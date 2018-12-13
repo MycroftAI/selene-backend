@@ -1,0 +1,32 @@
+.mat-h3 {
+    margin-bottom: 10px;
+}
+
+mat-card {
+    max-width: 400px;
+
+    mat-form-field {
+        width: 100%;
+    }
+
+    mat-slide-toggle {
+        height: 50px;
+
+        fa-icon {
+            font-size: 30px;
+            margin-right: 10px;
+        }
+
+        img {
+            height: 30px;
+            margin-right: 10px;
+            width: 30px;
+        }
+
+        mat-label {
+            color: rgba(0, 0, 0, 0.6);
+            width: 150px;
+        }
+    }
+}
+

@@ -1,0 +1,41 @@
+<mat-card>
+    <mat-toolbar class="form-title">LOGIN</mat-toolbar>
+    <form id="login-form">
+        <div fxLayout="row wrap" fxLayoutAlign="center">
+            <div id="antisocial" fxFlex fxLayout="column" fxLayoutAlign="center none">
+                <mat-form-field appearance="outline">
+                    <mat-label>Email Address</mat-label>
+                    <input
+                        id="emailAddress"
+                        matInput
+                        name="emailAddress"
+                        placeholder="Enter Email Address"
+                        required
+                        type="email"
+                    >
+                    <mat-hint>Uniquely identifies your account</mat-hint>
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                    <mat-label>Password</mat-label>
+                    <input
+                        id="password"
+                        matInput
+                        name="password"
+                        placeholder="Enter a Secure Password"
+                        type="password"
+                    >
+                    <mat-hint>Required when no external account is linked</mat-hint>
+                </mat-form-field>
+            </div>
+            <div fxFlex fxLayout="column" fxLayoutAlign="start center">
+                <mat-slide-toggle *ngFor="let platform of socialPlatforms" [labelPosition]="'before'">
+                    <span fxLayout="row" fxLayoutAlign="start center">
+                        <fa-icon *ngIf="platform.icon" [icon]="platform.icon"></fa-icon>
+                        <img *ngIf="platform.image" [src]="platform.image"/>
+                        <mat-label>{{platform.label}}</mat-label>
+                    </span>
+                </mat-slide-toggle>
+            </div>
+        </div>
+    </form>
+</mat-card>
