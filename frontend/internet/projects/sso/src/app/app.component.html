@@ -1,10 +1,10 @@
 <!--
-Don't display the login page if the URL contains the data returned from a
-call to the Tartarus social login endpoint.  When this happens, a view call
+Don't display the profile page if the URL contains the data returned from a
+call to the Tartarus social profile endpoint.  When this happens, a view call
 will be made to get the tokens and the user will be returned to the previous
 window.
 
-This condition is temporary it should be removed when the social login logic
+This condition is temporary it should be removed when the social profile logic
 is refactored and moved into Selene.
 -->
 <div *ngIf="!socialLoginDataFound">

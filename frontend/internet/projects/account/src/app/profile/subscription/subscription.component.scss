@@ -3,13 +3,17 @@
 }
 
 mat-card {
-    max-width: 400px;
+    #subscription-types {
+        .subscription-card {
+            margin-bottom: 10px;
+            margin-top: 10px;
+            max-width: 300px;
+            min-width: 220px;
+            text-align: center;
 
-    .subscription-card {
-        text-align: center;
-
-        mat-card-title {
-            font-size: 16px;
+            mat-card-title {
+                font-size: 16px;
+            }
         }
     }
 }

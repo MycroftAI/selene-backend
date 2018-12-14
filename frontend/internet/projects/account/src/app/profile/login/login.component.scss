@@ -3,14 +3,14 @@
 }
 
 mat-card {
-    max-width: 400px;
 
     mat-form-field {
-        width: 100%;
+        max-width: 400px;
     }
 
     mat-slide-toggle {
         height: 50px;
+        max-width: 400px;
 
         fa-icon {
             font-size: 30px;

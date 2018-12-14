@@ -1,8 +1,8 @@
-<mat-card>
+<mat-card class="form-card">
     <mat-toolbar class="form-title">LOGIN</mat-toolbar>
     <form id="login-form">
-        <div fxLayout="row wrap" fxLayoutAlign="center">
-            <div id="antisocial" fxFlex fxLayout="column" fxLayoutAlign="center none">
+        <div fxLayout="row wrap" fxLayoutAlign="space-evenly">
+            <div id="antisocial" fxFlex fxLayout="column">
                 <mat-form-field appearance="outline">
                     <mat-label>Email Address</mat-label>
                     <input
@@ -27,7 +27,8 @@
                     <mat-hint>Required when no external account is linked</mat-hint>
                 </mat-form-field>
             </div>
-            <div fxFlex fxLayout="column" fxLayoutAlign="start center">
+            <!--<div fxFlex="10" fxHide.xs></div>-->
+            <div fxFlex fxLayout="column">
                 <mat-slide-toggle *ngFor="let platform of socialPlatforms" [labelPosition]="'before'">
                     <span fxLayout="row" fxLayoutAlign="start center">
                         <fa-icon *ngIf="platform.icon" [icon]="platform.icon"></fa-icon>

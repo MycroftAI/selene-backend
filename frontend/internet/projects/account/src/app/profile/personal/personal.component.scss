@@ -29,10 +29,9 @@
 }
 
 mat-card {
-    max-width: 400px;
 
     mat-form-field {
-        width: 100%;
+        max-width: 400px;
     }
 
     fieldset {

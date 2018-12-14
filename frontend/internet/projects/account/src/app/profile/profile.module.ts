@@ -12,6 +12,7 @@ import {
     MatExpansionModule,
     MatFormFieldModule,
     MatInputModule,
+    MatSelectModule,
     MatSlideToggleModule,
     MatToolbarModule
 } from '@angular/material';
@@ -21,6 +22,7 @@ import { LoginComponent } from './login/login.component';
 import { PersonalComponent } from './personal/personal.component';
 import { SubscriptionComponent } from './subscription/subscription.component';
 import { DeleteComponent } from './delete/delete.component';
+import { AgreementsComponent } from './agreements/agreements.component';
 
 @NgModule({
     declarations: [
@@ -28,7 +30,8 @@ import { DeleteComponent } from './delete/delete.component';
         LoginComponent,
         PersonalComponent,
         SubscriptionComponent,
-        DeleteComponent
+        DeleteComponent,
+        AgreementsComponent
     ],
     entryComponents: [
         LoginComponent
@@ -45,6 +48,7 @@ import { DeleteComponent } from './delete/delete.component';
         MatExpansionModule,
         MatFormFieldModule,
         MatInputModule,
+        MatSelectModule,
         MatSlideToggleModule,
         MatToolbarModule
     ]

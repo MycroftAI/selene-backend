@@ -73,7 +73,7 @@ export class SkillCardComponent implements OnInit {
         this.installSnackbar.open(
             notificationMessage,
             '',
-            {panelClass: 'login-snackbar', duration: fiveSeconds}
+            {panelClass: 'profile-snackbar', duration: fiveSeconds}
         );
     }
 }

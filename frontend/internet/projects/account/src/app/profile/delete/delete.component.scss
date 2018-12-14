@@ -1,5 +1,14 @@
 mat-card {
-    max-width: 400px;
+    button {
+        color: white;
+        margin-bottom: 10px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    .mat-body {
+        margin-bottom: 20px;
+        text-align: center;
+    }
     .mat-h3 {
         text-align: center;
         font-weight: bold;

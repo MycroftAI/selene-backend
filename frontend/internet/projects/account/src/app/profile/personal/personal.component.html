@@ -1,8 +1,10 @@
-<mat-card>
+<mat-card class="form-card">
     <mat-toolbar class="form-title">PERSONAL</mat-toolbar>
     <form>
         <div fxLayout="row wrap">
-            <div id="user-name" fxFlex fxLayout="column" fxLayoutAlign="center">
+
+            <!-- first and last name fields go on left when screen is large enough -->
+            <div id="user-name" fxFlex fxLayout="column">
                 <mat-form-field appearance="outline">
                     <mat-label>First Name</mat-label>
                     <input
@@ -13,6 +15,7 @@
                         type="text"
                     >
                 </mat-form-field>
+
                 <mat-form-field appearance="outline">
                     <mat-label>Last Name</mat-label>
                     <input
@@ -24,6 +27,40 @@
                     >
                 </mat-form-field>
             </div>
+
+            <!-- location fields go on right when screen is large enough -->
+            <div id="user-location" fxFlex fxLayout="column">
+                <mat-form-field appearance=outline>
+                    <mat-label>Country</mat-label>
+                    <mat-select>
+                        <mat-option value="option1">Option 1</mat-option>
+                        <mat-option value="option2" disabled>Option 2 (disabled)</mat-option>
+                        <mat-option value="option3">Option 3</mat-option>
+                    </mat-select>
+                    <mat-hint>Filter for postal code and time zone</mat-hint>
+                </mat-form-field>
+
+                <mat-form-field appearance=outline>
+                    <mat-label>Postal Code</mat-label>
+                    <mat-select placeholder="Select country">
+                        <mat-option value="option1">Option 1</mat-option>
+                        <mat-option value="option2" disabled>Option 2 (disabled)</mat-option>
+                        <mat-option value="option3">Option 3</mat-option>
+                    </mat-select>
+                    <mat-hint>Default postal code for skills (e.g. weather)</mat-hint>
+                </mat-form-field>
+
+                <mat-form-field appearance=outline>
+                    <mat-label>Time Zone</mat-label>
+                    <mat-select>
+                        <mat-option value="option1">Option 1</mat-option>
+                        <mat-option value="option2" disabled>Option 2 (disabled)</mat-option>
+                        <mat-option value="option3">Option 3</mat-option>
+                    </mat-select>
+                    <mat-hint>Default time zone for skills (e.g. alarm clock)</mat-hint>
+                </mat-form-field>
+            </div>
+
         </div>
     </form>
 </mat-card>
