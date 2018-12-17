@@ -1,32 +1,31 @@
-//.app-container {
-//  display: flex;
-//  flex-direction: column;
-//  position: absolute;
-//  top: 0;
-//  bottom: 0;
-//  left: 0;
-//  right: 0;
-//}
+.app-container {
+    height: 100vh;
+    width: 100vw;
+}
 
-// Use inline css to display the logo at top of sidebar because Angular
-// libraries do not support static assets yet.
 mat-toolbar {
     height: 50px;
     position: fixed;
     z-index: 2;
+
     .menu-button {
+        margin-left: -10px;
         margin-right: 10px;
         fa-icon {
             color: white;
             font-size: 20px;
         }
     }
-    .globalnav-logo {
+
+     // Use inline css to display the logo at top of sidebar because Angular
+    // libraries do not support static assets yet.
+   .globalnav-logo {
         background: url("toolbar-logo.svg") no-repeat;
         height: 25px;
         margin-top: -5px;
         width: 168px;
     }
+
     .sign-in-button {
         background-color: #22a7f0;
         color: white;
@@ -40,21 +39,29 @@ mat-toolbar {
 }
 
 mat-sidenav-container {
+    height: 100%;
+    width: 100%;
+
     .mat-drawer-container{ overflow: visible; }
+
     mat-sidenav {
         border: none;
         margin-top: 50px;
+
         mat-divider {
             width: 200px;
             margin-left: 10px;
         }
+
         mat-nav-list {
             overflow-y: auto;
         }
     }
+
     mat-sidenav-content {
-        margin-top: 50px;
-        //background-color: #f1f3f4;
-}
+        padding-left: 3vw;
+        padding-right: 3vw;
+        margin-top: 80px;
+    }
 }
 
