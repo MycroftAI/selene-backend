@@ -80,7 +80,6 @@ export class InstallService {
             case ('installing'): {
                 if (newSkillStatus === 'installed') {
                     this.statusNotifications.next([skillName, newSkillStatus]);
-                    this.removeFromInstallQueue(skillName).subscribe();
                 } else if (newSkillStatus === 'failed') {
                     this.statusNotifications.next([skillName, 'install failed']);
                 } else {
@@ -91,7 +90,6 @@ export class InstallService {
             case ('uninstalling'): {
                 if (!newSkillStatus) {
                     this.statusNotifications.next([skillName, 'uninstalled']);
-                    this.removeFromUninstallQueue(skillName).subscribe();
                 } else if (newSkillStatus === 'failed') {
                     this.statusNotifications.next([skillName, 'uninstall failed']);
                 } else {
@@ -161,7 +159,6 @@ export class InstallService {
         return this.http.put<Object>(
             installerSettingsUrl,
             {
-                action: 'add',
                 section: 'to_install',
                 skill_name: skillName
             }
@@ -177,39 +174,6 @@ export class InstallService {
         return this.http.put<Object>(
             installerSettingsUrl,
             {
-                action: 'add',
-                section: 'to_remove',
-                skill_name: skillName
-            }
-        );
-    }
-
-    /**
-     * Call the API to remove a skill to the Installer skill's 'to_install' setting.
-     *
-     * @param skillName: the skill being installed
-     */
-    removeFromInstallQueue(skillName: string): Observable<Object> {
-        return this.http.put<Object>(
-            installerSettingsUrl,
-            {
-                action: 'remove',
-                section: 'to_install',
-                skill_name: skillName
-            }
-        );
-    }
-
-    /**
-     * Call the API to remove a skill to the Installer skill's 'to_remove' setting.
-     *
-     * @param skillName: the skill being removed
-     */
-    removeFromUninstallQueue(skillName: string): Observable<Object> {
-        return this.http.put<Object>(
-            installerSettingsUrl,
-            {
-                action: 'remove',
                 section: 'to_remove',
                 skill_name: skillName
             }
