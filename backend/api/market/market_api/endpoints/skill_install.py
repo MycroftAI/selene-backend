@@ -126,9 +126,10 @@ class SkillInstallEndpoint(SeleneEndpoint):
     def _build_update_request_body(self):
         install_request_body = []
 
-        action = self.request.json['action']
         section = self.request.json['section']
         skill_name = self.request.json['skill_name']
+
+        devices = self._get_user_devices()
 
         setting_section = self.installer_skill_settings[section]
         if setting_section is not None:
@@ -136,22 +137,14 @@ class SkillInstallEndpoint(SeleneEndpoint):
                 block = json.loads(setting_section[0])
             except ValueError:
                 error_message = (
-                    'found unexpected section {}: {}'
+                    'found unexpected section: {}'
                 )
-                _log.error(error_message.format(action, setting_section[0]))
-                raise ValueError(error_message.format(action, setting_section[0]))
+                _log.error(error_message.format(setting_section[0]))
+                raise ValueError(error_message.format(setting_section[0]))
             else:
-                if action == 'add':
-                    if not any(list(filter(lambda a: a['name'] == skill_name, block))):
-                        block.append({'name': skill_name})
-                elif action == 'remove':
-                    block = list(filter(lambda x: x['name'] != skill_name, block))
-                else:
-                    error_message = (
-                        'found unexpected action{}'
-                    )
-                    _log.error(error_message.format(action))
-                    raise ValueError(error_message.format(action))
+                if not any(list(filter(lambda a: a['name'] == skill_name, block))):
+                    block.append({'name': skill_name, 'devices': devices})
+
         else:
             error_message = (
                 'found unexpected section {}'
@@ -166,3 +159,24 @@ class SkillInstallEndpoint(SeleneEndpoint):
             )
         )
         return dict(batch=install_request_body)
+
+    def _get_user_devices(self):
+        service_request_headers = {
+            'Authorization': 'Bearer ' + self.tartarus_token
+        }
+        service_url = (
+                self.config['TARTARUS_BASE_URL'] +
+                '/user/' +
+                self.user_uuid +
+                '/device'
+        )
+        user_device_response = requests.get(service_url, headers=service_request_headers)
+
+        if user_device_response.status_code != HTTPStatus.OK:
+            self._check_for_service_errors(user_device_response)
+
+        if user_device_response.content is not None:
+            devices = json.loads(user_device_response.content)
+            return list(map(lambda device: device['uuid'], devices))
+        else:
+            return []
