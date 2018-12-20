@@ -1,8 +1,8 @@
 <div id="page-not-found-bg" fxLayout="row" fxLayoutAlign="start stretch">
     <div id="page-not-found-fg" fxFlex fxLayout="column" fxLayoutAlign="center center">
-        <div class="mat-h1" fxFlex="5" fxFlexOffset="20">PAGE NOT FOUND</div>
+        <div class="mat-h1" fxFlex="10" fxFlexOffset="15">PAGE NOT FOUND</div>
         <div class="page-not-found-logo" fxFlex="30"></div>
-        <div fxFlex fxFlexOffset="5">
+        <div fxFlex fxFlexOffset.gt-md="5">
             <button mat-raised-button class="back-button" (click)="navigateBack()">GO BACK</button>
         </div>
     </div>
