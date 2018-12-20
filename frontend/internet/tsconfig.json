@@ -23,6 +23,12 @@
       ],
       "globalnav/*": [
         "dist/globalnav/*"
+      ],
+      "page-not-found": [
+        "dist/page-not-found"
+      ],
+      "page-not-found/*": [
+        "dist/page-not-found/*"
       ]
     }
   }
