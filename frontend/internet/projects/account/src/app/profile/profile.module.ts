@@ -1,7 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FlexLayoutModule } from '@angular/flex-layout';
-import { LeafletModule } from '@asymmetrik/ngx-leaflet';
 
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import {
@@ -40,7 +39,6 @@ import { AgreementsComponent } from './agreements/agreements.component';
         CommonModule,
         FlexLayoutModule,
         FontAwesomeModule,
-        LeafletModule,
         MatButtonModule,
         MatButtonToggleModule,
         MatCardModule,
