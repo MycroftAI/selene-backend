@@ -7,6 +7,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { AppService } from './app.service';
 import { GlobalnavModule } from 'globalnav';
+import { PageNotFoundModule } from 'page-not-found';
 import { MaterialModule } from './shared/material.module';
 import { SkillsModule } from './skills/skills.module';
 import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
@@ -20,6 +21,7 @@ import { PageNotFoundComponent } from './page-not-found/page-not-found.component
             GlobalnavModule,
             HttpClientModule,
             MaterialModule,
+            PageNotFoundModule,
             SkillsModule,
             AppRoutingModule
         ],
