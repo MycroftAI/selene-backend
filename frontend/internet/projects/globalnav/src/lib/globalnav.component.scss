@@ -1,12 +1,12 @@
-.app-container {
-  display: flex;
-  flex-direction: column;
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-}
+//.app-container {
+//  display: flex;
+//  flex-direction: column;
+//  position: absolute;
+//  top: 0;
+//  bottom: 0;
+//  left: 0;
+//  right: 0;
+//}
 
 // Use inline css to display the logo at top of sidebar because Angular
 // libraries do not support static assets yet.
@@ -40,6 +40,7 @@ mat-toolbar {
 }
 
 mat-sidenav-container {
+    .mat-drawer-container{ overflow: visible; }
     mat-sidenav {
         border: none;
         margin-top: 50px;
@@ -53,7 +54,7 @@ mat-sidenav-container {
     }
     mat-sidenav-content {
         margin-top: 50px;
-        background-color: #f1f3f4;
+        //background-color: #f1f3f4;
 }
 }
 

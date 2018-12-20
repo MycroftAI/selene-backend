@@ -1,0 +1,45 @@
+@import '~@angular/material/theming';
+@import "mycroft-colors";
+
+// Angular Material does not support a form field with a map control inside it.
+// Do our best to make this look like the other form fields
+@mixin mimic-form-field {
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    border-radius: 6px;
+    color: rgba(0, 0, 0, 0.6);
+    padding: 15px;
+
+    &:hover {
+        border: 2px solid rgba(0, 0, 0, 0.87);
+        padding: 14px;
+    }
+
+    legend {
+        font-size: 13px;
+        font-weight: 400;
+        margin-left: -7px;
+        padding-top: 5px;
+        padding-left: 3px;
+        padding-right: 5px;
+    }
+}
+
+.mat-h3 {
+    margin-bottom: 10px;
+}
+
+mat-card {
+
+    mat-form-field {
+        max-width: 400px;
+    }
+
+    fieldset {
+        @include mimic-form-field;
+        .map {
+            width: 100%;
+            height: 300px;
+        }
+    }
+}
+

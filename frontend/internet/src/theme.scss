@@ -138,7 +138,7 @@ $mycroft-light-theme-foreground: (
   secondary-text:    $dark-secondary-text,
   icon:              rgba(black, 0.54),
   icons:             rgba(black, 0.54),
-  text:              rgba(black, 0.87),
+  text:              rgba(#2c3e50, 0.87),
   slider-min:        rgba(black, 0.87),
   slider-off:        rgba(black, 0.26),
   slider-off-active: rgba(black, 0.38),
@@ -176,7 +176,19 @@ $custom-theme: mycroft-light-theme(
 
     .form-title {
         background-color: mat-color($primary, 200);
-        color: mat-contrast($primary, 200)
+        border-radius: 6px;
+        color: mat-contrast($primary, 200);
+        margin-bottom: 20px;
+        max-width: 1000px;
+        min-width: 260px;
+    }
+
+    .form-card {
+        margin-bottom: 40px;
+        margin-left: auto;
+        margin-right: auto;
+        max-width: 1000px;
+        min-width: 260px;
     }
 }
 
