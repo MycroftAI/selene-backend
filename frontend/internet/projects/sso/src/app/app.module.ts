@@ -8,6 +8,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { BackgroundModule } from './background/background.module';
 import { LoginModule } from './login/login.module';
 import { LogoutModule } from './logout/logout.module';
+import { PageNotFoundModule } from 'page-not-found';
 
 @NgModule({
     declarations: [ AppComponent ],
@@ -18,6 +19,7 @@ import { LogoutModule } from './logout/logout.module';
         FlexLayoutModule,
         LoginModule,
         LogoutModule,
+        PageNotFoundModule,
         AppRoutingModule
     ],
     providers: [ ],
