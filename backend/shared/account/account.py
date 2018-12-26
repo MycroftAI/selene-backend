@@ -1,10 +1,9 @@
 from dataclasses import dataclass
-from decimal import Decimal
-from os import getcwd, path
+from os import path
 
 from selene_util.db import DatabaseQuery, fetch
 
-SQL_DIR = path.join(getcwd(), 'sql')
+SQL_DIR = path.join(path.dirname(__file__), 'sql')
 
 
 @dataclass
@@ -12,16 +11,15 @@ class Account(object):
     """Representation of a Mycroft user account."""
     id: str
     email_address: str
-    first_name: str
-    last_name: str
-    password: str
-    latitude: Decimal
-    longitude: Decimal
     date_format: str
     time_format: str
     measurement_system: str
     wake_word: str
     text_to_speech_id: str
+    first_name: str = None
+    last_name: str = None
+    password: str = None
+    picture: str = None
 
 
 def get_account_by_id(db, account_id: str) -> Account:
