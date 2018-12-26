@@ -27,7 +27,7 @@ def get_device_by_id(db, device_id: str) -> Device:
 
     :param db: psycopg2 connection to mycroft database
     :param device_id: uuid
-    :return:
+    :return: Device entity
     """
     query = DatabaseQuery(
         file_path=path.join(SQL_DIR, 'get_device_by_id.sql'),
@@ -43,7 +43,7 @@ def get_devices_by_account_id(db, account_id: str) -> list[Device]:
 
     :param db: psycopg2 connection to mycroft database
     :param account_id: uuid
-    :return:
+    :return: List of User's devices
     """
     query = DatabaseQuery(
         file_path=path.join(SQL_DIR, 'get_devices_by_account_id.sql'),
@@ -51,4 +51,4 @@ def get_devices_by_account_id(db, account_id: str) -> list[Device]:
         singleton=False
     )
     sql_results = fetch(db, query)
-    return list(map(lambda result: Device(**result), sql_results))
+    return [Device(**result) for result in sql_results]
