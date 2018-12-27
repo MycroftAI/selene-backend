@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from os import path
+from typing import List
 
 from selene_util.db import DatabaseQuery, fetch
 
@@ -31,7 +32,7 @@ class SettingSection(object):
     section: str
     display_order: int
     description: str = None
-    settings: list = None
+    settings: List[Setting] = None
 
 
 def get_setting_sections_by_device_id_and_setting_version(db, device_id, setting_version_hash):
