@@ -9,11 +9,14 @@ Example Usage:
 from dataclasses import dataclass
 from logging import getLogger
 from os import path
+from os import environ
 
 from psycopg2 import connect
 from psycopg2.extras import RealDictCursor
 
 _log = getLogger(__package__)
+
+DB_HOST = environ['DB_HOST']
 
 
 def get_sql_from_file(file_path: str) -> str:
@@ -39,6 +42,7 @@ def _connect_to_mycroft_db(db_user):
     :return: database connection
     """
     db = connect(
+        host=DB_HOST,
         dbname='mycroft',
         user=db_user,
         cursor_factory=RealDictCursor
