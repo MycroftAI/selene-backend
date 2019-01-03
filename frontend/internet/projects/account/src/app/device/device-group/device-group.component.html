@@ -1,6 +1,9 @@
 <div mat-dialog-title class="mat-h2-primary">Group</div>
 
 <div mat-dialog-content>
+    <div class="mat-body">
+        Groups are useful to organize multiple devices.  You can reuse device names if they are in different groups.
+    </div>
     <mat-radio-group fxLayout="column" [(ngModel)]="selectedGroup.name">
         <ng-container *ngFor="let group of deviceGroups">
 
