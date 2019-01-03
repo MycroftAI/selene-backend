@@ -1,0 +1,38 @@
+<div mat-dialog-title class="mat-h2-primary">Placement</div>
+
+<div id="placement-dialog-content" mat-dialog-content>
+    <mat-radio-group id=placement-radio-group fxLayout="column" [(ngModel)]="selectedPlacement.name">
+        <ng-container *ngFor="let placement of devicePlacements">
+
+            <!-- Radio buttons for pre-defined placements -->
+            <mat-radio-button *ngIf="!placement.userDefined" class="predefined-group" [value]="placement.name">
+                {{placement.name}}
+            </mat-radio-button>
+
+            <!-- Radio buttons for user-defined placements -->
+            <div *ngIf="placement.userDefined" fxLayout="row" fxLayoutAlign="space-between center">
+                <mat-radio-button [value]="placement.name">
+                    <mat-form-field [floatLabel]="'never'">
+                        <input matInput class="user-defined-group" value="{{placement.name}}">
+                    </mat-form-field>
+                </mat-radio-button>
+                <button mat-icon-button [disableRipple]="true">
+                    <fa-icon class="danger-icon" [icon]="deleteIcon"></fa-icon>
+                </button>
+            </div>
+
+        </ng-container>
+
+        <!-- Radio button to add a new user-defined group -->
+        <mat-radio-button>
+            <mat-form-field [floatLabel]="'never'">
+                <input matInput placeholder="Add Custom Placement">
+            </mat-form-field>
+        </mat-radio-button>
+    </mat-radio-group>
+</div>
+
+<div mat-dialog-actions>
+    <button mat-button (click)="onCancelClick()" class="cancel-button">CANCEL</button>
+    <button mat-button [mat-dialog-close]="selectedPlacement" class="action-button">SAVE</button>
+</div>

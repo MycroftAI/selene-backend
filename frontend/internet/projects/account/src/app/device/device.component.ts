@@ -4,7 +4,8 @@ import {MatDialog} from '@angular/material';
 import { faCogs, faPlusCircle, faCaretRight, faTrash } from '@fortawesome/free-solid-svg-icons';
 
 import { DeviceGroupComponent } from './device-group/device-group.component';
-import { DeviceService, Device } from './device.service';
+import {DeviceService, Device, DevicePlacement} from './device.service';
+import {DevicePlacementComponent} from './device-placement/device-placement.component';
 
 @Component({
     selector: 'account-device',
@@ -19,13 +20,12 @@ export class DeviceComponent implements OnInit {
         'United States, 64101, CST',
         'United Kingdom, ABCDE, BST'
     ];
-    public devicePlacements = [
-        'Basement',
-        'Bedroom',
-        'Kitchen',
-        'Living Room',
-        'Add custom placement...'
-    ];
+    public productIcons = {
+        'mark-one': '../assets/mark-1-icon.svg',
+        'mark-two': '../assets/mark-2-icon.svg',
+        'picroft': '../assets/picroft-icon.svg',
+        'kde': '../assets/kde-icon.svg',
+    };
     public editIcon = faCaretRight;
     public settingsIcon = faCogs;
 
@@ -39,9 +39,19 @@ export class DeviceComponent implements OnInit {
       const groupDialogRef = this.dialog.open(DeviceGroupComponent, {data: device.group});
       groupDialogRef.afterClosed().subscribe(
           (result) => {
-              console.log(result);
               if (result) {
                   device.group = result;
+              }
+          }
+      );
+    }
+
+    onPlacementClick (device: Device) {
+      const placementDialogRef = this.dialog.open(DevicePlacementComponent, {data: device.placement});
+      placementDialogRef.afterClosed().subscribe(
+          (result) => {
+              if (result) {
+                  device.placement = result;
               }
           }
       );

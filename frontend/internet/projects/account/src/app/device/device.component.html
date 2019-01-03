@@ -14,7 +14,7 @@
     <div fxLayout="row wrap" fxLayoutAlign="start start">
         <mat-expansion-panel *ngFor="let device of devices">
             <mat-expansion-panel-header fxLayout="row" fxLayoutAlign="start center" [expandedHeight]="'100px'" [collapsedHeight]="'100px'">
-                    <img src="../assets/mark-2-icon.svg"/>
+                    <img [src]="productIcons[device.product]"/>
                     <div>
                         <div class="mat-h2-primary">{{device.name}}</div>
                         <div class="mat-subheader">{{device.placement.name}}</div>
@@ -66,17 +66,20 @@
                     </mat-select>
                     <mat-hint>Country, postal code, time zone</mat-hint>
                 </mat-form-field>
-                <mat-form-field [appearance]="'outline'">
+                <mat-form-field [appearance]="'outline'" (click)="onPlacementClick(device)">
                     <mat-label>Placement</mat-label>
-                    <mat-select>
-                        <mat-option
-                            *ngFor="let placement of devicePlacements"
-                            value="deviceLocation"
+                    <div fxLayout="row" fxLayoutAlign="none center">
+                        <input
+                            id="devicePlacement"
+                            matInput
+                            name="devicePlacement"
+                            [readonly]="true"
+                            type="text"
+                            value="{{device.placement.name}}"
                         >
-                            {{placement}}
-                        </mat-option>
-                    </mat-select>
-                    <mat-hint>Where device is placed in home, office, etc.</mat-hint>
+                        <fa-icon matSuffix [icon]="editIcon" style="font-size: 16px;"></fa-icon>
+                    </div>
+                    <mat-hint>Where a device is placed within a location</mat-hint>
                 </mat-form-field>
             </form>
             <div>

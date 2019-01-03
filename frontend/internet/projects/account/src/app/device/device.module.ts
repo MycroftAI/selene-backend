@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { FlexLayoutModule } from '@angular/flex-layout';
+import { FormsModule } from '@angular/forms';
 import {
     MatButtonModule,
     MatCardModule,
@@ -17,8 +18,8 @@ import {
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { DeviceComponent } from './device.component';
 import { DeviceGroupComponent } from './device-group/device-group.component';
-import { DeviceService } from './device.service';
 import { DevicePlacementComponent } from './device-placement/device-placement.component';
+import { DeviceService } from './device.service';
 
 @NgModule({
     declarations: [
@@ -35,6 +36,7 @@ import { DevicePlacementComponent } from './device-placement/device-placement.co
         DragDropModule,
         FlexLayoutModule,
         FontAwesomeModule,
+        FormsModule,
         MatButtonModule,
         MatCardModule,
         MatCheckboxModule,
