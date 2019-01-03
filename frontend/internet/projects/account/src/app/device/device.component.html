@@ -1,3 +1,100 @@
-<p>
-  device works!
-</p>
+<div class="app-body">
+
+    <!-- Button for adding a new device centered at top of page-->
+    <div fxLayout="row" fxLayoutAlign="center">
+        <button fxFlex mat-flat-button class="action-button">
+            <div fxLayout="row" fxLayoutAlign="space-between">
+                <span class="mat-h2">ADD DEVICE</span>
+                <fa-icon [icon]="addIcon"></fa-icon>
+            </div>
+        </button>
+    </div>
+
+    <!-- Device listing - show summary in expansion panel header and editable fields in expansion panel detail -->
+    <div fxLayout="row wrap" fxLayoutAlign="start start">
+        <mat-expansion-panel *ngFor="let device of devices">
+            <mat-expansion-panel-header fxLayout="row" fxLayoutAlign="start center" [expandedHeight]="'100px'" [collapsedHeight]="'100px'">
+                    <img src="../assets/mark-2-icon.svg"/>
+                    <div>
+                        <div class="mat-h2-primary">{{device.name}}</div>
+                        <div class="mat-subheader">{{device.placement.name}}</div>
+                    </div>
+            </mat-expansion-panel-header>
+            <button mat-flat-button color="primary" class="settings-button">
+                <fa-icon [icon]="settingsIcon"></fa-icon>
+                SKILL SETTINGS
+            </button>
+            <form>
+                <mat-form-field [appearance]="'outline'">
+                    <mat-label>Name</mat-label>
+                    <input
+                        id="deviceName"
+                        matInput
+                        name="deviceName"
+                        required
+                        type="text"
+                        value="{{device.name}}"
+                    >
+                    <mat-hint>Must be unique within a device group (if defined)</mat-hint>
+                </mat-form-field>
+                <div fxLayout="row">
+                <mat-form-field [appearance]="'outline'" (click)="onGroupClick(device)">
+                    <mat-label>Group</mat-label>
+                    <div fxLayout="row" fxLayoutAlign="none center">
+                        <input
+                            id="deviceGroup"
+                            matInput
+                            name="deviceGroup"
+                            [readonly]="true"
+                            type="text"
+                            value="{{device.group.name}}"
+                        >
+                        <fa-icon matSuffix [icon]="editIcon" style="font-size: 16px;"></fa-icon>
+                    </div>
+                    <mat-hint>Mechanism to categorize devices</mat-hint>
+                </mat-form-field>
+                </div>
+                <mat-form-field [appearance]="'outline'">
+                    <mat-label>Geography</mat-label>
+                    <mat-select>
+                        <mat-option
+                            *ngFor="let location of deviceLocations"
+                            value="deviceLocation"
+                        >
+                            {{location}}
+                        </mat-option>
+                    </mat-select>
+                    <mat-hint>Country, postal code, time zone</mat-hint>
+                </mat-form-field>
+                <mat-form-field [appearance]="'outline'">
+                    <mat-label>Placement</mat-label>
+                    <mat-select>
+                        <mat-option
+                            *ngFor="let placement of devicePlacements"
+                            value="deviceLocation"
+                        >
+                            {{placement}}
+                        </mat-option>
+                    </mat-select>
+                    <mat-hint>Where device is placed in home, office, etc.</mat-hint>
+                </mat-form-field>
+            </form>
+            <div>
+                <span class="mat-body">Platform:&nbsp;&nbsp;</span>
+                <span class="mat-body-primary">Mark II</span>
+            </div>
+            <div>
+                <span class="mat-body">Mycroft Core Version:&nbsp;&nbsp;</span>
+                <span class="mat-body-primary">18.08</span>
+            </div>
+            <div>
+                <span class="mat-body">Enclosure Version:&nbsp;&nbsp;</span>
+                <span class="mat-body-primary">1.2.3</span>
+            </div>
+            <button mat-flat-button color="warn" class="delete-button">
+                <fa-icon [icon]="deleteIcon"></fa-icon>
+                REMOVE DEVICE
+            </button>
+        </mat-expansion-panel>
+    </div>
+</div>
