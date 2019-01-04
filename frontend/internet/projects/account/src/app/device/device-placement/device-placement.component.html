@@ -4,7 +4,7 @@
     <div class="mat-body">
         You can optionally indicate where a device is placed within a location.  Field is informational only.
     </div>
-    <mat-radio-group id=placement-radio-group fxLayout="column" [(ngModel)]="selectedPlacement.name">
+    <mat-radio-group fxLayout="column" [(ngModel)]="selectedPlacement.name">
         <ng-container *ngFor="let placement of devicePlacements">
 
             <!-- Radio buttons for pre-defined placements -->
