@@ -20,16 +20,19 @@ import { DeviceComponent } from './device.component';
 import { DeviceGroupComponent } from './device-group/device-group.component';
 import { DevicePlacementComponent } from './device-placement/device-placement.component';
 import { DeviceService } from './device.service';
+import { DeviceRemoveComponent } from './device-remove/device-remove.component';
 
 @NgModule({
     declarations: [
         DeviceComponent,
         DeviceGroupComponent,
-        DevicePlacementComponent
+        DevicePlacementComponent,
+        DeviceRemoveComponent
     ],
     entryComponents: [
         DeviceGroupComponent,
-        DevicePlacementComponent
+        DevicePlacementComponent,
+        DeviceRemoveComponent
     ],
     imports: [
         CommonModule,

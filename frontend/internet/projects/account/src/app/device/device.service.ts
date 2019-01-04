@@ -89,5 +89,9 @@ export class DeviceService {
         { id: '2', name: 'Living Room', userDefined: true}
     ];
 
-  constructor() { }
+    constructor() { }
+
+    deleteDevice(device: Device): void {
+        console.log('deleting device... ');
+    }
 }

@@ -1,11 +1,12 @@
 import { Component, OnInit } from '@angular/core';
-import {MatDialog} from '@angular/material';
+import { MatDialog } from '@angular/material';
 
 import { faCogs, faPlusCircle, faCaretRight, faTrash } from '@fortawesome/free-solid-svg-icons';
 
 import { DeviceGroupComponent } from './device-group/device-group.component';
-import {DeviceService, Device, DevicePlacement} from './device.service';
-import {DevicePlacementComponent} from './device-placement/device-placement.component';
+import { DeviceService, Device } from './device.service';
+import { DevicePlacementComponent } from './device-placement/device-placement.component';
+import { DeviceRemoveComponent } from './device-remove/device-remove.component';
 
 @Component({
     selector: 'account-device',
@@ -68,6 +69,16 @@ export class DeviceComponent implements OnInit {
                 if (placement.name === newPlacement) {
                     this.selectedDevice.placement = placement;
                 }
+            }
+        );
+    }
+
+    onRemovalClick (device: Device) {
+        const removalDialogRef = this.dialog.open(DeviceRemoveComponent, {data: false});
+        this.selectedDevice = device;
+        removalDialogRef.afterClosed().subscribe(
+            (result) => {
+                if (result) { this.deviceService.deleteDevice(device); }
             }
         );
     }

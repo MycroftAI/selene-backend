@@ -1,0 +1,12 @@
+<div mat-dialog-title class="mat-h2-primary">Remove Device</div>
+
+<div mat-dialog-content>
+    <div class="mat-body">
+        Just double checking.  Device removal cannot be undone.
+    </div>
+</div>
+
+<div mat-dialog-actions align="end">
+    <button mat-button (click)="onCancelClick()">CANCEL</button>
+    <button mat-button [mat-dialog-close]="true" class="danger-button">REMOVE</button>
+</div>

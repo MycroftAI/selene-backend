@@ -94,7 +94,7 @@
                 <span class="mat-body">Enclosure Version:&nbsp;&nbsp;</span>
                 <span class="mat-body-primary">1.2.3</span>
             </div>
-            <button mat-flat-button color="warn" class="delete-button">
+            <button mat-flat-button color="warn" class="delete-button" (click)="onRemovalClick(device)">
                 <fa-icon [icon]="deleteIcon"></fa-icon>
                 REMOVE DEVICE
             </button>
