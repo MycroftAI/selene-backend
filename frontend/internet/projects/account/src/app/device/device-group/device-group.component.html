@@ -4,7 +4,7 @@
     <div class="mat-body">
         Groups are useful to organize multiple devices.  You can reuse device names if they are in different groups.
     </div>
-    <mat-radio-group fxLayout="column" [(ngModel)]="selectedGroup.name">
+    <mat-radio-group fxLayout="column" [(ngModel)]="data">
         <ng-container *ngFor="let group of deviceGroups">
 
             <!-- Radio buttons for pre-defined groups -->
@@ -35,7 +35,7 @@
     </mat-radio-group>
 </div>
 
-<div mat-dialog-actions>
-    <button mat-button (click)="onCancelClick()" class="cancel-button">CANCEL</button>
-    <button mat-button [mat-dialog-close]="selectedGroup" class="action-button">SAVE</button>
+<div mat-dialog-actions align="end">
+    <button mat-button (click)="onCancelClick()">CANCEL</button>
+    <button mat-button [mat-dialog-close]="data" class="action-button">SAVE</button>
 </div>

@@ -28,6 +28,7 @@ export class DeviceComponent implements OnInit {
     };
     public editIcon = faCaretRight;
     public settingsIcon = faCogs;
+    private selectedDevice: Device;
 
     constructor(public dialog: MatDialog, private deviceService: DeviceService) { }
 
@@ -36,24 +37,38 @@ export class DeviceComponent implements OnInit {
     }
 
     onGroupClick (device: Device) {
-      const groupDialogRef = this.dialog.open(DeviceGroupComponent, {data: device.group});
-      groupDialogRef.afterClosed().subscribe(
-          (result) => {
-              if (result) {
-                  device.group = result;
-              }
-          }
-      );
+        const groupDialogRef = this.dialog.open(DeviceGroupComponent, {data: device.group.name});
+        this.selectedDevice = device;
+        groupDialogRef.afterClosed().subscribe(
+            (result) => { this.updateDeviceGroup(result); }
+        );
+    }
+
+    updateDeviceGroup(newGroup: string): void {
+        this.deviceService.deviceGroups.forEach(
+            (group) => {
+                if (group.name === newGroup) {
+                    this.selectedDevice.group = group;
+                }
+            }
+        );
     }
 
     onPlacementClick (device: Device) {
-      const placementDialogRef = this.dialog.open(DevicePlacementComponent, {data: device.placement});
-      placementDialogRef.afterClosed().subscribe(
-          (result) => {
-              if (result) {
-                  device.placement = result;
-              }
-          }
-      );
+        const placementDialogRef = this.dialog.open(DevicePlacementComponent, {data: device.placement.name});
+        this.selectedDevice = device;
+        placementDialogRef.afterClosed().subscribe(
+            (result) => { this.updateDevicePlacement(result); }
+        );
+    }
+
+    updateDevicePlacement(newPlacement: string): void {
+        this.deviceService.devicePlacements.forEach(
+            (placement) => {
+                if (placement.name === newPlacement) {
+                    this.selectedDevice.placement = placement;
+                }
+            }
+        );
     }
 }

@@ -15,17 +15,15 @@ export class DevicePlacementComponent implements OnInit {
 
     public deleteIcon = faTrashAlt;
     public devicePlacements: DevicePlacement[];
-    public selectedPlacement: DevicePlacement;
 
     constructor(
         private deviceService: DeviceService,
         public dialogRef: MatDialogRef<DevicePlacementComponent>,
-        @Inject(MAT_DIALOG_DATA) public data: DevicePlacement) {
+        @Inject(MAT_DIALOG_DATA) public data: string) {
     }
 
     ngOnInit() {
         this.devicePlacements = this.deviceService.devicePlacements;
-        this.selectedPlacement = this.data;
     }
 
     onCancelClick(): void {

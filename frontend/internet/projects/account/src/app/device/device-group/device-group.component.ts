@@ -13,7 +13,6 @@ import { DeviceGroup, DeviceService} from '../device.service';
 export class DeviceGroupComponent implements OnInit {
     public deleteIcon = faTrashAlt;
     public deviceGroups: DeviceGroup[];
-    public selectedGroup: DeviceGroup;
 
     constructor(
         private deviceService: DeviceService,
@@ -23,7 +22,6 @@ export class DeviceGroupComponent implements OnInit {
 
     ngOnInit() {
         this.deviceGroups = this.deviceService.deviceGroups;
-        this.selectedGroup = this.data;
     }
 
     onCancelClick(): void {

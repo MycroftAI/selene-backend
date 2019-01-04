@@ -4,7 +4,7 @@
     <div class="mat-body">
         You can optionally indicate where a device is placed within a location.  Field is informational only.
     </div>
-    <mat-radio-group fxLayout="column" [(ngModel)]="selectedPlacement.name">
+    <mat-radio-group fxLayout="column" [(ngModel)]="data">
         <ng-container *ngFor="let placement of devicePlacements">
 
             <!-- Radio buttons for pre-defined placements -->
@@ -35,7 +35,7 @@
     </mat-radio-group>
 </div>
 
-<div mat-dialog-actions>
-    <button mat-button (click)="onCancelClick()" class="cancel-button">CANCEL</button>
-    <button mat-button [mat-dialog-close]="selectedPlacement" class="action-button">SAVE</button>
+<div mat-dialog-actions align="end">
+    <button mat-button (click)="onCancelClick()">CANCEL</button>
+    <button mat-button [mat-dialog-close]="data" class="action-button">SAVE</button>
 </div>
