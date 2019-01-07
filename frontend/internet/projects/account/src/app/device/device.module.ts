@@ -16,23 +16,26 @@ import {
 } from '@angular/material';
 
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+
+import { AttributeComponent } from './attribute/attribute.component';
 import { DeviceComponent } from './device.component';
-import { DeviceGroupComponent } from './device-group/device-group.component';
-import { DevicePlacementComponent } from './device-placement/device-placement.component';
 import { DeviceService } from './device.service';
-import { DeviceRemoveComponent } from './device-remove/device-remove.component';
+import { GroupComponent } from './group/group.component';
+import { PlacementComponent } from './placement/placement.component';
+import { RemoveComponent } from './remove/remove.component';
 
 @NgModule({
     declarations: [
+        AttributeComponent,
         DeviceComponent,
-        DeviceGroupComponent,
-        DevicePlacementComponent,
-        DeviceRemoveComponent
+        GroupComponent,
+        PlacementComponent,
+        RemoveComponent
     ],
     entryComponents: [
-        DeviceGroupComponent,
-        DevicePlacementComponent,
-        DeviceRemoveComponent
+        GroupComponent,
+        PlacementComponent,
+        RemoveComponent
     ],
     imports: [
         CommonModule,

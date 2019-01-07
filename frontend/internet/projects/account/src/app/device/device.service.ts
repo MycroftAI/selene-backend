@@ -25,7 +25,7 @@ export interface Device {
     location: DeviceLocation;
     name: string;
     placement: DevicePlacement;
-    product: string;
+    platform: string;
 }
 
 @Injectable({
@@ -41,7 +41,7 @@ export class DeviceService {
             location: {id: 'aaa-aaa-aaa', region: 'Kansas City, MO'},
             name: 'Mark',
             placement: {id: 'bbb-bbb-bbb', name: 'Living Room', userDefined: true},
-            product: 'mark-one'
+            platform: 'mark-one'
         },
         {
             coreVersion: '18.08',
@@ -51,7 +51,7 @@ export class DeviceService {
             location: {id: 'aaa-aaa-aaa', region: 'Kansas City, MO'},
             name: 'Marky Mark',
             placement: {id: 'bbb-bbb-bbb', name: 'Kitchen', userDefined: false},
-            product: 'mark-two'
+            platform: 'mark-two'
         },
         {
             coreVersion: '18.08',
@@ -61,7 +61,7 @@ export class DeviceService {
             location: {id: 'ccc-ccc-ccc', region: 'Baltimore, MD'},
             name: 'American Pie',
             placement: {id: 'ddd-ddd-ddd', name: 'Bedroom', userDefined: false},
-            product: 'picroft'
+            platform: 'picroft'
         },
         {
             coreVersion: '18.08',
@@ -71,7 +71,7 @@ export class DeviceService {
             location: {id: 'eee-eee-eee', region: 'Baltimore, MD'},
             name: 'Kappa Delta Epsilon',
             placement: {id: 'fff-fff-fff', name: 'Kitchen', userDefined: false},
-            product: 'kde'
+            platform: 'kde'
         }
     ];
 

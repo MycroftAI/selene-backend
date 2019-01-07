@@ -8,17 +8,17 @@ import { DevicePlacement, DeviceService} from '../device.service';
 
 @Component({
   selector: 'account-device-placement',
-  templateUrl: './device-placement.component.html',
-  styleUrls: ['./device-placement.component.scss']
+  templateUrl: './placement.component.html',
+  styleUrls: ['./placement.component.scss']
 })
-export class DevicePlacementComponent implements OnInit {
+export class PlacementComponent implements OnInit {
 
     public deleteIcon = faTrashAlt;
     public devicePlacements: DevicePlacement[];
 
     constructor(
         private deviceService: DeviceService,
-        public dialogRef: MatDialogRef<DevicePlacementComponent>,
+        public dialogRef: MatDialogRef<PlacementComponent>,
         @Inject(MAT_DIALOG_DATA) public data: string) {
     }
 

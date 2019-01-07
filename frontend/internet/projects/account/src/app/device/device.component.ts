@@ -1,12 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material';
 
-import { faCogs, faPlusCircle, faCaretRight, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faCogs, faPlusCircle, faTrash } from '@fortawesome/free-solid-svg-icons';
 
-import { DeviceGroupComponent } from './device-group/device-group.component';
 import { DeviceService, Device } from './device.service';
-import { DevicePlacementComponent } from './device-placement/device-placement.component';
-import { DeviceRemoveComponent } from './device-remove/device-remove.component';
+import { RemoveComponent } from './remove/remove.component';
 
 @Component({
     selector: 'account-device',
@@ -21,13 +19,12 @@ export class DeviceComponent implements OnInit {
         'United States, 64101, CST',
         'United Kingdom, ABCDE, BST'
     ];
-    public productIcons = {
-        'mark-one': '../assets/mark-1-icon.svg',
-        'mark-two': '../assets/mark-2-icon.svg',
-        'picroft': '../assets/picroft-icon.svg',
-        'kde': '../assets/kde-icon.svg',
+    public platforms = {
+        'mark-one': {icon: '../assets/mark-1-icon.svg', displayName: 'Mark I'},
+        'mark-two': {icon: '../assets/mark-2-icon.svg', displayName: 'Mark II'},
+        'picroft': {icon: '../assets/picroft-icon.svg', displayName: 'Picroft'},
+        'kde': {icon: '../assets/kde-icon.svg', displayName: 'KDE'}
     };
-    public editIcon = faCaretRight;
     public settingsIcon = faCogs;
     private selectedDevice: Device;
 
@@ -37,49 +34,28 @@ export class DeviceComponent implements OnInit {
       this.devices = this.deviceService.devices;
     }
 
-    onGroupClick (device: Device) {
-        const groupDialogRef = this.dialog.open(DeviceGroupComponent, {data: device.group.name});
-        this.selectedDevice = device;
-        groupDialogRef.afterClosed().subscribe(
-            (result) => { this.updateDeviceGroup(result); }
-        );
-    }
-
-    updateDeviceGroup(newGroup: string): void {
-        this.deviceService.deviceGroups.forEach(
-            (group) => {
-                if (group.name === newGroup) {
-                    this.selectedDevice.group = group;
-                }
-            }
-        );
-    }
-
-    onPlacementClick (device: Device) {
-        const placementDialogRef = this.dialog.open(DevicePlacementComponent, {data: device.placement.name});
-        this.selectedDevice = device;
-        placementDialogRef.afterClosed().subscribe(
-            (result) => { this.updateDevicePlacement(result); }
-        );
-    }
-
-    updateDevicePlacement(newPlacement: string): void {
-        this.deviceService.devicePlacements.forEach(
-            (placement) => {
-                if (placement.name === newPlacement) {
-                    this.selectedDevice.placement = placement;
-                }
-            }
-        );
-    }
-
     onRemovalClick (device: Device) {
-        const removalDialogRef = this.dialog.open(DeviceRemoveComponent, {data: false});
+        const removalDialogRef = this.dialog.open(RemoveComponent, {data: false});
         this.selectedDevice = device;
         removalDialogRef.afterClosed().subscribe(
             (result) => {
                 if (result) { this.deviceService.deleteDevice(device); }
             }
         );
+    }
+
+    defineStaticDeviceFields(device: Device) {
+        const knownPlatform = this.platforms[device.platform];
+        return [
+            {name: 'Platform', value: knownPlatform ? knownPlatform.displayName : device.platform},
+            {name: 'Core Version', value: device.coreVersion},
+            {name: 'Enclosure Version', value: device.enclosureVersion}
+        ];
+    }
+
+    getDeviceIcon(device: Device) {
+        const knownPlatform = this.platforms[device.platform];
+        // TODO: get unknown product icon from design team.
+        return knownPlatform ? knownPlatform.icon : '../assets/mark-1-icon.svg';
     }
 }

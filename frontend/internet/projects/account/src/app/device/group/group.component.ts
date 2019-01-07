@@ -7,16 +7,16 @@ import { DeviceGroup, DeviceService} from '../device.service';
 
 @Component({
     selector: 'account-device-group',
-    templateUrl: './device-group.component.html',
-    styleUrls: ['./device-group.component.scss']
+    templateUrl: './group.component.html',
+    styleUrls: ['./group.component.scss']
 })
-export class DeviceGroupComponent implements OnInit {
+export class GroupComponent implements OnInit {
     public deleteIcon = faTrashAlt;
     public deviceGroups: DeviceGroup[];
 
     constructor(
         private deviceService: DeviceService,
-        public dialogRef: MatDialogRef<DeviceGroupComponent>,
+        public dialogRef: MatDialogRef<GroupComponent>,
         @Inject(MAT_DIALOG_DATA) public data: DeviceGroup) {
     }
 

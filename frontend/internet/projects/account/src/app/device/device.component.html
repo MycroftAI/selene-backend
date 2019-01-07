@@ -13,87 +13,69 @@
     <!-- Device listing - show summary in expansion panel header and editable fields in expansion panel detail -->
     <div fxLayout="row wrap" fxLayoutAlign="start start">
         <mat-expansion-panel *ngFor="let device of devices">
+
+            <!-- Put the platform icon, device name and device placement in the panel header -->
             <mat-expansion-panel-header fxLayout="row" fxLayoutAlign="start center" [expandedHeight]="'100px'" [collapsedHeight]="'100px'">
-                    <img [src]="productIcons[device.product]"/>
+                    <img [src]="getDeviceIcon(device)"/>
                     <div>
                         <div class="mat-h2-primary">{{device.name}}</div>
                         <div class="mat-subheader">{{device.placement.name}}</div>
                     </div>
             </mat-expansion-panel-header>
+
+            <!-- Navigation to skill settings for this device. -->
             <button mat-flat-button color="primary" class="settings-button">
                 <fa-icon [icon]="settingsIcon"></fa-icon>
                 SKILL SETTINGS
             </button>
-            <form>
-                <mat-form-field [appearance]="'outline'">
-                    <mat-label>Name</mat-label>
-                    <input
-                        id="deviceName"
-                        matInput
-                        name="deviceName"
-                        required
-                        type="text"
-                        value="{{device.name}}"
+
+            <mat-form-field [appearance]="'outline'">
+                <mat-label>Name</mat-label>
+                <input
+                    id="deviceName"
+                    matInput
+                    name="deviceName"
+                    required
+                    type="text"
+                    value="{{device.name}}"
+                >
+                <mat-hint>Must be unique within a device group (if defined)</mat-hint>
+            </mat-form-field>
+
+            <account-device-attribute
+                [attributeHint]="'Mechanism to categorize devices'"
+                [attributeName]="'group'"
+                [attributeValue]="device.group"
+            >
+            </account-device-attribute>
+
+            <mat-form-field [appearance]="'outline'">
+                <mat-label>Geography</mat-label>
+                <mat-select>
+                    <mat-option
+                        *ngFor="let location of deviceLocations"
+                        value="deviceLocation"
                     >
-                    <mat-hint>Must be unique within a device group (if defined)</mat-hint>
-                </mat-form-field>
-                <div fxLayout="row">
-                <mat-form-field [appearance]="'outline'" (click)="onGroupClick(device)">
-                    <mat-label>Group</mat-label>
-                    <div fxLayout="row" fxLayoutAlign="none center">
-                        <input
-                            id="deviceGroup"
-                            matInput
-                            name="deviceGroup"
-                            [readonly]="true"
-                            type="text"
-                            value="{{device.group.name}}"
-                        >
-                        <fa-icon matSuffix [icon]="editIcon" style="font-size: 16px;"></fa-icon>
-                    </div>
-                    <mat-hint>Mechanism to categorize devices</mat-hint>
-                </mat-form-field>
-                </div>
-                <mat-form-field [appearance]="'outline'">
-                    <mat-label>Geography</mat-label>
-                    <mat-select>
-                        <mat-option
-                            *ngFor="let location of deviceLocations"
-                            value="deviceLocation"
-                        >
-                            {{location}}
-                        </mat-option>
-                    </mat-select>
-                    <mat-hint>Country, postal code, time zone</mat-hint>
-                </mat-form-field>
-                <mat-form-field [appearance]="'outline'" (click)="onPlacementClick(device)">
-                    <mat-label>Placement</mat-label>
-                    <div fxLayout="row" fxLayoutAlign="none center">
-                        <input
-                            id="devicePlacement"
-                            matInput
-                            name="devicePlacement"
-                            [readonly]="true"
-                            type="text"
-                            value="{{device.placement.name}}"
-                        >
-                        <fa-icon matSuffix [icon]="editIcon" style="font-size: 16px;"></fa-icon>
-                    </div>
-                    <mat-hint>Where a device is placed within a location</mat-hint>
-                </mat-form-field>
-            </form>
-            <div>
-                <span class="mat-body">Platform:&nbsp;&nbsp;</span>
-                <span class="mat-body-primary">Mark II</span>
+                        {{location}}
+                    </mat-option>
+                </mat-select>
+                <mat-hint>Country, postal code, time zone</mat-hint>
+            </mat-form-field>
+
+            <account-device-attribute
+                [attributeHint]="'Where a device is placed within a location'"
+                [attributeName]="'placement'"
+                [attributeValue]="device.placement"
+            >
+            </account-device-attribute>
+
+            <!-- Static fields that display platform, software version and hardware version -->
+            <div *ngFor="let staticData of defineStaticDeviceFields(device)">
+                <span class="mat-body">{{staticData.name}}:&nbsp;&nbsp;</span>
+                <span class="mat-body-primary">{{staticData.value}}</span>
             </div>
-            <div>
-                <span class="mat-body">Mycroft Core Version:&nbsp;&nbsp;</span>
-                <span class="mat-body-primary">18.08</span>
-            </div>
-            <div>
-                <span class="mat-body">Enclosure Version:&nbsp;&nbsp;</span>
-                <span class="mat-body-primary">1.2.3</span>
-            </div>
+
+            <!-- Last but not least, the delete device button -->
             <button mat-flat-button color="warn" class="delete-button" (click)="onRemovalClick(device)">
                 <fa-icon [icon]="deleteIcon"></fa-icon>
                 REMOVE DEVICE

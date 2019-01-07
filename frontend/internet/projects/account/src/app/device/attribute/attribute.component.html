@@ -1,0 +1,13 @@
+<mat-form-field [appearance]="'outline'" (click)="onClick()">
+    <mat-label>{{deviceAttribute.label}}</mat-label>
+    <div fxLayout="row" fxLayoutAlign="none center">
+        <input
+            matInput
+            [readonly]="true"
+            type="text"
+            value="{{attributeValue.name}}"
+        >
+        <fa-icon matSuffix [icon]="editIcon" style="font-size: 16px;"></fa-icon>
+    </div>
+    <mat-hint>{{attributeHint}}</mat-hint>
+</mat-form-field>

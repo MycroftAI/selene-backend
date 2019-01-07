@@ -3,13 +3,13 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 
 @Component({
   selector: 'account-device-remove',
-  templateUrl: './device-remove.component.html',
-  styleUrls: ['./device-remove.component.scss']
+  templateUrl: './remove.component.html',
+  styleUrls: ['./remove.component.scss']
 })
-export class DeviceRemoveComponent implements OnInit {
+export class RemoveComponent implements OnInit {
 
     constructor(
-        public dialogRef: MatDialogRef<DeviceRemoveComponent>,
+        public dialogRef: MatDialogRef<RemoveComponent>,
         @Inject(MAT_DIALOG_DATA) public data: boolean) {
     }
 
