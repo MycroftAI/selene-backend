@@ -20,12 +20,14 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { AttributeComponent } from './attribute/attribute.component';
 import { DeviceComponent } from './device.component';
 import { DeviceService } from './device.service';
+import { GeographyComponent } from './geography/geography.component';
 import { GroupComponent } from './group/group.component';
 import { PlacementComponent } from './placement/placement.component';
 import { RemoveComponent } from './remove/remove.component';
 
 @NgModule({
     declarations: [
+        GeographyComponent,
         AttributeComponent,
         DeviceComponent,
         GroupComponent,
@@ -33,6 +35,7 @@ import { RemoveComponent } from './remove/remove.component';
         RemoveComponent
     ],
     entryComponents: [
+        GeographyComponent,
         GroupComponent,
         PlacementComponent,
         RemoveComponent

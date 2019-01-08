@@ -42,6 +42,7 @@
                 <mat-hint>Must be unique within a device group (if defined)</mat-hint>
             </mat-form-field>
 
+            <!-- Device group field -->
             <account-device-attribute
                 [attributeHint]="'Mechanism to categorize devices'"
                 [attributeName]="'group'"
@@ -49,19 +50,15 @@
             >
             </account-device-attribute>
 
-            <mat-form-field [appearance]="'outline'">
-                <mat-label>Geography</mat-label>
-                <mat-select>
-                    <mat-option
-                        *ngFor="let location of deviceLocations"
-                        value="deviceLocation"
-                    >
-                        {{location}}
-                    </mat-option>
-                </mat-select>
-                <mat-hint>Country, postal code, time zone</mat-hint>
-            </mat-form-field>
+            <!-- Device geography field -->
+            <account-device-attribute
+                [attributeHint]="'Country, postal code, time zone'"
+                [attributeName]="'location'"
+                [attributeValue]="device.location"
+            >
+            </account-device-attribute>
 
+            <!-- Device placement field -->
             <account-device-attribute
                 [attributeHint]="'Where a device is placed within a location'"
                 [attributeName]="'placement'"

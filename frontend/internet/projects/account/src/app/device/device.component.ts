@@ -15,10 +15,6 @@ export class DeviceComponent implements OnInit {
     public addIcon = faPlusCircle;
     public deleteIcon = faTrash;
     public devices: Device[];
-    public deviceLocations = [
-        'United States, 64101, CST',
-        'United Kingdom, ABCDE, BST'
-    ];
     public platforms = {
         'mark-one': {icon: '../assets/mark-1-icon.svg', displayName: 'Mark I'},
         'mark-two': {icon: '../assets/mark-2-icon.svg', displayName: 'Mark II'},

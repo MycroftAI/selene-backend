@@ -4,6 +4,7 @@ import { MatDialog } from '@angular/material';
 import { faCaretRight } from '@fortawesome/free-solid-svg-icons';
 
 import { Device, DeviceService } from '../device.service';
+import { GeographyComponent } from '../geography/geography.component';
 import { GroupComponent } from '../group/group.component';
 import { PlacementComponent } from '../placement/placement.component';
 
@@ -35,6 +36,13 @@ export class AttributeComponent implements OnInit {
                     label: 'Group',
                     dialog: GroupComponent,
                     possibleValues: this.service.deviceGroups
+                };
+                break;
+            case 'location':
+                this.deviceAttribute = {
+                    label: 'Geography',
+                    dialog: GeographyComponent,
+                    possibleValues: this.service.deviceGeographies
                 };
                 break;
             case 'placement':

@@ -6,9 +6,9 @@ export interface DeviceGroup {
     userDefined: boolean;
 }
 
-export interface DeviceLocation {
+export interface DeviceGeography {
     id: string;
-    region: string;
+    name: string;
 }
 
 export interface DevicePlacement {
@@ -22,7 +22,7 @@ export interface Device {
     enclosureVersion: string;
     group: DeviceGroup;
     id: string;
-    location: DeviceLocation;
+    location: DeviceGeography;
     name: string;
     placement: DevicePlacement;
     platform: string;
@@ -38,7 +38,7 @@ export class DeviceService {
             enclosureVersion: '1.2.3',
             group: {id: '1', name: 'None', userDefined: false},
             id:  'abc-def-ghi',
-            location: {id: 'aaa-aaa-aaa', region: 'Kansas City, MO'},
+            location: {id: '1a2b-3c4d-5e6f', name: 'United States, 64101, CST'},
             name: 'Mark',
             placement: {id: 'bbb-bbb-bbb', name: 'Living Room', userDefined: true},
             platform: 'mark-one'
@@ -48,7 +48,7 @@ export class DeviceService {
             enclosureVersion: '1.2.3',
             group: {id: '1', name: 'None', userDefined: false},
             id:  'bcd-efg-hij',
-            location: {id: 'aaa-aaa-aaa', region: 'Kansas City, MO'},
+            location: {id: '1a2b-3c4d-5e6f', name: 'United States, 64101, CST'},
             name: 'Marky Mark',
             placement: {id: 'bbb-bbb-bbb', name: 'Kitchen', userDefined: false},
             platform: 'mark-two'
@@ -58,7 +58,7 @@ export class DeviceService {
             enclosureVersion: '1.2.3',
             group: {id: '2', name: 'Parent House', userDefined: true},
             id:  'cde-fgh-ijk',
-            location: {id: 'ccc-ccc-ccc', region: 'Baltimore, MD'},
+            location: {id: '1a2b-3c4d-5e6f', name: 'United States, 64101, CST'},
             name: 'American Pie',
             placement: {id: 'ddd-ddd-ddd', name: 'Bedroom', userDefined: false},
             platform: 'picroft'
@@ -68,7 +68,7 @@ export class DeviceService {
             enclosureVersion: '1.2.3',
             group: {id: '2', name: 'Parent House', userDefined: true},
             id:  'def-ghi-jkl',
-            location: {id: 'eee-eee-eee', region: 'Baltimore, MD'},
+            location: {id: '1a2b-3c4d-5e6f', name: 'United States, 64101, CST'},
             name: 'Kappa Delta Epsilon',
             placement: {id: 'fff-fff-fff', name: 'Kitchen', userDefined: false},
             platform: 'kde'
@@ -87,6 +87,11 @@ export class DeviceService {
         { id: null, name: 'Bedroom', userDefined: false},
         { id: null, name: 'Kitchen', userDefined: false},
         { id: '2', name: 'Living Room', userDefined: true}
+    ];
+
+    public deviceGeographies: DeviceGeography[] = [
+        {id: '1a2b-3c4d-5e6f', name: 'United States, 64101, CST'},
+        {id: 'a1b2-c3d4-e5f6', name: 'United Kingdom, ABCDE, BST'}
     ];
 
     constructor() { }
