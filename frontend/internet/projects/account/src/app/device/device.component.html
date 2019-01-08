@@ -42,29 +42,9 @@
                 <mat-hint>Must be unique within a device group (if defined)</mat-hint>
             </mat-form-field>
 
-            <!-- Device group field -->
-            <account-device-attribute
-                [attributeHint]="'Mechanism to categorize devices'"
-                [attributeName]="'group'"
-                [attributeValue]="device.group"
-            >
-            </account-device-attribute>
-
-            <!-- Device geography field -->
-            <account-device-attribute
-                [attributeHint]="'Country, postal code, time zone'"
-                [attributeName]="'location'"
-                [attributeValue]="device.location"
-            >
-            </account-device-attribute>
-
-            <!-- Device placement field -->
-            <account-device-attribute
-                [attributeHint]="'Where a device is placed within a location'"
-                [attributeName]="'placement'"
-                [attributeValue]="device.placement"
-            >
-            </account-device-attribute>
+            <account-device-group-view [device]="device"></account-device-group-view>
+            <account-device-geography-view [device]="device"></account-device-geography-view>
+            <account-device-placement-view [device]="device"></account-device-placement-view>
 
             <!-- Static fields that display platform, software version and hardware version -->
             <div *ngFor="let staticData of defineStaticDeviceFields(device)">

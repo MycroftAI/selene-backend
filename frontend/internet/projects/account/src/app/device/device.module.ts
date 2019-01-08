@@ -17,27 +17,33 @@ import {
 
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
-import { AttributeComponent } from './attribute/attribute.component';
+import { AttrViewComponent } from './attribute/attr-view.component';
 import { DeviceComponent } from './device.component';
 import { DeviceService } from './device.service';
-import { GeographyComponent } from './geography/geography.component';
-import { GroupComponent } from './group/group.component';
-import { PlacementComponent } from './placement/placement.component';
+import { GeographyEditComponent } from './attribute/geography/geography-edit.component';
+import { GeographyViewComponent } from './attribute/geography/geography-view.component';
+import { GroupEditComponent } from './attribute/group/group-edit.component';
+import { GroupViewComponent } from './attribute/group/group-view.component';
+import { PlacementEditComponent } from './attribute/placement/placement-edit.component';
+import { PlacementViewComponent } from './attribute/placement/placement-view.component';
 import { RemoveComponent } from './remove/remove.component';
 
 @NgModule({
     declarations: [
-        GeographyComponent,
-        AttributeComponent,
+        AttrViewComponent,
         DeviceComponent,
-        GroupComponent,
-        PlacementComponent,
+        GeographyEditComponent,
+        GeographyViewComponent,
+        GroupEditComponent,
+        GroupViewComponent,
+        PlacementEditComponent,
+        PlacementViewComponent,
         RemoveComponent
     ],
     entryComponents: [
-        GeographyComponent,
-        GroupComponent,
-        PlacementComponent,
+        GeographyEditComponent,
+        GroupEditComponent,
+        PlacementEditComponent,
         RemoveComponent
     ],
     imports: [
