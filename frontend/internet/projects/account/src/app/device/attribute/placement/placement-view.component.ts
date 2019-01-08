@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 
-import {Device, DevicePlacement, DeviceService} from '../../device.service';
+import {Device, DeviceAttribute, DeviceService} from '../../device.service';
 import { PlacementEditComponent } from './placement-edit.component';
 
 @Component({
@@ -10,7 +10,7 @@ import { PlacementEditComponent } from './placement-edit.component';
 })
 export class PlacementViewComponent implements OnInit {
     @Input() device: Device;
-    public devicePlacements: DevicePlacement[];
+    public devicePlacements: DeviceAttribute[];
     public dialog = PlacementEditComponent;
 
     constructor( private service: DeviceService) {

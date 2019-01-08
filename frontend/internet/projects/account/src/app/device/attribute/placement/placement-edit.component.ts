@@ -1,9 +1,7 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 
-import { faTrashAlt } from '@fortawesome/free-solid-svg-icons';
-
-import { DevicePlacement, DeviceService} from '../../device.service';
+import { DeviceAttribute, DeviceService} from '../../device.service';
 
 
 @Component({
@@ -12,9 +10,9 @@ import { DevicePlacement, DeviceService} from '../../device.service';
   styleUrls: ['./placement-edit.component.scss']
 })
 export class PlacementEditComponent implements OnInit {
-
-    public deleteIcon = faTrashAlt;
-    public devicePlacements: DevicePlacement[];
+    public devicePlacements: DeviceAttribute[];
+    public dialogInstructions = 'You can optionally indicate where a device is ' +
+        'placed within a location.  Field is informational only.';
 
     constructor(
         private deviceService: DeviceService,
@@ -24,9 +22,5 @@ export class PlacementEditComponent implements OnInit {
 
     ngOnInit() {
         this.devicePlacements = this.deviceService.devicePlacements;
-    }
-
-    onCancelClick(): void {
-        this.dialogRef.close();
     }
 }

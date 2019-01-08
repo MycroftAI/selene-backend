@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 
-import { Device, DeviceGroup, DeviceService } from '../../device.service';
+import { Device, DeviceAttribute, DeviceService } from '../../device.service';
 import { GroupEditComponent } from './group-edit.component';
 
 @Component({
@@ -10,7 +10,7 @@ import { GroupEditComponent } from './group-edit.component';
 })
 export class GroupViewComponent implements OnInit {
     @Input() device: Device;
-    public deviceGroups: DeviceGroup[];
+    public deviceGroups: DeviceAttribute[];
     public dialog = GroupEditComponent;
 
     constructor( private service: DeviceService) {

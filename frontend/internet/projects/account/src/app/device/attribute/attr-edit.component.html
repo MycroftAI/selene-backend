@@ -1,0 +1,39 @@
+<div mat-dialog-title class="mat-h2-primary">{{dialogTitle}}</div>
+
+<div mat-dialog-content>
+    <div class="mat-body">{{dialogInstructions}}</div>
+    <mat-radio-group fxLayout="column" [(ngModel)]="dialogData">
+        <ng-container *ngFor="let possibleValue of possibleValues">
+
+            <!-- Radio buttons for pre-defined placements -->
+            <mat-radio-button *ngIf="possibleValue.preDefined" class="predefined-group" [value]="possibleValue.name">
+                {{possibleValue.name}}
+            </mat-radio-button>
+
+            <!-- Radio buttons for user-defined placements -->
+            <div *ngIf="!possibleValue.preDefined" fxLayout="row" fxLayoutAlign="space-between center">
+                <mat-radio-button [value]="possibleValue.name">
+                    <mat-form-field [floatLabel]="'never'">
+                        <input matInput class="user-defined-group" value="{{possibleValue.name}}">
+                    </mat-form-field>
+                </mat-radio-button>
+                <button mat-icon-button [disableRipple]="true">
+                    <fa-icon class="danger-icon" [icon]="deleteIcon"></fa-icon>
+                </button>
+            </div>
+
+        </ng-container>
+
+        <!-- Radio button to add a new user-defined group -->
+        <mat-radio-button>
+            <mat-form-field [floatLabel]="'never'">
+                <input matInput placeholder="Add {{dialogTitle}}">
+            </mat-form-field>
+        </mat-radio-button>
+    </mat-radio-group>
+</div>
+
+<div mat-dialog-actions align="end">
+    <button mat-button (click)="onCancelClick()">CANCEL</button>
+    <button mat-button [mat-dialog-close]="dialogData" class="action-button">SAVE</button>
+</div>

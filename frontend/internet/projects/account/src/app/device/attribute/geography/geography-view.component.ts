@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 
-import { Device, DeviceGeography, DeviceService } from '../../device.service';
+import { Device, DeviceAttribute, DeviceService } from '../../device.service';
 import { GeographyEditComponent } from './geography-edit.component';
 
 @Component({
@@ -10,7 +10,7 @@ import { GeographyEditComponent } from './geography-edit.component';
 })
 export class GeographyViewComponent implements OnInit {
     @Input() device: Device;
-    public deviceGeographies: DeviceGeography[];
+    public deviceGeographies: DeviceAttribute[];
     public dialog = GeographyEditComponent;
 
     constructor( private service: DeviceService) {

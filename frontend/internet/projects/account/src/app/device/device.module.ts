@@ -17,6 +17,7 @@ import {
 
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
+import { AttrEditComponent } from './attribute/attr-edit.component';
 import { AttrViewComponent } from './attribute/attr-view.component';
 import { DeviceComponent } from './device.component';
 import { DeviceService } from './device.service';
@@ -30,6 +31,7 @@ import { RemoveComponent } from './remove/remove.component';
 
 @NgModule({
     declarations: [
+        AttrEditComponent,
         AttrViewComponent,
         DeviceComponent,
         GeographyEditComponent,
