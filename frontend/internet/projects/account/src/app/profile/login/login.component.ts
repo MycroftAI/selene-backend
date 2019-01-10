@@ -20,15 +20,15 @@ export class LoginComponent implements OnInit {
 
   ngOnInit() {
       const githubLabel: ToggleLabel = {
-          label: 'GitHub Login',
+          label: 'GitHub',
           icon: faGithub
       };
       const googleLabel: ToggleLabel = {
-          label: 'Google Login',
+          label: 'Google',
           image: '../../assets/google-logo.png'
       };
       const facebookLabel: ToggleLabel = {
-          label: 'Facebook Login',
+          label: 'Facebook',
           image: '../../assets/facebook_logo.png'
       };
 

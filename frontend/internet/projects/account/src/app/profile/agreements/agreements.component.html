@@ -1,44 +1,47 @@
 <mat-card class="form-card">
-    <mat-toolbar class="form-title">AGREEMENTS</mat-toolbar>
-    <mat-accordion>
-        <mat-expansion-panel>
-            <mat-expansion-panel-header>
-                <mat-panel-title>
-                    Terms of Use
-                </mat-panel-title>
-                <mat-panel-description>
-                    Accepted July 10, 2018
-                </mat-panel-description>
-            </mat-expansion-panel-header>
-            Terms of Use goes here.
-        </mat-expansion-panel>
+    <mat-toolbar class="form-card-title-bar">
+        <div class="form-card-title">Agreements</div>
+    </mat-toolbar>
+    <div id="agreement-panels">
+        <mat-accordion>
+            <mat-expansion-panel>
+                <mat-expansion-panel-header>
+                    <mat-panel-title>
+                        Terms of Use
+                    </mat-panel-title>
+                    <mat-panel-description>
+                        Accepted July 10, 2018
+                    </mat-panel-description>
+                </mat-expansion-panel-header>
+                Terms of Use goes here.
+            </mat-expansion-panel>
 
-        <mat-expansion-panel>
-            <mat-expansion-panel-header>
-                <mat-panel-title>
-                    Privacy Policy
-                </mat-panel-title>
-                <mat-panel-description>
-                    Accepted July 10, 2018
-                </mat-panel-description>
-            </mat-expansion-panel-header>
-            Privacy Policy goes here.
-        </mat-expansion-panel>
+            <mat-expansion-panel>
+                <mat-expansion-panel-header>
+                    <mat-panel-title>
+                        Privacy Policy
+                    </mat-panel-title>
+                    <mat-panel-description>
+                        Accepted July 10, 2018
+                    </mat-panel-description>
+                </mat-expansion-panel-header>
+                Privacy Policy goes here.
+            </mat-expansion-panel>
 
-        <mat-expansion-panel>
-            <mat-expansion-panel-header>
-                <mat-panel-title>
-                    Open Data Set
-                </mat-panel-title>
-                <mat-panel-description>
-                    Opted In July 10, 2018
-                </mat-panel-description>
-            </mat-expansion-panel-header>
-            Open Data Set agreement goes here.
-            <mat-action-row>
-                <button mat-button>OPT OUT</button>
-            </mat-action-row>
-        </mat-expansion-panel>
-
-    </mat-accordion>
+            <mat-expansion-panel>
+                <mat-expansion-panel-header>
+                    <mat-panel-title>
+                        Open Data Set
+                    </mat-panel-title>
+                    <mat-panel-description>
+                        Opted In July 10, 2018
+                    </mat-panel-description>
+                </mat-expansion-panel-header>
+                Open Data Set agreement goes here.
+                <mat-action-row>
+                    <button mat-button>OPT OUT</button>
+                </mat-action-row>
+            </mat-expansion-panel>
+        </mat-accordion>
+    </div>
 </mat-card>

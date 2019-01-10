@@ -1,13 +1,17 @@
 <mat-card class="form-card">
-    <mat-toolbar class="form-title">SUPPORT MYCROFT</mat-toolbar>
-    <form id="subscription-form">
-        <div id=subscription-types fxLayout="row wrap" fxLayoutAlign="space-evenly">
+    <mat-toolbar class="form-card-title-bar">
+        <div class="form-card-title">Support Mycroft</div>
+    </mat-toolbar>
+    <div fxLayout="column" fxLayoutAlign="center center">
+        <mat-button-toggle-group [vertical]="alignVertical">
             <ng-container *ngFor="let subscription of subscriptionTypes">
-                <mat-card class="subscription-card">
-                    <mat-card-title class="mat-h2">{{subscription.name}}</mat-card-title>
-                    <mat-card-subtitle>{{subscription.price}}</mat-card-subtitle>
-                </mat-card>
+                <mat-button-toggle style="padding: 8px">
+                    <div class="mat-h3">{{subscription.name}}</div>
+                    <div class="mat-body">{{subscription.price}}</div>
+                </mat-button-toggle>
             </ng-container>
-        </div>
-    </form>
+        </mat-button-toggle-group>
+        <div id="subscription-date" class="mat-body">Member Since {{subscriptionDate}}</div>
+    </div>
 </mat-card>
+

@@ -1,8 +1,12 @@
 <mat-card class="form-card">
-    <mat-toolbar class="form-title">DELETE ACCOUNT</mat-toolbar>
+    <mat-toolbar class="form-card-title-bar">
+        <div class="form-card-title">Delete Account</div>
+    </mat-toolbar>
     <div fxLayout="column">
         <span class="mat-h3">CAUTION</span>
-        <span class="mat-body">{{deleteWarning}}</span>
+        <div id="delete-warning">
+            <div *ngFor="let paragraph of deleteWarning" class="mat-body-2">{{paragraph}}</div>
+        </div>
         <button mat-raised-button color="warn">DELETE ACCOUNT</button>
     </div>
 </mat-card>
