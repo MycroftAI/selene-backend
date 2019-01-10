@@ -2,7 +2,7 @@
 @import '~@angular/material/theming';
 
 $mycroft-typography: mat-typography-config(
-    $font-family: '"Noto Sans", sans-serif'
+    $font-family: '"Noto Sans", display'
 );
 
 // Be sure that you only ever include 'mat-core' mixin once!
@@ -97,7 +97,7 @@ $mycroft-color-warn: (
         200 : #2c3e50,
         300 : #2c3e50,
         400 : #2c3e50,
-        500 : #2c3e50,
+        500 : #ffffff,
         600 : #ffffff,
         700 : #ffffff,
         800 : #ffffff,
@@ -173,22 +173,75 @@ $custom-theme: mycroft-light-theme(
 @mixin mycroft-theme($theme) {
     $primary: map-get($theme, primary);
     $accent: map-get($theme, accent);
+    $warn: map-get($theme, warn);
 
-    .form-title {
-        background-color: mat-color($primary, 200);
-        border-radius: 6px;
-        color: mat-contrast($primary, 200);
-        margin-bottom: 20px;
-        max-width: 1000px;
-        min-width: 260px;
+    .action-button {
+        background-color: mat-color($primary);
+        color: mat-contrast($primary, 500)
     }
 
-    .form-card {
+    .app-body {
+        height: 100vh;
+        margin: 3vmin;
+    }
+
+    .cancel-button {
+        background-color: mat-color($accent, 100);
+    }
+
+    .danger-button {
+        background-color: mat-color($warn);
+        color: mat-contrast($warn, 500)
+    }
+
+    .danger-icon {
+        color: mat-color($warn);
+    }
+
+    .section-card {
         margin-bottom: 40px;
         margin-left: auto;
         margin-right: auto;
         max-width: 1000px;
         min-width: 260px;
+
+        .section-card-title-bar {
+            background-color: mat-color($primary, 50);
+            border-radius: 6px;
+            margin-bottom: 20px;
+            max-width: 1000px;
+            min-width: 260px;
+
+            .section-card-title {
+                color: mat-color($primary, 500);
+                text-align: center;
+                font-size: 24px;
+                font-weight: bold;
+                width: 100%;
+            }
+        }
+    }
+
+    .mat-body-primary {
+        @extend .mat-body;
+        color: mat-color($primary);
+    }
+
+    .mat-button-toggle {
+        background-color: mat-color($accent, 50);
+    }
+
+    .mat-button-toggle-checked {
+        background-color: mat-color($primary);
+
+        .mat-button-toggle-label-content {
+            color: mat-contrast($primary, 500);
+        }
+    }
+
+    .mat-h2-primary {
+        @extend .mat-h2;
+        color: mat-color($primary);
     }
 }
 
