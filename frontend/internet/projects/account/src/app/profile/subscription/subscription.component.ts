@@ -32,7 +32,7 @@ const yearlySupporter: SubscriptionType = {
 })
 export class SubscriptionComponent implements OnDestroy {
     public subscriptionTypes: SubscriptionType[];
-    public subscriptionDate = 'July 10, 2017';
+    public subscriptionDuration = '3 years 10 months';
     public alignVertical: boolean;
     private mediaWatcher: Subscription;
 

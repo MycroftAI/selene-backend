@@ -7,11 +7,11 @@
             <ng-container *ngFor="let subscription of subscriptionTypes">
                 <mat-button-toggle style="padding: 8px">
                     <div class="mat-h3">{{subscription.name}}</div>
-                    <div class="mat-body">{{subscription.price}}</div>
+                    <div class="mat-body">{{subscription.price}} USD</div>
                 </mat-button-toggle>
             </ng-container>
         </mat-button-toggle-group>
-        <div id="subscription-date" class="mat-body">Member Since {{subscriptionDate}}</div>
+        <div id="subscription-date" class="mat-body">Proudly supporting Mycroft for {{subscriptionDuration}}</div>
     </div>
 </mat-card>
 
