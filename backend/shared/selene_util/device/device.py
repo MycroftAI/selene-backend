@@ -1,6 +1,7 @@
-from datetime import datetime
 from dataclasses import dataclass
+from datetime import datetime
 from os import path
+from typing import List
 
 from selene_util.db import DatabaseQuery, fetch
 
@@ -13,9 +14,11 @@ class Device(object):
     id: str
     account_id: str
     name: str
-    platform: str = None
-    enclosure_version: str = None
-    core_version: str = None
+    platform: str
+    enclosure_version: str
+    core_version: str
+    wake_word_id: str
+    text_to_speech_id: str
     category_id: str = None
     location_id: str = None
     placement: str = None
@@ -38,7 +41,7 @@ def get_device_by_id(db, device_id: str) -> Device:
     return Device(**sql_result)
 
 
-def get_devices_by_account_id(db, account_id: str) -> list[Device]:
+def get_devices_by_account_id(db, account_id: str) -> List[Device]:
     """Fetch all devices associated to a user from a given account id
 
     :param db: psycopg2 connection to mycroft database
