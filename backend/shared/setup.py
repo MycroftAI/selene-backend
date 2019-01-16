@@ -8,9 +8,6 @@ setup(
     name='selene_util',
     version='0.0.0',
     packages=find_packages(),
-    include_package_date=True,
-    package_data={
-        '': ['*.sql']
-    },
+    include_package_data=True,
     install_requires=['flask', 'flask-restful', 'pygithub', 'pyjwt']
 )
