@@ -1,14 +1,14 @@
 from flask import Flask, make_response, json
 from flask_restful import Api
 
-from encoder import DateClassJsonEncoder
+from encoder import DataClassJsonEncoder
 from endpoints.device import DeviceEndpoint
 
 public = Flask(__name__)
 
 
 def output_json(data, code, headers=None):
-    resp = make_response(json.dumps(data, cls=DateClassJsonEncoder), code)
+    resp = make_response(json.dumps(data, cls=DataClassJsonEncoder), code)
     resp.headers.extend(headers or {})
     return resp
 

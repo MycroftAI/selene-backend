@@ -1,0 +1,3 @@
+include account/sql/*.sql
+include device/sql/*.sql
+include skill/sql/*.sql
