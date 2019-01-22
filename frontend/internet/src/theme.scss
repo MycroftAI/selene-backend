@@ -1,5 +1,6 @@
 @import url("https://fonts.googleapis.com/css?family=Noto+Sans");
 @import '~@angular/material/theming';
+@import 'stylesheets/mycroft-colors';
 
 $mycroft-typography: mat-typography-config(
     $font-family: '"Noto Sans", display'
@@ -8,141 +9,6 @@ $mycroft-typography: mat-typography-config(
 // Be sure that you only ever include 'mat-core' mixin once!
 // it should not be included for each theme.
 @include mat-core($mycroft-typography);
-
-// Mycroft palette defined using http://mcg.mbitson.com
-$mycroft-color-primary: (
-    50 : #e4f4fd,
-    100 : #bde5fb,
-    200 : #91d3f8,
-    300 : #64c1f5,
-    400 : #43b4f2,
-    500 : #22a7f0,
-    600 : #1e9fee,
-    700 : #1996ec,
-    800 : #148ce9,
-    900 : #0c7ce5,
-    A100 : #ffffff,
-    A200 : #dcedff,
-    A400 : #a9d2ff,
-    A700 : #90c5ff,
-    contrast: (
-        50 : #2c3e50,
-        100 : #2c3e50,
-        200 : #2c3e50,
-        300 : #2c3e50,
-        400 : #ffffff,
-        500 : #ffffff,
-        600 : #ffffff,
-        700 : #ffffff,
-        800 : #ffffff,
-        900 : #ffffff,
-        A100 : #2c3e50,
-        A200 : #2c3e50,
-        A400 : #2c3e50,
-        A700 : #2c3e50,
-    )
-);
-
-$mycroft-color-secondary: (
-    50 : #e6e8ea,
-    100 : #c0c5cb,
-    200 : #969fa8,
-    300 : #6b7885,
-    400 : #4c5b6a,
-    500 : #2c3e50,
-    600 : #273849,
-    700 : #213040,
-    800 : #1b2837,
-    900 : #101b27,
-    A100 : #40dbb0,
-    A200 : #fee255,
-    A400 : #fd9e66,
-    A700 : #5b6984,
-    contrast: (
-        50 : #2c3e50,
-        100 : #2c3e50,
-        200 : #ffffff,
-        300 : #ffffff,
-        400 : #ffffff,
-        500 : #ffffff,
-        600 : #ffffff,
-        700 : #ffffff,
-        800 : #ffffff,
-        900 : #ffffff,
-        A100 : #2c3e50,
-        A200 : #2c3e50,
-        A400 : #2c3e50,
-        A700 : #ffffff,
-    )
-);
-
-$mycroft-color-warn: (
-    50 : #fdebeb,
-    100 : #f9cdcd,
-    200 : #f5abab,
-    300 : #f18989,
-    400 : #ee7070,
-    500 : #eb5757,
-    600 : #e94f4f,
-    700 : #e54646,
-    800 : #e23c3c,
-    900 : #dd2c2c,
-    A100 : #ffffff,
-    A200 : #ffeaea,
-    A400 : #ffb7b7,
-    A700 : #ff9d9d,
-    contrast: (
-        50 : #2c3e50,
-        100 : #2c3e50,
-        200 : #2c3e50,
-        300 : #2c3e50,
-        400 : #2c3e50,
-        500 : #ffffff,
-        600 : #ffffff,
-        700 : #ffffff,
-        800 : #ffffff,
-        900 : #ffffff,
-        A100 : #2c3e50,
-        A200 : #2c3e50,
-        A400 : #2c3e50,
-        A700 : #2c3e50,
-    )
-);
-
-$mycroft-light-theme-background: (
-  status-bar: map_get($mat-grey, 300),
-  app-bar:    map_get($mat-grey, 100),
-  background: #f1f3f4,
-  hover:      rgba(black, 0.04),
-  card:       white,
-  dialog:     white,
-  disabled-button: $black-12-opacity,
-  raised-button: white,
-  focused-button: $black-6-opacity,
-  selected-button: map_get($mat-grey, 300),
-  selected-disabled-button: map_get($mat-grey, 400),
-  disabled-button-toggle: map_get($mat-grey, 200),
-  unselected-chip: map_get($mat-grey, 700),
-  disabled-list-option: black,
-);
-
-$mycroft-light-theme-foreground: (
-  base:              black,
-  divider:           $dark-dividers,
-  dividers:          $dark-dividers,
-  disabled:          $dark-disabled-text,
-  disabled-button:   rgba(black, 0.26),
-  disabled-text:     $dark-disabled-text,
-  elevation:         black,
-  hint-text:         $dark-disabled-text,
-  secondary-text:    $dark-secondary-text,
-  icon:              rgba(black, 0.54),
-  icons:             rgba(black, 0.54),
-  text:              rgba(#2c3e50, 0.87),
-  slider-min:        rgba(black, 0.87),
-  slider-off:        rgba(black, 0.26),
-  slider-off-active: rgba(black, 0.38),
-);
 
 // instead of creating a theme with mat-light-theme like a sane person,
 // we will create our own theme-creating function that lets us apply our own
@@ -158,45 +24,17 @@ $mycroft-light-theme-foreground: (
   );
 }
 
-// define custom color palettes using the Mycroft colors
-$custom-theme-primary: mat-palette($mycroft-color-primary);
-$custom-theme-accent:  mat-palette($mycroft-color-secondary);
-$custom-theme-warn: mat-palette($mycroft-color-warn);
-
 // include the custom theme components into a theme object
 $custom-theme: mycroft-light-theme(
-    $custom-theme-primary,
-    $custom-theme-accent,
-    $custom-theme-warn
+    $mycroft-primary,
+    $mycroft-accent,
+    $mycroft-warn
 );
 
 @mixin mycroft-theme($theme) {
     $primary: map-get($theme, primary);
     $accent: map-get($theme, accent);
     $warn: map-get($theme, warn);
-
-    .action-button {
-        background-color: mat-color($primary);
-        color: mat-contrast($primary, 500)
-    }
-
-    .app-body {
-        height: 100vh;
-        margin: 3vmin;
-    }
-
-    .cancel-button {
-        background-color: mat-color($accent, 100);
-    }
-
-    .danger-button {
-        background-color: mat-color($warn);
-        color: mat-contrast($warn, 500)
-    }
-
-    .danger-icon {
-        color: mat-color($warn);
-    }
 
     .section-card {
         margin-bottom: 40px;
@@ -220,28 +58,6 @@ $custom-theme: mycroft-light-theme(
                 width: 100%;
             }
         }
-    }
-
-    .mat-body-primary {
-        @extend .mat-body;
-        color: mat-color($primary);
-    }
-
-    .mat-button-toggle {
-        background-color: mat-color($accent, 50);
-    }
-
-    .mat-button-toggle-checked {
-        background-color: mat-color($primary);
-
-        .mat-button-toggle-label-content {
-            color: mat-contrast($primary, 500);
-        }
-    }
-
-    .mat-h2-primary {
-        @extend .mat-h2;
-        color: mat-color($primary);
     }
 }
 
