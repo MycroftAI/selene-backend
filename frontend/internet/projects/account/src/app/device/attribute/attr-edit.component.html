@@ -18,7 +18,7 @@
                     </mat-form-field>
                 </mat-radio-button>
                 <button mat-icon-button [disableRipple]="true">
-                    <fa-icon class="danger-icon" [icon]="deleteIcon"></fa-icon>
+                    <fa-icon [icon]="deleteIcon"></fa-icon>
                 </button>
             </div>
 
@@ -35,5 +35,5 @@
 
 <div mat-dialog-actions align="end">
     <button mat-button (click)="onCancelClick()">CANCEL</button>
-    <button mat-button [mat-dialog-close]="dialogData" class="action-button">SAVE</button>
+    <button mat-button class="attribute-save-button" [mat-dialog-close]="dialogData">SAVE</button>
 </div>
