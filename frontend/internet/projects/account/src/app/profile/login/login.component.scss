@@ -1,16 +1,22 @@
-.mat-h3 {
-    margin-bottom: 10px;
-}
-
-mat-card {
+#antisocial-login {
+    margin: 16px;
 
     mat-form-field {
-        max-width: 400px;
+        max-width: 350px;
     }
 
-    mat-slide-toggle {
-        height: 50px;
-        max-width: 400px;
+}
+
+#social-login {
+    margin: 16px;
+
+    .mat-subheading-2 {
+        font-weight: bold;
+        margin: 0;
+    }
+
+    #social-platform {
+        margin: 8px;
 
         fa-icon {
             font-size: 30px;
@@ -25,8 +31,10 @@ mat-card {
 
         mat-label {
             color: rgba(0, 0, 0, 0.6);
-            width: 150px;
+            width: 100px;
         }
     }
 }
+
+
 

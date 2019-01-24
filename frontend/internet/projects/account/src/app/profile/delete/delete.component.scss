@@ -5,10 +5,15 @@ mat-card {
         margin-left: auto;
         margin-right: auto;
     }
-    .mat-body {
-        margin-bottom: 20px;
-        text-align: center;
+
+    #delete-warning {
+        margin-bottom: 24px;
+
+        .mat-body-2 {
+            text-align: center;
+        }
     }
+
     .mat-h3 {
         text-align: center;
         font-weight: bold;

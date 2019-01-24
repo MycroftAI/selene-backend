@@ -6,7 +6,8 @@ import { NgModule } from '@angular/core';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { GlobalnavModule } from 'globalnav';
-// import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
+import { PageNotFoundModule } from 'page-not-found';
+import { DeviceModule } from './device/device.module';
 import { ProfileModule } from './profile/profile.module';
 
 @NgModule(
@@ -18,6 +19,8 @@ import { ProfileModule } from './profile/profile.module';
             BrowserAnimationsModule,
             GlobalnavModule,
             HttpClientModule,
+            DeviceModule,
+            PageNotFoundModule,
             ProfileModule,
             AppRoutingModule
         ],

@@ -1,0 +1,61 @@
+.action-button {
+    border-radius: 12px;
+    height: 100px;
+    margin-bottom: 20px;
+    max-width: 350px;
+    min-width: 250px;
+
+    .mat-h2 {
+        margin-bottom: 0;
+    }
+
+    fa-icon {
+        color: yellow;
+        font-size: 28px;
+    }
+}
+
+mat-expansion-panel {
+    border-radius: 12px;
+    margin: 10px;
+    max-width: 350px;
+    min-width: 250px;
+
+    button {
+        width: 100%;
+    }
+
+    fa-icon {
+        padding-right: 10px
+    }
+
+    img {
+        height: 60px;
+        padding-right: 10px;
+    }
+
+    mat-form-field {
+        margin-bottom: 20px;
+        width: 100%;
+    }
+
+    .delete-button {
+        margin-top: 20px;
+    }
+
+    .mat-body-primary {
+        margin-bottom: 0;
+    }
+
+    .mat-h2-primary {
+        margin-bottom: 0;
+    }
+
+    .mat-subheader {
+        padding: 0;
+    }
+
+    .settings-button {
+        margin-bottom: 20px;
+    }
+}

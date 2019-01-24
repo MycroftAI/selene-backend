@@ -1,0 +1,62 @@
+<div class="app-body">
+
+    <!-- Button for adding a new device centered at top of page-->
+    <div fxLayout="row" fxLayoutAlign="center">
+        <button fxFlex mat-flat-button class="action-button">
+            <div fxLayout="row" fxLayoutAlign="space-between">
+                <span class="mat-h2">ADD DEVICE</span>
+                <fa-icon [icon]="addIcon"></fa-icon>
+            </div>
+        </button>
+    </div>
+
+    <!-- Device listing - show summary in expansion panel header and editable fields in expansion panel detail -->
+    <div fxLayout="row wrap" fxLayoutAlign="start start">
+        <mat-expansion-panel *ngFor="let device of devices">
+
+            <!-- Put the platform icon, device name and device placement in the panel header -->
+            <mat-expansion-panel-header fxLayout="row" fxLayoutAlign="start center" [expandedHeight]="'100px'" [collapsedHeight]="'100px'">
+                    <img [src]="getDeviceIcon(device)"/>
+                    <div>
+                        <div class="mat-h2-primary">{{device.name}}</div>
+                        <div class="mat-subheader">{{device.placement.name}}</div>
+                    </div>
+            </mat-expansion-panel-header>
+
+            <!-- Navigation to skill settings for this device. -->
+            <button mat-flat-button color="primary" class="settings-button">
+                <fa-icon [icon]="settingsIcon"></fa-icon>
+                SKILL SETTINGS
+            </button>
+
+            <mat-form-field [appearance]="'outline'">
+                <mat-label>Name</mat-label>
+                <input
+                    id="deviceName"
+                    matInput
+                    name="deviceName"
+                    required
+                    type="text"
+                    value="{{device.name}}"
+                >
+                <mat-hint>Must be unique within a device group (if defined)</mat-hint>
+            </mat-form-field>
+
+            <account-device-group-view [device]="device"></account-device-group-view>
+            <account-device-geography-view [device]="device"></account-device-geography-view>
+            <account-device-placement-view [device]="device"></account-device-placement-view>
+
+            <!-- Static fields that display platform, software version and hardware version -->
+            <div *ngFor="let staticData of defineStaticDeviceFields(device)">
+                <span class="mat-body">{{staticData.name}}:&nbsp;&nbsp;</span>
+                <span class="mat-body-primary">{{staticData.value}}</span>
+            </div>
+
+            <!-- Last but not least, the delete device button -->
+            <button mat-flat-button color="warn" class="delete-button" (click)="onRemovalClick(device)">
+                <fa-icon [icon]="deleteIcon"></fa-icon>
+                REMOVE DEVICE
+            </button>
+        </mat-expansion-panel>
+    </div>
+</div>

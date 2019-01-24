@@ -1,10 +1,21 @@
+@import "~@angular/material/theming";
 @import "mycroft-colors";
+
 $button-border-radius: 4px;
 
 @mixin action-button {
     border-radius: $button-border-radius;
-    background-color: $mycroft-primary;
-    color: $mycroft-white;
     font-weight: normal;
     letter-spacing: 0.5px;
+}
+
+@mixin action-button-primary {
+    @include action-button;
+    background-color: mat-color($mycroft-primary);
+    color: mat-contrast($mycroft-primary, 500);
+}
+
+@mixin action-button-warn {
+    background-color: mat-color($mycroft-warn);
+    color: mat-contrast($mycroft-warn, 500)
 }
