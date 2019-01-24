@@ -5,7 +5,7 @@ import { DeviceAttribute, DeviceService} from '../../device.service';
 
 
 @Component({
-  selector: 'account-device-placement',
+  selector: 'account-device-placement-edit',
   templateUrl: './placement-edit.component.html',
   styleUrls: ['./placement-edit.component.scss']
 })
