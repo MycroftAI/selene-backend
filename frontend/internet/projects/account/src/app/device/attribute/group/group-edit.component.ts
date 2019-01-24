@@ -4,7 +4,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { DeviceAttribute, DeviceService} from '../../device.service';
 
 @Component({
-    selector: 'account-device-group',
+    selector: 'account-device-group-edit',
     templateUrl: './group-edit.component.html',
     styleUrls: ['./group-edit.component.scss']
 })
