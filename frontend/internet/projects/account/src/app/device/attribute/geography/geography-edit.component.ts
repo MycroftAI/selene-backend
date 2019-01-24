@@ -4,7 +4,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { DeviceAttribute, DeviceService} from '../../device.service';
 
 @Component({
-    selector: 'account-device-geography',
+    selector: 'account-device-geography-edit',
     templateUrl: './geography-edit.component.html',
     styleUrls: ['./geography-edit.component.scss']
 })
