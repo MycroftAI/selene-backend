@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from itertools import groupby
 from os import path
 from typing import List
 
@@ -108,3 +109,59 @@ def get_setting_by_device_id_and_setting_version_hash(db, device_id, setting_ver
         section.settings = [setting for setting in settings if setting.setting_section_id == section.id]
 
     return sections
+
+
+def get_setting_section_by_skill_version_ids(db, skill_version_ids):
+    query = DatabaseQuery(
+        file_path=path.join(SQL_DIR, 'get_setting_section_by_skill_version_ids.sql'),
+        args=dict(skill_version_ids=skill_version_ids),
+        singleton=False
+    )
+    sql_results = fetch(db, query)
+    return [SettingSection(**result) for result in sql_results]
+
+
+def get_skill_setting_by_device_id(db, device_id):
+    query = DatabaseQuery(
+        file_path=path.join(SQL_DIR, 'get_skill_setting_by_device_id.sql'),
+        args=dict(device_id=device_id),
+        singleton=False
+    )
+    sql_results = fetch(db, query)
+    return [(result['setting_id'], result['value']) for result in sql_results]
+
+
+def get_skill_version_by_device_id(db, device_id):
+    query = DatabaseQuery(
+        file_path=path.join(SQL_DIR, 'get_setting_version_by_device_id.sql'),
+        args=dict(device_id=device_id),
+        singleton=False
+    )
+    sql_results = fetch(db, query)
+    skill__version_ids = tuple(result['skill_version_id'] for result in sql_results)
+
+    sections = get_setting_section_by_skill_version_ids(db, skill__version_ids)
+
+    section_ids = tuple(map(lambda s: s.id, sections))
+    settings = get_setting_by_section_id(db, section_ids)
+    skill_settings = get_skill_setting_by_device_id(db, device_id)
+
+    for setting_id, setting_value in skill_settings:
+        s = next(filter(lambda setting: setting.id == setting_id, settings), None)
+        if s:
+            s.value = setting_value
+
+    settings_grouped_by_section = dict((key, list(g)) for key, g in groupby(settings, lambda s: s.setting_section_id))
+    sections_grouped_by_version_id = dict((key, list(g)) for key, g in groupby(sections, lambda s: s.skill_version_id))
+
+    def create_skill(sql_result):
+
+        skill_sections = sections_grouped_by_version_id[sql_result['skill_version_id']]
+        for section in skill_sections:
+            section.settings = settings_grouped_by_section[section.id]
+
+        return {'uuid': sql_result['skill_id'],
+                'name': sql_result['name'],
+                'identifier': sql_result['version_hash'],
+                'skillMetadata': {'sections': skill_sections}}
+    return [create_skill(result) for result in sql_results]
