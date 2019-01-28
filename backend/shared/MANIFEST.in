@@ -1,3 +1,4 @@
 include account/sql/*.sql
 include device/sql/*.sql
+include setting/sql/*.sql
 include skill/sql/*.sql
