@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "b4d53000e056d8f0a03cde9f3a8a2d4a96d19309908aee9020357cc3800c52cc"
+            "sha256": "d6b7e8f2f73cb488105d0f63a4f0381525a8ea82ac6f7ab77371ee7b2ecc9344"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -18,10 +18,10 @@
     "default": {
         "aniso8601": {
             "hashes": [
-                "sha256:547e7bc88c19742e519fb4ca39f4b8113fdfb8fca322e325f16a8bfc6cfc553c",
-                "sha256:e7560de91bf00baa712b2550a2fdebf0188c5fce2fcd1162fbac75c19bb29c95"
+                "sha256:03c0ffeeb04edeca1ed59684cc6836dc377f58e52e315dc7be3af879909889f4",
+                "sha256:ac30cceff24aec920c37b8d74d7d8a5dd37b1f62a90b4f268a6234cabe147080"
             ],
-            "version": "==4.0.1"
+            "version": "==4.1.0"
         },
         "certifi": {
             "hashes": [
@@ -147,5 +147,9 @@
             "version": "==0.14.1"
         }
     },
-    "develop": {}
+    "develop": {
+        "selene": {
+            "path": "./../../shared"
+        }
+    }
 }
