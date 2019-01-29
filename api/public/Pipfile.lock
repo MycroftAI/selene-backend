@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "b2ef907a22b168427ee43920602905b06138014f4b4d300e2d198f6b43d2dc3b"
+            "sha256": "f0576dd130e81116c937fa11ab5505da3194d13d8eb665899762d3a36b712c3f"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -116,7 +116,7 @@
         }
     },
     "develop": {
-        "selene-util": {
+        "selene": {
             "path": "./../../shared"
         }
     }
