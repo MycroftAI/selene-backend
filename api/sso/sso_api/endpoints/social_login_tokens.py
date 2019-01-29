@@ -2,8 +2,8 @@ from http import HTTPStatus
 import json
 from time import time
 
-from selene_util.api import SeleneEndpoint
-from selene_util.auth import encode_auth_token, ONE_DAY
+from selene.util.api import SeleneEndpoint
+from selene.util.auth import encode_auth_token, ONE_DAY
 
 
 class SocialLoginTokensEndpoint(SeleneEndpoint):
