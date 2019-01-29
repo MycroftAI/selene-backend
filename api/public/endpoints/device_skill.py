@@ -1,6 +1,6 @@
-from selene_util.api import SeleneEndpoint
-from selene_util.db import get_view_connection
-from skill.skill import get_skill_version_by_device_id
+from selene.util.api import SeleneEndpoint
+from selene.util.db import get_view_connection
+from selene.skill.skill import get_skill_version_by_device_id
 
 
 class DeviceSkillEndpoint(SeleneEndpoint):

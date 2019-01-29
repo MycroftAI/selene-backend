@@ -1,7 +1,7 @@
 """Endpoint for single sign on through Google"""
 from flask import redirect
 
-from selene_util.api import SeleneEndpoint
+from selene.util.api import SeleneEndpoint
 
 
 class AuthorizeGoogleEndpoint(SeleneEndpoint):

@@ -4,7 +4,7 @@ from http import HTTPStatus
 from markdown import markdown
 import requests as service_request
 
-from selene_util.api import APIError, SeleneEndpoint
+from selene.util.api import APIError, SeleneEndpoint
 from .common import RepositorySkill
 
 
