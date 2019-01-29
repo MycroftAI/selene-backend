@@ -3,7 +3,7 @@ from datetime import datetime
 from os import path
 from typing import List
 
-from selene_util.db import DatabaseQuery, fetch
+from selene.util.db import DatabaseQuery, fetch
 
 SQL_DIR = path.join(path.dirname(__file__), 'sql')
 

@@ -3,7 +3,7 @@ from http import HTTPStatus
 
 import requests
 
-from selene_util.api import SeleneEndpoint, APIError
+from selene.util.api import SeleneEndpoint, APIError
 
 
 class UserEndpoint(SeleneEndpoint):

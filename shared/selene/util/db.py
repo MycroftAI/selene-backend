@@ -1,7 +1,7 @@
 """Utility code for interacting with a database.
 
 Example Usage:
-    from selene_util.db import get_sql_from_file, mycroft_db_ro
+    from util.db import get_sql_from_file, mycroft_db_ro
     sql = get_sql_from_file(<fully qualified path to .sql file>)
     query_result = mycroft_db_ro.execute_sql(sql)
 """

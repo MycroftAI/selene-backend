@@ -4,7 +4,7 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
-selene-util = {path = "./../../shared"}
+selene = {path = "./../../shared"}
 
 [packages]
 flask = "*"

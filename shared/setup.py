@@ -5,9 +5,9 @@ environments used in developement of Selene APIs and services.
 from setuptools import setup, find_packages
 
 setup(
-    name='selene_util',
+    name='selene',
     version='0.0.0',
     packages=find_packages(),
     include_package_data=True,
-    install_requires=['flask', 'flask-restful', 'pygithub', 'pyjwt']
+    install_requires=['flask', 'flask-restful', 'pygithub', 'pyjwt', 'psycopg2']
 )

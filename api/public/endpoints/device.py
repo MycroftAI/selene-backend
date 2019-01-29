@@ -1,6 +1,6 @@
-from selene_util.api import SeleneEndpoint
-from selene_util.db import get_view_connection
-from device import get_device_by_id
+from selene.util.api import SeleneEndpoint
+from selene.util.db import get_view_connection
+from selene.device import get_device_by_id
 
 
 class DeviceEndpoint(SeleneEndpoint):
