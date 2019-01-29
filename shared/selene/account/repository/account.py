@@ -1,25 +1,9 @@
-from dataclasses import dataclass
 from os import path
 
 from selene.util.db import DatabaseQuery, fetch
+from ..entity.account import Account
 
 SQL_DIR = path.join(path.dirname(__file__), 'sql')
-
-
-@dataclass
-class Account(object):
-    """Representation of a Mycroft user account."""
-    id: str
-    email_address: str
-    date_format: str
-    time_format: str
-    measurement_system: str
-    wake_word: str
-    text_to_speech_id: str
-    first_name: str = None
-    last_name: str = None
-    password: str = None
-    picture: str = None
 
 
 def get_account_by_id(db, account_id: str) -> Account:
