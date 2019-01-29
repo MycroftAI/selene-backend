@@ -112,7 +112,7 @@ def get_device_settings(db, device_id):
         'wakeWord': sql_results_wake_word['wake_word'],
         'phonemes': sql_results['pronunciation'],
         'threshold': sql_results['threshold'],
-        'multiplier': sql_results['threshold_multiplier'],
-        'energyRatio': sql_results['dynamic_energy_ratio']
+        'multiplier': float(sql_results['threshold_multiplier']),
+        'energyRatio': float(sql_results['dynamic_energy_ratio'])
     }
     return response

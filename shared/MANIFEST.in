@@ -1,4 +1,4 @@
-include account/sql/*.sql
-include device/sql/*.sql
-include setting/sql/*.sql
-include skill/sql/*.sql
+include selene/account/sql/*.sql
+include selene/device/sql/*.sql
+include selene/setting/sql/*.sql
+include selene/skill/sql/*.sql

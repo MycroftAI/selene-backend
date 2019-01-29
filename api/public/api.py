@@ -22,4 +22,4 @@ public_api.representations.update()
 
 public_api.add_resource(DeviceSkillEndpoint, '/device/<string:device_id>/skill')
 public_api.add_resource(DeviceEndpoint, '/device/<string:device_id>')
-public_api.add_resource(DeviceSettingEndpoint, '/device/<string:device_id/setting>')
+public_api.add_resource(DeviceSettingEndpoint, '/device/<string:device_id>/setting')

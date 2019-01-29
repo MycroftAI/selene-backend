@@ -5,6 +5,7 @@ verify_ssl = true
 
 [dev-packages]
 selene = {path = "./../../shared"}
+selene-util = {path = "./../../shared"}
 
 [packages]
 flask = "*"

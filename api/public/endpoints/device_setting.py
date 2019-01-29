@@ -1,8 +1,8 @@
-from setting import get_device_settings
+from selene.setting import get_device_settings
 
-from selene_util.db import get_view_connection
+from selene.util.db import get_view_connection
 
-from selene_util.api import SeleneEndpoint
+from selene.util.api import SeleneEndpoint
 
 
 class DeviceSettingEndpoint(SeleneEndpoint):

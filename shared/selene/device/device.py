@@ -12,6 +12,7 @@ SQL_DIR = path.join(path.dirname(__file__), 'sql')
 class WakeWord(object):
     id: str
     wake_word: str
+    engine: str
 
 
 @dataclass
@@ -20,6 +21,7 @@ class TextToSpeech(object):
     setting_name: str
     display_name: str
     engine: str
+
 
 @dataclass
 class Device(object):
