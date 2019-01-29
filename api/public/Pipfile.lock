@@ -119,7 +119,6 @@
         "selene": {
             "path": "./../../shared"
         },
-        "selene-util": {
             "path": "./../../shared"
         }
     }
