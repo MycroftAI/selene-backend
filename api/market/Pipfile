@@ -12,6 +12,7 @@ uwsgi = "*"
 markdown = "*"
 
 [dev-packages]
+selene = {path = "./../../shared"}
 
 [requires]
 python_version = "3.7"
