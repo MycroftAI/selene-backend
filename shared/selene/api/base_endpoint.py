@@ -5,7 +5,7 @@ from logging import getLogger
 from flask import request, current_app
 from flask_restful import Resource
 
-from .auth import decode_auth_token, AuthenticationError
+from ..util.auth import decode_auth_token, AuthenticationError
 
 # The logger is initialized here but this should be overridden with a
 # package-specific logger (e.g. _log = getLogger(__package__)

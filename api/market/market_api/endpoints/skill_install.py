@@ -4,7 +4,7 @@ import json
 
 import requests
 
-from selene.util.api import SeleneEndpoint, APIError
+from selene.api import SeleneEndpoint, APIError
 
 _log = getLogger(__package__)
 
