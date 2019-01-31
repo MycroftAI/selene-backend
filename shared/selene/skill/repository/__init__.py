@@ -1,0 +1,1 @@
+from selene.skill.repository.skill import get_skill_version_by_device_id

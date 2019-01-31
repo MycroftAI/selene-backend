@@ -1,0 +1,4 @@
+include selene/account/repository/sql/*.sql
+include selene/device/repository/sql/*.sql
+include selene/setting/repository/sql/*.sql
+include selene/skill/repository/sql/*.sql
