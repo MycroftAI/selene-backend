@@ -1,23 +1,19 @@
 """Postgres database connection pooling helpers"""
 
 from contextlib import contextmanager
-from dataclasses import dataclass
 from logging import getLogger
 
+from psycopg2.extras import RealDictCursor
 from psycopg2.pool import ThreadedConnectionPool
 
-from .connection import DatabaseConnectConfig
+from .connection import DatabaseConnectionConfig
 
 _log = getLogger(__package__)
 
 
-@dataclass
-class DatabaseConnectionPoolConfig(DatabaseConnectConfig):
-    max_connections: int
-
-
-def init_db_connection_pool(
-        connection_config: DatabaseConnectionPoolConfig,
+def allocate_db_connection_pool(
+        connection_config: DatabaseConnectionConfig,
+        max_connections: int = 20
 ) -> ThreadedConnectionPool:
     """
     Allocate a pool of database connections for an application
@@ -29,6 +25,7 @@ def init_db_connection_pool(
     connecting and disconnecting from the database.
 
     :param connection_config: data needed to establish a connection
+    :param max_connections: maximum connections allocated to the application
     :return: a pool of database connections to be used by the application
     """
     log_msg = (
@@ -37,16 +34,17 @@ def init_db_connection_pool(
     )
     _log.info(log_msg.format(
         db_name=connection_config.db_name,
-        max_connections=connection_config.max_connections)
+        max_connections=max_connections)
     )
     return ThreadedConnectionPool(
         minconn=1,
-        maxconn=connection_config.max_connections,
+        maxconn=max_connections,
         database=connection_config.db_name,
         user=connection_config.user,
         password=connection_config.password,
         host=connection_config.host,
-        port=connection_config.port
+        port=connection_config.port,
+        cursor_factory=RealDictCursor
     )
 
 

@@ -21,7 +21,7 @@ class DBConnectionError(Exception):
 
 
 @dataclass
-class DatabaseConnectConfig(object):
+class DatabaseConnectionConfig(object):
     host: str
     db_name: str
     user: str
@@ -30,7 +30,7 @@ class DatabaseConnectConfig(object):
 
 
 @contextmanager
-def connect_to_db(connection_config: DatabaseConnectConfig):
+def connect_to_db(connection_config: DatabaseConnectionConfig):
     """
     Return a connection to the mycroft database for the specified user.
 
