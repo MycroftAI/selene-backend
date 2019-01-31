@@ -50,10 +50,17 @@ def allocate_db_connection_pool(
 
 @contextmanager
 def get_db_connection(connection_pool):
+    """Obtain a database connection from a pool and release it when finished
+
+    :param connection_pool: pool of connections used by the applications
+    :return: context object containing a database connection from the pool
+    """
     db_connection = None
     try:
         db_connection = connection_pool.getconn()
         yield db_connection
     finally:
+        # return the db connection to the pool when exiting the context
+        # manager's scope
         if db_connection is not None:
             connection_pool.putconn(db_connection)
