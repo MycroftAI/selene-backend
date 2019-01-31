@@ -1,3 +1,5 @@
+"""Define the API that will support Mycroft single sign on (SSO)."""
+
 import os
 
 from flask import Flask, request
@@ -48,4 +50,5 @@ sso.after_request(add_cors_headers)
 
 @sso.teardown_appcontext
 def close_db_connections():
+    """Close all pool connections when the app is terminated"""
     sso.config['DB_CONNECTION_POOL'].close_all()
