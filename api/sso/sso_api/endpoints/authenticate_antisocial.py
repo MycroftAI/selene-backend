@@ -4,7 +4,7 @@ from time import time
 
 import requests as service_request
 
-from selene.util.api import SeleneEndpoint, APIError
+from selene.api import SeleneEndpoint, APIError
 from selene.util.auth import encode_auth_token, ONE_DAY
 
 

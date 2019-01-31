@@ -1,7 +1,7 @@
 """Endpoint for single sign on through Facebook"""
 from flask import redirect
 
-from selene.util.api import SeleneEndpoint
+from selene.api import SeleneEndpoint
 
 
 class AuthorizeFacebookEndpoint(SeleneEndpoint):

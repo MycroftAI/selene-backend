@@ -2,7 +2,7 @@ from http import HTTPStatus
 import json
 from time import time
 
-from selene.util.api import SeleneEndpoint
+from selene.api import SeleneEndpoint
 from selene.util.auth import encode_auth_token, ONE_DAY
 
 

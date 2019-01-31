@@ -6,7 +6,7 @@ from typing import List
 
 import requests as service_request
 
-from selene.util.api import APIError, SeleneEndpoint
+from selene.api import APIError, SeleneEndpoint
 from .common import RepositorySkill
 
 _log = getLogger(__package__)
