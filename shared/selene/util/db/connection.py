@@ -22,6 +22,7 @@ class DBConnectionError(Exception):
 
 @dataclass
 class DatabaseConnectionConfig(object):
+    """attributes required to connect to a Postgres database"""
     host: str
     db_name: str
     user: str
@@ -33,6 +34,10 @@ class DatabaseConnectionConfig(object):
 def connect_to_db(connection_config: DatabaseConnectionConfig):
     """
     Return a connection to the mycroft database for the specified user.
+
+    Use this function when connecting to a database in an application that
+    does not benefit from connection pooling (e.g. a batch script or a
+    python notebook)
 
     :param connection_config: data needed to establish a connection
     :return: database connection
