@@ -1,8 +1,5 @@
 from selene.api.base_config import get_base_config
-
-from selene.setting import get_device_settings
-
-
+from selene.device.repository.setting import get_device_settings
 from selene.api import SeleneEndpoint
 from selene.util.db import get_db_connection
 
