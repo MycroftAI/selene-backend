@@ -6,7 +6,7 @@ Example Usage:
     query_result = mycroft_db_ro.execute_sql(sql)
 """
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from logging import getLogger
 from os import path
 
@@ -33,29 +33,71 @@ def get_sql_from_file(file_path: str) -> str:
 
 
 @dataclass
-class DatabaseQuery(object):
+class DatabaseRequest(object):
     file_path: str
-    args: dict
-    singleton: bool
+    args: dict = field(default=None)
 
 
-def fetch(db, db_query: DatabaseQuery):
-    """
-    Fetch all or one row from the database.
-    :param db: connection to the mycroft database.
-    :param db_query: parameters used to determine how to fetch the data
-    :return: the query results; will be a results object if a singleton select
-        was issued, a list of results objects otherwise.
-    """
-    sql = get_sql_from_file(db_query.file_path)
-    print(db_query.file_path)
-    with db.cursor() as cursor:
-        _log.debug(cursor.mogrify(sql, db_query.args))
-        cursor.execute(sql, db_query.args)
-        if db_query.singleton:
-            execution_result = cursor.fetchone()
-        else:
-            execution_result = cursor.fetchall()
+class Cursor(object):
+    def __init__(self, db):
+        self.db = db
+
+    def _fetch(self, db_request: DatabaseRequest, singleton=False):
+        """
+        Fetch all or one row from the database.
+        :param db_request: parameters used to determine how to fetch the data
+        :return: the query results; will be a results object if a singleton select
+            was issued, a list of results objects otherwise.
+        """
+        sql = get_sql_from_file(db_request.file_path)
+        with self.db.cursor() as cursor:
+            _log.debug(cursor.mogrify(sql, db_request.args))
+            cursor.execute(sql, db_request.args)
+            if singleton:
+                execution_result = cursor.fetchone()
+            else:
+                execution_result = cursor.fetchall()
+
             _log.debug('query returned {} rows'.format(cursor.rowcount))
 
-    return execution_result
+        return execution_result
+
+    def select_one(self, db_request: DatabaseRequest):
+        """
+        Fetch a single row from the database.
+
+        :param db_request: parameters used to determine how to fetch the data
+        :return: a single results object
+        """
+        return self._fetch(db_request, singleton=True)
+
+    def select_all(self, db_request: DatabaseRequest):
+        """
+        Fetch all rows resulting from the database request.
+
+        :param db_request: parameters used to determine how to fetch the data
+        :return: a single results object
+        """
+        return self._fetch(db_request)
+
+    def _execute(self, db_request: DatabaseRequest):
+        """
+        Fetch all or one row from the database.
+        :param db_request: parameters used to determine how to fetch the data
+        :return: the query results; will be a results object if a singleton select
+            was issued, a list of results objects otherwise.
+        """
+        sql = get_sql_from_file(db_request.file_path)
+        with self.db.cursor() as cursor:
+            _log.debug(cursor.mogrify(sql, db_request.args))
+            cursor.execute(sql, db_request.args)
+            _log.debug(str(cursor.rowcount) + 'rows affected')
+
+    def delete(self, db_request: DatabaseRequest):
+        self._execute(db_request)
+
+    def insert(self, db_request: DatabaseRequest):
+        self._execute(db_request)
+
+    def update(self, db_request: DatabaseRequest):
+        self._execute(db_request)
