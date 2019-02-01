@@ -12,7 +12,7 @@ certifi = "*"
 uwsgi = "*"
 
 [dev-packages]
-selene = {path = "./../../shared"}
+selene = {editable = true,path = "./../../shared"}
 
 [requires]
 python_version = "3.7"
