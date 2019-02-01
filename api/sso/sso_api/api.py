@@ -1,5 +1,6 @@
 """Define the API that will support Mycroft single sign on (SSO)."""
 
+from logging import getLogger
 import os
 
 from flask import Flask, request
@@ -16,6 +17,8 @@ from .endpoints import (
     LogoutEndpoint
 )
 
+_log = getLogger('sso_api')
+
 # Initialize the Flask application and the Flask Restful API
 sso = Flask(__name__)
 sso.config.from_object(get_base_config())
@@ -23,7 +26,7 @@ sso.config['SSO_BASE_URL'] = os.environ['SSO_BASE_URL']
 
 # Initialize the REST API and define the endpoints
 sso_api = Api(sso, catch_all_404s=True)
-sso_api.add_resource(AuthenticateInternalEndpoint, '/api/antisocial')
+sso_api.add_resource(AuthenticateInternalEndpoint, '/api/internal')
 sso_api.add_resource(AuthorizeFacebookEndpoint, '/api/social/facebook')
 sso_api.add_resource(AuthorizeGithubEndpoint, '/api/social/github')
 sso_api.add_resource(AuthorizeGoogleEndpoint, '/api/social/google')
@@ -49,6 +52,7 @@ sso.after_request(add_cors_headers)
 
 
 @sso.teardown_appcontext
-def close_db_connections():
+def close_db_connections(_):
     """Close all pool connections when the app is terminated"""
-    sso.config['DB_CONNECTION_POOL'].close_all()
+    _log.info('closing connections')
+    sso.config['DB_CONNECTION_POOL'].closeall()
