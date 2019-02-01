@@ -1,5 +1,7 @@
 SELECT
-    a.id
+    a.id,
+    a.email_address,
+    a.refresh_token
 FROM
     account.account a
 INNER JOIN
