@@ -5,8 +5,8 @@ environments used in developement of Selene APIs and services.
 from setuptools import setup
 
 setup(
-    name='selene_util',
+    name='selene',
     version='0.0.0',
-    packages=['selene_util'],
+    packages=['selene'],
     install_requires=['flask', 'flask-restful', 'pygithub', 'pyjwt']
 )
