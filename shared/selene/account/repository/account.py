@@ -1,23 +1,39 @@
 from os import path
 
-from selene.util.db import DatabaseQuery, fetch
+from selene.util.db import DatabaseRequest, Cursor
 from ..entity.account import Account
 
 SQL_DIR = path.join(path.dirname(__file__), 'sql')
 
 
-def get_account_by_id(db, account_id: str) -> Account:
-    """Use a given uuid to query the database for an account
+class AccountRepository(object):
+    def __init__(self, db):
+        self.db = db
 
-    :param db: psycopg2 connection object to mycroft database
-    :param account_id: uuid
-    :return:
-    """
-    query = DatabaseQuery(
-        file_path=path.join(SQL_DIR, 'get_account_by_id.sql'),
-        args=dict(account_id=account_id),
-        singleton=True
-    )
-    sql_results = fetch(db, query)
+    def get_account_by_id(self, account_id: str) -> Account:
+        """Use a given uuid to query the database for an account
 
-    return Account(**sql_results)
+        :param account_id: uuid
+        :return: an account entity, if one is found
+        """
+        request = DatabaseRequest(
+            file_path=path.join(SQL_DIR, 'get_account_by_id.sql'),
+            args=dict(account_id=account_id),
+        )
+        cursor = Cursor(self.db)
+        sql_results = cursor.select_one(request)
+
+        if sql_results is not None:
+            return Account(**sql_results)
+
+    def update_refresh_token(self, account: Account):
+        """When a new refresh token is generated update the account table"""
+        request = DatabaseRequest(
+            file_path=path.join(SQL_DIR, 'update_refresh_token.sql'),
+            args=dict(
+                account_id=account.id,
+                refresh_token=account.refresh_token
+            ),
+        )
+        cursor = Cursor(self.db)
+        cursor.update(request)
