@@ -1,15 +1,13 @@
-"""Reusable code for the API layer"""
+"""Base class for Flask API endpoints"""
+
 from http import HTTPStatus
-from logging import getLogger
 
 from flask import request, current_app
 from flask_restful import Resource
 
-from ..util.auth import decode_auth_token, AuthenticationError
-
-# The logger is initialized here but this should be overridden with a
-# package-specific logger (e.g. _log = getLogger(__package__)
-_log = getLogger()
+from selene.account import AccountRepository
+from selene.util.auth import AuthenticationError, AuthenticationTokenValidator
+from selene.util.db import get_db_connection
 
 
 class APIError(Exception):
@@ -29,13 +27,13 @@ class SeleneEndpoint(Resource):
     authentication_required: bool = True
 
     def __init__(self):
-        self.config = current_app.config
+        self.config: dict = current_app.config
         self.authenticated = False
         self.request = request
-        self.response = None
-        self.selene_token: str = None
-        self.tartarus_token: str = None
-        self.user_uuid: str = None
+        self.response: tuple = None
+        self.access_token: str = None
+        self.access_token_expired: bool = False
+        self.account_id: str = None
 
     def _authenticate(self):
         """
@@ -44,8 +42,12 @@ class SeleneEndpoint(Resource):
         :raises: APIError()
         """
         try:
-            self._get_auth_token()
-            self._validate_auth_token()
+            self._get_access_token()
+            self._validate_access_token()
+            if self.access_token_expired:
+                self._get_refresh_token()
+                self._validate_refresh_token()
+                self._compare_token_to_db()
         except AuthenticationError as ae:
             if self.authentication_required:
                 self.response = (str(ae), HTTPStatus.UNAUTHORIZED)
@@ -53,44 +55,68 @@ class SeleneEndpoint(Resource):
         else:
             self.authenticated = True
 
-    def _get_auth_token(self):
-        """Get the Selene JWT (and the tartarus token) from cookies.
+    def _get_access_token(self):
+        """Get the Selene JWT access tokens from request cookies.
 
         :raises: AuthenticationError
         """
         try:
-            self.selene_token = request.cookies['seleneToken']
-            self.tartarus_token = request.cookies['tartarusToken']
+            self.access_token = self.request.cookies['seleneAccess']
         except KeyError:
-            raise AuthenticationError(
-                'no authentication token found in request'
-            )
+            raise AuthenticationError('no access token found in request')
 
-    def _validate_auth_token(self):
-        """Decode the Selene JWT.
+    def _validate_access_token(self):
+        """Validate the access token is well-formed and not expired
 
         :raises: AuthenticationError
         """
-        self.user_uuid = decode_auth_token(
-            self.selene_token,
-            self.config['SECRET_KEY']
+        validator = AuthenticationTokenValidator(
+            self.access_token,
+            self.config['ACCESS_TOKEN_SECRET']
         )
+        validator.validate_token()
+        if validator.token_is_expired:
+            self.access_token_expired = True
+        elif validator.token_is_invalid:
+            raise AuthenticationError('access token is invalid')
+        else:
+            self.account_id = validator.account_id
 
-    def _check_for_service_errors(self, service_response):
-        """Common logic to handle non-successful returns from service calls."""
-        if service_response.status_code != HTTPStatus.OK:
-            error_message = (
-                'service URL {url} returned HTTP status {status}'.format(
-                    status=service_response.status_code,
-                    url=service_response.request.url
-                )
-            )
-            _log.error(error_message)
-            if service_response.status_code == HTTPStatus.UNAUTHORIZED:
-                self.response = (error_message, HTTPStatus.UNAUTHORIZED)
-            else:
-                self.response = (
-                    error_message,
-                    HTTPStatus.INTERNAL_SERVER_ERROR
-                )
-            raise APIError()
+    def _get_refresh_token(self):
+        """Get the Selene JWT refresh tokens from request cookies.
+
+        :raises: AuthenticationError
+        """
+        try:
+            self.refresh_token = self.request.cookies['seleneRefresh']
+        except KeyError:
+            raise AuthenticationError('no refresh token found in request')
+
+    def _validate_refresh_token(self):
+        """Validate the refresh token is well-formed and not expired
+
+        :raises: AuthenticationError
+        """
+        validator = AuthenticationTokenValidator(
+            self.refresh_token,
+            self.config['REFRESH_TOKEN_SECRET']
+        )
+        validator.validate_token()
+        if validator.token_is_expired:
+            raise AuthenticationError('refresh token is expired')
+        elif validator.token_is_invalid:
+            raise AuthenticationError('access token is invalid')
+        else:
+            self.account_id = validator.account_id
+
+    def _compare_token_to_db(self):
+        """The refresh token in the request must match the database value.
+
+        :raises: AuthenticationError
+        """
+        with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
+            account_repository = AccountRepository(db)
+            account = account_repository.get_account_by_id(self.account_id)
+
+        if account.refresh_token != self.refreshToken:
+            raise AuthenticationError('refresh token not recognized')
