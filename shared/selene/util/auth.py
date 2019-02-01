@@ -15,10 +15,10 @@ class AuthenticationTokenGenerator(object):
     _access_token = None
     _refresh_token = None
 
-    def __init__(self, account_id: str):
+    def __init__(self, account_id: str, access_secret, refresh_secret):
         self.account_id = account_id
-        self.access_secret = None
-        self.refresh_secret = None
+        self.access_secret = access_secret
+        self.refresh_secret = refresh_secret
 
     def _generate_token(self, token_duration: int):
         """
@@ -35,9 +35,6 @@ class AuthenticationTokenGenerator(object):
             secret = self.access_secret
         else:
             secret = self.refresh_secret
-
-        if secret is None:
-            raise ValueError('cannot generate a token without a secret')
 
         token = jwt.encode(
             payload,
