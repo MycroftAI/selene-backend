@@ -5,8 +5,14 @@ from http import HTTPStatus
 from flask import request, current_app
 from flask_restful import Resource
 
-from selene.account import AccountRepository
-from selene.util.auth import AuthenticationError, AuthenticationTokenValidator
+from selene.account import Account, AccountRepository
+from selene.util.auth import (
+    AuthenticationError,
+    AuthenticationTokenGenerator,
+    AuthenticationTokenValidator,
+    FIFTEEN_MINUTES,
+    ONE_MONTH
+)
 from selene.util.db import get_db_connection
 
 
@@ -31,9 +37,9 @@ class SeleneEndpoint(Resource):
         self.authenticated = False
         self.request = request
         self.response: tuple = None
-        self.access_token: str = None
         self.access_token_expired: bool = False
-        self.account_id: str = None
+        self.refresh_token_expired: bool = False
+        self.account: Account = None
 
     def _authenticate(self):
         """
@@ -42,12 +48,8 @@ class SeleneEndpoint(Resource):
         :raises: APIError()
         """
         try:
-            self._get_access_token()
-            self._validate_access_token()
-            if self.access_token_expired:
-                self._get_refresh_token()
-                self._validate_refresh_token()
-                self._compare_token_to_db()
+            account_id = self._validate_auth_tokens()
+            self._validate_account(account_id)
         except AuthenticationError as ae:
             if self.authentication_required:
                 self.response = (str(ae), HTTPStatus.UNAUTHORIZED)
@@ -55,68 +57,102 @@ class SeleneEndpoint(Resource):
         else:
             self.authenticated = True
 
-    def _get_access_token(self):
-        """Get the Selene JWT access tokens from request cookies.
+    def _validate_auth_tokens(self) -> str:
+        self.access_token_expired, account_id = self._validate_token(
+            'seleneAccess',
+            self.config['ACCESS_TOKEN_SECRET']
+        )
+        if self.access_token_expired:
+            self.refresh_token_expired, account_id = self._validate_token(
+                'seleneRefresh',
+                self.config['REFRESH_TOKEN_SECRET']
+            )
 
-        :raises: AuthenticationError
-        """
-        try:
-            self.access_token = self.request.cookies['seleneAccess']
-        except KeyError:
-            raise AuthenticationError('no access token found in request')
+        return account_id
 
-    def _validate_access_token(self):
+    def _validate_token(self, cookie_key, jwt_secret):
         """Validate the access token is well-formed and not expired
 
         :raises: AuthenticationError
         """
-        validator = AuthenticationTokenValidator(
-            self.access_token,
-            self.config['ACCESS_TOKEN_SECRET']
-        )
-        validator.validate_token()
-        if validator.token_is_expired:
-            self.access_token_expired = True
-        elif validator.token_is_invalid:
-            raise AuthenticationError('access token is invalid')
-        else:
-            self.account_id = validator.account_id
+        account_id = None
+        token_expired = False
 
-    def _get_refresh_token(self):
-        """Get the Selene JWT refresh tokens from request cookies.
-
-        :raises: AuthenticationError
-        """
         try:
-            self.refresh_token = self.request.cookies['seleneRefresh']
+            access_token = self.request.cookies[cookie_key]
         except KeyError:
-            raise AuthenticationError('no refresh token found in request')
+            error_msg = 'no {} token found in request'
+            raise AuthenticationError(error_msg.format(cookie_key))
 
-    def _validate_refresh_token(self):
-        """Validate the refresh token is well-formed and not expired
-
-        :raises: AuthenticationError
-        """
-        validator = AuthenticationTokenValidator(
-            self.refresh_token,
-            self.config['REFRESH_TOKEN_SECRET']
-        )
+        validator = AuthenticationTokenValidator(access_token, jwt_secret)
         validator.validate_token()
         if validator.token_is_expired:
-            raise AuthenticationError('refresh token is expired')
+            token_expired = True
         elif validator.token_is_invalid:
             raise AuthenticationError('access token is invalid')
         else:
-            self.account_id = validator.account_id
+            account_id = validator.account_id
 
-    def _compare_token_to_db(self):
+        return token_expired, account_id
+
+    def _validate_account(self, account_id):
         """The refresh token in the request must match the database value.
 
         :raises: AuthenticationError
         """
         with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
             account_repository = AccountRepository(db)
-            account = account_repository.get_account_by_id(self.account_id)
+            self.account = account_repository.get_account_by_id(account_id)
 
-        if account.refresh_token != self.refreshToken:
-            raise AuthenticationError('refresh token not recognized')
+        if self.account is None:
+            raise AuthenticationError('account not found')
+
+        if self.access_token_expired:
+            if self.refresh_token not in self.account.refresh_tokens:
+                raise AuthenticationError('refresh token not found')
+
+    def _generate_tokens(self):
+        token_generator = AuthenticationTokenGenerator(
+            self.account_id,
+            self.config['ACCESS_SECRET'],
+            self.config['REFRESH_SECRET']
+        )
+        access_token = token_generator.access_token
+        refresh_token = token_generator.refresh_token
+
+        return access_token, refresh_token
+
+    def _generate_token_cookies(self, access_token, refresh_token):
+        access_token_cookie = dict(
+            key='seleneAccess',
+            value=str(access_token),
+            domain=self.config['DOMAIN'],
+            max_age=FIFTEEN_MINUTES,
+            httponly=True
+        )
+        refresh_token_cookie = dict(
+            key='seleneRefresh',
+            value=str(refresh_token),
+            domain=self.config['DOMAIN'],
+            max_age=ONE_MONTH,
+            httponly=True
+        )
+
+        return access_token_cookie, refresh_token_cookie
+
+    def _update_refresh_token_on_db(self, new_refresh_token):
+        old_refresh_token = self.request.cookies['seleneRefresh']
+        with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
+            acct_repository = AccountRepository(db)
+            if self.refresh_token_expired:
+                acct_repository.delete_refresh_token(
+                    self.account, 
+                    old_refresh_token
+                )
+                raise AuthenticationError('refresh token expired')
+            else:
+                acct_repository.update_refresh_token(
+                    self.account,
+                    new_refresh_token,
+                    old_refresh_token
+                )
