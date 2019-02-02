@@ -26,24 +26,22 @@ class AccountRepository(object):
         if sql_results is not None:
             return Account(**sql_results)
 
-    def delete_refresh_token(self, account: Account, token: str):
-        """When a new refresh token is generated update the account table"""
-        request = DatabaseRequest(
-            file_path=path.join(SQL_DIR, 'delete_refresh_token.sql'),
-            args=dict(account_id=account.id, refresh_token=token),
-        )
-        cursor = Cursor(self.db)
-        cursor.update(request)
+    def get_account_from_credentials(
+            self, email: str, password: str
+    ) -> Account:
+        """
+        Validate email/password combination against the database
 
-    def update_refresh_token(self, account: Account, old: str, new: str):
-        """When a new refresh token is generated update the account table"""
-        request = DatabaseRequest(
-            file_path=path.join(SQL_DIR, 'update_refresh_token.sql'),
-            args=dict(
-                account_id=account.id,
-                new_refresh_token=new,
-                old_refresh_token=old
-            ),
+        :param email: the user provided email address
+        :param password: the user provided password
+        :return: the matching account record, if one is found
+        """
+        query = DatabaseRequest(
+            file_path=path.join(SQL_DIR, 'get_account_from_credentials.sql'),
+            args=dict(email_address=email, password=password),
         )
         cursor = Cursor(self.db)
-        cursor.update(request)
+        sql_results = cursor.select_one(query)
+
+        if sql_results is not None:
+            return Account(**sql_results)

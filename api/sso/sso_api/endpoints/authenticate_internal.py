@@ -11,7 +11,7 @@ from time import time
 
 from flask import after_this_request
 
-from selene.account import Account, AccountRepository, AuthenticationRepository
+from selene.account import Account, AccountRepository, RefreshTokenRepository
 from selene.api import SeleneEndpoint, APIError
 from selene.util.auth import (
     AuthenticationError,
@@ -34,7 +34,9 @@ class AuthenticateInternalEndpoint(SeleneEndpoint):
     def get(self):
         try:
             self._authenticate_credentials()
-            self._generate_tokens()
+            access_token, refresh_token = self._generate_tokens()
+            self._add_refresh_token_to_db(refresh_token)
+            cookies = self._generate_token_cookies(access_token, refresh_token)
         except APIError:
             pass
         else:
@@ -42,18 +44,9 @@ class AuthenticateInternalEndpoint(SeleneEndpoint):
 
         @after_this_request
         def set_cookies(response):
-            response.set_cookie(
-                'seleneAccess',
-                str(self.access_token),
-                max_age=FIFTEEN_MINUTES,
-                httponly=True
-            )
-            response.set_cookie(
-                'seleneRefresh',
-                str(self.refresh_token),
-                max_age=ONE_MONTH,
-                httponly=True
-            )
+            access_token_cookie, refresh_token_cookie = cookies
+            response.set_cookie(**access_token_cookie)
+            response.set_cookie(**refresh_token_cookie)
             return response
 
         return self.response
@@ -65,7 +58,7 @@ class AuthenticateInternalEndpoint(SeleneEndpoint):
         binary_credentials = a2b_base64(basic_credentials.strip('Basic '))
         email_address, password = binary_credentials.decode().split(':')
         with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
-            auth_repository = AuthenticationRepository(db)
+            auth_repository = AccountRepository(db)
             self.account = auth_repository.get_account_from_credentials(
                     email_address,
                     password
@@ -73,17 +66,10 @@ class AuthenticateInternalEndpoint(SeleneEndpoint):
         if self.account is None:
             raise AuthenticationError('provided credentials not found')
 
-    def _generate_tokens(self):
-        token_generator = AuthenticationTokenGenerator(self.account_id)
-        token_generator.access_secret = self.config['ACCESS_SECRET']
-        token_generator.refresh_secret = self.config['REFRESH_SECRET']
-        self.access_token = token_generator.access_token
-        self.refresh_token = token_generator.refresh_token
-
-    def _update_refresh_token_on_db(self):
+    def _add_refresh_token_to_db(self, refresh_token):
         with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
-            acct_repository = AccountRepository(db)
-            acct_repository.update_refresh_token(self.account)
+            token_repo = RefreshTokenRepository(db, self.account)
+            token_repo.add_refresh_token(refresh_token)
 
     def _build_response(self):
         self.response = ({}, HTTPStatus.OK)
