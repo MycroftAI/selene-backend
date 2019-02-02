@@ -1,7 +1,7 @@
-from flask import Flask, make_response, json
+from flask import Flask
 from flask_restful import Api
+from selene.util.encoder import output_json
 
-from encoder import DataClassJsonEncoder
 from endpoints.device import DeviceEndpoint
 from endpoints.device_setting import DeviceSettingEndpoint
 from endpoints.device_skill import DeviceSkillEndpoint
@@ -9,10 +9,6 @@ from endpoints.device_skill import DeviceSkillEndpoint
 public = Flask(__name__)
 
 
-def output_json(data, code, headers=None):
-    resp = make_response(json.dumps(data, cls=DataClassJsonEncoder), code)
-    resp.headers.extend(headers or {})
-    return resp
 
 
 public_api = Api(public)
