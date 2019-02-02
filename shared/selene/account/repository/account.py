@@ -26,13 +26,23 @@ class AccountRepository(object):
         if sql_results is not None:
             return Account(**sql_results)
 
-    def update_refresh_token(self, account: Account):
+    def delete_refresh_token(self, account: Account, token: str):
+        """When a new refresh token is generated update the account table"""
+        request = DatabaseRequest(
+            file_path=path.join(SQL_DIR, 'delete_refresh_token.sql'),
+            args=dict(account_id=account.id, refresh_token=token),
+        )
+        cursor = Cursor(self.db)
+        cursor.update(request)
+
+    def update_refresh_token(self, account: Account, old: str, new: str):
         """When a new refresh token is generated update the account table"""
         request = DatabaseRequest(
             file_path=path.join(SQL_DIR, 'update_refresh_token.sql'),
             args=dict(
                 account_id=account.id,
-                refresh_token=account.refresh_token
+                new_refresh_token=new,
+                old_refresh_token=old
             ),
         )
         cursor = Cursor(self.db)

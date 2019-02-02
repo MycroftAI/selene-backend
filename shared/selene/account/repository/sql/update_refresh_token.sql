@@ -1,6 +1,7 @@
 UPDATE
-    account.account
+    account.refresh_token
 SET
-    refresh_token = %(refresh_token)s
+    refresh_token = %(new_refresh_token)s
 WHERE
-    id = %(account_id)s
+    account_id = %(account_id)s AND
+    refresh_token = %(old_refresh_token)s
