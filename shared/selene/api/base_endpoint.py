@@ -5,7 +5,7 @@ from http import HTTPStatus
 from flask import request, current_app
 from flask_restful import Resource
 
-from selene.account import Account, AccountRepository
+from selene.account import Account, AccountRepository, RefreshTokenRepository
 from selene.util.auth import (
     AuthenticationError,
     AuthenticationTokenGenerator,
@@ -143,16 +143,12 @@ class SeleneEndpoint(Resource):
     def _update_refresh_token_on_db(self, new_refresh_token):
         old_refresh_token = self.request.cookies['seleneRefresh']
         with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
-            acct_repository = AccountRepository(db)
+            token_repository = RefreshTokenRepository(db, self.account)
             if self.refresh_token_expired:
-                acct_repository.delete_refresh_token(
-                    self.account, 
-                    old_refresh_token
-                )
+                token_repository.delete_refresh_token(old_refresh_token)
                 raise AuthenticationError('refresh token expired')
             else:
-                acct_repository.update_refresh_token(
-                    self.account,
+                token_repository.update_refresh_token(
                     new_refresh_token,
                     old_refresh_token
                 )
