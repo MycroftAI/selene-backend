@@ -28,7 +28,6 @@ def get_sql_from_file(file_path: str) -> str:
     with open(path.join(file_path)) as sql_file:
         raw_sql = sql_file.read()
 
-    print(raw_sql)
     return raw_sql
 
 
