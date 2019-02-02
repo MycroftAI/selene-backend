@@ -113,7 +113,7 @@ class SeleneEndpoint(Resource):
 
     def _generate_tokens(self):
         token_generator = AuthenticationTokenGenerator(
-            self.account_id,
+            self.account.id,
             self.config['ACCESS_SECRET'],
             self.config['REFRESH_SECRET']
         )
