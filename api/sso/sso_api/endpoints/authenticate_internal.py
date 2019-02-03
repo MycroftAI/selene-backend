@@ -3,22 +3,16 @@
 This type of login is considered "internal" because we are storing the email
 address and password on our servers.  This is as opposed to "external"
 authentication, which uses a 3rd party authentication, like Google.
-
 """
+
 from binascii import a2b_base64
 from http import HTTPStatus
-from time import time
 
 from flask import after_this_request
 
 from selene.account import Account, AccountRepository, RefreshTokenRepository
-from selene.api import SeleneEndpoint, APIError
-from selene.util.auth import (
-    AuthenticationError,
-    AuthenticationTokenGenerator,
-    FIFTEEN_MINUTES,
-    ONE_MONTH
-)
+from selene.api import SeleneEndpoint
+from selene.util.auth import AuthenticationError
 from selene.util.db import get_db_connection
 
 
@@ -37,16 +31,18 @@ class AuthenticateInternalEndpoint(SeleneEndpoint):
             access_token, refresh_token = self._generate_tokens()
             self._add_refresh_token_to_db(refresh_token)
             cookies = self._generate_token_cookies(access_token, refresh_token)
-        except APIError:
-            pass
+        except AuthenticationError as ae:
+            cookies = None
+            self.response = (str(ae), HTTPStatus.UNAUTHORIZED)
         else:
             self._build_response()
 
         @after_this_request
         def set_cookies(response):
-            access_token_cookie, refresh_token_cookie = cookies
-            response.set_cookie(**access_token_cookie)
-            response.set_cookie(**refresh_token_cookie)
+            if cookies is not None:
+                access_token_cookie, refresh_token_cookie = cookies
+                response.set_cookie(**access_token_cookie)
+                response.set_cookie(**refresh_token_cookie)
             return response
 
         return self.response
@@ -58,8 +54,8 @@ class AuthenticateInternalEndpoint(SeleneEndpoint):
         binary_credentials = a2b_base64(basic_credentials.strip('Basic '))
         email_address, password = binary_credentials.decode().split(':')
         with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
-            auth_repository = AccountRepository(db)
-            self.account = auth_repository.get_account_from_credentials(
+            acct_repository = AccountRepository(db)
+            self.account = acct_repository.get_account_from_credentials(
                     email_address,
                     password
             )
