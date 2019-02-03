@@ -26,7 +26,7 @@ sso.config['SSO_BASE_URL'] = os.environ['SSO_BASE_URL']
 
 # Initialize the REST API and define the endpoints
 sso_api = Api(sso, catch_all_404s=True)
-sso_api.add_resource(AuthenticateInternalEndpoint, '/api/internal')
+sso_api.add_resource(AuthenticateInternalEndpoint, '/api/login/internal')
 sso_api.add_resource(AuthorizeFacebookEndpoint, '/api/social/facebook')
 sso_api.add_resource(AuthorizeGithubEndpoint, '/api/social/github')
 sso_api.add_resource(AuthorizeGoogleEndpoint, '/api/social/google')
@@ -49,10 +49,3 @@ def add_cors_headers(response):
 
 
 sso.after_request(add_cors_headers)
-
-
-@sso.teardown_appcontext
-def close_db_connections(_):
-    """Close all pool connections when the app is terminated"""
-    _log.info('closing connections')
-    sso.config['DB_CONNECTION_POOL'].closeall()
