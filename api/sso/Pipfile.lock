@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "48ca62ed518781784ac47dd3096355c49757222721de19fe7c636b100100cec1"
+            "sha256": "ded1e716dc407aa28e78eb5131a7d9b2a6c5e52f6ef3ab6d1e30fd8fd4998dc6"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -175,6 +175,14 @@
             ],
             "version": "==4.1.0"
         },
+        "behave": {
+            "hashes": [
+                "sha256:b9662327aa53294c1351b0a9c369093ccec1d21026f050c3bd9b3e5cccf81a86",
+                "sha256:ebda1a6c9e5bfe95c5f9f0a2794e01c7098b3dde86c10a95d8621c5907ff6f1c"
+            ],
+            "index": "pypi",
+            "version": "==1.2.6"
+        },
         "certifi": {
             "hashes": [
                 "sha256:47f9c83ef4c0c621eaef743f133f09fa8a74a9b75f037e8624f83bd1b6626cb7",
@@ -274,6 +282,19 @@
             ],
             "version": "==1.1.0"
         },
+        "parse": {
+            "hashes": [
+                "sha256:870dd675c1ee8951db3e29b81ebe44fd131e3eb8c03a79483a58ea574f3145c2"
+            ],
+            "version": "==1.11.1"
+        },
+        "parse-type": {
+            "hashes": [
+                "sha256:6e906a66f340252e4c324914a60d417d33a4bea01292ea9bbf68b4fc123be8c9",
+                "sha256:f596bdc75d3dd93036fbfe3d04127da9f6df0c26c36e01e76da85adef4336b3c"
+            ],
+            "version": "==0.4.2"
+        },
         "psycopg2-binary": {
             "hashes": [
                 "sha256:19a2d1f3567b30f6c2bb3baea23f74f69d51f0c06c2e2082d0d9c28b0733a4c2",
@@ -314,6 +335,14 @@
                 "sha256:263102b43a83e2943900c1313109db7a00b3b78aeeae2c9137ba694982864872"
             ],
             "version": "==1.43.5"
+        },
+        "pyhamcrest": {
+            "hashes": [
+                "sha256:6b672c02fdf7470df9674ab82263841ce8333fb143f32f021f6cb26f0e512420",
+                "sha256:8ffaa0a53da57e89de14ced7185ac746227a8894dbd5a3c718bf05ddbd1d56cd"
+            ],
+            "index": "pypi",
+            "version": "==1.9.0"
         },
         "pyjwt": {
             "hashes": [

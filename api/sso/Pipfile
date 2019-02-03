@@ -13,6 +13,8 @@ uwsgi = "*"
 
 [dev-packages]
 selene = {editable = true,path = "./../../shared"}
+behave = "*"
+pyhamcrest = "*"
 
 [requires]
 python_version = "3.7"
