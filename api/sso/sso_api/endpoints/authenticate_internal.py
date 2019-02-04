@@ -8,8 +8,6 @@ authentication, which uses a 3rd party authentication, like Google.
 from binascii import a2b_base64
 from http import HTTPStatus
 
-from flask import after_this_request
-
 from selene.account import Account, AccountRepository, RefreshTokenRepository
 from selene.api import SeleneEndpoint
 from selene.util.auth import AuthenticationError
@@ -30,20 +28,11 @@ class AuthenticateInternalEndpoint(SeleneEndpoint):
             self._authenticate_credentials()
             access_token, refresh_token = self._generate_tokens()
             self._add_refresh_token_to_db(refresh_token)
-            cookies = self._generate_token_cookies(access_token, refresh_token)
+            self._generate_token_cookies(access_token, refresh_token)
         except AuthenticationError as ae:
-            cookies = None
             self.response = (str(ae), HTTPStatus.UNAUTHORIZED)
         else:
             self._build_response()
-
-        @after_this_request
-        def set_cookies(response):
-            if cookies is not None:
-                access_token_cookie, refresh_token_cookie = cookies
-                response.set_cookie(**access_token_cookie)
-                response.set_cookie(**refresh_token_cookie)
-            return response
 
         return self.response
 

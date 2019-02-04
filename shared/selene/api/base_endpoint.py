@@ -2,7 +2,7 @@
 
 from http import HTTPStatus
 
-from flask import request, current_app
+from flask import after_this_request, current_app, request
 from flask_restful import Resource
 
 from selene.account import Account, AccountRepository, RefreshTokenRepository
@@ -138,7 +138,12 @@ class SeleneEndpoint(Resource):
             httponly=True
         )
 
-        return access_token_cookie, refresh_token_cookie
+        @after_this_request
+        def set_cookies(response):
+            response.set_cookie(**access_token_cookie)
+            response.set_cookie(**refresh_token_cookie)
+
+            return response
 
     def _update_refresh_token_on_db(self, new_refresh_token):
         old_refresh_token = self.request.cookies['seleneRefresh']
