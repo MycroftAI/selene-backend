@@ -19,9 +19,17 @@ def get_device_by_id(db, device_id: str) -> Device:
         args=dict(device_id=device_id),
         singleton=True
     )
-    sql_result = fetch(db, query)
-    sql_result = load_device_relations(db, sql_result)
-    return Device(**sql_result)
+    sql_results = fetch(db, query)
+    device = {k: v for k, v in sql_results.items() if k in ('id', 'name', 'platform', 'enclosure_version', 'core_version')}
+
+    wake_word = {k: v for k, v in sql_results.items() if k in ('wake_word_id', 'wake_word', 'engine')}
+    wake_word['id'] = wake_word.pop('wake_word_id')
+    device['wake_word'] = wake_word
+
+    text_to_speech = {k: v for k, v in sql_results.items() if k in ('text_to_speech_id', 'setting_name', 'display_name', 'engine')}
+    text_to_speech['id'] = text_to_speech.pop('text_to_speech_id')
+    device['text_to_speech'] = text_to_speech
+    return Device(**device)
 
 
 def get_devices_by_account_id(db, account_id: str) -> List[Device]:
@@ -38,30 +46,3 @@ def get_devices_by_account_id(db, account_id: str) -> List[Device]:
     )
     sql_results = fetch(db, query)
     return [Device(**result) for result in sql_results]
-
-
-def load_device_relations(db, device: dict):
-    query = DatabaseQuery(
-        file_path=path.join(SQL_DIR, 'get_wake_word_by_id.sql'),
-        args=dict(wake_word_id=device['wake_word_id']),
-        singleton=True
-    )
-    sql_result = fetch(db, query)
-    del sql_result['account_id']
-    device['wake_word'] = WakeWord(**sql_result)
-    del device['wake_word_id']
-
-    query = DatabaseQuery(
-        file_path=path.join(SQL_DIR, 'get_text_to_speech_by_id.sql'),
-        args=dict(text_to_speech_id=device['text_to_speech_id']),
-        singleton=True
-    )
-    sql_result = fetch(db, query)
-    device['text_to_speech'] = TextToSpeech(**sql_result)
-    del device['text_to_speech_id']
-
-    del device['account_id']
-    del device['category_id']
-    del device['location_id']
-    return device
-

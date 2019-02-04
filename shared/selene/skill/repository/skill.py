@@ -109,9 +109,9 @@ def get_skill_version_by_device_id(db, device_id):
         singleton=False
     )
     sql_results = fetch(db, query)
-    skill__version_ids = tuple(result['skill_version_id'] for result in sql_results)
+    skill_version_ids = tuple(result['skill_version_id'] for result in sql_results)
 
-    sections = get_setting_section_by_skill_version_ids(db, skill__version_ids)
+    sections = get_setting_section_by_skill_version_ids(db, skill_version_ids)
 
     section_ids = tuple(map(lambda s: s.id, sections))
     settings = get_setting_by_section_id(db, section_ids)

@@ -1,31 +1,8 @@
-from datetime import datetime
 from dataclasses import dataclass
+from datetime import datetime
 
-
-@dataclass
-class WakeWord(object):
-    id: str
-    wake_word: str
-    engine: str
-
-
-@dataclass
-class WakeWordSettings(object):
-    id: str
-    sample_rate: int
-    channels: int
-    pronunciation: str
-    threshold: str
-    threshold_multiplier: float
-    dynamic_energy_ratio: float
-
-
-@dataclass
-class TextToSpeech(object):
-    id: str
-    setting_name: str
-    display_name: str
-    engine: str
+from selene.device.entity.text_to_speech import TextToSpeech
+from selene.device.entity.wake_word import WakeWord
 
 
 @dataclass

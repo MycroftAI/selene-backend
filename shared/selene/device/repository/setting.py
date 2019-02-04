@@ -1,24 +1,8 @@
-from dataclasses import dataclass
 from os import path
 
 from selene.util.db import DatabaseQuery, fetch
 
 SQL_DIR = path.join(path.dirname(__file__), 'sql')
-
-
-@dataclass
-class WakeWord(object):
-    id: str
-    wake_word: str
-    engine: str
-
-
-@dataclass
-class TextToSpeech(object):
-    id: str
-    setting_name: str
-    display_name: str
-    engine: str
 
 
 def get_account_preferences_by_device_id(db, device_id):
