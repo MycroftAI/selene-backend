@@ -46,15 +46,15 @@ class BaseConfig(object):
 
 class DevelopmentConfig(BaseConfig):
     DEBUG = True
-    DOMAIN = 'mycroft.test'
+    DOMAIN = '.localhost'
 
 
 class TestConfig(BaseConfig):
-    DOMAIN = 'mycroft-test.net'
+    DOMAIN = '.mycroft-test.net'
 
 
 class ProdConfig(BaseConfig):
-    DOMAIN = 'mycroft.ai'
+    DOMAIN = '.mycroft.ai'
 
 
 def get_base_config():
