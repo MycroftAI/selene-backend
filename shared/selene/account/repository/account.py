@@ -1,4 +1,5 @@
-from os import path
+from passlib.hash import sha512_crypt
+from os import environ, path
 
 from selene.util.db import DatabaseRequest, Cursor
 from ..entity.account import Account
@@ -6,9 +7,33 @@ from ..entity.account import Account
 SQL_DIR = path.join(path.dirname(__file__), 'sql')
 
 
+def _encrypt_password(password):
+    salt = environ['SALT']
+    hash_result = sha512_crypt.using(salt=salt, rounds=5000).hash(password)
+    hashed_password_index = hash_result.rindex('$') + 1
+
+    return hash_result[hashed_password_index:]
+
+
 class AccountRepository(object):
     def __init__(self, db):
         self.db = db
+
+    def add(self, email_address: str, password: str):
+        encrypted_password = _encrypt_password(password)
+        request = DatabaseRequest(
+            file_path=path.join(SQL_DIR, 'add_account.sql'),
+            args=dict(email_address=email_address, password=encrypted_password)
+        )
+        cursor = Cursor(self.db)
+        sql_results = cursor.insert_returning(request)
+
+        return Account(
+            id=sql_results,
+            email_address=email_address,
+            password=encrypted_password,
+            refresh_tokens=[]
+        )
 
     def get_account_by_id(self, account_id: str) -> Account:
         """Use a given uuid to query the database for an account
@@ -36,9 +61,10 @@ class AccountRepository(object):
         :param password: the user provided password
         :return: the matching account record, if one is found
         """
+        encrypted_password = _encrypt_password(password)
         query = DatabaseRequest(
             file_path=path.join(SQL_DIR, 'get_account_from_credentials.sql'),
-            args=dict(email_address=email, password=password),
+            args=dict(email_address=email, password=encrypted_password),
         )
         cursor = Cursor(self.db)
         sql_results = cursor.select_one(query)
