@@ -5,13 +5,8 @@ SELECT
   dev.enclosure_version,
   dev.core_version,
   dev.placement,
-  wk_word.id as wake_word_id,
-  wk_word.wake_word,
-  wk_word.engine,
-  tts.id as text_to_speech_id,
-  tts.setting_name,
-  tts.display_name,
-  tts.engine
+  json_build_object('id', wk_word.id, 'wake_word', wk_word.wake_word, 'engine', wk_word.engine) as wake_word,
+  json_build_object('id', tts.id, 'setting_name', tts.setting_name, 'display_name', tts.display_name, 'engine', tts.engine) as text_to_speech
 FROM device.device dev
 INNER JOIN
   device.wake_word wk_word ON dev.wake_word_id = wk_word.id

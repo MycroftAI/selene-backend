@@ -20,16 +20,7 @@ def get_device_by_id(db, device_id: str) -> Device:
         singleton=True
     )
     sql_results = fetch(db, query)
-    device = {k: v for k, v in sql_results.items() if k in ('id', 'name', 'platform', 'enclosure_version', 'core_version')}
-
-    wake_word = {k: v for k, v in sql_results.items() if k in ('wake_word_id', 'wake_word', 'engine')}
-    wake_word['id'] = wake_word.pop('wake_word_id')
-    device['wake_word'] = wake_word
-
-    text_to_speech = {k: v for k, v in sql_results.items() if k in ('text_to_speech_id', 'setting_name', 'display_name', 'engine')}
-    text_to_speech['id'] = text_to_speech.pop('text_to_speech_id')
-    device['text_to_speech'] = text_to_speech
-    return Device(**device)
+    return Device(**sql_results)
 
 
 def get_devices_by_account_id(db, account_id: str) -> List[Device]:
