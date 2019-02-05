@@ -1,5 +1,4 @@
 from http import HTTPStatus
-import json
 
 from selene.api import SeleneEndpoint
 from selene.account import AccountRepository, RefreshTokenRepository
