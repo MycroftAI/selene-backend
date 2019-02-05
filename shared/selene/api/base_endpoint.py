@@ -53,7 +53,6 @@ class SeleneEndpoint(Resource):
         except AuthenticationError as ae:
             if self.authentication_required:
                 self.response = (str(ae), HTTPStatus.UNAUTHORIZED)
-                raise APIError()
         else:
             self.authenticated = True
 
