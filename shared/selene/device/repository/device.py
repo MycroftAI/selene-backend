@@ -1,7 +1,7 @@
 from os import path
 from typing import List
 
-from selene.device.entity.device import Device, WakeWord, TextToSpeech
+from selene.device.entity.device import Device
 from selene.util.db import DatabaseQuery, fetch
 
 SQL_DIR = path.join(path.dirname(__file__), 'sql')
