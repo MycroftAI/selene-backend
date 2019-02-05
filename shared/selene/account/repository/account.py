@@ -45,3 +45,17 @@ class AccountRepository(object):
 
         if sql_results is not None:
             return Account(**sql_results)
+
+    def get_account_by_email(self, email_address):
+        account = None
+        request = DatabaseRequest(
+            file_path=path.join(SQL_DIR, 'get_account_by_email.sql'),
+            args=dict(email_address=email_address),
+        )
+        cursor = Cursor(self.db)
+        db_response = cursor.select_one(request)
+
+        if db_response is not None:
+            account = Account(**db_response)
+
+        return account
