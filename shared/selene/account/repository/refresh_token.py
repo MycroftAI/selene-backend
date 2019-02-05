@@ -27,7 +27,7 @@ class RefreshTokenRepository(object):
             args=dict(account_id=self.account.id, refresh_token=token),
         )
         cursor = Cursor(self.db)
-        cursor.update(request)
+        cursor.delete(request)
 
     def update_refresh_token(self, old: str, new: str):
         """When a new refresh token is generated replace the old one"""
