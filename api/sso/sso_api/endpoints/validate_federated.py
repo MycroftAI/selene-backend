@@ -16,14 +16,13 @@ class ValidateFederatedEndpoint(SeleneEndpoint):
         else:
             access_token, refresh_token = self._generate_tokens()
             self._generate_token_cookies(access_token, refresh_token)
-            self._update_refresh_token_on_db(refresh_token)
+            self._add_refresh_token_to_db(refresh_token)
             self.response = 'account validated', HTTPStatus.OK
 
         return self.response
 
     def _get_account(self):
-        request_data = json.loads(self.request.data)
-        email_address = request_data['email']
+        email_address = self.request.form['email']
         with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
             acct_repository = AccountRepository(db)
             self.account = acct_repository.get_account_by_email(email_address)
