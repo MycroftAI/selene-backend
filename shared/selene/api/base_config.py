@@ -46,7 +46,7 @@ class BaseConfig(object):
 
 class DevelopmentConfig(BaseConfig):
     DEBUG = True
-    DOMAIN = '.localhost'
+    DOMAIN = '.mycroft.test'
 
 
 class TestConfig(BaseConfig):
