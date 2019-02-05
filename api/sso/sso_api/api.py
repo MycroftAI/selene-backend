@@ -10,11 +10,12 @@ from selene.api.base_config import get_base_config
 
 from .endpoints import (
     AuthenticateInternalEndpoint,
-    SocialLoginTokensEndpoint,
-    AuthorizeFacebookEndpoint,
-    AuthorizeGithubEndpoint,
-    AuthorizeGoogleEndpoint,
-    LogoutEndpoint
+    # SocialLoginTokensEndpoint,
+    # AuthorizeFacebookEndpoint,
+    # AuthorizeGithubEndpoint,
+    # AuthorizeGoogleEndpoint,
+    LogoutEndpoint,
+    ValidateFederatedEndpoint
 )
 
 _log = getLogger('sso_api')
@@ -26,11 +27,9 @@ sso.config['SSO_BASE_URL'] = os.environ['SSO_BASE_URL']
 
 # Initialize the REST API and define the endpoints
 sso_api = Api(sso, catch_all_404s=True)
-sso_api.add_resource(AuthenticateInternalEndpoint, '/api/login/internal')
-sso_api.add_resource(AuthorizeFacebookEndpoint, '/api/social/facebook')
-sso_api.add_resource(AuthorizeGithubEndpoint, '/api/social/github')
-sso_api.add_resource(AuthorizeGoogleEndpoint, '/api/social/google')
-sso_api.add_resource(SocialLoginTokensEndpoint, '/api/social/tokens')
+sso_api.add_resource(AuthenticateInternalEndpoint, '/api/internal-login')
+sso_api.add_resource(ValidateFederatedEndpoint, '/api/validate-federated')
+
 sso_api.add_resource(LogoutEndpoint, '/api/logout')
 
 
