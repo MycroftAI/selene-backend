@@ -31,7 +31,7 @@ class DatabaseConnectionConfig(object):
 
 
 @contextmanager
-def connect_to_db(connection_config: DatabaseConnectionConfig):
+def connect_to_db(connection_config: DatabaseConnectionConfig, autocommit=True):
     """
     Return a connection to the mycroft database for the specified user.
 
@@ -40,6 +40,7 @@ def connect_to_db(connection_config: DatabaseConnectionConfig):
     python notebook)
 
     :param connection_config: data needed to establish a connection
+    :param autocommit: indicated if transactions should commit automatically
     :return: database connection
     """
     db = None
@@ -50,9 +51,9 @@ def connect_to_db(connection_config: DatabaseConnectionConfig):
             host=connection_config.host,
             dbname=connection_config.db_name,
             user=connection_config.user,
-            cursor_factory=RealDictCursor
+            cursor_factory=RealDictCursor,
         )
-        db.autocommit = True
+        db.autocommit = autocommit
         yield db
     finally:
         if db is not None:
