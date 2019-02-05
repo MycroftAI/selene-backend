@@ -26,14 +26,22 @@ class AccountRepository(object):
             args=dict(email_address=email_address, password=encrypted_password)
         )
         cursor = Cursor(self.db)
-        sql_results = cursor.insert_returning(request)
+        result = cursor.insert_returning(request)
 
         return Account(
-            id=sql_results,
+            id=result['id'],
             email_address=email_address,
             password=encrypted_password,
             refresh_tokens=[]
         )
+
+    def remove(self, account: Account):
+        request = DatabaseRequest(
+            file_path=path.join(SQL_DIR, 'remove_account.sql'),
+            args=dict(id=account.id)
+        )
+        cursor = Cursor(self.db)
+        cursor.delete(request)
 
     def get_account_by_id(self, account_id: str) -> Account:
         """Use a given uuid to query the database for an account
