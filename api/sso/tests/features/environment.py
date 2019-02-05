@@ -1,7 +1,9 @@
+import os
+
 from behave import fixture, use_fixture
 
 from sso_api.api import sso
-from selene.account import RefreshTokenRepository
+from selene.account import AccountRepository
 from selene.util.db import get_db_connection
 
 
@@ -16,10 +18,15 @@ def sso_client(context):
 
 def before_feature(context, _):
     use_fixture(sso_client, context)
+    os.environ['SALT'] = 'testsalt'
+    with get_db_connection(context.db_pool) as db:
+        acct_repository = AccountRepository(db)
+        account = acct_repository.add('foo@mycroft.ai', 'foo')
+
+    context.account = account
 
 
-def after_scenario(context, _):
-    if hasattr(context, 'refresh_token'):
-        with get_db_connection(context.db_pool) as db:
-            token_repository = RefreshTokenRepository(db, context.account)
-            token_repository.delete_refresh_token(context.refresh_token)
+def after_feature(context, _):
+    with get_db_connection(context.db_pool) as db:
+        acct_repository = AccountRepository(db)
+        acct_repository.remove(context.account)

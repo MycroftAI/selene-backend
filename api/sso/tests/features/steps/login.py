@@ -1,21 +1,21 @@
 from binascii import b2a_base64
 from http import HTTPStatus
 from behave import given, then, when
-from hamcrest import assert_that, contains, equal_to, has_item
+from hamcrest import assert_that, equal_to, has_item
 
-from selene.account import Account, AccountRepository
+from selene.account import AccountRepository
 from selene.util.db import get_db_connection
 
 
-# TODO: add a step here when the add account logic is built
 @given('user enters email address "{email}" and password "{password}"')
-def add_credentials_to_db(context, email, password):
+def save_credentials(context, email, password):
     context.email = email
     context.password = password
 
 
 @given('user "{email}" authenticates through facebook')
-def add_credentials_to_db(context, email):
+@given('user "{email}" is authenticated')
+def save_email(context, email):
     context.email = email
 
 
@@ -38,7 +38,7 @@ def call_internal_login_endpoint(context):
 
 @then('login succeeds')
 def check_for_login_success(context):
-    assert_that(context.response.status_code, equal_to(200))
+    assert_that(context.response.status_code, equal_to(HTTPStatus.OK))
     assert_that(
         context.response.headers['Access-Control-Allow-Origin'],
         equal_to('*')
@@ -57,13 +57,13 @@ def check_for_login_success(context):
             assert_that(ingredient_names, has_item(ingredient_name))
     with get_db_connection(context.db_pool) as db:
         acct_repository = AccountRepository(db)
-        context.account = acct_repository.get_account_by_email(context.email)
-    assert_that(context.account.refresh_tokens, has_item(context.refresh_token))
+        account = acct_repository.get_account_by_email(context.email)
+    assert_that(account.refresh_tokens, has_item(context.refresh_token))
 
 
 @then('login fails with "{error_message}" error')
 def check_for_login_fail(context, error_message):
-    assert_that(context.response.status_code, equal_to(401))
+    assert_that(context.response.status_code, equal_to(HTTPStatus.UNAUTHORIZED))
     assert_that(
         context.response.headers['Access-Control-Allow-Origin'],
         equal_to('*')
