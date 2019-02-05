@@ -14,7 +14,7 @@ class ValidateFederatedEndpoint(SeleneEndpoint):
             self.response = str(ae), HTTPStatus.UNAUTHORIZED
         else:
             access_token, refresh_token = self._generate_tokens()
-            self._generate_token_cookies(access_token, refresh_token)
+            self._set_token_cookies(access_token, refresh_token)
             self._add_refresh_token_to_db(refresh_token)
             self.response = 'account validated', HTTPStatus.OK
 

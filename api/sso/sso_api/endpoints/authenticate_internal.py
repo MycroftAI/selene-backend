@@ -28,7 +28,7 @@ class AuthenticateInternalEndpoint(SeleneEndpoint):
             self._authenticate_credentials()
             access_token, refresh_token = self._generate_tokens()
             self._add_refresh_token_to_db(refresh_token)
-            self._generate_token_cookies(access_token, refresh_token)
+            self._set_token_cookies(access_token, refresh_token)
         except AuthenticationError as ae:
             self.response = (str(ae), HTTPStatus.UNAUTHORIZED)
         else:

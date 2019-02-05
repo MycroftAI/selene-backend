@@ -122,7 +122,7 @@ class SeleneEndpoint(Resource):
 
         return access_token, refresh_token
 
-    def _generate_token_cookies(self, access_token, refresh_token):
+    def _set_token_cookies(self, access_token, refresh_token, expire=False):
         access_token_cookie = dict(
             key='seleneAccess',
             value=str(access_token),
@@ -135,6 +135,10 @@ class SeleneEndpoint(Resource):
             domain=self.config['DOMAIN'],
             max_age=ONE_MONTH,
         )
+
+        if expire:
+            for cookie in (access_token_cookie, refresh_token_cookie):
+                cookie.update(value='', max_age=0)
 
         @after_this_request
         def set_cookies(response):
