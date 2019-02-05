@@ -128,14 +128,12 @@ class SeleneEndpoint(Resource):
             value=str(access_token),
             domain=self.config['DOMAIN'],
             max_age=FIFTEEN_MINUTES,
-            httponly=True
         )
         refresh_token_cookie = dict(
             key='seleneRefresh',
             value=str(refresh_token),
             domain=self.config['DOMAIN'],
             max_age=ONE_MONTH,
-            httponly=True
         )
 
         @after_this_request
