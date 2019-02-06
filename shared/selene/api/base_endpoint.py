@@ -59,12 +59,12 @@ class SeleneEndpoint(Resource):
     def _validate_auth_tokens(self) -> str:
         self.access_token_expired, account_id = self._validate_token(
             'seleneAccess',
-            self.config['ACCESS_TOKEN_SECRET']
+            self.config['ACCESS_SECRET']
         )
         if self.access_token_expired:
             self.refresh_token_expired, account_id = self._validate_token(
                 'seleneRefresh',
-                self.config['REFRESH_TOKEN_SECRET']
+                self.config['REFRESH_SECRET']
             )
 
         return account_id
@@ -78,12 +78,12 @@ class SeleneEndpoint(Resource):
         token_expired = False
 
         try:
-            access_token = self.request.cookies[cookie_key]
+            token = self.request.cookies[cookie_key]
         except KeyError:
             error_msg = 'no {} token found in request'
             raise AuthenticationError(error_msg.format(cookie_key))
 
-        validator = AuthenticationTokenValidator(access_token, jwt_secret)
+        validator = AuthenticationTokenValidator(token, jwt_secret)
         validator.validate_token()
         if validator.token_is_expired:
             token_expired = True
