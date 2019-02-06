@@ -11,6 +11,7 @@ from selene.util.db import get_db_connection
 def sso_client(context):
     sso.testing = True
     context.db_pool = sso.config['DB_CONNECTION_POOL']
+    context.client_config = sso.config
     context.client = sso.test_client()
 
     yield context.client
