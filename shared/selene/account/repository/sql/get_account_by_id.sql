@@ -7,4 +7,4 @@ FROM
 LEFT JOIN
     account.refresh_token rt on a.id = rt.account_id
 WHERE
-    id = %(account_id)s
+    a.id = %(account_id)s
