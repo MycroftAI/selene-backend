@@ -98,5 +98,8 @@ class Cursor(object):
     def insert(self, db_request: DatabaseRequest):
         self._execute(db_request)
 
+    def insert_returning(self, db_request: DatabaseRequest):
+        return self._fetch(db_request, singleton=True)
+
     def update(self, db_request: DatabaseRequest):
         self._execute(db_request)
