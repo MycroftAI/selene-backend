@@ -1,2 +1,0 @@
-from .skill import get_skill_settings_by_device_id
-from .skill import get_skill_settings_by_device_id_and_version_hash

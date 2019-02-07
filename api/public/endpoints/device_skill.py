@@ -1,5 +1,5 @@
 from selene.api import SeleneEndpoint
-from selene.data.skill.repository.skill import get_skill_settings_by_device_id_and_version_hash
+from selene.data.skill.repository.skill import SkillRepository
 from selene.util.db import get_db_connection
 
 
@@ -12,4 +12,4 @@ class DeviceSkillEndpoint(SeleneEndpoint):
         version_hash = self.request.args.get('identifier')
         if version_hash:
             with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
-                return get_skill_settings_by_device_id_and_version_hash(db, device_id, version_hash)
+                return SkillRepository(db).get_skill_settings_by_device_id_and_version_hash(device_id, version_hash)

@@ -1,5 +1,5 @@
 from selene.api import SeleneEndpoint
-from selene.data.device.repository.device import get_device_by_id
+from selene.data.device.repository.device import DeviceRepository
 
 from selene.util.db import get_db_connection
 
@@ -11,4 +11,4 @@ class DeviceEndpoint(SeleneEndpoint):
 
     def get(self, device_id):
         with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
-            return get_device_by_id(db, device_id)
+            return DeviceRepository(db).get_device_by_id(device_id)

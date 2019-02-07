@@ -10,7 +10,7 @@ certifi = "*"
 uwsgi = "*"
 
 [dev-packages]
-selene = {editable = true,path = "./../../shared"}
+selene = {path = "./../../shared"}
 behave = "*"
 pyhamcrest = "*"
 
