@@ -1,7 +1,7 @@
 from passlib.hash import sha512_crypt
 from os import environ, path
 
-from selene.util.db import DatabaseRequest, Cursor
+from selene.util.db import DatabaseRequest, Cursor, get_sql_from_file
 from ..entity.account import Account
 
 SQL_DIR = path.join(path.dirname(__file__), 'sql')
@@ -19,25 +19,20 @@ class AccountRepository(object):
     def __init__(self, db):
         self.db = db
 
-    def add(self, email_address: str, password: str):
+    def add(self, email_address: str, password: str) -> str:
         encrypted_password = _encrypt_password(password)
         request = DatabaseRequest(
-            file_path=path.join(SQL_DIR, 'add_account.sql'),
+            sql=get_sql_from_file(path.join(SQL_DIR, 'add_account.sql')),
             args=dict(email_address=email_address, password=encrypted_password)
         )
         cursor = Cursor(self.db)
         result = cursor.insert_returning(request)
 
-        return Account(
-            id=result['id'],
-            email_address=email_address,
-            password=encrypted_password,
-            refresh_tokens=[]
-        )
+        return result['id']
 
     def remove(self, account: Account):
         request = DatabaseRequest(
-            file_path=path.join(SQL_DIR, 'remove_account.sql'),
+            sql=get_sql_from_file(path.join(SQL_DIR, 'remove_account.sql')),
             args=dict(id=account.id)
         )
         cursor = Cursor(self.db)
@@ -49,15 +44,28 @@ class AccountRepository(object):
         :param account_id: uuid
         :return: an account entity, if one is found
         """
-        request = DatabaseRequest(
-            file_path=path.join(SQL_DIR, 'get_account_by_id.sql'),
-            args=dict(account_id=account_id),
+        account_id_resolver = '%(account_id)s'
+        sql = get_sql_from_file(path.join(SQL_DIR, 'get_account.sql')).format(
+            account_id_resolver=account_id_resolver,
         )
-        cursor = Cursor(self.db)
-        sql_results = cursor.select_one(request)
+        request = DatabaseRequest(sql=sql, args=dict(account_id=account_id))
 
-        if sql_results is not None:
-            return Account(**sql_results)
+        return self._get_account(request)
+
+    def get_account_by_email(self, email_address: str) -> Account:
+        account_id_resolver = (
+            '(SELECT id FROM account.account '
+            'WHERE email_address = %(email_address)s)'
+        )
+        sql = get_sql_from_file(path.join(SQL_DIR, 'get_account.sql')).format(
+            account_id_resolver=account_id_resolver,
+        )
+        request = DatabaseRequest(
+            sql=sql,
+            args=dict(email_address=email_address),
+        )
+
+        return self._get_account(request)
 
     def get_account_from_credentials(
             self, email: str, password: str
@@ -69,27 +77,27 @@ class AccountRepository(object):
         :param password: the user provided password
         :return: the matching account record, if one is found
         """
+        account_id_resolver = (
+            '(SELECT id FROM account.account '
+            'WHERE email_address = %(email_address)s and password=%(password)s)'
+        )
+        sql = get_sql_from_file(
+            path.join(SQL_DIR, 'get_account.sql')
+        )
         encrypted_password = _encrypt_password(password)
-        query = DatabaseRequest(
-            file_path=path.join(SQL_DIR, 'get_account_from_credentials.sql'),
+        request = DatabaseRequest(
+            sql=sql.format(account_id_resolver=account_id_resolver),
             args=dict(email_address=email, password=encrypted_password),
         )
-        cursor = Cursor(self.db)
-        sql_results = cursor.select_one(query)
 
-        if sql_results is not None:
-            return Account(**sql_results)
+        return self._get_account(request)
 
-    def get_account_by_email(self, email_address):
+    def _get_account(self, db_request):
         account = None
-        request = DatabaseRequest(
-            file_path=path.join(SQL_DIR, 'get_account_by_email.sql'),
-            args=dict(email_address=email_address),
-        )
         cursor = Cursor(self.db)
-        db_response = cursor.select_one(request)
+        result = cursor.select_one(db_request)
 
-        if db_response is not None:
-            account = Account(**db_response)
+        if result is not None:
+            account = Account(**result['account'])
 
         return account
