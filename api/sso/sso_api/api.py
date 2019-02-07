@@ -23,7 +23,6 @@ _log = getLogger('sso_api')
 # Initialize the Flask application and the Flask Restful API
 sso = Flask(__name__)
 sso.config.from_object(get_base_config())
-sso.config['SSO_BASE_URL'] = os.environ['SSO_BASE_URL']
 
 # Initialize the REST API and define the endpoints
 sso_api = Api(sso, catch_all_404s=True)
