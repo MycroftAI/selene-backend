@@ -1,1 +1,0 @@
-SELECT * FROM skill.setting_section WHERE skill_version_id IN %(skill_version_ids)s
