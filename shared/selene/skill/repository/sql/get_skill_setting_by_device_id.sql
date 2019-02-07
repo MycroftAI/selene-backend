@@ -1,3 +1,5 @@
+/* Build an array with all skill setting blocks belonging to a device using the API v1 domain format.
+Aggregate the skill sections from a skill and the settings from a section */
 SELECT
     json_build_object(
         'uuid', skill.id,

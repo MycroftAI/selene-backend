@@ -40,6 +40,10 @@ def get_devices_by_account_id(db, account_id: str) -> List[Device]:
 
 
 def get_subscription_type_by_device_id(db, device_id):
+    """Return the type of subscription of device's owner
+    :param db: psycopg2 connection to mycroft database
+    :param device_id: device uuid
+    """
     query = DatabaseQuery(
         file_path=path.join(SQL_DIR, 'get_subscription_type_by_device_id.sql'),
         args=dict(device_id=device_id),

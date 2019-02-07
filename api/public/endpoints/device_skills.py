@@ -5,7 +5,7 @@ from selene.util.db import get_db_connection
 
 
 class DeviceSkillsEndpoint(SeleneEndpoint):
-    """Fetch all skills associated with a given device"""
+    """Fetch all skills associated with a given device using the API v1 format"""
 
     def __init__(self):
         super(DeviceSkillsEndpoint, self).__init__()

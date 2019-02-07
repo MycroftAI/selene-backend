@@ -4,6 +4,7 @@ from selene.util.db import get_db_connection
 
 
 class DeviceSkillEndpoint(SeleneEndpoint):
+    """Return a skill setting using the API v1 format for a given device and version_hash"""
     def __init__(self):
         super(DeviceSkillEndpoint, self).__init__()
 

@@ -1,3 +1,5 @@
+/* Build a skill setting block using the API v1 model format. Aggregate the sections for a skill into an array,
+as well the settings for a section*/
 SELECT
     json_build_object(
         'uuid', skill.id,

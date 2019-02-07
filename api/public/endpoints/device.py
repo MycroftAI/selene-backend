@@ -5,7 +5,7 @@ from selene.util.db import get_db_connection
 
 
 class DeviceEndpoint(SeleneEndpoint):
-
+    """Return the device entity using the device_id"""
     def __init__(self):
         super(DeviceEndpoint, self).__init__()
 

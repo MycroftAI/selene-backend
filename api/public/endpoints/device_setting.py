@@ -4,6 +4,7 @@ from selene.util.db import get_db_connection
 
 
 class DeviceSettingEndpoint(SeleneEndpoint):
+    """Return the device's settings for the API v1 model"""
     def __init__(self):
         super(DeviceSettingEndpoint, self).__init__()
 
