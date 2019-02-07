@@ -1,7 +1,6 @@
 """Define the API that will support Mycroft single sign on (SSO)."""
 
 from logging import getLogger
-import os
 
 from flask import Flask, request
 from flask_restful import Api
@@ -10,10 +9,6 @@ from selene.api.base_config import get_base_config
 
 from .endpoints import (
     AuthenticateInternalEndpoint,
-    # SocialLoginTokensEndpoint,
-    # AuthorizeFacebookEndpoint,
-    # AuthorizeGithubEndpoint,
-    # AuthorizeGoogleEndpoint,
     LogoutEndpoint,
     ValidateFederatedEndpoint
 )
