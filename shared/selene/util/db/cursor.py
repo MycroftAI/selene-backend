@@ -33,6 +33,7 @@ def get_sql_from_file(file_path: str) -> str:
 
 @dataclass
 class DatabaseRequest(object):
+    """Small data object for the sql and the args needed for a database req"""
     sql: str
     args: dict = field(default=None)
 
@@ -91,13 +92,17 @@ class Cursor(object):
             _log.debug(str(cursor.rowcount) + 'rows affected')
 
     def delete(self, db_request: DatabaseRequest):
+        """Helper function for SQL delete statements"""
         self._execute(db_request)
 
     def insert(self, db_request: DatabaseRequest):
+        """Helper functions for SQL insert statements"""
         self._execute(db_request)
 
     def insert_returning(self, db_request: DatabaseRequest):
+        """Helper function for SQL inserts returning values."""
         return self._fetch(db_request, singleton=True)
 
     def update(self, db_request: DatabaseRequest):
+        """Helper function for SQL update statements."""
         self._execute(db_request)
