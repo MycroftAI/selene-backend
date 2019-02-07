@@ -19,6 +19,11 @@ class LogoutEndpoint(SeleneEndpoint):
         return self.response
 
     def _logout(self):
+        """Delete tokens from database and expire the token cookies.
+
+        An absence of tokens will force the user to re-authenticate next time
+        they visit the site.
+        """
         request_refresh_token = self.request.cookies['seleneRefresh']
         with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
             token_repository = RefreshTokenRepository(db, self.account)
