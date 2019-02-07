@@ -1,5 +1,5 @@
 from selene.api import SeleneEndpoint
-from selene.data.device.repository.setting import SettingRepository
+from selene.data.device import SettingRepository
 from selene.util.db import get_db_connection
 
 

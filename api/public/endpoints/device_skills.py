@@ -1,6 +1,6 @@
 from selene.api import SeleneEndpoint
 
-from selene.data.skill.repository.skill import SkillRepository
+from selene.data.skill import SkillRepository
 from selene.util.db import get_db_connection
 
 
