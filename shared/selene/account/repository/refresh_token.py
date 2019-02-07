@@ -1,6 +1,6 @@
 from os import path
 
-from selene.util.db import DatabaseRequest, Cursor
+from selene.util.db import DatabaseRequest, Cursor, get_sql_from_file
 from ..entity.account import Account
 
 SQL_DIR = path.join(path.dirname(__file__), 'sql')
@@ -13,8 +13,9 @@ class RefreshTokenRepository(object):
 
     def add_refresh_token(self, token: str):
         """Add a refresh token to an account"""
+        sql = get_sql_from_file(path.join(SQL_DIR, 'add_refresh_token.sql'))
         request = DatabaseRequest(
-            file_path=path.join(SQL_DIR, 'add_refresh_token.sql'),
+            sql=sql,
             args=dict(account_id=self.account.id, refresh_token=token),
         )
         cursor = Cursor(self.db)
@@ -22,8 +23,9 @@ class RefreshTokenRepository(object):
 
     def delete_refresh_token(self, token: str):
         """When a refresh token expires, delete it."""
+        sql = get_sql_from_file(path.join(SQL_DIR, 'delete_refresh_token.sql'))
         request = DatabaseRequest(
-            file_path=path.join(SQL_DIR, 'delete_refresh_token.sql'),
+            sql=sql,
             args=dict(account_id=self.account.id, refresh_token=token),
         )
         cursor = Cursor(self.db)
@@ -31,8 +33,9 @@ class RefreshTokenRepository(object):
 
     def update_refresh_token(self, old: str, new: str):
         """When a new refresh token is generated replace the old one"""
+        sql = get_sql_from_file(path.join(SQL_DIR, 'update_refresh_token.sql'))
         request = DatabaseRequest(
-            file_path=path.join(SQL_DIR, 'update_refresh_token.sql'),
+            sql=sql,
             args=dict(
                 account_id=self.account.id,
                 new_refresh_token=new,
