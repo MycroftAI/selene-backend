@@ -5,8 +5,6 @@ name = "pypi"
 
 [packages]
 flask = "*"
-requests = "*"
-pyjwt = "*"
 flask-restful = "*"
 certifi = "*"
 uwsgi = "*"
