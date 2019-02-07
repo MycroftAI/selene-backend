@@ -20,14 +20,17 @@ def sso_client(context):
 def before_feature(context, _):
     use_fixture(sso_client, context)
     os.environ['SALT'] = 'testsalt'
+
+
+def before_scenario(context, _):
     with get_db_connection(context.db_pool) as db:
         acct_repository = AccountRepository(db)
-        account = acct_repository.add('foo@mycroft.ai', 'foo')
-
+        account_id = acct_repository.add('foo@mycroft.ai', 'foo')
+        account = acct_repository.get_account_by_id(account_id)
     context.account = account
 
 
-def after_feature(context, _):
+def after_scenario(context, _):
     with get_db_connection(context.db_pool) as db:
         acct_repository = AccountRepository(db)
         acct_repository.remove(context.account)
