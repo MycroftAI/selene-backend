@@ -18,10 +18,10 @@ class DBConnectionError(Exception):
 
 
 def get_sql_from_file(file_path: str) -> str:
-    """
-    Read a .sql file and return its contents as a string.
+    """Read a .sql file and return its contents as a string.
 
     All the SQL to access relational databases will be written in .sql files
+
     :param file_path: absolute file system of the .sql file.
     :return: raw SQL for use in a database interface, such as psycopg
     """
@@ -33,7 +33,7 @@ def get_sql_from_file(file_path: str) -> str:
 
 @dataclass
 class DatabaseRequest(object):
-    file_path: str
+    sql: str
     args: dict = field(default=None)
 
 
@@ -42,16 +42,15 @@ class Cursor(object):
         self.db = db
 
     def _fetch(self, db_request: DatabaseRequest, singleton=False):
-        """
-        Fetch all or one row from the database.
+        """Fetch all or one row from the database.
+
         :param db_request: parameters used to determine how to fetch the data
-        :return: the query results; will be a results object if a singleton select
-            was issued, a list of results objects otherwise.
+        :return: the query results; will be a results object if a singleton
+            select was issued, a list of results objects otherwise.
         """
-        sql = get_sql_from_file(db_request.file_path)
         with self.db.cursor() as cursor:
-            _log.debug(cursor.mogrify(sql, db_request.args))
-            cursor.execute(sql, db_request.args)
+            _log.debug(cursor.mogrify(db_request.sql, db_request.args))
+            cursor.execute(db_request.sql, db_request.args)
             if singleton:
                 execution_result = cursor.fetchone()
             else:
@@ -80,16 +79,15 @@ class Cursor(object):
         return self._fetch(db_request)
 
     def _execute(self, db_request: DatabaseRequest):
-        """
-        Fetch all or one row from the database.
+        """Fetch all or one row from the database.
+
         :param db_request: parameters used to determine how to fetch the data
-        :return: the query results; will be a results object if a singleton select
-            was issued, a list of results objects otherwise.
+        :return: the query results; will be a results object if a singleton
+            select was issued, a list of results objects otherwise.
         """
-        sql = get_sql_from_file(db_request.file_path)
         with self.db.cursor() as cursor:
-            _log.debug(cursor.mogrify(sql, db_request.args))
-            cursor.execute(sql, db_request.args)
+            _log.debug(cursor.mogrify(db_request.sql, db_request.args))
+            cursor.execute(db_request.sql, db_request.args)
             _log.debug(str(cursor.rowcount) + 'rows affected')
 
     def delete(self, db_request: DatabaseRequest):
