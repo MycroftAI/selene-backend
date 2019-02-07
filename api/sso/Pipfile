@@ -5,14 +5,14 @@ name = "pypi"
 
 [packages]
 flask = "*"
-requests = "*"
-pyjwt = "*"
 flask-restful = "*"
 certifi = "*"
 uwsgi = "*"
 
 [dev-packages]
-selene = {path = "./../../shared"}
+selene = {editable = true,path = "./../../shared"}
+behave = "*"
+pyhamcrest = "*"
 
 [requires]
 python_version = "3.7"

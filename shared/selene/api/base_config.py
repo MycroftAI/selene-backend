@@ -13,10 +13,9 @@ Example usage:
         .
         .
         .
-        @app.teardown_teardown_appcontext
+        @app.teardown_appcontext
         def close_db_connections():
-            app.config['DB_CONNECTION_POOL].close_all()
-
+            app.config['DB_CONNECTION_POOL'].close_all()
 """
 
 import os
@@ -41,19 +40,21 @@ class BaseConfig(object):
     ACCESS_SECRET = os.environ['JWT_ACCESS_SECRET']
     DB_CONNECTION_POOL = allocate_db_connection_pool(db_connection_config)
     DEBUG = False
+    ENV = os.environ['SELENE_ENVIRONMENT']
     REFRESH_SECRET = os.environ['JWT_REFRESH_SECRET']
 
 
 class DevelopmentConfig(BaseConfig):
     DEBUG = True
+    DOMAIN = '.mycroft.test'
 
 
 class TestConfig(BaseConfig):
-    pass
+    DOMAIN = '.mycroft-test.net'
 
 
 class ProdConfig(BaseConfig):
-    pass
+    DOMAIN = '.mycroft.ai'
 
 
 def get_base_config():
