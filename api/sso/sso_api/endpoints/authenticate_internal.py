@@ -8,7 +8,7 @@ authentication, which uses a 3rd party authentication, like Google.
 from binascii import a2b_base64
 from http import HTTPStatus
 
-from selene.account import Account, AccountRepository, RefreshTokenRepository
+from selene.data.account import Account, AccountRepository, RefreshTokenRepository
 from selene.api import SeleneEndpoint
 from selene.util.auth import AuthenticationError
 from selene.util.db import get_db_connection

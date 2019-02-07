@@ -1,6 +1,6 @@
 from hamcrest import assert_that, equal_to, has_item
 
-from selene.account import Account, AccountRepository
+from selene.data.account import Account, AccountRepository
 from selene.util.db import get_db_connection
 
 ACCESS_TOKEN_COOKIE_KEY = 'seleneAccess'

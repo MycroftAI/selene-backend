@@ -8,7 +8,7 @@ on our database and build JWTs for access and refresh.
 from http import HTTPStatus
 
 from selene.api import SeleneEndpoint
-from selene.account import AccountRepository, RefreshTokenRepository
+from selene.data.account import AccountRepository, RefreshTokenRepository
 from selene.util.auth import AuthenticationError
 from selene.util.db import get_db_connection
 

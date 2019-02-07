@@ -3,7 +3,7 @@ import os
 from behave import fixture, use_fixture
 
 from sso_api.api import sso
-from selene.account import AccountRepository
+from selene.data.account import AccountRepository
 from selene.util.db import get_db_connection
 
 

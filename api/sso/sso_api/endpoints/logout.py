@@ -3,7 +3,7 @@
 from http import HTTPStatus
 from logging import getLogger
 
-from selene.account import RefreshTokenRepository
+from selene.data.account import RefreshTokenRepository
 from selene.api import SeleneEndpoint
 from selene.util.db import get_db_connection
 

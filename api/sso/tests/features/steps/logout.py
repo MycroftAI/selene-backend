@@ -2,7 +2,7 @@ from http import HTTPStatus
 from behave import given, then, when
 from hamcrest import assert_that, equal_to, has_item, is_not
 
-from selene.account import RefreshTokenRepository
+from selene.data.account import RefreshTokenRepository
 from selene.api.testing import get_account, validate_token_cookies
 from selene.util.auth import AuthenticationTokenGenerator
 from selene.util.db import get_db_connection

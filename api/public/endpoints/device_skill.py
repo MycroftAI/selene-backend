@@ -1,5 +1,5 @@
 from selene.api import SeleneEndpoint
-from selene.skill.repository.skill import get_skill_settings_by_device_id_and_version_hash
+from selene.data.skill.repository.skill import get_skill_settings_by_device_id_and_version_hash
 from selene.util.db import get_db_connection
 
 
