@@ -8,6 +8,8 @@ from endpoints.device_skill import DeviceSkillEndpoint
 from endpoints.device_skills import DeviceSkillsEndpoint
 from selene.api.base_config import get_base_config
 
+from endpoints.device_subscription import DeviceSubscriptionEndpoint
+
 public = Flask(__name__)
 public.config.from_object(get_base_config())
 public_api = Api(public)
@@ -19,3 +21,4 @@ public_api.add_resource(DeviceSkillsEndpoint, '/device/<string:device_id>/skill'
 public_api.add_resource(DeviceSkillEndpoint, '/device/<string:device_id>/userSkill')
 public_api.add_resource(DeviceEndpoint, '/device/<string:device_id>')
 public_api.add_resource(DeviceSettingEndpoint, '/device/<string:device_id>/setting')
+public_api.add_resource(DeviceSubscriptionEndpoint, '/device/<string:device_id>/subscription')

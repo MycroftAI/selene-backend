@@ -37,3 +37,16 @@ def get_devices_by_account_id(db, account_id: str) -> List[Device]:
     )
     sql_results = fetch(db, query)
     return [Device(**result) for result in sql_results]
+
+
+def get_subscription_type_by_device_id(db, device_id):
+    query = DatabaseQuery(
+        file_path=path.join(SQL_DIR, 'get_subscription_type_by_device_id.sql'),
+        args=dict(device_id=device_id),
+        singleton=True
+    )
+    sql_result = fetch(db, query)
+    if sql_result:
+        return {'@type': sql_result['rate_period']}
+    else:
+        return {'@type': 'free'}
