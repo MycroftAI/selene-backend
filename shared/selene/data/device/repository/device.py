@@ -1,7 +1,7 @@
 from os import path
 from typing import List
 
-from selene.data.device.entity.device import Device
+from ..entity.device import Device
 from selene.util.db import DatabaseRequest, get_sql_from_file, Cursor
 
 SQL_DIR = path.join(path.dirname(__file__), 'sql')

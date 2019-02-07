@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 from datetime import datetime
 
-from selene.data.device.entity.text_to_speech import TextToSpeech
-from selene.data.device.entity.wake_word import WakeWord
+from .text_to_speech import TextToSpeech
+from .wake_word import WakeWord
 
 
 @dataclass
