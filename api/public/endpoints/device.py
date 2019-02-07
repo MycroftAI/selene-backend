@@ -1,6 +1,6 @@
 from selene.api import SeleneEndpoint
+from selene.data.device.repository.device import get_device_by_id
 
-from selene.data.device import get_device_by_id
 from selene.util.db import get_db_connection
 
 

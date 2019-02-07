@@ -1,17 +1,17 @@
 from os import path
 
-from selene.util.db import DatabaseQuery, fetch
+from selene.util.db import get_sql_from_file, Cursor, DatabaseRequest
 
 SQL_DIR = path.join(path.dirname(__file__), 'sql')
 
 
 def get_device_settings_by_device_id(db, device_id):
-    query = DatabaseQuery(
-        file_path=path.join(SQL_DIR, 'get_device_settings_by_device_id.sql'),
-        args=dict(device_id=device_id),
-        singleton=True
+    query = DatabaseRequest(
+        sql=get_sql_from_file(path.join(SQL_DIR, 'get_device_settings_by_device_id.sql')),
+        args=dict(device_id=device_id)
     )
-    return fetch(db, query)
+    cursor = Cursor(db)
+    return cursor.select_one(query)
 
 
 def convert_text_to_speech_setting(setting_name, engine) -> (str, str):

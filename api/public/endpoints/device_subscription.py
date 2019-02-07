@@ -1,5 +1,5 @@
 from selene.api import SeleneEndpoint
-from selene.data.device.repository import get_subscription_type_by_device_id
+from selene.data.device.repository.device import get_subscription_type_by_device_id
 from selene.util.db import get_db_connection
 
 
