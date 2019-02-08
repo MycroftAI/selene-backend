@@ -1,0 +1,1 @@
+CREATE TYPE tts_engine_enum AS ENUM ('google', 'mimic');
