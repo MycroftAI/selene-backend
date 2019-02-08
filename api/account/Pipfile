@@ -4,15 +4,14 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-pyjwt = "*"
-pygithub = "*"
+flask = "*"
 flask-restful = "*"
-psycopg2-binary = "*"
-passlib = "*"
-pyhamcrest = "*"
-validator-collection = "*"
+uwsgi = "*"
 
 [dev-packages]
+selene = {editable = true,path = "./../../shared"}
+behave = "*"
+pyhamcrest = "*"
 
 [requires]
 python_version = "3.7"

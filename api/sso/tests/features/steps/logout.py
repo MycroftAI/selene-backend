@@ -2,13 +2,11 @@ from http import HTTPStatus
 from behave import given, then, when
 from hamcrest import assert_that, equal_to, has_item, is_not
 
-from selene.data.account import RefreshTokenRepository
-from selene.api.testing import get_account, validate_token_cookies
-from selene.util.auth import AuthenticationTokenGenerator
-from selene.util.db import get_db_connection
-
-ACCESS_TOKEN_COOKIE_KEY = 'seleneAccess'
-REFRESH_TOKEN_COOKIE_KEY = 'seleneRefresh'
+from selene.api.testing import (
+    generate_auth_tokens,
+    get_account,
+    validate_token_cookies
+)
 
 
 @given('user "{email}" is authenticated')
@@ -18,26 +16,7 @@ def save_email(context, email):
 
 @when('user attempts to logout')
 def call_logout_endpoint(context):
-    token_generator = AuthenticationTokenGenerator(
-        context.account.id,
-        context.client_config['ACCESS_SECRET'],
-        context.client_config['REFRESH_SECRET']
-    )
-    context.client.set_cookie(
-        context.client_config['DOMAIN'],
-        ACCESS_TOKEN_COOKIE_KEY,
-        token_generator.access_token
-    )
-    context.client.set_cookie(
-        context.client_config['DOMAIN'],
-        REFRESH_TOKEN_COOKIE_KEY,
-        token_generator.refresh_token
-    )
-    context.request_refresh_token = token_generator.refresh_token
-    with get_db_connection(context.client_config['DB_CONNECTION_POOL']) as db:
-        token_repository = RefreshTokenRepository(db, context.account)
-        token_repository.add_refresh_token(token_generator.refresh_token)
-
+    generate_auth_tokens(context)
     context.response = context.client.get('/api/logout')
 
 
