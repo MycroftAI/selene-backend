@@ -2,6 +2,8 @@ from datetime import date
 from dataclasses import dataclass
 from typing import List
 
+from validator_collection import validators
+
 
 @dataclass
 class AccountAgreement(object):
@@ -26,3 +28,6 @@ class Account(object):
     refresh_tokens: List[str]
     agreements: List[AccountAgreement]
     subscription: AccountSubscription
+
+    def __post_init__(self):
+        self.email_address = validators.email(self.email_address)

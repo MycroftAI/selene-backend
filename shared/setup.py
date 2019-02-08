@@ -16,6 +16,7 @@ setup(
         'pygithub',
         'pyhamcrest',
         'pyjwt',
-        'psycopg2-binary'
+        'psycopg2-binary',
+        'validator-collection'
     ]
 )

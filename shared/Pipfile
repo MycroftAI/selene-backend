@@ -10,6 +10,7 @@ flask-restful = "*"
 psycopg2-binary = "*"
 passlib = "*"
 pyhamcrest = "*"
+validator-collection = "*"
 
 [dev-packages]
 
