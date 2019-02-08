@@ -3,7 +3,12 @@ import os
 from behave import fixture, use_fixture
 
 from sso_api.api import sso
-from selene.data.account import AccountRepository
+from selene.data.account import (
+    Account,
+    AccountAgreement,
+    AccountRepository,
+    AccountSubscription
+)
 from selene.util.db import get_db_connection
 
 
@@ -23,11 +28,26 @@ def before_feature(context, _):
 
 
 def before_scenario(context, _):
-    with get_db_connection(context.db_pool) as db:
+    test_account = Account(
+        id=None,
+        email_address='foo@mycroft.ai',
+        refresh_tokens=None,
+        subscription=AccountSubscription(
+            type='monthly supporter',
+            start_date=None,
+            stripe_customer_id='foo'
+        ),
+        agreements=[
+            AccountAgreement(name='terms', signature_date=None)
+        ]
+    )
+    with get_db_connection(
+            context.client_config['DB_CONNECTION_POOL']) as db:
         acct_repository = AccountRepository(db)
-        account_id = acct_repository.add('foo@mycroft.ai', 'foo')
-        account = acct_repository.get_account_by_id(account_id)
-    context.account = account
+        acct_repository.add(test_account, 'foo')
+        context.account = acct_repository.get_account_by_email(
+            test_account.email_address
+        )
 
 
 def after_scenario(context, _):

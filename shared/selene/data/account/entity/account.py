@@ -6,15 +6,16 @@ from typing import List
 @dataclass
 class AccountAgreement(object):
     """Representation of a 'signed' agreement"""
-    agreement: str
+    name: str
     signature_date: date
 
 
 @dataclass
 class AccountSubscription(object):
     """Represents the subscription plan chosen by the user"""
-    subscription_type: str
+    type: str
     start_date: date
+    stripe_customer_id: str
 
 
 @dataclass

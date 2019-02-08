@@ -11,7 +11,7 @@ WITH
         SELECT
             array_agg(
                 json_build_object(
-                    'agreement', ag.agreement,
+                    'name', ag.agreement,
                     'signature_date', lower(aa.agreement_ts_range)::DATE
                 )
             )
@@ -25,7 +25,7 @@ WITH
     subscription AS (
         SELECT
             json_build_object(
-                'subscription_type', s.subscription,
+                'type', s.subscription,
                 'start_date', lower(asub.subscription_ts_range)::DATE
             )
         FROM

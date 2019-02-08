@@ -19,17 +19,56 @@ class AccountRepository(object):
     def __init__(self, db):
         self.cursor = Cursor(db)
 
-    def add(self, email_address: str, password: str) -> str:
+    def add(self, account: Account, password: str):
+        account.id = self._add_account(account, password)
+        self._add_agreement(account)
+        if account.subscription is not None:
+            self._add_subscription(account)
+
+    def _add_account(self, account: Account, password: str):
+        """Add a row to the account table."""
         encrypted_password = _encrypt_password(password)
         request = DatabaseRequest(
             sql=get_sql_from_file(path.join(SQL_DIR, 'add_account.sql')),
-            args=dict(email_address=email_address, password=encrypted_password)
+            args=dict(
+                email_address=account.email_address,
+                password=encrypted_password
+            )
         )
         result = self.cursor.insert_returning(request)
 
         return result['id']
 
+    def _add_agreement(self, account: Account):
+        """Accounts cannot be added without agreeing to terms and privacy"""
+        for agreement in account.agreements:
+            request = DatabaseRequest(
+                sql=get_sql_from_file(
+                    path.join(SQL_DIR, 'add_account_agreement.sql')
+                ),
+                args=dict(
+                    account_id=account.id,
+                    agreement_name=agreement.name
+                )
+            )
+            self.cursor.insert(request)
+
+    def _add_subscription(self, account: Account):
+        """A subscription is optional, add it if one was selected"""
+        request = DatabaseRequest(
+            sql=get_sql_from_file(
+                path.join(SQL_DIR, 'add_account_subscription.sql')
+            ),
+            args=dict(
+                account_id=account.id,
+                subscription_type=account.subscription.type,
+                stripe_customer_id=account.subscription.stripe_customer_id
+            )
+        )
+        self.cursor.insert(request)
+
     def remove(self, account: Account):
+        """Delete and account and all of its children"""
         request = DatabaseRequest(
             sql=get_sql_from_file(path.join(SQL_DIR, 'remove_account.sql')),
             args=dict(id=account.id)

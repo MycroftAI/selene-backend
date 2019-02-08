@@ -1,3 +1,4 @@
+from datetime import date
 from http import HTTPStatus
 import json
 
@@ -21,5 +22,14 @@ def call_account_endpoint(context):
 def validate_response(context):
     assert_that(context.response.status_code, equal_to(HTTPStatus.OK))
     response_data = json.loads(context.response.data)
-    print(response_data)
-
+    assert_that(
+        response_data['emailAddress'],
+        equal_to(context.account.email_address)
+    )
+    assert_that(response_data['id'], equal_to(context.account.id))
+    assert_that(response_data['subscription'], equal_to(
+        dict(type='monthly supporter', startDate=str(date.today()))
+    ))
+    assert_that(response_data['agreements'], equal_to(
+        [dict(name='terms', signatureDate=str(date.today()))]
+    ))
