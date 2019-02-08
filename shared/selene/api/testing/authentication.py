@@ -1,10 +1,38 @@
 from hamcrest import assert_that, equal_to, has_item
 
-from selene.data.account import Account, AccountRepository
+from selene.data.account import (
+    Account,
+    AccountRepository,
+    RefreshTokenRepository
+)
+from selene.util.auth import AuthenticationTokenGenerator
 from selene.util.db import get_db_connection
 
 ACCESS_TOKEN_COOKIE_KEY = 'seleneAccess'
 REFRESH_TOKEN_COOKIE_KEY = 'seleneRefresh'
+
+
+def generate_auth_tokens(context):
+    token_generator = AuthenticationTokenGenerator(
+        context.account.id,
+        context.client_config['ACCESS_SECRET'],
+        context.client_config['REFRESH_SECRET']
+    )
+    context.client.set_cookie(
+        context.client_config['DOMAIN'],
+        ACCESS_TOKEN_COOKIE_KEY,
+        token_generator.access_token
+    )
+    context.client.set_cookie(
+        context.client_config['DOMAIN'],
+        REFRESH_TOKEN_COOKIE_KEY,
+        token_generator.refresh_token
+    )
+    context.request_refresh_token = token_generator.refresh_token
+
+    with get_db_connection(context.client_config['DB_CONNECTION_POOL']) as db:
+        token_repository = RefreshTokenRepository(db, context.account)
+        token_repository.add_refresh_token(token_generator.refresh_token)
 
 
 def validate_token_cookies(context, expired=False):
