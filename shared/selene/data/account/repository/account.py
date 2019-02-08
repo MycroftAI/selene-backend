@@ -1,7 +1,12 @@
 from passlib.hash import sha512_crypt
 from os import environ, path
 
-from selene.util.db import DatabaseRequest, Cursor, get_sql_from_file
+from selene.util.db import (
+    DatabaseRequest,
+    Cursor,
+    get_sql_from_file,
+    use_transaction
+)
 from ..entity.account import Account
 
 SQL_DIR = path.join(path.dirname(__file__), 'sql')
@@ -20,15 +25,12 @@ class AccountRepository(object):
         self.db = db
         self.cursor = Cursor(db)
 
+    @use_transaction
     def add(self, account: Account, password: str):
-        prev_autocommit = self.db.autocommit
-        self.db.autocommit = False
-        with self.db:
-            account.id = self._add_account(account, password)
-            self._add_agreement(account)
-            if account.subscription is not None:
-                self._add_subscription(account)
-        self.db.autocommit = prev_autocommit
+        account.id = self._add_account(account, password)
+        self._add_agreement(account)
+        if account.subscription is not None:
+            self._add_subscription(account)
 
     def _add_account(self, account: Account, password: str):
         """Add a row to the account table."""
