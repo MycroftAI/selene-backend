@@ -24,7 +24,10 @@ WITH
     ),
     subscription AS (
         SELECT
-            s.subscription
+            json_build_object(
+                'subscription_type', s.subscription,
+                'start_date', lower(asub.subscription_ts_range)::DATE
+            )
         FROM
             account.account_subscription asub
             INNER JOIN account.subscription s ON asub.subscription_id = s.id

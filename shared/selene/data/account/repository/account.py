@@ -17,7 +17,7 @@ def _encrypt_password(password):
 
 class AccountRepository(object):
     def __init__(self, db):
-        self.db = db
+        self.cursor = Cursor(db)
 
     def add(self, email_address: str, password: str) -> str:
         encrypted_password = _encrypt_password(password)
@@ -25,8 +25,7 @@ class AccountRepository(object):
             sql=get_sql_from_file(path.join(SQL_DIR, 'add_account.sql')),
             args=dict(email_address=email_address, password=encrypted_password)
         )
-        cursor = Cursor(self.db)
-        result = cursor.insert_returning(request)
+        result = self.cursor.insert_returning(request)
 
         return result['id']
 
@@ -35,8 +34,7 @@ class AccountRepository(object):
             sql=get_sql_from_file(path.join(SQL_DIR, 'remove_account.sql')),
             args=dict(id=account.id)
         )
-        cursor = Cursor(self.db)
-        cursor.delete(request)
+        self.cursor.delete(request)
 
     def get_account_by_id(self, account_id: str) -> Account:
         """Use a given uuid to query the database for an account
@@ -94,8 +92,7 @@ class AccountRepository(object):
 
     def _get_account(self, db_request):
         account = None
-        cursor = Cursor(self.db)
-        result = cursor.select_one(db_request)
+        result = self.cursor.select_one(db_request)
 
         if result is not None:
             account = Account(**result['account'])
