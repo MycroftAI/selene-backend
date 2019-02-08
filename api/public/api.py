@@ -1,6 +1,6 @@
 from flask import Flask
 from flask_restful import Api
-from selene.util.encoder import output_json
+from selene.api import JSON_MIMETYPE, output_json
 
 from endpoints.device import DeviceEndpoint
 from endpoints.device_setting import DeviceSettingEndpoint
@@ -14,7 +14,7 @@ from endpoints.wolfram_alpha import WolframAlphaEndpoint
 public = Flask(__name__)
 public.config.from_object(get_base_config())
 public_api = Api(public)
-public_api.representations['application/json'] = output_json
+public_api.representations[JSON_MIMETYPE] = output_json
 
 public_api.representations.update()
 
