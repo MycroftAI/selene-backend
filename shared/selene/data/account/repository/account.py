@@ -17,13 +17,18 @@ def _encrypt_password(password):
 
 class AccountRepository(object):
     def __init__(self, db):
+        self.db = db
         self.cursor = Cursor(db)
 
     def add(self, account: Account, password: str):
-        account.id = self._add_account(account, password)
-        self._add_agreement(account)
-        if account.subscription is not None:
-            self._add_subscription(account)
+        prev_autocommit = self.db.autocommit
+        self.db.autocommit = False
+        with self.db:
+            account.id = self._add_account(account, password)
+            self._add_agreement(account)
+            if account.subscription is not None:
+                self._add_subscription(account)
+        self.db.autocommit = prev_autocommit
 
     def _add_account(self, account: Account, password: str):
         """Add a row to the account table."""
