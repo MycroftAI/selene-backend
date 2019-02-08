@@ -9,6 +9,7 @@ from endpoints.device_skills import DeviceSkillsEndpoint
 from selene.api.base_config import get_base_config
 
 from endpoints.device_subscription import DeviceSubscriptionEndpoint
+from endpoints.open_weather_map import OpenWeatherMapEndpoint
 from endpoints.wolfram_alpha import WolframAlphaEndpoint
 
 public = Flask(__name__)
@@ -24,3 +25,4 @@ public_api.add_resource(DeviceEndpoint, '/device/<string:device_id>')
 public_api.add_resource(DeviceSettingEndpoint, '/device/<string:device_id>/setting')
 public_api.add_resource(DeviceSubscriptionEndpoint, '/device/<string:device_id>/subscription')
 public_api.add_resource(WolframAlphaEndpoint, '/wa')
+public_api.add_resource(OpenWeatherMapEndpoint, '/owm/<path:path>')

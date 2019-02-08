@@ -1,4 +1,3 @@
-import json
 import os
 from http import HTTPStatus
 
@@ -8,6 +7,7 @@ from selene.api import SeleneEndpoint
 
 
 class WolframAlphaEndpoint(SeleneEndpoint):
+    """Proxy to the Wolfram Alpha API"""
     def __init__(self):
         super(WolframAlphaEndpoint, self).__init__()
         self.wolfram_alpha_key = os.environ['WOLFRAM_ALPHA_KEY']
