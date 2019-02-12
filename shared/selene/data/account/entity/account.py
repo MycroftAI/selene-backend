@@ -9,7 +9,7 @@ from validator_collection import validators
 class AccountAgreement(object):
     """Representation of a 'signed' agreement"""
     name: str
-    signature_date: date
+    accept_date: date
 
 
 @dataclass
@@ -25,6 +25,7 @@ class Account(object):
     """Representation of a Mycroft user account."""
     id: str
     email_address: str
+    username: str
     refresh_tokens: List[str]
     agreements: List[AccountAgreement]
     subscription: AccountSubscription

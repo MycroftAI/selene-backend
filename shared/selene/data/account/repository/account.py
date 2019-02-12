@@ -39,7 +39,8 @@ class AccountRepository(object):
             sql=get_sql_from_file(path.join(SQL_DIR, 'add_account.sql')),
             args=dict(
                 email_address=account.email_address,
-                password=encrypted_password
+                password=encrypted_password,
+                username=account.username
             )
         )
         result = self.cursor.insert_returning(request)

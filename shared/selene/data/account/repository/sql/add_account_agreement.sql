@@ -1,5 +1,5 @@
 INSERT INTO
-    account.account_agreement (account_id, agreement_id, agreement_ts_range)
+    account.account_agreement (account_id, agreement_id, accept_date)
 VALUES
     (
         %(account_id)s,
