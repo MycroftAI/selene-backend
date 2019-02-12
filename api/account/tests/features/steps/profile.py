@@ -31,5 +31,5 @@ def validate_response(context):
         dict(type='monthly supporter', startDate=str(date.today()))
     ))
     assert_that(response_data['agreements'], equal_to(
-        [dict(name='terms', signatureDate=str(date.today()))]
+        [dict(name='Privacy Policy', acceptedDate=str(date.today()))]
     ))

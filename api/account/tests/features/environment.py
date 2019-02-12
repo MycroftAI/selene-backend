@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, timedelta
 import os
 
 from behave import fixture, use_fixture
@@ -8,7 +8,10 @@ from selene.data.account import (
     Account,
     AccountAgreement,
     AccountRepository,
-    AccountSubscription
+    AccountSubscription,
+    Agreement,
+    AgreementRepository,
+    PRIVACY_POLICY
 )
 from selene.util.db import get_db_connection
 
@@ -28,9 +31,28 @@ def before_feature(context, _):
 
 
 def before_scenario(context, _):
+
+    with get_db_connection(context.client_config['DB_CONNECTION_POOL']) as db:
+        _add_agreement(context, db)
+        _add_account(context, db)
+
+
+def _add_agreement(context, db):
+    context.agreement = Agreement(
+        type='Privacy Policy',
+        version='1',
+        content='this is Privacy Policy version 1',
+        effective_date=date.today() - timedelta(days=5)
+    )
+    agreement_repository = AgreementRepository(db)
+    agreement_repository.add(context.agreement)
+
+
+def _add_account(context, db):
     test_account = Account(
         id=None,
         email_address='foo@mycroft.ai',
+        username='foobar',
         refresh_tokens=None,
         subscription=AccountSubscription(
             type='monthly supporter',
@@ -38,18 +60,20 @@ def before_scenario(context, _):
             stripe_customer_id='foo'
         ),
         agreements=[
-            AccountAgreement(name='terms', signature_date=None)
+            AccountAgreement(name=PRIVACY_POLICY, accept_date=None)
         ]
     )
-    with get_db_connection(context.client_config['DB_CONNECTION_POOL']) as db:
-        acct_repository = AccountRepository(db)
-        acct_repository.add(test_account, 'foo')
-        context.account = acct_repository.get_account_by_email(
-            test_account.email_address
-        )
+
+    acct_repository = AccountRepository(db)
+    acct_repository.add(test_account, 'foo')
+    context.account = acct_repository.get_account_by_email(
+        test_account.email_address
+    )
 
 
 def after_scenario(context, _):
     with get_db_connection(context.client_config['DB_CONNECTION_POOL']) as db:
         acct_repository = AccountRepository(db)
         acct_repository.remove(context.account)
+        agreement_repository = AgreementRepository(db)
+        agreement_repository.remove(context.agreement, testing=True)
