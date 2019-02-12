@@ -72,14 +72,9 @@ class LoggingConfig(object):
         self.logger.addHandler(console_handler)
 
 
-def configure_logger(log_file_name: str, logger_name: str = None):
+def configure_logger(logger_name: str):
     """helper function that returns a logger using the base config"""
-    logging_config = LoggingConfig(log_file_name)
+    logging_config = LoggingConfig(logger_name + '.log')
     logging_config.configure()
 
-    if logger_name is None:
-        logger = getLogger()
-    else:
-        logger = getLogger(logger_name)
-
-    return logger
+    return getLogger(logger_name)
