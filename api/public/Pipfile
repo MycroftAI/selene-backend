@@ -10,6 +10,7 @@ selene = {path = "./../../shared"}
 flask = "*"
 flask-restful = "*"
 requests = "*"
+SpeechRecognition = "*"
 
 [requires]
 python_version = "3.7"

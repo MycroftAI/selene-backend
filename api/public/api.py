@@ -11,6 +11,7 @@ from selene.api.base_config import get_base_config
 from .endpoints.device_subscription import DeviceSubscriptionEndpoint
 from .endpoints.open_weather_map import OpenWeatherMapEndpoint
 from .endpoints.wolfram_alpha import WolframAlphaEndpoint
+from .endpoints.google_stt import GoogleSTTEndpoint
 
 public = Flask(__name__)
 public.config.from_object(get_base_config())
@@ -26,3 +27,4 @@ public_api.add_resource(DeviceSettingEndpoint, '/device/<string:device_id>/setti
 public_api.add_resource(DeviceSubscriptionEndpoint, '/device/<string:device_id>/subscription')
 public_api.add_resource(WolframAlphaEndpoint, '/wa')  # TODO: change this path in the API v2
 public_api.add_resource(OpenWeatherMapEndpoint, '/owm/<path:path>')     # TODO: change this path in the API v2
+public_api.add_resource(GoogleSTTEndpoint, '/stt')  # TODO: change this path in the API v2
