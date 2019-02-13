@@ -52,3 +52,12 @@ class DeviceRepository(object):
             return {'@type': sql_result['rate_period']}
         else:
             return {'@type': 'free'}
+
+    def add_device(self, account_id, name: str):
+        """ Creates a new device with a given name and associate it to an account"""
+        # TODO: validate the account_id existence before insert
+        query = DatabaseRequest(
+            sql=get_sql_from_file(path.join(SQL_DIR, 'add_device.sql')),
+            args=dict(account_id=account_id, name=name)
+        )
+        return self.cursor.insert_returning(query)

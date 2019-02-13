@@ -4,7 +4,7 @@ import random
 import uuid
 
 from selene.api import SeleneEndpoint
-from selene.util.selene_cache import SeleneCache
+from selene.util.cache import SeleneCache
 
 
 class DeviceCodeEndpoint(SeleneEndpoint):
@@ -31,10 +31,12 @@ class DeviceCodeEndpoint(SeleneEndpoint):
         self.sha512.update(bytes(str(uuid.uuid4()), 'utf-8'))
         token = self.sha512.hexdigest()
         code = self._pairing_code()
-        pairing = json.dumps({'code': code,
-                              'state': state,
-                              'token': token,
-                              'expiration': self.device_pairing_time})
+        pairing = json.dumps({
+            'code': code,
+            'state': state,
+            'token': token,
+            'expiration': self.device_pairing_time
+        })
         # This is to deal with the case where we generate a pairing code that already exists in the
         # cache, meaning another device is trying to pairing using the same code. In this case, we should
         # call the method again to get another random pairing code

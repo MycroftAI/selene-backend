@@ -14,3 +14,15 @@ class SeleneCache(object):
     def set_if_not_exists_with_expiration(self, key, value, expiration):
         """Sets a key only if it doesn't exist and using a given expiration time"""
         return self.redis.set(name=key, value=value, ex=expiration, nx=True)
+
+    def set_with_expiration(self, key, value, expiration):
+        """Sets a key with a given expiration"""
+        return self.redis.set(name=key, value=value, ex=expiration)
+
+    def get(self, key):
+        """Returns the value stored in a key"""
+        return self.redis.get(name=key)
+
+    def delete(self, key):
+        """Deletes a key from the cache"""
+        return self.redis.delete(key)
