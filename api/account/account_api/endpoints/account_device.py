@@ -42,8 +42,8 @@ class AccountDeviceEndpoint(SeleneEndpoint):
     def _pair(self, account_id: str, name: str, pairing: dict):
         """Creates a device and associate it to a pairing session"""
         with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
-            device_id = DeviceRepository(db).add_device(account_id, name)
-            pairing['uuid'] = device_id
+            result = DeviceRepository(db).add_device(account_id, name)
+            pairing['uuid'] = result['id']
             return self.cache.set_with_expiration(self._token_key(pairing['token']),
                                                   json.dumps(pairing),
                                                   self.device_pairing_time)

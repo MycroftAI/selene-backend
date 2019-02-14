@@ -61,3 +61,16 @@ class DeviceRepository(object):
             args=dict(account_id=account_id, name=name)
         )
         return self.cursor.insert_returning(query)
+
+    def update_device(self, device):
+        """Updates a device in the database"""
+        query = DatabaseRequest(
+            sql=get_sql_from_file(path.join(SQL_DIR, 'update_device.sql')),
+            args=dict(
+                device_id=device['uuid'],
+                platform=device.get('platform', 'unknown'),
+                enclosure_version=device.get('enclosure_version', 'unknown'),
+                core_version=device.get('core_version', 'unknown')
+            )
+        )
+        return self.cursor.insert(query)

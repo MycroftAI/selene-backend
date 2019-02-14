@@ -31,19 +31,20 @@ class DeviceCodeEndpoint(SeleneEndpoint):
         self.sha512.update(bytes(str(uuid.uuid4()), 'utf-8'))
         token = self.sha512.hexdigest()
         code = self._pairing_code()
-        pairing = json.dumps({
+        pairing = {
             'code': code,
             'state': state,
             'token': token,
             'expiration': self.device_pairing_time
-        })
+        }
+        pairing_json = json.dumps(pairing)
         # This is to deal with the case where we generate a pairing code that already exists in the
         # cache, meaning another device is trying to pairing using the same code. In this case, we should
         # call the method again to get another random pairing code
         if self.cache.set_if_not_exists_with_expiration(self._code_key(code),
-                                                        value=pairing,
+                                                        value=pairing_json,
                                                         expiration=self.device_pairing_time):
-            return code
+            return pairing
         else:
             return self._create(state)
 
