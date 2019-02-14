@@ -20,7 +20,12 @@ class DeviceActivateEndpoint(SeleneEndpoint):
             pairing = self._get_pairing_session(device_activate)
             if pairing:
                 device_activate['uuid'] = pairing['uuid']
-                self._activate(device_activate)
+                self._activate(
+                    pairing['uuid'],
+                    device_activate.get('platform', 'unknown'),
+                    device_activate.get('enclosure_version', 'unknown'),
+                    device_activate.get('core_version', 'unknown')
+                )
                 return http_status_message(200)
             return http_status_message(204)
         return http_status_message(204)
@@ -37,10 +42,10 @@ class DeviceActivateEndpoint(SeleneEndpoint):
                 self.cache.delete(self._token_key(token))
                 return pairing
 
-    def _activate(self, device: dict):
+    def _activate(self, device_id: str, platform: str, enclosure_version: str, core_version: str):
         """Updates a device in the database with the core version, platform and enclosure_version fields"""
         with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
-            DeviceRepository(db).update_device(device)
+            DeviceRepository(db).update_device(device_id, platform, enclosure_version, core_version)
 
     @staticmethod
     def _token_key(token):

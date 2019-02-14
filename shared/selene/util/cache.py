@@ -11,13 +11,15 @@ class SeleneCache(object):
         redis_port = int(os.environ['REDIS_PORT'])
         self.redis = Redis(host=redis_host, port=redis_port)
 
-    def set_if_not_exists_with_expiration(self, key, value, expiration):
+    def set_if_not_exists_with_expiration(self, key, value, expiration: int):
         """Sets a key only if it doesn't exist and using a given expiration time"""
-        return self.redis.set(name=key, value=value, ex=expiration, nx=True)
+        if expiration > 0:
+            return self.redis.set(name=key, value=value, ex=expiration, nx=True)
 
-    def set_with_expiration(self, key, value, expiration):
+    def set_with_expiration(self, key, value, expiration: int):
         """Sets a key with a given expiration"""
-        return self.redis.set(name=key, value=value, ex=expiration)
+        if expiration > 0:
+            return self.redis.set(name=key, value=value, ex=expiration)
 
     def get(self, key):
         """Returns the value stored in a key"""

@@ -53,24 +53,29 @@ class DeviceRepository(object):
         else:
             return {'@type': 'free'}
 
-    def add_device(self, account_id, name: str):
+    def add_device(self, account_id: str, name: str, wake_word_id: str, text_to_speech_id: str):
         """ Creates a new device with a given name and associate it to an account"""
-        # TODO: validate the account_id existence before insert
+        # TODO: validate foreign keys
         query = DatabaseRequest(
             sql=get_sql_from_file(path.join(SQL_DIR, 'add_device.sql')),
-            args=dict(account_id=account_id, name=name)
+            args=dict(
+                account_id=account_id,
+                name=name,
+                wake_word_id=wake_word_id,
+                text_to_speech_id=text_to_speech_id
+            )
         )
         return self.cursor.insert_returning(query)
 
-    def update_device(self, device):
+    def update_device(self, device_id: str, platform: str, enclosure_version: str, core_version: str):
         """Updates a device in the database"""
         query = DatabaseRequest(
             sql=get_sql_from_file(path.join(SQL_DIR, 'update_device.sql')),
             args=dict(
-                device_id=device['uuid'],
-                platform=device.get('platform', 'unknown'),
-                enclosure_version=device.get('enclosure_version', 'unknown'),
-                core_version=device.get('core_version', 'unknown')
+                device_id=device_id,
+                platform=platform,
+                enclosure_version=enclosure_version,
+                core_version=core_version
             )
         )
         return self.cursor.insert(query)
