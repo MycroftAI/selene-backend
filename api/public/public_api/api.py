@@ -19,6 +19,7 @@ from .endpoints.device_code import DeviceCodeEndpoint
 from .endpoints.device_activate import DeviceActivateEndpoint
 from .endpoints.account_device import AccountDeviceEndpoint
 from .endpoints.device_email import DeviceEmailEndpoint
+from .endpoints.device_metrics import DeviceMetricsEndpoint
 
 public = Flask(__name__)
 public.config.from_object(get_base_config())
@@ -99,5 +100,10 @@ public.add_url_rule(
 public.add_url_rule(
     '/device/<string:device_id>/email',
     view_func=DeviceEmailEndpoint.as_view('device_email_api'),
+    methods=['POST']
+)
+public.add_url_rule(
+    '/device/<string:device_id>/metric/<path:metric>',
+    view_func=DeviceMetricsEndpoint.as_view('device_metric_api'),
     methods=['POST']
 )
