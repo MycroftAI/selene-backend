@@ -1,3 +1,4 @@
+from dataclasses import asdict
 from http import HTTPStatus
 import json
 
@@ -16,9 +17,6 @@ def call_agreement_endpoint(context):
 def validate_response(context, version):
     assert_that(context.response.status_code, equal_to(HTTPStatus.OK))
     response_data = json.loads(context.response.data)
-    expected_response = dict(
-        content='this is Privacy Policy version ' + version,
-        type=PRIVACY_POLICY,
-        version=version
-    )
+    expected_response = asdict(context.privacy_policy)
+    del(expected_response['effective_date'])
     assert_that(response_data, equal_to(expected_response))
