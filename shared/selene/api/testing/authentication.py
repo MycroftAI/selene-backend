@@ -31,7 +31,7 @@ def generate_auth_tokens(context):
     context.request_refresh_token = token_generator.refresh_token
 
     with get_db_connection(context.client_config['DB_CONNECTION_POOL']) as db:
-        token_repository = RefreshTokenRepository(db, context.account)
+        token_repository = RefreshTokenRepository(db, context.account.id)
         token_repository.add_refresh_token(token_generator.refresh_token)
 
 
