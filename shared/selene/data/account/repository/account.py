@@ -1,5 +1,7 @@
+from logging import getLogger
 from passlib.hash import sha512_crypt
 from os import environ, path
+from typing import List
 
 from selene.util.db import (
     DatabaseRequest,
@@ -7,9 +9,11 @@ from selene.util.db import (
     get_sql_from_file,
     use_transaction
 )
-from ..entity.account import Account
+from ..entity.account import Account, AccountAgreement, AccountSubscription
 
 SQL_DIR = path.join(path.dirname(__file__), 'sql')
+
+_log = getLogger('selene.data.account')
 
 
 def _encrypt_password(password):
@@ -26,11 +30,15 @@ class AccountRepository(object):
         self.cursor = Cursor(db)
 
     @use_transaction
-    def add(self, account: Account, password: str):
-        account.id = self._add_account(account, password)
-        self._add_agreement(account)
+    def add(self, account: Account, password: str) -> str:
+        account_id = self._add_account(account, password)
+        self._add_agreements(account_id, account.agreements)
         if account.subscription is not None:
-            self._add_subscription(account)
+            self._add_membership(account_id, account.subscription)
+
+        _log.info('Added account {}'.format(account.email_address))
+
+        return account_id
 
     def _add_account(self, account: Account, password: str):
         """Add a row to the account table."""
@@ -40,37 +48,37 @@ class AccountRepository(object):
             args=dict(
                 email_address=account.email_address,
                 password=encrypted_password,
-                username=account.username
+                display_name=account.display_name
             )
         )
         result = self.cursor.insert_returning(request)
 
         return result['id']
 
-    def _add_agreement(self, account: Account):
+    def _add_agreements(self, acct_id: str, agreements: List[AccountAgreement]):
         """Accounts cannot be added without agreeing to terms and privacy"""
-        for agreement in account.agreements:
+        for agreement in agreements:
             request = DatabaseRequest(
                 sql=get_sql_from_file(
                     path.join(SQL_DIR, 'add_account_agreement.sql')
                 ),
                 args=dict(
-                    account_id=account.id,
-                    agreement_name=agreement.name
+                    account_id=acct_id,
+                    agreement_name=agreement.type
                 )
             )
             self.cursor.insert(request)
 
-    def _add_subscription(self, account: Account):
+    def _add_membership(self, acct_id: str, membership: AccountSubscription):
         """A subscription is optional, add it if one was selected"""
         request = DatabaseRequest(
             sql=get_sql_from_file(
                 path.join(SQL_DIR, 'add_account_subscription.sql')
             ),
             args=dict(
-                account_id=account.id,
-                subscription_type=account.subscription.type,
-                stripe_customer_id=account.subscription.stripe_customer_id
+                account_id=acct_id,
+                subscription_type=membership.type,
+                stripe_customer_id=membership.stripe_customer_id
             )
         )
         self.cursor.insert(request)
@@ -82,6 +90,9 @@ class AccountRepository(object):
             args=dict(id=account.id)
         )
         self.cursor.delete(request)
+
+        log_msg = 'Deleted account {} and all it\'s related data'
+        _log.info(log_msg.format(account.email_address))
 
     def get_account_by_id(self, account_id: str) -> Account:
         """Use a given uuid to query the database for an account

@@ -11,6 +11,7 @@ WITH
         SELECT
             array_agg(
                 json_build_object(
+                    'id', aa.id,
                     'name', ag.agreement,
                     'accepted_date', aa.accept_date
                 )
@@ -24,6 +25,7 @@ WITH
     subscription AS (
         SELECT
             json_build_object(
+                'id', asub.id,
                 'type', s.subscription,
                 'start_date', lower(asub.subscription_ts_range)::DATE
             )
@@ -38,7 +40,7 @@ SELECT
     json_build_object(
         'id', id,
         'email_address', email_address,
-        'username', username,
+        'display_name', display_name,
         'subscription', (SELECT * FROM subscription),
         'refresh_tokens', (SELECT * FROM refresh_tokens),
         'agreements', (SELECT * FROM agreements)

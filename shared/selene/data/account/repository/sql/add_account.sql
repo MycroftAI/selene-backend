@@ -1,6 +1,6 @@
 INSERT INTO
-    account.account (email_address, password, username)
+    account.account (email_address, password, display_name)
 VALUES
-    (%(email_address)s, %(password)s, %(username)s)
+    (%(email_address)s, %(password)s, %(display_name)s)
 RETURNING
     id
