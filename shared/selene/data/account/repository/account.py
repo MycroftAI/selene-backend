@@ -153,6 +153,13 @@ class AccountRepository(object):
         result = self.cursor.select_one(db_request)
 
         if result is not None:
+            account_agreements = []
+            for agreement in result['account']['agreements']:
+                account_agreements.append(AccountAgreement(**agreement))
+            result['account']['agreements'] = account_agreements
+            result['account']['subscription'] = AccountSubscription(
+                **result['account']['subscription']
+            )
             account = Account(**result['account'])
 
         return account

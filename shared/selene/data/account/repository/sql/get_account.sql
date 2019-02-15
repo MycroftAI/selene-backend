@@ -12,8 +12,8 @@ WITH
             array_agg(
                 json_build_object(
                     'id', aa.id,
-                    'name', ag.agreement,
-                    'accepted_date', aa.accept_date
+                    'type', ag.agreement,
+                    'accept_date', aa.accept_date
                 )
             )
         FROM
@@ -27,7 +27,8 @@ WITH
             json_build_object(
                 'id', asub.id,
                 'type', s.subscription,
-                'start_date', lower(asub.subscription_ts_range)::DATE
+                'start_date', lower(asub.subscription_ts_range)::DATE,
+                'stripe_customer_id', asub.stripe_customer_id
             )
         FROM
             account.account_subscription asub
