@@ -17,6 +17,7 @@ setup(
         'pyhamcrest',
         'pyjwt',
         'psycopg2-binary',
+        'schematics',
         'validator-collection'
     ]
 )
