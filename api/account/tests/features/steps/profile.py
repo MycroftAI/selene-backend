@@ -42,6 +42,6 @@ def validate_response(context):
 
     assert_that(len(response_data['agreements']), equal_to(1))
     agreement = response_data['agreements'][0]
-    assert_that(agreement['name'], equal_to(PRIVACY_POLICY))
-    assert_that(agreement['acceptedDate'], equal_to(str(date.today())))
+    assert_that(agreement['type'], equal_to(PRIVACY_POLICY))
+    assert_that(agreement['acceptDate'], equal_to(str(date.today())))
     assert_that(agreement, has_item('id'))
