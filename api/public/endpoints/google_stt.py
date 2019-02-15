@@ -2,8 +2,7 @@ import os
 from io import BytesIO
 
 from selene.api import SeleneEndpoint
-from speech_recognition import AudioFile
-from speech_recognition import Recognizer
+from speech_recognition import AudioFile, Recognizer
 
 
 class GoogleSTTEndpoint(SeleneEndpoint):
@@ -30,10 +29,9 @@ class GoogleSTTEndpoint(SeleneEndpoint):
                 # Return n transcripts with the higher confidence. That is useful for the case when send a ambiguous
                 # voice file and the correct utterance is not the utterance with highest confidence and the API client
                 # is interested in test the utterances found.
-                if len(alternative) <= limit:
-                    return alternative
-                else:
-                    return alternative[:limit]
-            return []
+                result = alternative if len(alternative) <= limit else alternative[:limit]
+            else:
+                result = []
+        return result
 
 
