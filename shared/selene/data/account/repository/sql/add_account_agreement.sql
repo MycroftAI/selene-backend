@@ -10,6 +10,7 @@ VALUES
                 account.agreement
             WHERE
                 agreement = %(agreement_name)s
+                AND effective @> CURRENT_DATE
         ),
         '[now,]'
     )
