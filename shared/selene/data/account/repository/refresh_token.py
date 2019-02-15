@@ -7,16 +7,16 @@ SQL_DIR = path.join(path.dirname(__file__), 'sql')
 
 
 class RefreshTokenRepository(object):
-    def __init__(self, db, account: Account):
+    def __init__(self, db, account_id: str):
         self.db = db
-        self.account = account
+        self.account_id = account_id
 
     def add_refresh_token(self, token: str):
         """Add a refresh token to an account"""
         sql = get_sql_from_file(path.join(SQL_DIR, 'add_refresh_token.sql'))
         request = DatabaseRequest(
             sql=sql,
-            args=dict(account_id=self.account.id, refresh_token=token),
+            args=dict(account_id=self.account_id, refresh_token=token),
         )
         cursor = Cursor(self.db)
         cursor.insert(request)
@@ -26,7 +26,7 @@ class RefreshTokenRepository(object):
         sql = get_sql_from_file(path.join(SQL_DIR, 'delete_refresh_token.sql'))
         request = DatabaseRequest(
             sql=sql,
-            args=dict(account_id=self.account.id, refresh_token=token),
+            args=dict(account_id=self.account_id, refresh_token=token),
         )
         cursor = Cursor(self.db)
         cursor.delete(request)
@@ -37,7 +37,7 @@ class RefreshTokenRepository(object):
         request = DatabaseRequest(
             sql=sql,
             args=dict(
-                account_id=self.account.id,
+                account_id=self.account_id,
                 new_refresh_token=new,
                 old_refresh_token=old
             ),
