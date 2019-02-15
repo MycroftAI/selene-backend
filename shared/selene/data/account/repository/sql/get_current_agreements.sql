@@ -1,4 +1,5 @@
 SELECT
+    id,
     agreement,
     version,
     content_id,

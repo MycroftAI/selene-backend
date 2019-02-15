@@ -23,11 +23,13 @@ class AgreementRepository(object):
         self.cursor = Cursor(db)
 
     @use_transaction
-    def add(self, agreement: Agreement):
+    def add(self, agreement: Agreement) -> str:
         expire_date = agreement.effective_date - timedelta(days=1)
         self.expire(agreement, expire_date)
         content_id = self._add_agreement_content(agreement.content)
-        self._insert(agreement, content_id)
+        agreement_id = self._add_agreement(agreement, content_id)
+
+        return agreement_id
 
     def _add_agreement_content(self, content):
         large_object = self.db.lobject(0, 'b')
@@ -35,7 +37,7 @@ class AgreementRepository(object):
 
         return large_object.oid
 
-    def _insert(self, agreement: Agreement, content_id: int):
+    def _add_agreement(self, agreement: Agreement, content_id: int) -> str:
         date_range = DateRange(agreement.effective_date, None)
         request = DatabaseRequest(
             sql=get_sql_from_file(path.join(SQL_DIR, 'add_agreement.sql')),
@@ -46,12 +48,14 @@ class AgreementRepository(object):
                 content_id=content_id
             )
         )
-        self.cursor.insert(request)
+        result = self.cursor.insert_returning(request)
         _log.info('added {} agreement version {} starting {}'.format(
             agreement.type,
             agreement.version,
             agreement.effective_date
         ))
+
+        return result['id']
 
     def expire(self, agreement: Agreement, expire_date: date):
         active_agreement = self.get_active_for_type(agreement.type)
@@ -73,31 +77,25 @@ class AgreementRepository(object):
     def remove(self, agreement: Agreement, testing=False):
         """AGREEMENTS SHOULD NEVER BE REMOVED!  ONLY USE IN TEST CODE!"""
         if testing:
-            content_id = self._get_agreement_content_id(agreement)
+            content_id = self._get_agreement_content_id(agreement.id)
             large_object = self.db.lobject(content_id)
             large_object.unlink()
             request = DatabaseRequest(
                 sql=get_sql_from_file(
                     path.join(SQL_DIR, 'delete_agreement.sql')
                 ),
-                args=dict(
-                    agreement_type=agreement.type,
-                    version=agreement.version
-                )
+                args=dict(agreement_id=agreement.id)
             )
             self.cursor.delete(request)
             log_msg = 'deleted {} agreement version {}'
             _log.info(log_msg.format(agreement.type, agreement.version))
 
-    def _get_agreement_content_id(self, agreement: Agreement):
+    def _get_agreement_content_id(self, agreement_id: str) -> int:
         request = DatabaseRequest(
             sql=get_sql_from_file(
                 path.join(SQL_DIR, 'get_agreement_content_id.sql')
             ),
-            args=dict(
-                agreement_type=agreement.type,
-                version=agreement.version
-            )
+            args=dict(agreement_id=agreement_id)
         )
         result = self.cursor.select_one(request)
 
@@ -115,6 +113,7 @@ class AgreementRepository(object):
             content = self._get_agreement_content(row['content_id'])
             agreements.append(
                 Agreement(
+                    id=row['id'],
                     type=row['agreement'],
                     version=row['version'],
                     content=content,

@@ -11,3 +11,4 @@ class Agreement(object):
     version: str
     content: str
     effective_date: date
+    id: str = None
