@@ -18,7 +18,15 @@ class DeviceMetricsEndpoint(SeleneEndpoint):
         payload = self.request.get_json()
         with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
             account_id = DeviceRepository(db).get_account_id_by_device_id(device_id)
-            body = {'userUuid': account_id, 'deviceUuid': device_id, 'data': payload}
+        if account_id:
+            body = dict(
+                userUuid=account_id,
+                deviceUuid=device_id,
+                data=payload
+            )
             url = '{host}/{metric}'.format(host=self.metrics_service_host, metric=metric)
             requests.post(url, body)
-            return '', HTTPStatus.OK
+            response = '', HTTPStatus.OK
+        else:
+            response = '', HTTPStatus.NO_CONTENT
+        return response
