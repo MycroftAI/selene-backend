@@ -7,6 +7,7 @@ name = "pypi"
 flask = "*"
 flask-restful = "*"
 uwsgi = "*"
+schematics = "*"
 
 [dev-packages]
 selene = {editable = true,path = "./../../shared"}
