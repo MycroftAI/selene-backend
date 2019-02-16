@@ -6,7 +6,6 @@ name = "pypi"
 [packages]
 pyjwt = "*"
 pygithub = "*"
-flask-restful = "*"
 psycopg2-binary = "*"
 passlib = "*"
 pyhamcrest = "*"
