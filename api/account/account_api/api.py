@@ -1,9 +1,8 @@
 """Entry point for the API that supports the Mycroft Marketplace."""
 from flask import Flask
-from flask_restful import Api
 
-from selene.api import AccountEndpoint, AgreementsEndpoint, get_base_config
-from selene.api import JSON_MIMETYPE, output_json
+from selene.api import get_base_config, selene_api, SeleneResponse
+from selene.api.endpoints import AccountEndpoint, AgreementsEndpoint
 from selene.util.log import configure_logger
 
 _log = configure_logger('account_api')
@@ -11,9 +10,16 @@ _log = configure_logger('account_api')
 # Define the Flask application
 acct = Flask(__name__)
 acct.config.from_object(get_base_config())
+acct.response_class = SeleneResponse
+acct.register_blueprint(selene_api)
 
-# Define the API and its endpoints.
-acct_api = Api(acct)
-acct_api.representations[JSON_MIMETYPE] = output_json
-acct_api.add_resource(AccountEndpoint, '/api/account')
-acct_api.add_resource(AgreementsEndpoint, '/api/agreement/<agreement_type>')
+acct.add_url_rule(
+    '/api/account',
+    view_func=AccountEndpoint.as_view('account_api'),
+    methods=['GET', 'POST']
+)
+acct.add_url_rule(
+    '/api/agreement/<string:agreement_type>',
+    view_func=AgreementsEndpoint.as_view('agreements_api'),
+    methods=['GET']
+)
