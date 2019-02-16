@@ -21,9 +21,11 @@ class AgreementRepository(object):
     def __init__(self, db):
         self.db = db
         self.cursor = Cursor(db)
+        self.skip_no_agreement_error = False
 
     @use_transaction
     def add(self, agreement: Agreement) -> str:
+        self.skip_no_agreement_error = True
         expire_date = agreement.effective_date - timedelta(days=1)
         self.expire(agreement, expire_date)
         content_id = self._add_agreement_content(agreement.content)
@@ -121,7 +123,7 @@ class AgreementRepository(object):
                 )
             )
 
-        if not agreements:
+        if not agreements and not self.skip_no_agreement_error:
             _log.error('no agreements found with effective date of today')
 
         return agreements
