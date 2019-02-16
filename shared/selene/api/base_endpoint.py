@@ -3,9 +3,13 @@
 from http import HTTPStatus
 
 from flask import after_this_request, current_app, request
-from flask_restful import Resource
+from flask.views import MethodView
 
-from selene.data.account import Account, AccountRepository, RefreshTokenRepository
+from selene.data.account import (
+    Account,
+    AccountRepository,
+    RefreshTokenRepository
+)
 from selene.util.auth import (
     AuthenticationError,
     AuthenticationTokenGenerator,
@@ -21,7 +25,7 @@ class APIError(Exception):
     pass
 
 
-class SeleneEndpoint(Resource):
+class SeleneEndpoint(MethodView):
     """
     Abstract base class for Selene Flask Restful API calls.
 
