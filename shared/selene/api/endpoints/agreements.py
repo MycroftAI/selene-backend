@@ -4,7 +4,7 @@ from http import HTTPStatus
 
 from selene.data.account import AgreementRepository
 from selene.util.db import get_db_connection
-from .base_endpoint import SeleneEndpoint
+from ..base_endpoint import SeleneEndpoint
 
 
 class AgreementsEndpoint(SeleneEndpoint):
@@ -21,8 +21,9 @@ class AgreementsEndpoint(SeleneEndpoint):
             agreement = agreement_repository.get_active_for_type(
                 self.agreement_types[agreement_type]
             )
-            agreement = asdict(agreement)
-            del(agreement['effective_date'])
-            self.response = (agreement, HTTPStatus.OK)
+            if agreement is not None:
+                agreement = asdict(agreement)
+                del(agreement['effective_date'])
+            self.response = agreement, HTTPStatus.OK
 
         return self.response

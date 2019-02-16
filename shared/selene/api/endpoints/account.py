@@ -17,7 +17,7 @@ from selene.data.account import (
     TERMS_OF_USE
 )
 from selene.util.db import get_db_connection
-from .base_endpoint import SeleneEndpoint
+from ..base_endpoint import SeleneEndpoint
 
 
 def is_valid_membership(value):
@@ -36,17 +36,31 @@ class Login(Model):
     user_entered_email = EmailType()
     password = StringType()
 
+    def validate_user_entered_email(self, data, value):
+        if data['federated_email'] is None:
+            if value is None:
+                raise ValidationError(
+                    'either a federated login or an email address is required'
+                )
+
+    def validate_password(self, data, value):
+        if data['user_entered_email'] is not None:
+            if value is None:
+                raise ValidationError(
+                    'email address must be accompanied by a password'
+                )
+
 
 class Support(Model):
     open_dataset = BooleanType(required=True)
     membership = StringType(required=True, validators=[is_valid_membership])
     stripe_customer_id = StringType()
 
-    def validate_stripe_customer_id(self, data, value):
-        if data['membership'] != 'Maybe Later':
-            if not data['stripe_customer_id']:
-                raise ValidationError('Membership requires a stripe ID')
-        return value
+    # def validate_stripe_customer_id(self, data, value):
+    #     if data['membership'] != 'Maybe Later':
+    #         if not data['stripe_customer_id']:
+    #             raise ValidationError('Membership requires a stripe ID')
+    #     return value
 
 
 class AddAccountRequest(Model):
@@ -69,7 +83,7 @@ class AccountEndpoint(SeleneEndpoint):
         if self.authenticated:
             response_data = asdict(self.account)
             del (response_data['refresh_tokens'])
-            self.response = (response_data, HTTPStatus.OK)
+            self.response = response_data, HTTPStatus.OK
 
         return self.response
 
@@ -79,43 +93,39 @@ class AccountEndpoint(SeleneEndpoint):
         email_address, password = self._determine_login_method()
         self._add_account(email_address, password)
 
+        return 'Account added successfully', HTTPStatus.OK
+
     def _validate_request(self):
-        try:
-            add_request = AddAccountRequest(
-                display_name=self.request.form['displayName'],
-                privacy_policy=self.request.form['privacyPolicy'],
-                terms_of_use=self.request.form['termsOfUse'],
-                login=self._build_login_schematic(),
-                support=self._build_support_schematic()
-            )
-            add_request.validate()
-        except KeyError as ke:
-            error_msg = (
-                'post request missing an attribute necessary to create '
-                'an account' + str(ke)
-            )
-            self.response = dict(error=error_msg), HTTPStatus.BAD_REQUEST
-        except ValidationError as ve:
-            error_msg = ve.messages
-            self.response = dict(error=error_msg), HTTPStatus.BAD_REQUEST
+        add_request = AddAccountRequest(dict(
+            display_name=self.request_data.get('displayName'),
+            privacy_policy=self.request_data.get('privacyPolicy'),
+            terms_of_use=self.request_data.get('termsOfUse'),
+            login=self._build_login_schematic(),
+            support=self._build_support_schematic()
+        ))
+        add_request.validate()
 
     def _build_login_schematic(self) -> Login:
+        login = None
         login_data = self.request_data['login']
-        login = Login(
-            federated_email=login_data['federatedEmail'],
-            user_entered_email=login_data['userEnteredEmail'],
-            password=login_data['password']
-        )
+        if login_data is not None:
+            login = Login(dict(
+                federated_email=login_data.get('federatedEmail'),
+                user_entered_email=login_data.get('userEnteredEmail'),
+                password=login_data.get('password')
+            ))
 
         return login
 
     def _build_support_schematic(self):
-        support_data = self.request_data['support']
-        support = Support(
-            open_dataset=support_data['openDataset'],
-            membership=support_data['membership'],
-            stripe_customer_id=support_data['stripeCustomId']
-        )
+        support = None
+        support_data = self.request_data.get('support')
+        if support_data is not None:
+            support = Support(dict(
+                open_dataset=support_data.get('openDataset'),
+                membership=support_data.get('membership'),
+                stripe_customer_id=support_data.get('stripeCustomerId')
+            ))
 
         return support
 
