@@ -62,5 +62,5 @@ class AuthenticateInternalEndpoint(SeleneEndpoint):
         :param refresh_token: the token to install into the database.
         """
         with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
-            token_repo = RefreshTokenRepository(db, self.account)
+            token_repo = RefreshTokenRepository(db, self.account.id)
             token_repo.add_refresh_token(refresh_token)
