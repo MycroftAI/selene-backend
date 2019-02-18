@@ -3,9 +3,10 @@ from http import HTTPStatus
 import json
 
 from behave import given, then, when
-from hamcrest import assert_that, equal_to
+from hamcrest import assert_that, equal_to, has_item
 
 from selene.api.testing import generate_auth_tokens
+from selene.data.account import PRIVACY_POLICY
 
 
 @given('an authenticated user')
@@ -26,10 +27,20 @@ def validate_response(context):
         response_data['emailAddress'],
         equal_to(context.account.email_address)
     )
-    assert_that(response_data['id'], equal_to(context.account.id))
-    assert_that(response_data['subscription'], equal_to(
-        dict(type='monthly supporter', startDate=str(date.today()))
-    ))
-    assert_that(response_data['agreements'], equal_to(
-        [dict(name='terms', signatureDate=str(date.today()))]
-    ))
+    assert_that(
+        response_data['subscription']['type'],
+        equal_to('Monthly Supporter')
+    )
+    assert_that(
+        response_data['subscription']['startDate'],
+        equal_to(str(date.today()))
+    )
+    assert_that(
+        response_data['subscription'], has_item('id')
+    )
+
+    assert_that(len(response_data['agreements']), equal_to(1))
+    agreement = response_data['agreements'][0]
+    assert_that(agreement['type'], equal_to(PRIVACY_POLICY))
+    assert_that(agreement['acceptDate'], equal_to(str(date.today())))
+    assert_that(agreement, has_item('id'))

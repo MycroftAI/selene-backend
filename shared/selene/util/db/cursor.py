@@ -90,10 +90,12 @@ class Cursor(object):
             _log.debug(cursor.mogrify(db_request.sql, db_request.args))
             cursor.execute(db_request.sql, db_request.args)
             _log.debug(str(cursor.rowcount) + 'rows affected')
+            return cursor.rowcount
 
     def delete(self, db_request: DatabaseRequest):
         """Helper function for SQL delete statements"""
-        self._execute(db_request)
+        deleted_rows = self._execute(db_request)
+        return deleted_rows
 
     def insert(self, db_request: DatabaseRequest):
         """Helper functions for SQL insert statements"""
@@ -105,4 +107,5 @@ class Cursor(object):
 
     def update(self, db_request: DatabaseRequest):
         """Helper function for SQL update statements."""
-        self._execute(db_request)
+        updated_rows = self._execute(db_request)
+        return updated_rows

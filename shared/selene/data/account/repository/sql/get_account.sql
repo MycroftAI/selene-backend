@@ -11,8 +11,9 @@ WITH
         SELECT
             array_agg(
                 json_build_object(
-                    'name', ag.agreement,
-                    'signature_date', lower(aa.agreement_ts_range)::DATE
+                    'id', aa.id,
+                    'type', ag.agreement,
+                    'accept_date', aa.accept_date
                 )
             )
         FROM
@@ -20,13 +21,14 @@ WITH
             INNER JOIN account.agreement ag ON ag.id = aa.agreement_id
         WHERE
             aa.account_id = {account_id_resolver}
-            AND upper(aa.agreement_ts_range) IS NULL
     ),
     subscription AS (
         SELECT
             json_build_object(
+                'id', asub.id,
                 'type', s.subscription,
-                'start_date', lower(asub.subscription_ts_range)::DATE
+                'start_date', lower(asub.subscription_ts_range)::DATE,
+                'stripe_customer_id', asub.stripe_customer_id
             )
         FROM
             account.account_subscription asub
@@ -39,6 +41,7 @@ SELECT
     json_build_object(
         'id', id,
         'email_address', email_address,
+        'display_name', display_name,
         'subscription', (SELECT * FROM subscription),
         'refresh_tokens', (SELECT * FROM refresh_tokens),
         'agreements', (SELECT * FROM agreements)

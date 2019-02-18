@@ -14,11 +14,14 @@ def use_transaction(func):
     @wraps(func)
     def execute_in_transaction(*args, **kwargs):
         instance = args[0]
+        return_value = None
         if hasattr(instance, "db"):
             prev_autocommit = instance.db.autocommit
             instance.db.autocommit = False
             with instance.db:
-                func(*args, **kwargs)
+                return_value = func(*args, **kwargs)
             instance.db.autocommit = prev_autocommit
+
+        return return_value
 
     return execute_in_transaction

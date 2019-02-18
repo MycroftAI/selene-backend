@@ -3,7 +3,7 @@ from os import path
 
 from psycopg2 import connect
 
-MYCROFT_DB_DIR = '/Users/chrisveilleux/Mycroft/github/devops/db/mycroft'
+MYCROFT_DB_DIR = '/Users/chrisveilleux/Mycroft/github/selene-backend/db/mycroft'
 SCHEMAS = ('account', 'skill', 'device')
 DB_DESTROY_FILES = ('drop_db.sql', 'drop_roles.sql')
 DB_CREATE_FILES = ('create_db.sql', 'create_roles.sql')

@@ -11,12 +11,12 @@ setup(
     include_package_data=True,
     install_requires=[
         'flask',
-        'flask-restful',
         'passlib',
         'pygithub',
         'pyhamcrest',
         'pyjwt',
         'psycopg2-binary',
+        'schematics',
         'validator-collection'
     ]
 )
