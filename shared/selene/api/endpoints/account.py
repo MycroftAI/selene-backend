@@ -3,7 +3,7 @@ from dataclasses import asdict
 from datetime import date
 from http import HTTPStatus
 
-from flask import json
+from flask import json, jsonify
 from schematics import Model
 from schematics.exceptions import ValidationError
 from schematics.types import BooleanType, EmailType, ModelType, StringType
@@ -96,7 +96,7 @@ class AccountEndpoint(SeleneEndpoint):
         email_address, password = self._determine_login_method()
         self._add_account(email_address, password)
 
-        return 'Account added successfully', HTTPStatus.OK
+        return jsonify('Account added successfully'), HTTPStatus.OK
 
     def _validate_request(self):
         add_request = AddAccountRequest(dict(
