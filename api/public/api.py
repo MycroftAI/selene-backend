@@ -1,19 +1,23 @@
+import os
+
 from flask import Flask
 
 from selene.api import SeleneResponse, selene_api
 from selene.api.base_config import get_base_config
 
-from .public_api.endpoints.device import DeviceEndpoint
-from .public_api.endpoints.device_setting import DeviceSettingEndpoint
-from .public_api.endpoints.device_skill import DeviceSkillEndpoint
-from .public_api.endpoints.device_skills import DeviceSkillsEndpoint
-from .public_api.endpoints.device_subscription import DeviceSubscriptionEndpoint
-from .public_api.endpoints.open_weather_map import OpenWeatherMapEndpoint
-from .public_api.endpoints.wolfram_alpha import WolframAlphaEndpoint
-from .public_api.endpoints.google_stt import GoogleSTTEndpoint
+from public_api.endpoints.device import DeviceEndpoint
+from public_api.endpoints.device_setting import DeviceSettingEndpoint
+from public_api.endpoints.device_skill import DeviceSkillEndpoint
+from public_api.endpoints.device_skills import DeviceSkillsEndpoint
+from public_api.endpoints.device_subscription import DeviceSubscriptionEndpoint
+from public_api.endpoints.open_weather_map import OpenWeatherMapEndpoint
+from public_api.endpoints.wolfram_alpha import WolframAlphaEndpoint
+from public_api.endpoints.google_stt import GoogleSTTEndpoint
 
 public = Flask(__name__)
 public.config.from_object(get_base_config())
+public.config['GOOGLE_STT_KEY'] = os.environ['GOOGLE_STT_KEY']
+
 public.response_class = SeleneResponse
 public.register_blueprint(selene_api)
 

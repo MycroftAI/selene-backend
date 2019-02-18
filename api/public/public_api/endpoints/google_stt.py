@@ -10,7 +10,7 @@ class GoogleSTTEndpoint(SeleneEndpoint):
     """ Endpoint to send a flac audio file with voice and get back a utterance"""
     def __init__(self):
         super(GoogleSTTEndpoint, self).__init__()
-        self.google_stt_key = os.environ['GOOGLE_STT_KEY']
+        self.google_stt_key = self.config['GOOGLE_STT_KEY']
         self.recognizer = Recognizer()
 
     def post(self):
