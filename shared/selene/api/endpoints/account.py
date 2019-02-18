@@ -20,12 +20,6 @@ from selene.util.db import get_db_connection
 from ..base_endpoint import SeleneEndpoint
 
 
-def is_valid_membership(value):
-    valid_values = ('Monthly Supporter', 'Yearly Supporter', 'Maybe Later')
-    if value not in valid_values:
-        raise ValidationError('Must be one of: ' + ', '.join(valid_values))
-
-
 def agreement_accepted(value):
     if not value:
         raise ValidationError('agreement not accepted')
@@ -53,7 +47,10 @@ class Login(Model):
 
 class Support(Model):
     open_dataset = BooleanType(required=True)
-    membership = StringType(required=True, validators=[is_valid_membership])
+    membership = StringType(
+        required=True,
+        choices=('Monthly Supporter', 'Yearly Supporter', 'Maybe Later')
+    )
     stripe_customer_id = StringType()
 
     # def validate_stripe_customer_id(self, data, value):

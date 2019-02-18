@@ -5,8 +5,6 @@ import json
 from behave import then, when
 from hamcrest import assert_that, equal_to
 
-from selene.data.account import PRIVACY_POLICY
-
 
 @when('API request for Privacy Policy is made')
 def call_agreement_endpoint(context):
