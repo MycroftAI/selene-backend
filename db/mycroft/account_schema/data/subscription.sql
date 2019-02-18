@@ -1,6 +1,6 @@
 INSERT INTO
     account.subscription (subscription, rate, rate_period)
 VALUES
-    ('monthly supporter', 1.99, 'month'),
-    ('yearly supporter', 19.99, 'year')
+    ('Monthly Supporter', 1.99, 'month'),
+    ('Yearly Supporter', 19.99, 'year')
 ;

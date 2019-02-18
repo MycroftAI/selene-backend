@@ -4,6 +4,7 @@ CREATE TABLE account.agreement (
     version         text            NOT NULL,
     effective       daterange       NOT NULL,
     content_id      oid             NOT NULL,
+    insert_ts       TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
     EXCLUDE USING gist (agreement WITH =, effective WITH &&),
     UNIQUE (agreement, version)
 );
