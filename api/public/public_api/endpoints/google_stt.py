@@ -1,10 +1,9 @@
 import os
 from io import BytesIO
 
-from flask import jsonify
+from speech_recognition import AudioFile, Recognizer
 
 from selene.api import SeleneEndpoint
-from speech_recognition import AudioFile, Recognizer
 
 
 class GoogleSTTEndpoint(SeleneEndpoint):

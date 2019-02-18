@@ -1,5 +1,3 @@
-from flask import jsonify
-
 from selene.api import SeleneEndpoint
 
 from selene.data.skill import SkillRepository
