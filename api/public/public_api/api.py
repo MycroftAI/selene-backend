@@ -5,14 +5,14 @@ from flask import Flask
 from selene.api import SeleneResponse, selene_api
 from selene.api.base_config import get_base_config
 
-from public_api.endpoints.device import DeviceEndpoint
-from public_api.endpoints.device_setting import DeviceSettingEndpoint
-from public_api.endpoints.device_skill import DeviceSkillEndpoint
-from public_api.endpoints.device_skills import DeviceSkillsEndpoint
-from public_api.endpoints.device_subscription import DeviceSubscriptionEndpoint
-from public_api.endpoints.open_weather_map import OpenWeatherMapEndpoint
-from public_api.endpoints.wolfram_alpha import WolframAlphaEndpoint
-from public_api.endpoints.google_stt import GoogleSTTEndpoint
+from .endpoints.device import DeviceEndpoint
+from .endpoints.device_setting import DeviceSettingEndpoint
+from .endpoints.device_skill import DeviceSkillEndpoint
+from .endpoints.device_skills import DeviceSkillsEndpoint
+from .endpoints.device_subscription import DeviceSubscriptionEndpoint
+from .endpoints.open_weather_map import OpenWeatherMapEndpoint
+from .endpoints.wolfram_alpha import WolframAlphaEndpoint
+from .endpoints.google_stt import GoogleSTTEndpoint
 
 public = Flask(__name__)
 public.config.from_object(get_base_config())

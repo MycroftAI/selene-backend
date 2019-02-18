@@ -1,6 +1,6 @@
 from behave import fixture, use_fixture
 
-from api import public
+from public_api.api import public
 
 
 @fixture
