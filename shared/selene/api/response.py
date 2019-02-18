@@ -41,7 +41,7 @@ def coerce_response(response_data):
 class SeleneResponse(Response):
     @classmethod
     def force_type(cls, rv, environ=None):
-        if isinstance(rv, dict):
+        if isinstance(rv, dict) or isinstance(rv, list) or is_dataclass(rv):
             reformat = coerce_response(rv)
             rv = jsonify(reformat)
         return super(SeleneResponse, cls).force_type(rv, environ)

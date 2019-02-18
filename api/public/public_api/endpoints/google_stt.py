@@ -1,6 +1,8 @@
 import os
 from io import BytesIO
 
+from flask import jsonify
+
 from selene.api import SeleneEndpoint
 from speech_recognition import AudioFile, Recognizer
 
