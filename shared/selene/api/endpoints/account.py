@@ -19,6 +19,12 @@ from selene.data.account import (
 from selene.util.db import get_db_connection
 from ..base_endpoint import SeleneEndpoint
 
+membeship_types = {
+    'MONTHLY SUPPORTER': 'Monthly Supporter',
+    'YEARLY SUPPORTER': 'Yearly Supporter',
+    'MAYBE LATER': 'Maybe Later'
+}
+
 
 def agreement_accepted(value):
     if not value:
@@ -49,7 +55,7 @@ class Support(Model):
     open_dataset = BooleanType(required=True)
     membership = StringType(
         required=True,
-        choices=('Monthly Supporter', 'Yearly Supporter', 'Maybe Later')
+        choices=('MONTHLY SUPPORTER', 'YEARLY SUPPORTER', 'MAYBE LATER')
     )
     stripe_customer_id = StringType()
 
@@ -138,6 +144,9 @@ class AccountEndpoint(SeleneEndpoint):
         return email_address, password
 
     def _add_account(self, email_address, password):
+        membership_type = membeship_types[
+            self.request_data['support']['membership']
+        ]
         account = Account(
             email_address=email_address,
             display_name=self.request_data['displayName'],
@@ -146,7 +155,7 @@ class AccountEndpoint(SeleneEndpoint):
                 AccountAgreement(type=TERMS_OF_USE, accept_date=date.today())
             ],
             subscription=AccountSubscription(
-                type=self.request_data['support']['membership'],
+                type=membership_type,
                 start_date=date.today(),
                 stripe_customer_id=self.request_data['support']['stripeCustomerId']
             )
