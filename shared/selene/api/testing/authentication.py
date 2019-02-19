@@ -5,34 +5,54 @@ from selene.data.account import (
     AccountRepository,
     RefreshTokenRepository
 )
-from selene.util.auth import AuthenticationTokenGenerator
+from selene.util.auth import AuthenticationToken
 from selene.util.db import get_db_connection
 
 ACCESS_TOKEN_COOKIE_KEY = 'seleneAccess'
+ONE_MINUTE = 60
+TWO_MINUTES = 120
 REFRESH_TOKEN_COOKIE_KEY = 'seleneRefresh'
 
 
-def generate_auth_tokens(context):
-    token_generator = AuthenticationTokenGenerator(
-        context.account.id,
+def generate_access_token(context, expire=False):
+    access_token = AuthenticationToken(
         context.client_config['ACCESS_SECRET'],
-        context.client_config['REFRESH_SECRET']
+        ONE_MINUTE
     )
+    access_token.account_id = context.account.id
+    if not expire:
+        access_token.generate()
+    context.access_token = access_token
+
     context.client.set_cookie(
         context.client_config['DOMAIN'],
         ACCESS_TOKEN_COOKIE_KEY,
-        token_generator.access_token
+        access_token.jwt,
+        max_age=0 if expire else ONE_MINUTE
     )
+
+
+def generate_refresh_token(context, expire=False):
+    account_id = context.account.id
+    refresh_token = AuthenticationToken(
+        context.client_config['REFRESH_SECRET'],
+        TWO_MINUTES
+    )
+    refresh_token.account_id = account_id
+    if not expire:
+        refresh_token.generate()
+    context.refresh_token = refresh_token
+
     context.client.set_cookie(
         context.client_config['DOMAIN'],
         REFRESH_TOKEN_COOKIE_KEY,
-        token_generator.refresh_token
+        refresh_token.jwt,
+        max_age=0 if expire else TWO_MINUTES
     )
-    context.request_refresh_token = token_generator.refresh_token
 
     with get_db_connection(context.client_config['DB_CONNECTION_POOL']) as db:
-        token_repository = RefreshTokenRepository(db, context.account.id)
-        token_repository.add_refresh_token(token_generator.refresh_token)
+        token_repository = RefreshTokenRepository(db, account_id)
+        token_repository.add_refresh_token(refresh_token.jwt)
 
 
 def validate_token_cookies(context, expired=False):

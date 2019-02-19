@@ -4,5 +4,5 @@ Feature: Manage account profiles
 
   Scenario: Retrieve authenticated user's account
     Given an authenticated user
-     When account endpoint is called to get user profile
+     When a user requests their profile
      Then user profile is returned
