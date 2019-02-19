@@ -1,11 +1,9 @@
 """Define the API that will support Mycroft single sign on (SSO)."""
 
-from logging import getLogger
-
 from flask import Flask, request
-from flask_restful import Api
 
-from selene.api.base_config import get_base_config
+from selene.api import get_base_config, selene_api, SeleneResponse
+from selene.util.log import configure_logger
 
 from .endpoints import (
     AuthenticateInternalEndpoint,
@@ -13,18 +11,30 @@ from .endpoints import (
     ValidateFederatedEndpoint
 )
 
-_log = getLogger('sso_api')
+_log = configure_logger('sso_api')
 
-# Initialize the Flask application and the Flask Restful API
+# Define the Flask application
 sso = Flask(__name__)
 sso.config.from_object(get_base_config())
+sso.response_class = SeleneResponse
+sso.register_blueprint(selene_api)
 
-# Initialize the REST API and define the endpoints
-sso_api = Api(sso, catch_all_404s=True)
-sso_api.add_resource(AuthenticateInternalEndpoint, '/api/internal-login')
-sso_api.add_resource(ValidateFederatedEndpoint, '/api/validate-federated')
-
-sso_api.add_resource(LogoutEndpoint, '/api/logout')
+# Define the endpoints
+sso.add_url_rule(
+    '/api/internal-login',
+    view_func=AuthenticateInternalEndpoint.as_view('internal_login'),
+    methods=['GET']
+)
+sso.add_url_rule(
+    '/api/validate-federated',
+    view_func=ValidateFederatedEndpoint.as_view('federated_login'),
+    methods=['POST']
+)
+sso.add_url_rule(
+    '/api/logout',
+    view_func=LogoutEndpoint.as_view('logout'),
+    methods=['GET']
+)
 
 
 def add_cors_headers(response):

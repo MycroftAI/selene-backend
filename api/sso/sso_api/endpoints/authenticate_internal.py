@@ -18,20 +18,16 @@ class AuthenticateInternalEndpoint(SeleneEndpoint):
     """Sign in a user with an email address and password."""
     def __init__(self):
         super(AuthenticateInternalEndpoint, self).__init__()
-        self.response_status_code = HTTPStatus.OK
         self.account: Account = None
 
     def get(self):
         """Process HTTP GET request."""
-        try:
-            self._authenticate_credentials()
-            access_token, refresh_token = self._generate_tokens()
-            self._add_refresh_token_to_db(refresh_token)
-            self._set_token_cookies(access_token, refresh_token)
-        except AuthenticationError as ae:
-            self.response = (str(ae), HTTPStatus.UNAUTHORIZED)
-        else:
-            self.response = ({}, HTTPStatus.OK)
+        self._authenticate_credentials()
+        self._generate_tokens()
+        self._add_refresh_token_to_db()
+        self._set_token_cookies()
+
+        self.response = dict(result='user authenticated'), HTTPStatus.OK
 
         return self.response
 
@@ -52,15 +48,15 @@ class AuthenticateInternalEndpoint(SeleneEndpoint):
             )
         if self.account is None:
             raise AuthenticationError('provided credentials not found')
+        self.access_token.account_id = self.account.id
+        self.refresh_token.account_id = self.account.id
 
-    def _add_refresh_token_to_db(self, refresh_token: str):
+    def _add_refresh_token_to_db(self):
         """Track refresh tokens in the database.
 
         We need to store the value of the refresh token in the database so
         that we can validate it when it is used to request new tokens.
-
-        :param refresh_token: the token to install into the database.
         """
         with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
             token_repo = RefreshTokenRepository(db, self.account.id)
-            token_repo.add_refresh_token(refresh_token)
+            token_repo.add_refresh_token(self.refresh_token.jwt)
