@@ -15,4 +15,4 @@ def handle_data_error(error):
 
 @selene_api.app_errorhandler(AuthenticationError)
 def handle_data_error(error):
-    return str(error), HTTPStatus.UNAUTHORIZED
+    return dict(error=str(error)), HTTPStatus.UNAUTHORIZED
