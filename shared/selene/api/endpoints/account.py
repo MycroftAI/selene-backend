@@ -83,10 +83,9 @@ class AccountEndpoint(SeleneEndpoint):
     def get(self):
         """Process HTTP GET request for an account."""
         self._authenticate()
-        if self.authenticated:
-            response_data = asdict(self.account)
-            del (response_data['refresh_tokens'])
-            self.response = response_data, HTTPStatus.OK
+        response_data = asdict(self.account)
+        del (response_data['refresh_tokens'])
+        self.response = response_data, HTTPStatus.OK
 
         return self.response
 
