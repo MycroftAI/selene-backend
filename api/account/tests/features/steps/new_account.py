@@ -19,7 +19,7 @@ new_account_request = dict(
     ),
     support=dict(
         openDataset=True,
-        membership='Monthly Supporter',
+        membership='MONTHLY SUPPORTER',
         stripeCustomerId='barstripe'
     )
 )
