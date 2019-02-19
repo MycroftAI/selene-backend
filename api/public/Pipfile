@@ -4,12 +4,13 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
-selene = {path = "./../../shared"}
+selene = {editable = true,path = "./../../shared"}
+behave = "*"
 
 [packages]
 flask = "*"
-flask-restful = "*"
 requests = "*"
+SpeechRecognition = "*"
 
 [requires]
 python_version = "3.7"

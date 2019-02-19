@@ -13,3 +13,4 @@ class DeviceSkillsEndpoint(SeleneEndpoint):
     def get(self, device_id):
         with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
             return SkillRepository(db).get_skill_settings_by_device_id(device_id)
+
