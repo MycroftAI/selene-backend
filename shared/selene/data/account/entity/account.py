@@ -24,7 +24,7 @@ class AccountSubscription(object):
 class Account(object):
     """Representation of a Mycroft user account."""
     email_address: str
-    display_name: str
+    username: str
     agreements: List[AccountAgreement]
     subscription: AccountSubscription
     id: str = None

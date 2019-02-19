@@ -9,7 +9,7 @@ from selene.data.account import AccountRepository, PRIVACY_POLICY, TERMS_OF_USE
 from selene.util.db import get_db_connection
 
 new_account_request = dict(
-    displayName='barfoo',
+    username='barfoo',
     termsOfUse=True,
     privacyPolicy=True,
     login=dict(
@@ -59,7 +59,7 @@ def check_db_for_account(context):
         assert_that(
             account.email_address, equal_to('bar@mycroft.ai')
         )
-        assert_that(account.display_name, equal_to('barfoo'))
+        assert_that(account.username, equal_to('barfoo'))
         assert_that(account.subscription.type, equal_to('Monthly Supporter'))
         assert_that(
             account.subscription.stripe_customer_id,

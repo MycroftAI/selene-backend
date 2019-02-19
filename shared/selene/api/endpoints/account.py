@@ -67,7 +67,7 @@ class Support(Model):
 
 
 class AddAccountRequest(Model):
-    display_name = StringType(required=True)
+    username = StringType(required=True)
     privacy_policy = BooleanType(required=True, validators=[agreement_accepted])
     terms_of_use = BooleanType(required=True, validators=[agreement_accepted])
     login = ModelType(Login)
@@ -99,7 +99,7 @@ class AccountEndpoint(SeleneEndpoint):
 
     def _validate_request(self):
         add_request = AddAccountRequest(dict(
-            display_name=self.request_data.get('displayName'),
+            username=self.request_data.get('username'),
             privacy_policy=self.request_data.get('privacyPolicy'),
             terms_of_use=self.request_data.get('termsOfUse'),
             login=self._build_login_schematic(),
@@ -148,7 +148,7 @@ class AccountEndpoint(SeleneEndpoint):
         ]
         account = Account(
             email_address=email_address,
-            display_name=self.request_data['displayName'],
+            username=self.request_data['username'],
             agreements=[
                 AccountAgreement(type=PRIVACY_POLICY, accept_date=date.today()),
                 AccountAgreement(type=TERMS_OF_USE, accept_date=date.today())

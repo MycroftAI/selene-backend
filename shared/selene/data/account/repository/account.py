@@ -48,7 +48,7 @@ class AccountRepository(object):
             args=dict(
                 email_address=account.email_address,
                 password=encrypted_password,
-                display_name=account.display_name
+                username=account.username
             )
         )
         result = self.cursor.insert_returning(request)
