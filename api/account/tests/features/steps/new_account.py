@@ -50,11 +50,6 @@ def create_account_without_email(context):
     )
 
 
-@then('the request will be successful')
-def check_request_success(context):
-    assert_that(context.response.status_code, equal_to(HTTPStatus.OK))
-
-
 @then('the account will be added to the system')
 def check_db_for_account(context):
     with get_db_connection(context.client_config['DB_CONNECTION_POOL']) as db:
@@ -74,8 +69,3 @@ def check_db_for_account(context):
         for agreement in account.agreements:
             assert_that(agreement.type, is_in((PRIVACY_POLICY, TERMS_OF_USE)))
             assert_that(agreement.accept_date, equal_to(str(date.today())))
-
-
-@then('the request will fail with a bad request error')
-def check_for_bad_request(context):
-    assert_that(context.response.status_code, equal_to(HTTPStatus.BAD_REQUEST))
