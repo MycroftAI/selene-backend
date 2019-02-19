@@ -28,11 +28,9 @@ def acct_api_client(context):
 
 def before_feature(context, _):
     use_fixture(acct_api_client, context)
-    os.environ['SALT'] = 'testsalt'
 
 
 def before_scenario(context, _):
-
     with get_db_connection(context.client_config['DB_CONNECTION_POOL']) as db:
         _add_agreements(context, db)
         _add_account(context, db)
