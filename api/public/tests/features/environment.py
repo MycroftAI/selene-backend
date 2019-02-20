@@ -4,8 +4,14 @@ from datetime import date, timedelta
 from behave import fixture, use_fixture
 
 from public_api.api import public
-from selene.data.account import Account, AccountRepository, AccountAgreement, PRIVACY_POLICY, TERMS_OF_USE, Agreement, \
-    AgreementRepository
+from selene.data.account import (
+    Account,
+    AccountRepository,
+    AccountAgreement,
+    PRIVACY_POLICY,
+    TERMS_OF_USE,
+    Agreement,
+    AgreementRepository)
 from selene.data.device import DeviceRepository
 from selene.data.device.entity.text_to_speech import TextToSpeech
 from selene.data.device.entity.wake_word import WakeWord

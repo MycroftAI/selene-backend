@@ -20,10 +20,11 @@ def add_device(context):
         'wake_word_id': context.wake_word_id,
         'text_to_speech_id': context.text_to_speech_id
     }
-    response = context.client.post('/api/account/{account_id}/device?code={code}'
-                                   .format(account_id=context.account.id, code=context.pairing['code']),
-                                   data=json.dumps(device),
-                                   content_type='application_json')
+    response = context.client.post(
+        '/api/account/{account_id}/device?code={code}'
+            .format(account_id=context.account.id, code=context.pairing['code']),
+        data=json.dumps(device),
+        content_type='application_json')
     context.device_id = response.data.decode('utf-8')
 
 

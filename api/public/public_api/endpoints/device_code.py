@@ -44,9 +44,10 @@ class DeviceCodeEndpoint(SeleneEndpoint):
         if self.cache.set_if_not_exists_with_expiration(self._code_key(code),
                                                         value=pairing_json,
                                                         expiration=self.device_pairing_time):
-            return pairing
+            response = pairing
         else:
-            return self._create(state)
+            response = self._create(state)
+        return response
 
     @staticmethod
     def _code_key(code):

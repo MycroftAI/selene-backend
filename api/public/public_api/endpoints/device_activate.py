@@ -37,12 +37,7 @@ class DeviceActivateEndpoint(SeleneEndpoint):
             pairing = self._get_pairing_session(device_activate)
             if pairing:
                 device_id = pairing['uuid']
-                self._activate(
-                    device_id,
-                    str(device_activate.platform),
-                    str(device_activate.enclosure_version),
-                    str(device_activate.core_version)
-                )
+                self._activate(device_id, device_activate)
                 response = self._generate_login(device_id), HTTPStatus.OK
             else:
                 response = '', HTTPStatus.NO_CONTENT
@@ -61,22 +56,27 @@ class DeviceActivateEndpoint(SeleneEndpoint):
                 self.cache.delete(self._token_key(token))
                 return pairing
 
-    def _activate(self, device_id: str, platform: str, enclosure_version: str, core_version: str):
+    def _activate(self, device_id: str, device_activate: DeviceActivate):
         """Updates a device in the database with the core version, platform and enclosure_version fields"""
         with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
-            DeviceRepository(db).update_device(device_id, platform, enclosure_version, core_version)
+            DeviceRepository(db).update_device(
+                device_id,
+                str(device_activate.platform),
+                str(device_activate.enclosure_version),
+                str(device_activate.core_version)
+            )
 
     def _generate_login(self, device_id: str):
         self.sha512.update(bytes(str(uuid.uuid4()), 'utf-8'))
         access = self.sha512.hexdigest()
         self.sha512.update(bytes(str(uuid.uuid4()), 'utf-8'))
         refresh = self.sha512.hexdigest()
-        login = {
-            'uuid': device_id,
-            'accessToken': access,
-            'refreshToken': refresh,
-            'expiration': self.ONE_DAY
-        }
+        login = dict(
+            uuid=device_id,
+            accessToken= access,
+            refreshToken=refresh,
+            expiration=self.ONE_DAY
+        )
         login_json = json.dumps(login)
         # Storing device access token for one:
         self.cache.set_with_expiration('device.session:{uuid}'.format(uuid=device_id), login_json, self.ONE_DAY)
