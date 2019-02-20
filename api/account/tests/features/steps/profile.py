@@ -5,16 +5,17 @@ import json
 from behave import given, then, when
 from hamcrest import assert_that, equal_to, has_item
 
-from selene.api.testing import generate_auth_tokens
+from selene.api.testing import generate_access_token, generate_refresh_token
 from selene.data.account import PRIVACY_POLICY
 
 
 @given('an authenticated user')
 def setup_authenticated_user(context):
-    generate_auth_tokens(context)
+    generate_access_token(context)
+    generate_refresh_token(context)
 
 
-@when('account endpoint is called to get user profile')
+@when('a user requests their profile')
 def call_account_endpoint(context):
     context.response = context.client.get('/api/account')
 

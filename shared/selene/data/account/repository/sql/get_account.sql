@@ -41,7 +41,7 @@ SELECT
     json_build_object(
         'id', id,
         'email_address', email_address,
-        'display_name', display_name,
+        'username', username,
         'subscription', (SELECT * FROM subscription),
         'refresh_tokens', (SELECT * FROM refresh_tokens),
         'agreements', (SELECT * FROM agreements)

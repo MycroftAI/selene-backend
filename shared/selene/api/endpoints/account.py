@@ -3,7 +3,7 @@ from dataclasses import asdict
 from datetime import date
 from http import HTTPStatus
 
-from flask import json
+from flask import json, jsonify
 from schematics import Model
 from schematics.exceptions import ValidationError
 from schematics.types import BooleanType, EmailType, ModelType, StringType
@@ -67,7 +67,7 @@ class Support(Model):
 
 
 class AddAccountRequest(Model):
-    display_name = StringType(required=True)
+    username = StringType(required=True)
     privacy_policy = BooleanType(required=True, validators=[agreement_accepted])
     terms_of_use = BooleanType(required=True, validators=[agreement_accepted])
     login = ModelType(Login)
@@ -83,10 +83,9 @@ class AccountEndpoint(SeleneEndpoint):
     def get(self):
         """Process HTTP GET request for an account."""
         self._authenticate()
-        if self.authenticated:
-            response_data = asdict(self.account)
-            del (response_data['refresh_tokens'])
-            self.response = response_data, HTTPStatus.OK
+        response_data = asdict(self.account)
+        del (response_data['refresh_tokens'])
+        self.response = response_data, HTTPStatus.OK
 
         return self.response
 
@@ -96,11 +95,11 @@ class AccountEndpoint(SeleneEndpoint):
         email_address, password = self._determine_login_method()
         self._add_account(email_address, password)
 
-        return 'Account added successfully', HTTPStatus.OK
+        return jsonify('Account added successfully'), HTTPStatus.OK
 
     def _validate_request(self):
         add_request = AddAccountRequest(dict(
-            display_name=self.request_data.get('displayName'),
+            username=self.request_data.get('username'),
             privacy_policy=self.request_data.get('privacyPolicy'),
             terms_of_use=self.request_data.get('termsOfUse'),
             login=self._build_login_schematic(),
@@ -149,7 +148,7 @@ class AccountEndpoint(SeleneEndpoint):
         ]
         account = Account(
             email_address=email_address,
-            display_name=self.request_data['displayName'],
+            username=self.request_data['username'],
             agreements=[
                 AccountAgreement(type=PRIVACY_POLICY, accept_date=date.today()),
                 AccountAgreement(type=TERMS_OF_USE, accept_date=date.today())

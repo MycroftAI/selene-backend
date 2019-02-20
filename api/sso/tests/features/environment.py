@@ -38,29 +38,28 @@ def before_scenario(context, _):
 
 
 def _add_agreement(context, db):
-    context.agreement = Agreement(
+    agreement = Agreement(
         type='Privacy Policy',
-        version='1',
-        content='this is Privacy Policy version 1',
+        version='999',
+        content='this is Privacy Policy version 999',
         effective_date=date.today() - timedelta(days=5)
     )
     agreement_repository = AgreementRepository(db)
-    agreement_repository.add(context.agreement)
+    agreement_repository.add(agreement)
+    context.agreement = agreement_repository.get_active_for_type(PRIVACY_POLICY)
 
 
 def _add_account(context, db):
     test_account = Account(
-        id=None,
         email_address='foo@mycroft.ai',
-        username='foobar',
-        refresh_tokens=None,
+        display_name='foobar',
         subscription=AccountSubscription(
-            type='monthly supporter',
-            start_date=None,
+            type='Monthly Supporter',
+            start_date=date.today(),
             stripe_customer_id='foo'
         ),
         agreements=[
-            AccountAgreement(name=PRIVACY_POLICY, accept_date=None)
+            AccountAgreement(type=PRIVACY_POLICY, accept_date=date.today())
         ]
     )
     acct_repository = AccountRepository(db)

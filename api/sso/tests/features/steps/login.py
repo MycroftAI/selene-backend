@@ -62,4 +62,5 @@ def check_for_login_fail(context, error_message):
         equal_to('*')
     )
     assert_that(context.response.is_json, equal_to(True))
-    assert_that(context.response.get_json(), equal_to(error_message))
+    response_json = context.response.get_json()
+    assert_that(response_json['error'], equal_to(error_message))

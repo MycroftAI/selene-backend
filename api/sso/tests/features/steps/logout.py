@@ -3,7 +3,8 @@ from behave import given, then, when
 from hamcrest import assert_that, equal_to, has_item, is_not
 
 from selene.api.testing import (
-    generate_auth_tokens,
+    generate_access_token,
+    generate_refresh_token,
     get_account,
     validate_token_cookies
 )
@@ -16,7 +17,8 @@ def save_email(context, email):
 
 @when('user attempts to logout')
 def call_logout_endpoint(context):
-    generate_auth_tokens(context)
+    generate_access_token(context)
+    generate_refresh_token(context)
     context.response = context.client.get('/api/logout')
 
 
@@ -39,7 +41,7 @@ def check_refresh_token_removed(context):
     account = get_account(context)
     assert_that(
         account.refresh_tokens,
-        is_not(has_item(context.request_refresh_token))
+        is_not(has_item(context.refresh_token))
     )
 
 

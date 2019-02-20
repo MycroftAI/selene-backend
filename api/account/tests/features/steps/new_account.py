@@ -9,7 +9,7 @@ from selene.data.account import AccountRepository, PRIVACY_POLICY, TERMS_OF_USE
 from selene.util.db import get_db_connection
 
 new_account_request = dict(
-    displayName='barfoo',
+    username='barfoo',
     termsOfUse=True,
     privacyPolicy=True,
     login=dict(
@@ -19,7 +19,7 @@ new_account_request = dict(
     ),
     support=dict(
         openDataset=True,
-        membership='Monthly Supporter',
+        membership='MONTHLY SUPPORTER',
         stripeCustomerId='barstripe'
     )
 )
@@ -50,11 +50,6 @@ def create_account_without_email(context):
     )
 
 
-@then('the request will be successful')
-def check_request_success(context):
-    assert_that(context.response.status_code, equal_to(HTTPStatus.OK))
-
-
 @then('the account will be added to the system')
 def check_db_for_account(context):
     with get_db_connection(context.client_config['DB_CONNECTION_POOL']) as db:
@@ -64,7 +59,7 @@ def check_db_for_account(context):
         assert_that(
             account.email_address, equal_to('bar@mycroft.ai')
         )
-        assert_that(account.display_name, equal_to('barfoo'))
+        assert_that(account.username, equal_to('barfoo'))
         assert_that(account.subscription.type, equal_to('Monthly Supporter'))
         assert_that(
             account.subscription.stripe_customer_id,
@@ -74,8 +69,3 @@ def check_db_for_account(context):
         for agreement in account.agreements:
             assert_that(agreement.type, is_in((PRIVACY_POLICY, TERMS_OF_USE)))
             assert_that(agreement.accept_date, equal_to(str(date.today())))
-
-
-@then('the request will fail with a bad request error')
-def check_for_bad_request(context):
-    assert_that(context.response.status_code, equal_to(HTTPStatus.BAD_REQUEST))

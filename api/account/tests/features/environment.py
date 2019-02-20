@@ -1,5 +1,4 @@
 from datetime import date, timedelta
-import os
 
 from behave import fixture, use_fixture
 
@@ -28,11 +27,9 @@ def acct_api_client(context):
 
 def before_feature(context, _):
     use_fixture(acct_api_client, context)
-    os.environ['SALT'] = 'testsalt'
 
 
 def before_scenario(context, _):
-
     with get_db_connection(context.client_config['DB_CONNECTION_POOL']) as db:
         _add_agreements(context, db)
         _add_account(context, db)
@@ -61,7 +58,7 @@ def _add_agreements(context, db):
 def _add_account(context, db):
     context.account = Account(
         email_address='foo@mycroft.ai',
-        display_name='foobar',
+        username='foobar',
         refresh_tokens=[],
         subscription=AccountSubscription(
             type='Monthly Supporter',

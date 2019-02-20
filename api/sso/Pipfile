@@ -5,12 +5,11 @@ name = "pypi"
 
 [packages]
 flask = "*"
-flask-restful = "*"
 certifi = "*"
 uwsgi = "*"
 
 [dev-packages]
-selene = {path = "./../../shared"}
+selene = {editable = true,path = "./../../shared"}
 behave = "*"
 pyhamcrest = "*"
 
