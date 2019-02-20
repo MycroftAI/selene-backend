@@ -28,7 +28,7 @@ def build_new_account_request(context):
 @given('user opts out of membership')
 def add_maybe_later_membership(context):
     context.new_account_request['support'].update(
-        membership='MAYBE LATER',
+        membership='Maybe Later',
         stripeCustomerId=None
     )
 
@@ -36,7 +36,7 @@ def add_maybe_later_membership(context):
 @given('user opts into a membership')
 def change_membership_option(context):
     context.new_account_request['support'].update(
-        membership='MONTHLY SUPPORTER',
+        membership='Monthly Supporter',
         stripeCustomerId='barstripe'
     )
 

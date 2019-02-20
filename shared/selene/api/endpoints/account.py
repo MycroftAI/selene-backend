@@ -19,11 +19,9 @@ from selene.data.account import (
 from selene.util.db import get_db_connection
 from ..base_endpoint import SeleneEndpoint
 
-membership_types = {
-    'MONTHLY SUPPORTER': 'Monthly Supporter',
-    'YEARLY SUPPORTER': 'Yearly Supporter',
-    'MAYBE LATER': 'Maybe Later'
-}
+MONTHLY_MEMBERSHIP = 'Monthly Supporter'
+YEARLY_MEMBERSHIP = 'Yearly Supporter'
+NO_MEMBERSHIP = 'Maybe Later'
 
 
 def agreement_accepted(value):
@@ -55,12 +53,12 @@ class Support(Model):
     open_dataset = BooleanType(required=True)
     membership = StringType(
         required=True,
-        choices=('MONTHLY SUPPORTER', 'YEARLY SUPPORTER', 'MAYBE LATER')
+        choices=(MONTHLY_MEMBERSHIP, YEARLY_MEMBERSHIP, NO_MEMBERSHIP)
     )
     stripe_customer_id = StringType()
 
     def validate_stripe_customer_id(self, data, value):
-        if data['membership'] != 'MAYBE LATER':
+        if data['membership'] != NO_MEMBERSHIP:
             if not data['stripe_customer_id']:
                 raise ValidationError('Membership requires a stripe ID')
         return value
@@ -143,11 +141,9 @@ class AccountEndpoint(SeleneEndpoint):
         return email_address, password
 
     def _add_account(self, email_address, password):
-        membership_type = membership_types[
-            self.request_data['support']['membership']
-        ]
+        membership_type = self.request_data['support']['membership']
         subscription = None
-        if membership_type != 'Maybe Later':
+        if membership_type != NO_MEMBERSHIP:
             stripe_id = self.request_data['support']['stripeCustomerId']
             subscription = AccountSubscription(
                 type=membership_type,

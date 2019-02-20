@@ -8,7 +8,7 @@ Feature: Add a new account
      Then the request will be successful
       And the account will be added to the system with a membership
 
-  Scenario: Successful account addition without  membership
+  Scenario: Successful account addition without membership
     Given a user completes on-boarding
       And user opts out of membership
      When the new account request is submitted
