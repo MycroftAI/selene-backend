@@ -28,3 +28,7 @@ class SeleneCache(object):
     def delete(self, key):
         """Deletes a key from the cache"""
         return self.redis.delete(key)
+
+    def set(self, key, value):
+        """Sets a key with a given value"""
+        return self.redis.set(name=key, value=value)

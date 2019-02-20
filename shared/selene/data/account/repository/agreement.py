@@ -26,7 +26,7 @@ class AgreementRepository(object):
     @use_transaction
     def add(self, agreement: Agreement) -> str:
         self.skip_no_agreement_error = True
-        expire_date = agreement.effective_date - timedelta(days=1)
+        expire_date = agreement.effective_date + timedelta(days=1)
         self.expire(agreement, expire_date)
         content_id = self._add_agreement_content(agreement.content)
         agreement_id = self._add_agreement(agreement, content_id)

@@ -3,7 +3,7 @@ from os import path
 
 from psycopg2 import connect
 
-MYCROFT_DB_DIR = '/Users/chrisveilleux/Mycroft/github/selene-backend/db/mycroft'
+MYCROFT_DB_DIR = path.join(path.abspath('..'), 'mycroft')
 SCHEMAS = ('account', 'skill', 'device')
 DB_DESTROY_FILES = ('drop_db.sql', 'drop_roles.sql')
 DB_CREATE_FILES = ('create_db.sql', 'create_roles.sql')
@@ -53,7 +53,7 @@ def get_sql_from_file(file_path: str) -> str:
 
 class PostgresDB(object):
     def __init__(self, dbname, user):
-        self.db = connect(dbname=dbname, user=user)
+        self.db = connect(dbname=dbname, user=user, host='127.0.0.1')
         self.db.autocommit = True
 
     def close_db(self):
@@ -64,7 +64,7 @@ class PostgresDB(object):
         cursor.execute(sql)
 
 
-postgres_db = PostgresDB(dbname='postgres', user='chrisveilleux')
+postgres_db = PostgresDB(dbname='postgres', user='postgres')
 
 # Destroy any objects we will be creating later.
 for db_destroy_file in DB_DESTROY_FILES:
@@ -80,7 +80,7 @@ for db_setup_file in DB_CREATE_FILES:
 
 postgres_db.close_db()
 
-mycroft_db = PostgresDB(dbname='mycroft', user='chrisveilleux')
+mycroft_db = PostgresDB(dbname='mycroft', user='postgres')
 
 mycroft_db.execute_sql(
     get_sql_from_file(path.join('create_extensions.sql'))

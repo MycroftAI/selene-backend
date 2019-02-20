@@ -4,6 +4,7 @@ from flask import Flask
 
 from selene.api import SeleneResponse, selene_api
 from selene.api.base_config import get_base_config
+from selene.util.cache import SeleneCache
 
 from .endpoints.device import DeviceEndpoint
 from .endpoints.device_setting import DeviceSettingEndpoint
@@ -15,10 +16,12 @@ from .endpoints.wolfram_alpha import WolframAlphaEndpoint
 from .endpoints.google_stt import GoogleSTTEndpoint
 from .endpoints.device_code import DeviceCodeEndpoint
 from .endpoints.device_activate import DeviceActivateEndpoint
+from .endpoints.account_device import AccountDeviceEndpoint
 
 public = Flask(__name__)
 public.config.from_object(get_base_config())
 public.config['GOOGLE_STT_KEY'] = os.environ['GOOGLE_STT_KEY']
+public.config['SELENE_CACHE'] = SeleneCache()
 
 public.response_class = SeleneResponse
 public.register_blueprint(selene_api)
@@ -75,5 +78,10 @@ public.add_url_rule(
 public.add_url_rule(
     '/device/activate',
     view_func=DeviceActivateEndpoint.as_view('device_activate_api'),
+    methods=['POST']
+)
+public.add_url_rule(
+    '/api/account/<string:account_id>/device',
+    view_func=AccountDeviceEndpoint.as_view('account_device_api'),
     methods=['POST']
 )

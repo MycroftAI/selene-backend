@@ -1,6 +1,8 @@
 from os import path
 from typing import List
 
+from ..entity.text_to_speech import TextToSpeech
+from ..entity.wake_word import WakeWord
 from ..entity.device import Device
 from selene.util.db import DatabaseRequest, get_sql_from_file, Cursor
 
@@ -79,3 +81,51 @@ class DeviceRepository(object):
             )
         )
         return self.cursor.insert(query)
+
+    def add_wake_word(self, account_id: str, wake_word: WakeWord) -> str:
+        """Adds a row to the wake word table
+        :param account_id: the account that we are linking to the wake word
+        :param wake_word: wake_word entity
+        :return wake word id
+        """
+        query = DatabaseRequest(
+            sql=get_sql_from_file(path.join(SQL_DIR, 'add_wake_word.sql')),
+            args=dict(
+                wake_word=wake_word.wake_word,
+                account_id=account_id,
+                engine=wake_word.engine
+            )
+        )
+        result = self.cursor.insert_returning(query)
+        return result['id']
+
+    def add_text_to_speech(self, text_to_speech: TextToSpeech) -> str:
+        """Add a row to the text to speech table
+        :param text_to_speech: text to speech entity
+        :return text to speech id"""
+        query = DatabaseRequest(
+            sql=get_sql_from_file(path.join(SQL_DIR, 'add_text_to_speech.sql')),
+            args=dict(
+                setting_name=text_to_speech.setting_name,
+                display_name=text_to_speech.display_name,
+                engine=text_to_speech.engine
+            )
+        )
+        result = self.cursor.insert_returning(query)
+        return result['id']
+
+    def remove_wake_word(self, wake_word_id: str):
+        """Remove a  wake word from the database using id"""
+        query = DatabaseRequest(
+            sql=get_sql_from_file(path.join(SQL_DIR, 'remove_wake_word.sql')),
+            args=dict(wake_word_id=wake_word_id)
+        )
+        self.cursor.delete(query)
+
+    def remove_text_to_speech(self, text_to_speech_id: str):
+        """Remove a text to speech from the database using id"""
+        query = DatabaseRequest(
+            sql=get_sql_from_file(path.join(SQL_DIR, 'remove_text_to_speech.sql')),
+            args=dict(text_to_speech_id=text_to_speech_id)
+        )
+        self.cursor.delete(query)

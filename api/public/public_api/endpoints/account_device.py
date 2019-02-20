@@ -16,8 +16,8 @@ class AccountDeviceEndpoint(SeleneEndpoint):
         self.device_pairing_time = 86400
 
     def post(self, account_id):
-        device = self.request.get_json()
-        if json:
+        device = json.loads(self.request.data)
+        if device:
             name = device['name']
             wake_word_id = device['wake_word_id']
             text_to_speech_id = device['text_to_speech_id']
@@ -29,8 +29,8 @@ class AccountDeviceEndpoint(SeleneEndpoint):
                 # Removing the pairing code from the cache
                 self.cache.delete('pairing.code:{}'.format(code))
                 # Finishing the pairing process
-                self._pair(account_id, name, wake_word_id, text_to_speech_id, pairing)
-                return http_status_message(200)
+                device_id = self._pair(account_id, name, wake_word_id, text_to_speech_id, pairing)
+                return device_id, http_status_message(200)
             return http_status_message(204)
         return http_status_message(204)
 
@@ -43,8 +43,9 @@ class AccountDeviceEndpoint(SeleneEndpoint):
         with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
             result = DeviceRepository(db).add_device(account_id, name, wake_word_id, text_to_speech_id)
             pairing['uuid'] = result['id']
-            return self.cache.set_with_expiration(
+            self.cache.set_with_expiration(
                 'pairing.token:{}'.format(pairing['token']),
                 json.dumps(pairing),
                 self.device_pairing_time
             )
+            return pairing['uuid']
