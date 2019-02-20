@@ -7,6 +7,7 @@ from selene.util.log import configure_logger
 
 _log = configure_logger('account_api')
 
+
 # Define the Flask application
 acct = Flask(__name__)
 acct.config.from_object(get_base_config())
@@ -23,3 +24,4 @@ acct.add_url_rule(
     view_func=AgreementsEndpoint.as_view('agreements_api'),
     methods=['GET']
 )
+

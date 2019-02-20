@@ -16,6 +16,8 @@ setup(
         'pyhamcrest',
         'pyjwt',
         'psycopg2-binary',
-        'schematics'
+        'schematics',
+        'validator-collection',
+        'redis'
     ]
 )
