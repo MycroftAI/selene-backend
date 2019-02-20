@@ -1,4 +1,5 @@
 """Base class for Flask API endpoints"""
+from copy import deepcopy
 from logging import getLogger
 from flask import after_this_request, current_app, request
 from flask.views import MethodView
@@ -16,7 +17,7 @@ FIFTEEN_MINUTES = 900
 ONE_MONTH = 2628000
 REFRESH_TOKEN_COOKIE_NAME = 'seleneRefresh'
 
-_log = getLogger()
+_log = getLogger(__package__)
 
 
 class APIError(Exception):
@@ -38,11 +39,17 @@ class SeleneEndpoint(MethodView):
         self.request = request
         self.response: tuple = None
         self.account: Account = None
-        self.access_token = AuthenticationToken(
+        self.access_token = self._init_access_token()
+        self.refresh_token = self._init_refresh_token()
+
+    def _init_access_token(self):
+        return AuthenticationToken(
             self.config['ACCESS_SECRET'],
             FIFTEEN_MINUTES
         )
-        self.refresh_token = AuthenticationToken(
+
+    def _init_refresh_token(self):
+        return AuthenticationToken(
             self.config['REFRESH_SECRET'],
             ONE_MONTH
         )
@@ -53,36 +60,58 @@ class SeleneEndpoint(MethodView):
 
         :raises: APIError()
         """
-        self._validate_auth_tokens()
-        account_id = self._get_account_id_from_tokens()
-        self._get_account(account_id)
-        self._validate_account(account_id)
-        if self.access_token.is_expired:
-            self._refresh_auth_tokens()
+        try:
+            account_id = self._validate_auth_tokens()
+            self._get_account(account_id)
+            self._validate_account(account_id)
+            if self.access_token.is_expired:
+                self._refresh_auth_tokens()
+        except Exception:
+            _log.exception('an exception occurred during authentication')
+            raise
 
     def _validate_auth_tokens(self):
         """Ensure the tokens are passed in request and are well formed."""
+        self._get_auth_tokens()
+        account_id = self._decode_access_token()
+        if self.access_token.is_expired:
+            account_id = self._decode_refresh_token()
+        if account_id is None:
+            raise AuthenticationError(
+                'failed to retrieve account ID from authentication tokens'
+            )
+
+        return account_id
+
+    def _get_auth_tokens(self):
         self.access_token.jwt = self.request.cookies.get(
             ACCESS_TOKEN_COOKIE_NAME
         )
-        self.access_token.validate()
         self.refresh_token.jwt = self.request.cookies.get(
             REFRESH_TOKEN_COOKIE_NAME
         )
-        self.refresh_token.validate()
 
         if self.access_token.jwt is None and self.refresh_token.jwt is None:
             raise AuthenticationError('no authentication tokens found')
 
-        if self.access_token.is_expired and self.refresh_token.is_expired:
-            raise AuthenticationError('authentication tokens expired')
+    def _decode_access_token(self):
+        """Decode the JWT to get the account ID and check for errors."""
+        account_id = self.access_token.validate()
 
-    def _get_account_id_from_tokens(self):
-        """Extract the account ID, which is encoded within the tokens"""
-        if self.access_token.is_expired:
-            account_id = self.refresh_token.account_id
-        else:
-            account_id = self.access_token.account_id
+        if not self.access_token.is_valid:
+            raise AuthenticationError('invalid access token')
+
+        return account_id
+
+    def _decode_refresh_token(self):
+        """Decode the JWT to get the account ID and check for errors."""
+        account_id = self.refresh_token.validate()
+
+        if not self.access_token.is_valid:
+            raise AuthenticationError('invalid refresh token')
+
+        if self.refresh_token.is_expired:
+            raise AuthenticationError('authentication tokens expired')
 
         return account_id
 
@@ -110,15 +139,17 @@ class SeleneEndpoint(MethodView):
 
     def _refresh_auth_tokens(self):
         """Steps necessary to refresh the tokens used for authentication."""
-        old_refresh_token = self.refresh_token
+        old_refresh_token = deepcopy(self.refresh_token)
         self._generate_tokens()
         self._update_refresh_token_on_db(old_refresh_token)
         self._set_token_cookies()
 
     def _generate_tokens(self):
         """Generate an access token and refresh token."""
-        self.access_token.generate()
-        self.refresh_token.generate()
+        self.access_token = self._init_access_token()
+        self.refresh_token = self._init_refresh_token()
+        self.access_token.generate(self.account.id)
+        self.refresh_token.generate(self.account.id)
 
     def _set_token_cookies(self, expire=False):
         """Set the cookies that contain the authentication token.
@@ -159,11 +190,6 @@ class SeleneEndpoint(MethodView):
         """Replace the refresh token on the request with the newly minted one"""
         with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
             token_repository = RefreshTokenRepository(db, self.account.id)
-            if old_refresh_token.is_expired:
-                token_repository.delete_refresh_token(old_refresh_token)
-                raise AuthenticationError('refresh token expired')
-            else:
-                token_repository.update_refresh_token(
-                    self.refresh_token.jwt,
-                    old_refresh_token.jwt
-                )
+            token_repository.delete_refresh_token(old_refresh_token.jwt)
+            if not old_refresh_token.is_expired:
+                token_repository.add_refresh_token(self.refresh_token.jwt)

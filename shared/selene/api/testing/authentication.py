@@ -19,9 +19,8 @@ def generate_access_token(context, expire=False):
         context.client_config['ACCESS_SECRET'],
         ONE_MINUTE
     )
-    access_token.account_id = context.account.id
     if not expire:
-        access_token.generate()
+        access_token.generate(context.account.id)
     context.access_token = access_token
 
     context.client.set_cookie(
@@ -38,9 +37,8 @@ def generate_refresh_token(context, expire=False):
         context.client_config['REFRESH_SECRET'],
         TWO_MINUTES
     )
-    refresh_token.account_id = account_id
     if not expire:
-        refresh_token.generate()
+        refresh_token.generate(context.account.id)
     context.refresh_token = refresh_token
 
     context.client.set_cookie(

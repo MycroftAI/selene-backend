@@ -26,6 +26,6 @@ class Account(object):
     email_address: str
     username: str
     agreements: List[AccountAgreement]
-    subscription: AccountSubscription
+    subscription: AccountSubscription = None
     id: str = None
     refresh_tokens: List[str] = None

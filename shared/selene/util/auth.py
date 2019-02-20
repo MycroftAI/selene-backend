@@ -16,16 +16,15 @@ class AuthenticationToken(object):
         self.jwt: str = ''
         self.is_valid: bool = None
         self.is_expired: bool = None
-        self.account_id: str = None
 
-    def generate(self):
+    def generate(self, account_id):
         """
         Generates a JWT token
         """
         payload = dict(
             iat=datetime.utcnow(),
             exp=time() + self.duration,
-            sub=self.account_id
+            sub=account_id
         )
         token = jwt.encode(payload, self.secret, algorithm='HS256')
 
@@ -37,14 +36,17 @@ class AuthenticationToken(object):
         """Decodes the auth token and performs some preliminary validation."""
         self.is_expired = False
         self.is_valid = True
+        account_id = None
 
         if self.jwt is None:
             self.is_expired = True
         else:
             try:
                 payload = jwt.decode(self.jwt, self.secret)
-                self.account_id = payload['sub']
+                account_id = payload['sub']
             except jwt.ExpiredSignatureError:
                 self.is_expired = True
             except jwt.InvalidTokenError:
                 self.is_valid = False
+
+        return account_id

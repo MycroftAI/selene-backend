@@ -1,11 +1,14 @@
 from behave import given, then
-from hamcrest import assert_that, equal_to, is_not
+from hamcrest import assert_that, equal_to, has_item, is_not
 
 from selene.api.testing import (
     generate_access_token,
     generate_refresh_token,
     validate_token_cookies
 )
+from selene.data.account import AccountRepository
+from selene.util.auth import AuthenticationToken
+from selene.util.db import get_db_connection
 
 
 @given('an authenticated user with an expired access token')
@@ -34,3 +37,18 @@ def check_for_new_cookies(context):
         context.refresh_token,
         is_not(equal_to(context.old_refresh_token))
     )
+    with get_db_connection(context.client_config['DB_CONNECTION_POOL']) as db:
+        acct_repository = AccountRepository(db)
+        account = acct_repository.get_account_by_id(context.account.id)
+
+    assert_that(account.refresh_tokens, has_item(context.refresh_token))
+
+    refresh_token = AuthenticationToken(
+        context.client_config['REFRESH_SECRET'],
+        0
+    )
+    refresh_token.jwt = context.refresh_token
+    account_id = refresh_token.validate()
+    assert_that(refresh_token.is_valid, equal_to(True))
+    assert_that(refresh_token.is_expired, equal_to(False))
+    assert_that(account_id, equal_to(account.id))

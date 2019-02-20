@@ -19,11 +19,9 @@ from selene.data.account import (
 from selene.util.db import get_db_connection
 from ..base_endpoint import SeleneEndpoint
 
-membeship_types = {
-    'MONTHLY SUPPORTER': 'Monthly Supporter',
-    'YEARLY SUPPORTER': 'Yearly Supporter',
-    'MAYBE LATER': 'Maybe Later'
-}
+MONTHLY_MEMBERSHIP = 'Monthly Supporter'
+YEARLY_MEMBERSHIP = 'Yearly Supporter'
+NO_MEMBERSHIP = 'Maybe Later'
 
 
 def agreement_accepted(value):
@@ -55,15 +53,15 @@ class Support(Model):
     open_dataset = BooleanType(required=True)
     membership = StringType(
         required=True,
-        choices=('MONTHLY SUPPORTER', 'YEARLY SUPPORTER', 'MAYBE LATER')
+        choices=(MONTHLY_MEMBERSHIP, YEARLY_MEMBERSHIP, NO_MEMBERSHIP)
     )
     stripe_customer_id = StringType()
 
-    # def validate_stripe_customer_id(self, data, value):
-    #     if data['membership'] != 'Maybe Later':
-    #         if not data['stripe_customer_id']:
-    #             raise ValidationError('Membership requires a stripe ID')
-    #     return value
+    def validate_stripe_customer_id(self, data, value):
+        if data['membership'] != NO_MEMBERSHIP:
+            if not data['stripe_customer_id']:
+                raise ValidationError('Membership requires a stripe ID')
+        return value
 
 
 class AddAccountRequest(Model):
@@ -143,9 +141,15 @@ class AccountEndpoint(SeleneEndpoint):
         return email_address, password
 
     def _add_account(self, email_address, password):
-        membership_type = membeship_types[
-            self.request_data['support']['membership']
-        ]
+        membership_type = self.request_data['support']['membership']
+        subscription = None
+        if membership_type != NO_MEMBERSHIP:
+            stripe_id = self.request_data['support']['stripeCustomerId']
+            subscription = AccountSubscription(
+                type=membership_type,
+                start_date=date.today(),
+                stripe_customer_id=stripe_id
+            )
         account = Account(
             email_address=email_address,
             username=self.request_data['username'],
@@ -153,11 +157,7 @@ class AccountEndpoint(SeleneEndpoint):
                 AccountAgreement(type=PRIVACY_POLICY, accept_date=date.today()),
                 AccountAgreement(type=TERMS_OF_USE, accept_date=date.today())
             ],
-            subscription=AccountSubscription(
-                type=membership_type,
-                start_date=date.today(),
-                stripe_customer_id=self.request_data['support']['stripeCustomerId']
-            )
+            subscription=subscription
         )
         with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
             acct_repository = AccountRepository(db)
