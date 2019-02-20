@@ -148,11 +148,11 @@ class AccountEndpoint(SeleneEndpoint):
         ]
         subscription = None
         if membership_type != 'Maybe Later':
+            stripe_id = self.request_data['support']['stripeCustomerId']
             subscription = AccountSubscription(
                 type=membership_type,
                 start_date=date.today(),
-                stripe_customer_id=self.request_data['support'][
-                    'stripeCustomerId']
+                stripe_customer_id=stripe_id
             )
         account = Account(
             email_address=email_address,
