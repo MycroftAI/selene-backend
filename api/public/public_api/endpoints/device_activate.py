@@ -1,12 +1,23 @@
 import hashlib
 import json
 import uuid
+from http import HTTPStatus
 
-from flask_restful import http_status_message
+from schematics import Model
+from schematics.types import StringType
+
 from selene.api import SeleneEndpoint
 from selene.data.device import DeviceRepository
 from selene.util.cache import SeleneCache
 from selene.util.db import get_db_connection
+
+
+class DeviceActivate(Model):
+    token = StringType(required=True)
+    state = StringType(required=True)
+    platform = StringType(default='unknown')
+    core_version = StringType(default='unknown')
+    enclosure_version = StringType(default='unknown')
 
 
 class DeviceActivateEndpoint(SeleneEndpoint):
@@ -20,30 +31,33 @@ class DeviceActivateEndpoint(SeleneEndpoint):
         self.sha512 = hashlib.sha512()
 
     def post(self):
-        device_activate = json.loads(self.request.data)
+        payload = json.loads(self.request.data)
+        device_activate = DeviceActivate(payload)
         if device_activate:
             pairing = self._get_pairing_session(device_activate)
             if pairing:
-                device_activate['uuid'] = pairing['uuid']
+                device_id = pairing['uuid']
                 self._activate(
-                    pairing['uuid'],
-                    device_activate.get('platform', 'unknown'),
-                    device_activate.get('enclosure_version', 'unknown'),
-                    device_activate.get('core_version', 'unknown')
+                    device_id,
+                    str(device_activate.platform),
+                    str(device_activate.enclosure_version),
+                    str(device_activate.core_version)
                 )
-                return self._generate_login(device_activate['uuid'])
-            return http_status_message(204)
-        return http_status_message(204)
+                response = self._generate_login(device_id), HTTPStatus.OK
+            else:
+                response = '', HTTPStatus.NO_CONTENT
+        else:
+            response = '', HTTPStatus.NO_CONTENT
+        return response
 
-    def _get_pairing_session(self, device_activate: dict):
+    def _get_pairing_session(self, device_activate: DeviceActivate):
         """Get the pairing session from the cache if device_activate has the same state that
         the state stored in the pairing session"""
-        assert ('token' in device_activate and 'state' in device_activate)
-        token = device_activate['token']
+        token = str(device_activate.token)
         pairing = self.cache.get(self._token_key(token))
         if pairing:
             pairing = json.loads(pairing)
-            if device_activate['state'] == pairing['state']:
+            if str(device_activate.state) == pairing['state']:
                 self.cache.delete(self._token_key(token))
                 return pairing
 

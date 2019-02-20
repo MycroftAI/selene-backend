@@ -44,8 +44,8 @@ def activate_device(context):
 def validate_response(context):
     assert_that(context.pairing['state'], equal_to(context.state))
     login = json.loads(context.activate_device_response.data)
-    assert_that(has_key(equal_to('uuid')))
-    assert_that(has_key(equal_to('accessToken')))
-    assert_that(has_key(equal_to('refreshToken')))
-    assert_that(has_key(equal_to('expiration')))
-    assert_that(context.device_id, equal_to(login['uuid']))
+    assert_that(login, has_key(equal_to('uuid')))
+    assert_that(login, has_key(equal_to('accessToken')))
+    assert_that(login, has_key(equal_to('refreshToken')))
+    assert_that(login, has_key(equal_to('expiration')))
+    assert_that(login, context.device_id, equal_to(login['uuid']))
