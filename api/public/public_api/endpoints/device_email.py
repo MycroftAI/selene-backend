@@ -1,12 +1,22 @@
+import json
 import os
+from http import HTTPStatus
 
-from flask_restful import http_status_message
+from schematics import Model
+from schematics.types import StringType
+
 from selene.api import SeleneEndpoint
 import smtplib
 
 from selene.data.device import DeviceRepository
 from selene.util.db import get_db_connection
 from email.message import EmailMessage
+
+
+class SendEmail(Model):
+    title = StringType(required=True)
+    sender = StringType(required=True)
+    body = StringType(required=True)
 
 
 class DeviceEmailEndpoint(SeleneEndpoint):
@@ -22,17 +32,22 @@ class DeviceEmailEndpoint(SeleneEndpoint):
         self.email_client.login(user, password)
 
     def post(self, device_id):
-        email_parameters = self.request.get_json()
+        payload = json.loads(self.request.data)
+        send_email = SendEmail(payload)
+        send_email.validate()
 
         with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
             email_address = DeviceRepository(db).get_account_email_by_device_id(device_id)
-        if 'title' in email_parameters and 'body' in email_parameters and 'sender' in email_parameters and email_address:
+
+        if email_address:
             message = EmailMessage()
-            message['Subject'] = email_parameters['title']
-            message['From'] = email_parameters['sender']
-            message.set_content(email_parameters['body'])
+            message['Subject'] = str(send_email.title)
+            message['From'] = str(send_email.sender)
+            message.set_content(str(send_email.body))
             message['To'] = email_address
             self.email_client.send_message(message)
             self.email_client.quit()
-            return http_status_message(200)
-        return http_status_message(204)
+            response = '', HTTPStatus.OK
+        else:
+            response = '', HTTPStatus.NO_CONTENT
+        return response
