@@ -25,7 +25,8 @@ class DeviceRepository(object):
         )
 
         sql_results = self.cursor.select_one(query)
-        return Device(**sql_results)
+        if sql_results:
+            return Device(**sql_results)
 
     def get_devices_by_account_id(self, account_id: str) -> List[Device]:
         """Fetch all devices associated to a user from a given account id
