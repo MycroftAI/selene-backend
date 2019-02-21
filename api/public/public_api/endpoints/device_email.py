@@ -4,13 +4,12 @@ from http import HTTPStatus
 
 from schematics import Model
 from schematics.types import StringType
+import smtplib
+from email.message import EmailMessage
 
 from selene.api import SeleneEndpoint
-import smtplib
-
 from selene.data.device import DeviceRepository
 from selene.util.db import get_db_connection
-from email.message import EmailMessage
 
 
 class SendEmail(Model):
@@ -24,12 +23,7 @@ class DeviceEmailEndpoint(SeleneEndpoint):
 
     def __init__(self):
         super(DeviceEmailEndpoint, self).__init__()
-        host = os.environ['EMAIL_SERVICE_HOST']
-        port = os.environ['EMAIL_SERVICE_PORT']
-        user = os.environ['EMAIL_SERVICE_USER']
-        password = os.environ['EMAIL_SERVICE_PASSWORD']
-        self.email_client = smtplib.SMTP(host, port)
-        self.email_client.login(user, password)
+        self.email_client: smtplib.SMTP = self.config['EMAIL_CLIENT']
 
     def post(self, device_id):
         payload = json.loads(self.request.data)
