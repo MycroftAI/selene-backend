@@ -18,10 +18,10 @@ FROM
 INNER JOIN
   device.account_preferences acc ON dev.account_id = acc.account_id
 INNER JOIN
-  device.text_to_speech tts ON acc.text_to_speech_id = tts.id
+  device.text_to_speech tts ON dev.text_to_speech_id = tts.id
 INNER JOIN
-  device.wake_word wk_word ON acc.wake_word_id = wk_word.id
-INNER JOIN
+  device.wake_word wk_word ON dev.wake_word_id = wk_word.id
+LEFT JOIN
   device.wake_word_settings wk_word_st ON wk_word.id = wk_word_st.wake_word_id
 WHERE
   dev.id = %(device_id)s

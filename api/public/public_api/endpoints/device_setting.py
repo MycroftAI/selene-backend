@@ -1,3 +1,5 @@
+from http import HTTPStatus
+
 from selene.api import SeleneEndpoint
 from selene.data.device import SettingRepository
 from selene.util.db import get_db_connection
@@ -10,4 +12,6 @@ class DeviceSettingEndpoint(SeleneEndpoint):
 
     def get(self, device_id):
         with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
-            return SettingRepository(db).get_device_settings(device_id)
+            setting = SettingRepository(db).get_device_settings(device_id)
+        response = (setting, HTTPStatus.OK) if setting else ('', HTTPStatus.NO_CONTENT)
+        return response

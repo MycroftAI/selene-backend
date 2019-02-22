@@ -12,7 +12,7 @@ from selene.data.account import (
     TERMS_OF_USE,
     Agreement,
     AgreementRepository)
-from selene.data.device import DeviceRepository
+from selene.data.device import DeviceRepository, SettingRepository
 from selene.data.device.entity.text_to_speech import TextToSpeech
 from selene.data.device.entity.wake_word import WakeWord
 from selene.util.db import get_db_connection
@@ -57,6 +57,7 @@ def before_scenario(context, _):
     with get_db_connection(context.client_config['DB_CONNECTION_POOL']) as db:
         _add_agreements(context, db)
         _add_account(context, db)
+        _add_account_preference(context, db)
 
 
 def after_scenario(context, _):
@@ -90,6 +91,18 @@ def _add_account(context, db):
     device_repository = DeviceRepository(db)
     context.wake_word_id = device_repository.add_wake_word(context.account.id, wake_word)
     context.text_to_speech_id = device_repository.add_text_to_speech(text_to_speech)
+
+
+def _add_account_preference(context, db):
+    account_preferences = dict(
+        account_id=context.account.id,
+        date_format='MM/DD/YYYY',
+        time_format='12 Hour',
+        measurement_system='Imperial',
+        wake_word_id=context.wake_word_id,
+        text_to_speech_id=context.text_to_speech_id
+    )
+    SettingRepository(db).add_account_preferences(account_preferences)
 
 
 def _remove_account(context, db):

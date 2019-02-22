@@ -35,8 +35,25 @@ class SettingRepository(object):
         :param device_id: device uuid
         :return setting entity using the legacy format from the API v1"""
         response = self.get_device_settings_by_device_id(device_id)
-        tts_setting = response['tts_settings']
-        tts_setting = self.convert_text_to_speech_setting(tts_setting['setting_name'], tts_setting['engine'])
-        tts_setting = [{'@type': tts_setting[0], 'voice': tts_setting[1]}]
-        response['tts_settings'] = tts_setting
-        return response
+        if response:
+            if response['listener_setting']['uuid'] is None:
+                del response['listener_setting']
+            tts_setting = response['tts_settings']
+            tts_setting = self.convert_text_to_speech_setting(tts_setting['setting_name'], tts_setting['engine'])
+            tts_setting = [{'@type': tts_setting[0], 'voice': tts_setting[1]}]
+            response['tts_settings'] = tts_setting
+            return response
+
+    def add_account_preferences(self, preferences: dict):
+        query = DatabaseRequest(
+            sql=get_sql_from_file(path.join(SQL_DIR, 'add_account_preferences.sql')),
+            args=dict(
+                account_id=preferences['account_id'],
+                date_format=preferences['date_format'],
+                time_format=preferences['time_format'],
+                measurement_system=preferences['measurement_system'],
+                wake_word_id=preferences['wake_word_id'],
+                text_to_speech_id=preferences['text_to_speech_id']
+            )
+        )
+        self.cursor.insert(query)
