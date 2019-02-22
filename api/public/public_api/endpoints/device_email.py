@@ -1,11 +1,10 @@
 import json
-import os
+import smtplib
+from email.message import EmailMessage
 from http import HTTPStatus
 
 from schematics import Model
 from schematics.types import StringType
-import smtplib
-from email.message import EmailMessage
 
 from selene.api import SeleneEndpoint
 from selene.data.device import DeviceRepository
