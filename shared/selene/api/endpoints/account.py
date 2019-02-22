@@ -1,6 +1,6 @@
 """API endpoint to return the a logged-in user's profile"""
 from dataclasses import asdict
-from datetime import date
+from datetime import date, datetime, timedelta
 from http import HTTPStatus
 
 from flask import json, jsonify
@@ -81,11 +81,48 @@ class AccountEndpoint(SeleneEndpoint):
     def get(self):
         """Process HTTP GET request for an account."""
         self._authenticate()
-        response_data = asdict(self.account)
-        del (response_data['refresh_tokens'])
+        response_data = self._build_response_data()
         self.response = response_data, HTTPStatus.OK
 
         return self.response
+
+    def _build_response_data(self):
+        response_data = asdict(self.account)
+        for agreement in response_data['agreements']:
+            agreement_date = self._format_agreement_date(agreement)
+            agreement['accept_date'] = agreement_date
+        membership_duration = self._format_membership_duration(response_data)
+        response_data['subscription']['duration'] = membership_duration
+        del (response_data['subscription']['start_date'])
+        del (response_data['refresh_tokens'])
+
+        return response_data
+
+    @staticmethod
+    def _format_agreement_date(agreement):
+        agreement_date = datetime.strptime(agreement['accept_date'], '%Y-%m-%d')
+        formatted_agreement_date = agreement_date.strftime('%B %d, %Y')
+
+        return formatted_agreement_date
+
+    @staticmethod
+    def _format_membership_duration(response_data):
+        membership_start = datetime.strptime(
+            response_data['subscription']['start_date'],
+            '%Y-%m-%d'
+        )
+        one_year = timedelta(days=365)
+        one_month = timedelta(days=30)
+        duration = date.today() - membership_start.date()
+        years, remaining_duration = divmod(duration, one_year)
+        months, _ = divmod(remaining_duration, one_month)
+        membership_duration = []
+        if years:
+            membership_duration.append('{} years'.format(years))
+        if months:
+            membership_duration.append(' {} months'.format(str(months)))
+
+        return ' '.join(membership_duration) if membership_duration else None
 
     def post(self):
         self.request_data = json.loads(self.request.data)
