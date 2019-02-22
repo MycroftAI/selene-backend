@@ -50,11 +50,10 @@ class DeviceRepository(object):
             sql=get_sql_from_file(path.join(SQL_DIR, 'get_subscription_type_by_device_id.sql')),
             args=dict(device_id=device_id)
         )
-        sql_result = self.cursor.select_all(query)
+        sql_result = self.cursor.select_one(query)
         if sql_result:
-            return {'@type': sql_result['rate_period']}
-        else:
-            return {'@type': 'free'}
+            rate_period = sql_result['rate_period']
+            return {'@type': rate_period} if rate_period is not None else {'@type': 'free'}
 
     def add_device(self, account_id: str, name: str, wake_word_id: str, text_to_speech_id: str):
         """ Creates a new device with a given name and associate it to an account"""
