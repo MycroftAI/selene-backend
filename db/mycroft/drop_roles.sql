@@ -1,3 +1,2 @@
-DROP ROLE IF EXISTS selene_crud;
-DROP ROLE IF EXISTS selene_view;
 DROP ROLE IF EXISTS selene;
+DROP ROLE IF EXISTS appuser;
