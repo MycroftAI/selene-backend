@@ -14,7 +14,7 @@ VALUES
             FROM
                 account.membership
             WHERE
-                membership = %(membership_type)s
+                type = %(membership_type)s
         ),
         '[now,]',
         %(stripe_customer_id)s
