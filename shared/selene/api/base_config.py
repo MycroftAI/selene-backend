@@ -38,7 +38,7 @@ class APIConfigError(Exception):
 class BaseConfig(object):
     """Base configuration."""
     ACCESS_SECRET = os.environ['JWT_ACCESS_SECRET']
-    DB_CONNECTION_POOL = allocate_db_connection_pool(db_connection_config)
+    DB_CONNECTION_POOL = None
     DEBUG = False
     ENV = os.environ['SELENE_ENVIRONMENT']
     REFRESH_SECRET = os.environ['JWT_REFRESH_SECRET']
@@ -78,5 +78,9 @@ def get_base_config():
     except KeyError:
         error_msg = 'no configuration defined for the "{}" environment'
         raise APIConfigError(error_msg.format(environment_name))
+
+    app_config.DB_CONNECTION_POOL = allocate_db_connection_pool(
+        db_connection_config
+    )
 
     return app_config
