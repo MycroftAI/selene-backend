@@ -1,8 +1,8 @@
 INSERT INTO
-    account.account_subscription (
+    account.account_membership (
         account_id,
-        subscription_id,
-        subscription_ts_range,
+        membership_id,
+        membership_ts_range,
         stripe_customer_id
     )
 VALUES
@@ -12,9 +12,9 @@ VALUES
             SELECT
                 id
             FROM
-                account.subscription
+                account.membership
             WHERE
-                subscription = %(subscription_type)s
+                membership = %(membership_type)s
         ),
         '[now,]',
         %(stripe_customer_id)s

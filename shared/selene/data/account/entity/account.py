@@ -12,7 +12,7 @@ class AccountAgreement(object):
 
 
 @dataclass
-class AccountSubscription(object):
+class AccountMembership(object):
     """Represents the subscription plan chosen by the user"""
     type: str
     start_date: date
@@ -26,6 +26,6 @@ class Account(object):
     email_address: str
     username: str
     agreements: List[AccountAgreement]
-    subscription: AccountSubscription = None
+    membership: AccountMembership = None
     id: str = None
     refresh_tokens: List[str] = None

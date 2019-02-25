@@ -22,27 +22,27 @@ WITH
         WHERE
             aa.account_id = {account_id_resolver}
     ),
-    subscription AS (
+    membership AS (
         SELECT
             json_build_object(
-                'id', asub.id,
+                'id', am.id,
                 'type', s.subscription,
-                'start_date', lower(asub.subscription_ts_range)::DATE,
-                'stripe_customer_id', asub.stripe_customer_id
+                'start_date', lower(am.membership_ts_range)::DATE,
+                'stripe_customer_id', am.stripe_customer_id
             )
         FROM
-            account.account_subscription asub
-            INNER JOIN account.subscription s ON asub.subscription_id = s.id
+            account.account_membership am
+            INNER JOIN account.subscription s ON am.membership_id = s.id
         WHERE
-            asub.account_id = {account_id_resolver}
-            AND upper(asub.subscription_ts_range) IS NULL
+            am.account_id = {account_id_resolver}
+            AND upper(am.subscription_ts_range) IS NULL
     )
 SELECT
     json_build_object(
         'id', id,
         'email_address', email_address,
         'username', username,
-        'subscription', (SELECT * FROM subscription),
+        'membership', (SELECT * FROM membership),
         'refresh_tokens', (SELECT * FROM refresh_tokens),
         'agreements', (SELECT * FROM agreements)
     ) as account

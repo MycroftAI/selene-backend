@@ -9,7 +9,7 @@ from selene.util.db import (
     get_sql_from_file,
     use_transaction
 )
-from ..entity.account import Account, AccountAgreement, AccountSubscription
+from ..entity.account import Account, AccountAgreement, AccountMembership
 
 SQL_DIR = path.join(path.dirname(__file__), 'sql')
 
@@ -33,8 +33,8 @@ class AccountRepository(object):
     def add(self, account: Account, password: str) -> str:
         account_id = self._add_account(account, password)
         self._add_agreements(account_id, account.agreements)
-        if account.subscription is not None:
-            self._add_membership(account_id, account.subscription)
+        if account.membership is not None:
+            self._add_membership(account_id, account.membership)
 
         _log.info('Added account {}'.format(account.email_address))
 
@@ -69,15 +69,15 @@ class AccountRepository(object):
             )
             self.cursor.insert(request)
 
-    def _add_membership(self, acct_id: str, membership: AccountSubscription):
-        """A subscription is optional, add it if one was selected"""
+    def _add_membership(self, acct_id: str, membership: AccountMembership):
+        """A membership is optional, add it if one was selected"""
         request = DatabaseRequest(
             sql=get_sql_from_file(
-                path.join(SQL_DIR, 'add_account_subscription.sql')
+                path.join(SQL_DIR, 'add_account_membership.sql')
             ),
             args=dict(
                 account_id=acct_id,
-                subscription_type=membership.type,
+                membership_type=membership.type,
                 stripe_customer_id=membership.stripe_customer_id
             )
         )
@@ -154,12 +154,13 @@ class AccountRepository(object):
 
         if result is not None:
             account_agreements = []
-            for agreement in result['account']['agreements']:
-                account_agreements.append(AccountAgreement(**agreement))
-            result['account']['agreements'] = account_agreements
-            if result['account']['subscription'] is not None:
-                result['account']['subscription'] = AccountSubscription(
-                    **result['account']['subscription']
+            if result['account']['agreements'] is not None:
+                for agreement in result['account']['agreements']:
+                    account_agreements.append(AccountAgreement(**agreement))
+                result['account']['agreements'] = account_agreements
+            if result['account']['membership'] is not None:
+                result['account']['membership'] = AccountMembership(
+                    **result['account']['membership']
                 )
             account = Account(**result['account'])
 
