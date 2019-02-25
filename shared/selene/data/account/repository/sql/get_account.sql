@@ -35,7 +35,7 @@ WITH
             INNER JOIN account.membership m ON am.membership_id = m.id
         WHERE
             am.account_id = {account_id_resolver}
-            AND upper(am.subscription_ts_range) IS NULL
+            AND upper(am.membership_ts_range) IS NULL
     )
 SELECT
     json_build_object(
