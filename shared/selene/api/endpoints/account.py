@@ -12,7 +12,7 @@ from selene.data.account import (
     Account,
     AccountAgreement,
     AccountRepository,
-    AccountSubscription,
+    AccountMembership,
     PRIVACY_POLICY,
     TERMS_OF_USE
 )
@@ -92,8 +92,8 @@ class AccountEndpoint(SeleneEndpoint):
             agreement_date = self._format_agreement_date(agreement)
             agreement['accept_date'] = agreement_date
         membership_duration = self._format_membership_duration(response_data)
-        response_data['subscription']['duration'] = membership_duration
-        del (response_data['subscription']['start_date'])
+        response_data['membership']['duration'] = membership_duration
+        del (response_data['membership']['start_date'])
         del (response_data['refresh_tokens'])
 
         return response_data
@@ -108,7 +108,7 @@ class AccountEndpoint(SeleneEndpoint):
     @staticmethod
     def _format_membership_duration(response_data):
         membership_start = datetime.strptime(
-            response_data['subscription']['start_date'],
+            response_data['membership']['start_date'],
             '%Y-%m-%d'
         )
         one_year = timedelta(days=365)
@@ -179,10 +179,10 @@ class AccountEndpoint(SeleneEndpoint):
 
     def _add_account(self, email_address, password):
         membership_type = self.request_data['support']['membership']
-        subscription = None
+        membership = None
         if membership_type != NO_MEMBERSHIP:
             stripe_id = self.request_data['support']['stripeCustomerId']
-            subscription = AccountSubscription(
+            membership = AccountMembership(
                 type=membership_type,
                 start_date=date.today(),
                 stripe_customer_id=stripe_id
@@ -194,7 +194,7 @@ class AccountEndpoint(SeleneEndpoint):
                 AccountAgreement(type=PRIVACY_POLICY, accept_date=date.today()),
                 AccountAgreement(type=TERMS_OF_USE, accept_date=date.today())
             ],
-            subscription=subscription
+            membership=membership
         )
         with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
             acct_repository = AccountRepository(db)
