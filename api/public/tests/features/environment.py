@@ -19,7 +19,7 @@ from selene.util.db import get_db_connection
 
 account = Account(
     email_address='test@test.com',
-    display_name='test',
+    username='test',
     agreements=[
                 AccountAgreement(type=PRIVACY_POLICY, accept_date=date.today()),
                 AccountAgreement(type=TERMS_OF_USE, accept_date=date.today())

@@ -10,7 +10,7 @@ selene_api = Blueprint('selene_api', __name__)
 
 @selene_api.app_errorhandler(DataError)
 def handle_data_error(error):
-    return str(error.messages), HTTPStatus.BAD_REQUEST
+    return error.to_primitive(), HTTPStatus.BAD_REQUEST
 
 
 @selene_api.app_errorhandler(AuthenticationError)

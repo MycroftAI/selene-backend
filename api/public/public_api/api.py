@@ -1,10 +1,11 @@
 import os
+import smtplib
 
 from flask import Flask
 
-from selene.api import SeleneResponse, selene_api
 from selene.api.base_config import get_base_config
 from selene.util.cache import SeleneCache
+from selene.api import SeleneResponse, selene_api
 
 from .endpoints.device import DeviceEndpoint
 from .endpoints.device_setting import DeviceSettingEndpoint
@@ -17,11 +18,21 @@ from .endpoints.google_stt import GoogleSTTEndpoint
 from .endpoints.device_code import DeviceCodeEndpoint
 from .endpoints.device_activate import DeviceActivateEndpoint
 from .endpoints.account_device import AccountDeviceEndpoint
+from .endpoints.device_email import DeviceEmailEndpoint
 
 public = Flask(__name__)
 public.config.from_object(get_base_config())
 public.config['GOOGLE_STT_KEY'] = os.environ['GOOGLE_STT_KEY']
 public.config['SELENE_CACHE'] = SeleneCache()
+
+# Initializing email client
+host = os.environ['EMAIL_SERVICE_HOST']
+port = os.environ['EMAIL_SERVICE_PORT']
+user = os.environ['EMAIL_SERVICE_USER']
+password = os.environ['EMAIL_SERVICE_PASSWORD']
+email_client = smtplib.SMTP(host, port)
+email_client.login(user, password)
+public.config['EMAIL_CLIENT'] = email_client
 
 public.response_class = SeleneResponse
 public.register_blueprint(selene_api)
@@ -83,5 +94,10 @@ public.add_url_rule(
 public.add_url_rule(
     '/api/account/<string:account_id>/device',
     view_func=AccountDeviceEndpoint.as_view('account_device_api'),
+    methods=['POST']
+)
+public.add_url_rule(
+    '/device/<string:device_id>/email',
+    view_func=DeviceEmailEndpoint.as_view('device_email_api'),
     methods=['POST']
 )
