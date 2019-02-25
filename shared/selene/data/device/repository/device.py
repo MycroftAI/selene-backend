@@ -53,6 +53,7 @@ class DeviceRepository(object):
         sql_result = self.cursor.select_one(query)
         if sql_result:
             rate_period = sql_result['rate_period']
+            # TODO: Remove the @ in the API v2
             return {'@type': rate_period} if rate_period is not None else {'@type': 'free'}
 
     def add_device(self, account_id: str, name: str, wake_word_id: str, text_to_speech_id: str):
