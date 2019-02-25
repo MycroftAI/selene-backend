@@ -26,13 +26,13 @@ WITH
         SELECT
             json_build_object(
                 'id', am.id,
-                'type', s.subscription,
+                'type', m.type,
                 'start_date', lower(am.membership_ts_range)::DATE,
                 'stripe_customer_id', am.stripe_customer_id
             )
         FROM
             account.account_membership am
-            INNER JOIN account.subscription s ON am.membership_id = s.id
+            INNER JOIN account.membership m ON am.membership_id = m.id
         WHERE
             am.account_id = {account_id_resolver}
             AND upper(am.subscription_ts_range) IS NULL
