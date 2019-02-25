@@ -36,7 +36,7 @@ def validate_response_monthly(context):
     response = context.subscription_response
     assert_that(response.status_code, HTTPStatus.OK)
     subscription = json.loads(response.data)
-    assert_that(subscription, has_entry('@type', 'month'))
+    assert_that(subscription, has_entry('@type', 'Monthly Supporter'))
 
 
 @when('try to get the subscription for a nonexistent device')

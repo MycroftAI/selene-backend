@@ -3,23 +3,22 @@ import smtplib
 
 from flask import Flask
 
+from selene.api import SeleneResponse, selene_api
 from selene.api.base_config import get_base_config
 from selene.util.cache import SeleneCache
-from selene.api import SeleneResponse, selene_api
-
+from .endpoints.account_device import AccountDeviceEndpoint
 from .endpoints.device import DeviceEndpoint
+from .endpoints.device_activate import DeviceActivateEndpoint
+from .endpoints.device_code import DeviceCodeEndpoint
+from .endpoints.device_email import DeviceEmailEndpoint
+from .endpoints.device_metrics import DeviceMetricsEndpoint, MetricsService
 from .endpoints.device_setting import DeviceSettingEndpoint
 from .endpoints.device_skill import DeviceSkillEndpoint
 from .endpoints.device_skills import DeviceSkillsEndpoint
 from .endpoints.device_subscription import DeviceSubscriptionEndpoint
+from .endpoints.google_stt import GoogleSTTEndpoint
 from .endpoints.open_weather_map import OpenWeatherMapEndpoint
 from .endpoints.wolfram_alpha import WolframAlphaEndpoint
-from .endpoints.google_stt import GoogleSTTEndpoint
-from .endpoints.device_code import DeviceCodeEndpoint
-from .endpoints.device_activate import DeviceActivateEndpoint
-from .endpoints.account_device import AccountDeviceEndpoint
-from .endpoints.device_email import DeviceEmailEndpoint
-from .endpoints.device_metrics import DeviceMetricsEndpoint
 
 public = Flask(__name__)
 public.config.from_object(get_base_config())
@@ -34,6 +33,8 @@ password = os.environ['EMAIL_SERVICE_PASSWORD']
 email_client = smtplib.SMTP(host, port)
 email_client.login(user, password)
 public.config['EMAIL_CLIENT'] = email_client
+
+public.config['METRICS_SERVICE'] = MetricsService()
 
 public.response_class = SeleneResponse
 public.register_blueprint(selene_api)
