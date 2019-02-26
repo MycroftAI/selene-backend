@@ -90,7 +90,6 @@ class SeleneEndpoint(MethodView):
         self.refresh_token.jwt = self.request.cookies.get(
             REFRESH_TOKEN_COOKIE_NAME
         )
-
         if self.access_token.jwt is None and self.refresh_token.jwt is None:
             raise AuthenticationError('no authentication tokens found')
 
@@ -130,7 +129,11 @@ class SeleneEndpoint(MethodView):
             _log.error('account ID {} not on database'.format(account_id))
             raise AuthenticationError('account not found')
 
-        if self.refresh_token.jwt not in self.account.refresh_tokens:
+        token_not_found = (
+            self.account.refresh_tokens is None or
+            self.refresh_token.jwt not in self.account.refresh_tokens
+        )
+        if token_not_found:
             log_msg = 'account ID {} does not have token {}'
             _log.error(log_msg.format(account_id, self.refresh_token.jwt))
             raise AuthenticationError(
