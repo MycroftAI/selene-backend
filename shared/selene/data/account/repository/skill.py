@@ -18,10 +18,11 @@ class AccountSkillRepository(RepositoryBase):
         )
 
         for key, devices in device_groupings.items():
-            settings_meta, settings = skill_settings_meta[key]
+            display_name, settings_meta, settings = skill_settings_meta[key]
             account_skills.append(AccountSkill(
                 skill_name=key[0],
                 devices=devices,
+                display_name=display_name,
                 settings_version=key[1],
                 settings_meta=settings_meta,
                 settings=settings
@@ -43,17 +44,15 @@ class AccountSkillRepository(RepositoryBase):
         device_groupings = defaultdict(list)
         skill_settings = {}
         for device_skill in device_skills:
-            if device_skill['settings'] is None:
-                settings = None
-                settings_meta = None
-            else:
-                settings = device_skill['settings']
-                settings_meta = device_skill['settings_meta']
             key = (
                 device_skill['skill_name'],
                 device_skill['version'],
             )
             device_groupings[key].append(device_skill['device_name'])
-            skill_settings[key] = settings_meta, settings
+            skill_settings[key] = [
+                device_skill['display_name'],
+                device_skill['settings_meta'],
+                device_skill['settings']
+            ]
 
         return skill_settings, device_groupings

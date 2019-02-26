@@ -24,10 +24,11 @@ class SkillSettingsEndpoint(SeleneEndpoint):
 
     def _build_response_data(self):
         response_data = []
+        duplicates = self._check_for_skill_duplicates()
         for skill in self.account_skills:
-            response_skill = dict(name=skill.skill_name)
+            display_name = self._determine_display_name(skill)
+            response_skill = dict(name=display_name)
             if skill.settings_version is not None:
-                duplicates = self._check_for_skill_duplicates()
                 response_sections = self._build_sections(skill, duplicates)
                 response_skill.update(sections=response_sections)
             response_data.append(response_skill)
@@ -43,6 +44,17 @@ class SkillSettingsEndpoint(SeleneEndpoint):
             distinct_skills.add(skill.skill_name)
 
         return duplicate_skills
+
+    @staticmethod
+    def _determine_display_name(skill: AccountSkill):
+        if skill.display_name is not None:
+            display_name = skill.display_name
+        elif skill.settings_meta is not None:
+            display_name = skill.settings_meta['name']
+        else:
+            display_name = skill.skill_name
+
+        return display_name
 
     def _build_sections(self, skill: AccountSkill, duplicates: set):
         response_sections = []
