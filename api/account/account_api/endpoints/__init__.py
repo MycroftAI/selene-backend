@@ -1,0 +1,1 @@
+from .skill_settings import SkillSettingsEndpoint
