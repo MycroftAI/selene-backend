@@ -33,7 +33,7 @@ class SkillSettingsEndpoint(SeleneEndpoint):
                 response_skill.update(sections=response_sections)
             response_data.append(response_skill)
 
-        return response_data
+        return sorted(response_data, key=lambda x: x['name'])
 
     def _check_for_skill_duplicates(self):
         distinct_skills = set()

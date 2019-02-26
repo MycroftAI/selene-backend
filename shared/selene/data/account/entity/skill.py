@@ -4,6 +4,7 @@ from typing import List
 
 @dataclass
 class AccountSkill(object):
+    skill_id: str
     skill_name: str
     devices: List[str]
     display_name: str = None

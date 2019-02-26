@@ -1,5 +1,24 @@
 -- get all combinations of skills and skill setting meta for an account
 WITH
+    skills AS (
+        SELECT
+            s.id AS skill_id,
+            s.name AS skill_name,
+            ds.skill_setting_meta_id,
+            ds.settings::jsonb,
+            array_agg(d.name) AS devices
+        FROM
+            skill.skill s
+            INNER JOIN device.device_skill ds ON ds.skill_id = s.id
+            INNER JOIN device.device d ON d.id = ds.device_id
+        WHERE
+            d.account_id = %(account_id)s
+        GROUP BY
+            s.id,
+            s.name,
+            ds.skill_setting_meta_id,
+            ds.settings::jsonb
+    ),
     skill_meta AS (
         SELECT
             skill_id,
@@ -12,20 +31,14 @@ WITH
             display_name
     )
 SELECT
-    s.name AS skill_name,
+    s.skill_id,
+    s.skill_name,
+    s.settings,
+    s.devices,
     skm.display_name,
-    d.name as device_name,
-    sm.version,
-    sm.settings_meta,
-    ds.settings
+    sm.version AS settings_version,
+    sm.settings_meta
 FROM
-    skill.skill s
-    INNER JOIN device.device_skill ds on ds.skill_id = s.id
-    INNER JOIN device.device d ON d.id = ds.device_id
-    LEFT JOIN skill.setting_meta sm ON ds.skill_setting_meta_id = sm.id
-    LEFT JOIN skill_meta skm ON skm.skill_id = s.id
-WHERE
-    d.account_id = %(account_id)s
-ORDER BY
-    s.name,
-    sm.version
+    skills s
+    LEFT JOIN skill.setting_meta sm ON s.skill_setting_meta_id = sm.id
+    LEFT JOIN skill_meta skm ON skm.skill_id = s.skill_id
