@@ -395,6 +395,7 @@ def fill_device_table():
 def fill_skills_table():
     skills_batch = []
     settings_meta_batch = []
+    device_skill_batch = []
     for user in user_devices:
         if user in users:
             for device_uuid, name in user_devices[user]:
@@ -404,25 +405,34 @@ def fill_skills_table():
                         version = skill['identifier']
                         skill_name = skill['name']
                         sections = []
+                        settings = []
                         for section_uuid in skill_to_section[skill_uuid]:
                             section = skill_sections[section_uuid]
                             section_name = section['section']
                             fields = []
                             for field_uuid in section_to_field[section_uuid]:
                                 fields.append(skill_fields[field_uuid])
+                                settings.append({
+                                    'name': skill_fields[field_uuid]['name'],
+                                    'value': skill_field_values[field_uuid]['field_value']
+                                })
                             sections.append({'name': section_name, 'fields': fields})
-                        skill_setting = {'sections': sections}
+                        skill_setting_meta = {'sections': sections}
                         skills_batch.append((skill_uuid, skill_name))
-                        settings_meta_batch.append((skill_uuid, version, json.dumps(skill_setting)))
+                        settings_meta_batch.append((skill_uuid, version, json.dumps(skill_setting_meta)))
+                        device_skill_batch.append((device_uuid, skill_uuid, json.dumps(settings)))
 
     with db.cursor() as curr:
         query = 'insert into skill.skill(id, name) values (%s, %s)'
         execute_batch(curr, query, skills_batch, page_size=1000)
         query = 'insert into skill.setting_meta(skill_id, version, settings_meta) values (%s, %s, %s)'
         execute_batch(curr, query, settings_meta_batch, page_size=1000)
+        query = 'insert into device.device_skill(device_id, skill_id, settings) values (%s, %s, %s)'
+        execute_batch(curr, query, device_skill_batch, page_size=1000)
 
 start = time.time()
 load_csv()
+end = time.time()
 print('Time to load CSVs {}'.format(end - start))
 start = time.time()
 print('Importing account table')
