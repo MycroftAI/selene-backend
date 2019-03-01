@@ -28,3 +28,18 @@ class SettingSection(object):
     display_order: int
     description: str = None
     settings: List[Setting] = None
+
+
+@dataclass
+class SkillVersion(object):
+    version: str
+    display_name: str
+
+
+@dataclass
+class Skill(object):
+    name: str
+    url: str
+    versions: List[SkillVersion]
+    has_settings: bool
+    id: str = None
