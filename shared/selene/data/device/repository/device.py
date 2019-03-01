@@ -1,10 +1,10 @@
 from os import path
 from typing import List
 
+from selene.util.db import DatabaseRequest, get_sql_from_file, Cursor
+from ..entity.device import Device
 from ..entity.text_to_speech import TextToSpeech
 from ..entity.wake_word import WakeWord
-from ..entity.device import Device
-from selene.util.db import DatabaseRequest, get_sql_from_file, Cursor
 
 SQL_DIR = path.join(path.dirname(__file__), 'sql')
 
@@ -141,12 +141,3 @@ class DeviceRepository(object):
             args=dict(text_to_speech_id=text_to_speech_id)
         )
         self.cursor.delete(query)
-
-    def get_account_email_by_device_id(self, device_id):
-        query = DatabaseRequest(
-            sql=get_sql_from_file(path.join(SQL_DIR, 'get_account_email_by_device_id.sql')),
-            args=dict(device_id=device_id)
-        )
-        sql_result = self.cursor.select_one(query)
-        if sql_result:
-            return sql_result['email_address']

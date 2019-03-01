@@ -1,7 +1,7 @@
 from http import HTTPStatus
 
 from selene.api import SeleneEndpoint
-from selene.data.device import DeviceRepository
+from selene.data.account import AccountRepository
 from selene.util.db import get_db_connection
 
 
@@ -11,6 +11,10 @@ class DeviceSubscriptionEndpoint(SeleneEndpoint):
 
     def get(self, device_id):
         with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
-            subscription = DeviceRepository(db).get_subscription_type_by_device_id(device_id)
-        response = (subscription, HTTPStatus.OK) if subscription is not None else ('', HTTPStatus.NO_CONTENT)
+            account = AccountRepository(db).get_account_by_device_id(device_id)
+        if account:
+            subscription = account.subscription
+            response = {'@type': subscription.type if subscription is not None else 'free'}, HTTPStatus.OK
+        else:
+            response = '', HTTPStatus.NO_CONTENT
         return response

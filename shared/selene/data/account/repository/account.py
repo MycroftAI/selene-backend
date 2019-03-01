@@ -1,7 +1,8 @@
 from logging import getLogger
-from passlib.hash import sha512_crypt
 from os import environ, path
 from typing import List
+
+from passlib.hash import sha512_crypt
 
 from selene.util.db import (
     DatabaseRequest,
@@ -165,3 +166,11 @@ class AccountRepository(object):
             account = Account(**result['account'])
 
         return account
+
+    def get_account_by_device_id(self, device_id) -> Account:
+        """Return an account using the id of the device associated to the account"""
+        request = DatabaseRequest(
+            sql=get_sql_from_file(path.join(SQL_DIR, 'get_account_by_device_id.sql')),
+            args=dict(device_id=device_id)
+        )
+        return self._get_account(request)
