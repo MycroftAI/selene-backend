@@ -5,26 +5,28 @@ from psycopg2 import connect
 
 MYCROFT_DB_DIR = path.join(path.abspath('..'), 'mycroft')
 SCHEMAS = ('account', 'skill', 'device')
-DB_DESTROY_FILES = ('drop_db.sql', 'drop_roles.sql')
-DB_CREATE_FILES = ('create_db.sql', 'create_roles.sql')
+DB_DESTROY_FILES = (
+    'drop_mycroft_db.sql',
+    'drop_template_db.sql',
+    'drop_roles.sql'
+)
+DB_CREATE_FILES = ('create_roles.sql', 'create_template_db.sql')
 ACCOUNT_TABLE_ORDER = (
     'account',
     'refresh_token',
     'agreement',
     'account_agreement',
-    'subscription',
-    'account_subscription',
+    'membership',
+    'account_membership',
 )
 SKILL_TABLE_ORDER = (
     'skill',
+    'setting_meta',
     'branch',
     'activation',
     'category',
     'credit',
     'platform',
-    'setting_version',
-    'setting_section',
-    'setting',
     'tag',
     'oauth_credential',
     'oauth_token'
@@ -38,7 +40,6 @@ DEVICE_TABLE_ORDER = (
     'account_preferences',
     'device',
     'device_skill',
-    'skill_setting'
 )
 
 schema_directory = '{}_schema'
@@ -64,7 +65,7 @@ class PostgresDB(object):
         cursor.execute(sql)
 
 
-postgres_db = PostgresDB(dbname='postgres', user='postgres')
+postgres_db = PostgresDB(dbname='postgres', user='chrisveilleux')
 
 # Destroy any objects we will be creating later.
 for db_destroy_file in DB_DESTROY_FILES:
@@ -80,22 +81,22 @@ for db_setup_file in DB_CREATE_FILES:
 
 postgres_db.close_db()
 
-mycroft_db = PostgresDB(dbname='mycroft', user='postgres')
+template_db = PostgresDB(dbname='mycroft_template', user='mycroft')
 
-mycroft_db.execute_sql(
+template_db.execute_sql(
     get_sql_from_file(path.join('create_extensions.sql'))
 )
 
 # Create user-defined data types
 type_directory = path.join(MYCROFT_DB_DIR, 'types')
 for type_file in glob(type_directory + '/*.sql'):
-    mycroft_db.execute_sql(
+    template_db.execute_sql(
         get_sql_from_file(path.join(type_directory, type_file))
     )
 
 # Create the schemas and grant access
 for schema in SCHEMAS:
-    mycroft_db.execute_sql(
+    template_db.execute_sql(
         get_sql_from_file(schema + '_schema/create_schema.sql')
     )
 
@@ -107,20 +108,9 @@ for table in ACCOUNT_TABLE_ORDER:
         'tables',
         table + '.sql'
     )
-    mycroft_db.execute_sql(
+    template_db.execute_sql(
         get_sql_from_file(create_table_file)
     )
-    insert_rows_file = path.join(
-        'account_schema',
-        'data',
-        table + '.sql'
-    )
-    try:
-        mycroft_db.execute_sql(
-            get_sql_from_file(insert_rows_file)
-        )
-    except FileNotFoundError:
-        pass
 
 # Create the account schema tables first as other schemas have tables with
 # foreign keys to these tables.
@@ -130,20 +120,9 @@ for table in SKILL_TABLE_ORDER:
         'tables',
         table + '.sql'
     )
-    mycroft_db.execute_sql(
+    template_db.execute_sql(
         get_sql_from_file(create_table_file)
     )
-    insert_rows_file = path.join(
-        'skill_schema',
-        'data',
-        table + '.sql'
-    )
-    try:
-        mycroft_db.execute_sql(
-            get_sql_from_file(insert_rows_file)
-        )
-    except FileNotFoundError:
-        pass
 
 # Create the account schema tables first as other schemas have tables with
 # foreign keys to these tables.
@@ -153,23 +132,38 @@ for table in DEVICE_TABLE_ORDER:
         'tables',
         table + '.sql'
     )
-    mycroft_db.execute_sql(
+    template_db.execute_sql(
         get_sql_from_file(create_table_file)
     )
-    insert_rows_file = path.join(
-        'device_schema',
-        'data',
-        table + '.sql'
-    )
-    try:
-        mycroft_db.execute_sql(
-            get_sql_from_file(insert_rows_file)
-        )
-    except FileNotFoundError:
-        pass
 
 # Grant access to schemas and tables
 for schema in SCHEMAS:
-    mycroft_db.execute_sql(
+    template_db.execute_sql(
         get_sql_from_file(schema + '_schema/grants.sql')
     )
+
+template_db.close_db()
+
+# Copy template to new database.
+postgres_db = PostgresDB(dbname='postgres', user='chrisveilleux')
+postgres_db.execute_sql(get_sql_from_file('create_mycroft_db.sql'))
+postgres_db.close_db()
+
+mycroft_db = PostgresDB(dbname='mycroft', user='mycroft')
+insert_files = [
+    dict(schema_dir='account_schema', file_name='membership.sql'),
+    dict(schema_dir='device_schema', file_name='text_to_speech.sql'),
+
+]
+for insert_file in insert_files:
+    insert_file_path = path.join(
+        insert_file['schema_dir'],
+        'data',
+        insert_file['file_name']
+    )
+    try:
+        mycroft_db.execute_sql(
+            get_sql_from_file(insert_file_path)
+        )
+    except FileNotFoundError:
+        pass

@@ -4,6 +4,7 @@ from flask import Flask
 from selene.api import get_base_config, selene_api, SeleneResponse
 from selene.api.endpoints import AccountEndpoint, AgreementsEndpoint
 from selene.util.log import configure_logger
+from  .endpoints import SkillSettingsEndpoint
 
 _log = configure_logger('account_api')
 
@@ -24,4 +25,8 @@ acct.add_url_rule(
     view_func=AgreementsEndpoint.as_view('agreements_api'),
     methods=['GET']
 )
-
+acct.add_url_rule(
+    '/api/skill',
+    view_func=SkillSettingsEndpoint.as_view('skill_api'),
+    methods=['GET', 'POST']
+)
