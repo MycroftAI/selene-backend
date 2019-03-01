@@ -1,3 +1,5 @@
+from http import HTTPStatus
+
 from selene.api import SeleneEndpoint
 from selene.data.skill import SkillRepository
 from selene.util.db import get_db_connection
@@ -12,4 +14,6 @@ class DeviceSkillEndpoint(SeleneEndpoint):
         version_hash = self.request.args.get('identifier')
         if version_hash:
             with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
-                return SkillRepository(db).get_skill_settings_by_device_id_and_version_hash(device_id, version_hash)
+                skill = SkillRepository(db).get_skill_settings_by_device_id_and_version_hash(device_id, version_hash)
+            response = (skill, HTTPStatus.OK) if skill is not None else ('', HTTPStatus.NO_CONTENT)
+            return response
