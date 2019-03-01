@@ -31,7 +31,6 @@ class DeviceRepository(object):
     def get_devices_by_account_id(self, account_id: str) -> List[Device]:
         """Fetch all devices associated to a user from a given account id
 
-        :param db: psycopg2 connection to mycroft database
         :param account_id: uuid
         :return: List of User's devices
         """
@@ -41,6 +40,18 @@ class DeviceRepository(object):
         )
         sql_results = self.cursor.select_all(query)
         return [Device(**result) for result in sql_results]
+
+    def get_account_device_count(self, account_id):
+        query = DatabaseRequest(
+            sql=get_sql_from_file(
+                path.join(SQL_DIR, 'get_account_device_count.sql')
+            ),
+            args=dict(account_id=account_id)
+
+        )
+        sql_results = self.cursor.select_one(query)
+
+        return sql_results['device_count']
 
     def get_subscription_type_by_device_id(self, device_id):
         """Return the type of subscription of device's owner
