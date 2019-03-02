@@ -2,10 +2,10 @@ WITH
     setting_meta AS (
         SELECT
             s.id,
-            count(sm.id) > 0 AS has_settings
+            count(sd.id) > 0 AS has_settings
         FROM
             skill.skill s
-            LEFT JOIN skill.setting_meta sm ON s.id = sm.skill_id
+            LEFT JOIN skill.settings_display sd ON s.id = sd.skill_id
         GROUP BY
             s.id
     ),

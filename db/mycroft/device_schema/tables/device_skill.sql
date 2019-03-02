@@ -13,8 +13,8 @@ CREATE TABLE device.device_skill (
     install_failure_reason  text,
     install_ts              TIMESTAMP,
     update_ts               TIMESTAMP,
-    skill_setting_meta_id   uuid
-        REFERENCES skill.setting_meta,
+    skill_settings_display_id   uuid
+        REFERENCES skill.settings_display,
     settings                json,
     insert_ts               TIMESTAMP   NOT NULL
         DEFAULT CURRENT_TIMESTAMP,

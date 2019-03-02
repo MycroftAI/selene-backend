@@ -22,10 +22,10 @@ class SkillSettingRepository(RepositoryBase):
 
         skill_settings = []
         for row in db_result:
-            settings_definition = row['settings_definition']['skillMetadata']
+            settings_display = row['settings_display']['skillMetadata']
             skill_settings.append(
                 AccountSkillSetting(
-                    settings_definition=settings_definition,
+                    settings_display=settings_display,
                     settings_values=row['settings_values'],
                     devices=row['devices']
                 )

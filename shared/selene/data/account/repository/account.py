@@ -79,7 +79,8 @@ class AccountRepository(object):
             args=dict(
                 account_id=acct_id,
                 membership_type=membership.type,
-                stripe_customer_id=membership.stripe_customer_id
+                payment_method=membership.payment_method,
+                payment_account_id=membership.payment_account_id
             )
         )
         self.cursor.insert(request)

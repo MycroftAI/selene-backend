@@ -3,14 +3,13 @@ from http import HTTPStatus
 from flask import json
 
 from selene.api import SeleneEndpoint, snake_to_camel
-from selene.data.device import DeviceRepository
 from selene.data.skill import SkillSettingRepository
 from selene.util.db import get_db_connection
 
 
 def _parse_selection_options(skill_settings):
     for skill_setting in skill_settings:
-        for section in skill_setting.settings_definition['sections']:
+        for section in skill_setting.settings_display['sections']:
             for field in section['fields']:
                 field_name = field.get('name')
                 if field_name is not None:
