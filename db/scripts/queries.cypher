@@ -1,5 +1,5 @@
 users.csv
-match (n:User) return n.uuid, n.email, n.password
+match (n:User) return n.uuid, n.email, n.password, n.termsOfUseDate, n.privacyPolicyDate
 
 subscription.csv
 match (n) where ((n:MonthlyAccount) or (n:YearlyAccount)) and n.expiratesAt is not null set n.expiresAt = n.expiratesAt

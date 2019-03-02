@@ -34,6 +34,8 @@ def load_csv():
             users[row[0]] = {}
             users[row[0]]['email'] = row[1]
             users[row[0]]['password'] = row[2]
+            users[row[0]]['terms'] = row[3]
+            users[row[0]]['privacy'] = row[4]
 
     with open('user_settings.csv') as user_setting_csv:
         user_setting_reader = csv.reader(user_setting_csv)
@@ -220,6 +222,15 @@ def fill_account_table():
     with db.cursor() as cur:
         accounts = ((uuid, account['email'], account['password']) for uuid, account in users.items())
         execute_batch(cur, query, accounts, page_size=1000)
+
+
+def fill_account_agreement_table():
+    query = 'insert into account.agreement(account_id, agreement_id, accept_date)' \
+            'values (%s, select id from account.agreement where agreement = %s, %s)'
+    with db.cursor() as cur:
+        terms = [(uuid, format_timestamp(account['terms'])) for uuid, account in users.items()]
+        privacy = [(uuid, format_timestamp(account['privacy'])) for uuid, account in users.items()]
+        execute_batch(cur, query, terms+privacy, page_size=1000)
 
 
 def fill_wake_word_table():
@@ -434,6 +445,7 @@ load_csv()
 end = time.time()
 
 print('Time to load CSVs {}'.format(end - start))
+print('Importing the skills table')
 """
 start = time.time()
 print('Importing account table')
@@ -450,8 +462,7 @@ print('Importing category table')
 fill_device_category_table()
 print('Importing device table')
 fill_device_table()
-"""
-print('Importing the skills table')
 fill_skills_table()
+"""
 end = time.time()
 print('Time to import: {}'.format(end-start))
