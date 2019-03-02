@@ -446,7 +446,7 @@ end = time.time()
 
 print('Time to load CSVs {}'.format(end - start))
 print('Importing the skills table')
-"""
+
 start = time.time()
 print('Importing account table')
 fill_account_table()
@@ -463,6 +463,5 @@ fill_device_category_table()
 print('Importing device table')
 fill_device_table()
 fill_skills_table()
-"""
 end = time.time()
 print('Time to import: {}'.format(end-start))

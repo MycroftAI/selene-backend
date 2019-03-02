@@ -31,32 +31,32 @@ WITH
         WHERE
             dev.id = %(device_id)s
     ),
-    subscription AS (
+    membership AS (
         SELECT
             json_build_object(
-                'id', asub.id,
-                'type', s.subscription,
-                'start_date', lower(asub.subscription_ts_range)::DATE,
-                'stripe_customer_id', asub.stripe_customer_id
+                'id', acc_mem.id,
+                'type', mem.type,
+                'start_date', lower(acc_mem.membership_ts_range)::DATE,
+                'stripe_customer_id', acc_mem.stripe_customer_id
             )
         FROM
-            account.account_subscription asub
+            account.account_membership acc_mem
         INNER JOIN
-            account.subscription s ON asub.subscription_id = s.id
+            account.membership mem ON acc_mem.membership_id = mem.id
         INNER JOIN
-            account.account acc ON asub.account_id = acc.id
+            account.account acc ON acc_mem.account_id = acc.id
         INNER JOIN
             device.device dev ON acc.id = dev.account_id
         WHERE
             dev.id = %(device_id)s
-            AND upper(asub.subscription_ts_range) IS NULL
+            AND upper(acc_mem.membership_ts_range) IS NULL
     )
 SELECT
     json_build_object(
         'id', acc.id,
         'email_address', acc.email_address,
         'username', acc.username,
-        'subscription', (SELECT * FROM subscription),
+        'membership', (SELECT * FROM membership),
         'refresh_tokens', (SELECT * FROM refresh_tokens),
         'agreements', (SELECT * FROM agreements)
     ) as account
