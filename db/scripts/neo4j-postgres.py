@@ -21,8 +21,6 @@ device_to_skill = {}
 skill_to_section = {}
 section_to_field = {}
 device_to_field = {}
-skill_json = {}
-skill_manifest = {}
 
 
 def load_csv():
@@ -92,7 +90,6 @@ def load_csv():
             skills[skill]['device_uuid'] = dev_uuid
             skills[skill]['name'] = row[2]
             skills[skill]['description'] = row[3]
-            skills[skill]['identifier'] = row[4]
             if dev_uuid in device_to_skill:
                 device_to_skill[dev_uuid].add(skill)
             else:
@@ -148,25 +145,6 @@ def load_csv():
                 device_to_field[device_uuid].add(field_uuid)
             else:
                 device_to_field[device_uuid] = {field_uuid}
-
-    with open('skill_json.csv') as skill_json_csv:
-        skill_json_reader = csv.reader(skill_json_csv)
-        next(skill_json_reader, None)
-        for row in skill_json_reader:
-            device_id = row[0]
-            manifest_id = row[1]
-            skill_manifest[manifest_id] = {}
-            skill_manifest[manifest_id]['name'] = row[2]
-            skill_manifest[manifest_id]['install_method'] = row[3]
-            skill_manifest[manifest_id]['installation_status']: row[4]
-            skill_manifest[manifest_id]['beta'] = row[5]
-            skill_manifest[manifest_id]['install_ts'] = row[6]
-            skill_manifest[manifest_id]['update_ts'] = row[7]
-
-            if device_id in skill_json:
-                skill_json[device_id].add(manifest_id)
-            else:
-                skill_json[device_id] = {manifest_id}
 
 
 def format_date(value):
@@ -313,8 +291,9 @@ def fill_subscription_table():
             'account_id, ' \
             'membership_id, ' \
             'membership_ts_range, ' \
-            'stripe_customer_id) ' \
-            'values (%s, %s, %s, %s)'
+            'payment_account_id,' \
+            'payment_method) ' \
+            'values (%s, %s, %s, %s, %s)'
 
     def map_subscription(user_uuid):
         subscr = subscription[user_uuid]
@@ -327,7 +306,7 @@ def fill_subscription_table():
         elif subscription_type == 'YearlyAccount':
             subscription_type = 'year'
         subscription_uuid = get_subscription_uuid(subscription_type)
-        return user_uuid, subscription_uuid, subscription_ts_range, stripe_customer_id
+        return user_uuid, subscription_uuid, subscription_ts_range, stripe_customer_id, 'Stripe'
     with db.cursor() as cur:
         account_subscriptions = (map_subscription(user_uuid) for user_uuid in subscription)
         execute_batch(cur, query, account_subscriptions, page_size=1000)
@@ -359,7 +338,7 @@ def fill_wake_word_settings_table():
         execute_batch(cur, query, account_wake_word_settings, page_size=1000)
 
 
-def fill_device_category_table():
+def change_device_name():
     for user in user_devices:
         if user in users:
             device_names = defaultdict(list)
@@ -413,30 +392,31 @@ def fill_skills_table():
                 if device_uuid in device_to_skill:
                     for skill_uuid in device_to_skill[device_uuid]:
                         skill = skills[skill_uuid]
-                        version = skill['identifier']
                         skill_name = skill['name']
                         sections = []
                         settings = {}
-                        for section_uuid in skill_to_section[skill_uuid]:
-                            section = skill_sections[section_uuid]
-                            section_name = section['section']
-                            fields = []
-                            for field_uuid in section_to_field[section_uuid]:
-                                fields.append(skill_fields[field_uuid])
-                                settings[skill_fields[field_uuid]['name']] = skill_field_values[field_uuid]['field_value']
-                            sections.append({'name': section_name, 'fields': fields})
-                        skill_setting_meta = {'sections': sections}
+                        if skill_uuid in skill_to_section:
+                            for section_uuid in skill_to_section[skill_uuid]:
+                                section = skill_sections[section_uuid]
+                                section_name = section['section']
+                                fields = []
+                                if section_uuid in section_to_field:
+                                    for field_uuid in section_to_field[section_uuid]:
+                                        fields.append(skill_fields[field_uuid])
+                                        settings[skill_fields[field_uuid]['name']] = skill_field_values[field_uuid]['field_value']
+                                sections.append({'name': section_name, 'fields': fields})
+                        skill_setting_meta = {'name': skill_name, 'skillMetadata': {'sections': sections}}
                         skills_batch.append((skill_uuid, skill_name))
                         meta_id = str(uuid.uuid4())
-                        settings_meta_batch.append((meta_id, skill_uuid, version, json.dumps(skill_setting_meta)))
+                        settings_meta_batch.append((meta_id, skill_uuid, json.dumps(skill_setting_meta)))
                         device_skill_batch.append((device_uuid, skill_uuid, meta_id, json.dumps(settings)))
 
     with db.cursor() as curr:
         query = 'insert into skill.skill(id, name) values (%s, %s)'
         execute_batch(curr, query, skills_batch, page_size=1000)
-        query = 'insert into skill.setting_meta(id, skill_id, version, settings_meta) values (%s, %s, %s, %s)'
+        query = 'insert into skill.settings_display(id, skill_id, settings_display) values (%s, %s, %s)'
         execute_batch(curr, query, settings_meta_batch, page_size=1000)
-        query = 'insert into device.device_skill(device_id, skill_id, skill_setting_meta_id, settings) ' \
+        query = 'insert into device.device_skill(device_id, skill_id, skill_settings_display_id, settings) ' \
                 'values (%s, %s, %s, %s)'
         execute_batch(curr, query, device_skill_batch, page_size=1000)
 
@@ -445,7 +425,6 @@ load_csv()
 end = time.time()
 
 print('Time to load CSVs {}'.format(end - start))
-print('Importing the skills table')
 
 start = time.time()
 print('Importing account table')
@@ -458,10 +437,10 @@ print('Importing subscription table')
 fill_subscription_table()
 print('Importing wake word settings table')
 fill_wake_word_settings_table()
-print('Importing category table')
-fill_device_category_table()
 print('Importing device table')
+change_device_name()
 fill_device_table()
+print('Filling skills table')
 fill_skills_table()
 end = time.time()
 print('Time to import: {}'.format(end-start))

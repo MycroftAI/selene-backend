@@ -21,11 +21,11 @@ class SkillRepository(RepositoryBase):
         if sql_results:
             skills = []
             for result in sql_results:
-                sections = self._fill_setting_with_values(result['settings'], result['settings_meta'])
+                sections = self._fill_setting_with_values(result['settings'], result['settings_display'])
                 skill = {
                     'uuid': result['id'],
                     'name': result['name'],
-                    'identifier': result['version'],
+                    'identifier': result['name'],
                     'skillMetadata': {
                         'sections': sections
                     }
@@ -50,7 +50,7 @@ class SkillRepository(RepositoryBase):
             skill = {
                 'uuid': sql_results['id'],
                 'name': sql_results['name'],
-                'identifier': sql_results['version'],
+                'identifier': sql_results['name'],
                 'skillMetadata': {
                     'sections': sections
                 }
@@ -58,7 +58,7 @@ class SkillRepository(RepositoryBase):
             return skill
 
     def _fill_setting_with_values(self, settings: dict, setting_meta: dict):
-        sections = setting_meta['sections']
+        sections = setting_meta['skillMetadata']['sections']
         for section in sections:
             section_fields = section['fields']
             for field in section_fields:
