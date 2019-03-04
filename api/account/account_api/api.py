@@ -4,7 +4,9 @@ from flask import Flask
 from selene.api import get_base_config, selene_api, SeleneResponse
 from selene.api.endpoints import AccountEndpoint, AgreementsEndpoint
 from selene.util.log import configure_logger
-from  .endpoints import SkillSettingsEndpoint
+from .endpoints.device_count import DeviceCountEndpoint
+from .endpoints.skills import SkillsEndpoint
+from .endpoints.skill_settings import SkillSettingsEndpoint
 
 _log = configure_logger('account_api')
 
@@ -25,8 +27,24 @@ acct.add_url_rule(
     view_func=AgreementsEndpoint.as_view('agreements_api'),
     methods=['GET']
 )
+
+skill_endpoint = SkillsEndpoint.as_view('skill_endpoint')
 acct.add_url_rule(
-    '/api/skill',
-    view_func=SkillSettingsEndpoint.as_view('skill_api'),
-    methods=['GET', 'POST']
+    '/api/skills',
+    view_func=skill_endpoint,
+    methods=['GET']
+)
+
+setting_endpoint = SkillSettingsEndpoint.as_view('setting_endpoint')
+acct.add_url_rule(
+    '/api/skills/<string:skill_id>/settings',
+    view_func=setting_endpoint,
+    methods=['GET', 'PUT']
+)
+
+device_count_endpoint = DeviceCountEndpoint.as_view('device_count_endpoint')
+acct.add_url_rule(
+    '/api/device-count',
+    view_func=device_count_endpoint,
+    methods=['GET']
 )

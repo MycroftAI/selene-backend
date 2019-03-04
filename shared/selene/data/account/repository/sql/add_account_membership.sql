@@ -3,7 +3,8 @@ INSERT INTO
         account_id,
         membership_id,
         membership_ts_range,
-        stripe_customer_id
+        payment_method,
+        payment_account_id
     )
 VALUES
     (
@@ -17,5 +18,6 @@ VALUES
                 type = %(membership_type)s
         ),
         '[now,]',
-        %(stripe_customer_id)s
+        %(payment_method)s,
+        %(payment_account_id)s
     )
