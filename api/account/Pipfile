@@ -1,0 +1,17 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+flask = "*"
+uwsgi = "*"
+schematics = "*"
+selene = {editable = true,path = "./../../shared"}
+
+[dev-packages]
+behave = "*"
+pyhamcrest = "*"
+
+[requires]
+python_version = "3.7"
