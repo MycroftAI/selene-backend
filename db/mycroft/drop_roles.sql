@@ -1,0 +1,3 @@
+DROP ROLE IF EXISTS selene;
+DROP ROLE IF EXISTS appuser;
+DROP ROLE IF EXISTS mycroft;
