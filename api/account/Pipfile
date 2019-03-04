@@ -7,9 +7,9 @@ name = "pypi"
 flask = "*"
 uwsgi = "*"
 schematics = "*"
+selene = {editable = true,path = "./../../shared"}
 
 [dev-packages]
-selene = {editable = true,path = "./../../shared"}
 behave = "*"
 pyhamcrest = "*"
 
