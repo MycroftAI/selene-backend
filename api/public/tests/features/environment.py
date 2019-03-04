@@ -24,7 +24,7 @@ account = Account(
                 AccountAgreement(type=PRIVACY_POLICY, accept_date=date.today()),
                 AccountAgreement(type=TERMS_OF_USE, accept_date=date.today())
             ],
-    subscription=None
+    membership=None
 )
 
 wake_word = WakeWord(

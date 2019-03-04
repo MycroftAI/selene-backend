@@ -1,8 +1,12 @@
 import csv
 import datetime
-
-from psycopg2 import connect
+import json
 import uuid
+from collections import defaultdict
+
+import time
+from psycopg2 import connect
+from psycopg2.extras import execute_batch
 
 users = {}
 user_settings = {}
@@ -28,6 +32,8 @@ def load_csv():
             users[row[0]] = {}
             users[row[0]]['email'] = row[1]
             users[row[0]]['password'] = row[2]
+            users[row[0]]['terms'] = row[3]
+            users[row[0]]['privacy'] = row[4]
 
     with open('user_settings.csv') as user_setting_csv:
         user_setting_reader = csv.reader(user_setting_csv)
@@ -84,7 +90,6 @@ def load_csv():
             skills[skill]['device_uuid'] = dev_uuid
             skills[skill]['name'] = row[2]
             skills[skill]['description'] = row[3]
-            skills[skill]['identifier'] = row[4]
             if dev_uuid in device_to_skill:
                 device_to_skill[dev_uuid].add(skill)
             else:
@@ -112,7 +117,7 @@ def load_csv():
             field_uuid = row[0]
             skill_fields[field_uuid] = {}
             section_uuid = row[1]
-            skill_fields[field_uuid]['section_uuid'] = section_uuid
+            #skill_fields[field_uuid]['section_uuid'] = section_uuid
             skill_fields[field_uuid]['name'] = row[2]
             skill_fields[field_uuid]['type'] = row[3]
             skill_fields[field_uuid]['label'] = row[4]
@@ -120,7 +125,7 @@ def load_csv():
             skill_fields[field_uuid]['placeholder'] = row[6]
             skill_fields[field_uuid]['hide'] = row[7]
             skill_fields[field_uuid]['options'] = row[8]
-            skill_fields[field_uuid]['order'] = row[9]
+            #skill_fields[field_uuid]['order'] = row[9]
             if section_uuid in section_to_field:
                 section_to_field[section_uuid].add(field_uuid)
             else:
@@ -142,51 +147,6 @@ def load_csv():
                 device_to_field[device_uuid] = {field_uuid}
 
 
-def parse_user_setting(user_uuid) -> (str, str, str, str):
-    if user_uuid in user_settings:
-        user_setting = user_settings[user_uuid]
-        date_format = user_setting['date_format']
-        if date_format == 'DMY':
-            date_format = 'DD/MM/YYYY'
-        else:
-            date_format = 'MM/DD/YYYY'
-        time_format = user_setting['time_format']
-        if time_format == 'full':
-            time_format = '24 Hour'
-        else:
-            time_format = '12 Hour'
-        measurement_system = user_setting['measurement_system']
-        if measurement_system == 'metric':
-            measurement_system = 'Metric'
-        elif measurement_system == 'imperial':
-            measurement_system = 'Imperial'
-        wake_word = user_setting['wake_word']
-        tts_type = user_setting['tts_type']
-        tts_voice = user_setting['tts_voice']
-        if tts_type == 'MimicSetting':
-            if tts_voice == 'ap':
-                tts = 'ap'
-            elif tts_voice == 'trinity':
-                tts = 'amy'
-            else:
-                tts = 'ap'
-        elif tts_type == 'Mimic2Setting':
-            tts = 'kusal'
-        elif tts_type == 'GoogleTTSSetting':
-            tts = 'google'
-        else:
-            tts = 'ap'
-        sample_rate = user_setting['sample_rate']
-        channels = user_setting['channels']
-        pronunciation = user_setting['pronunciation']
-        threshold = user_setting['threshold']
-        threshold_multiplier = user_setting['threshold_multiplier']
-        dynamic_energy_ratio = user_setting['dynamic_energy_ratio']
-        return date_format, time_format, measurement_system, tts, wake_word, sample_rate, channels, pronunciation, threshold, threshold_multiplier, dynamic_energy_ratio
-    else:
-        return 'MM/DD/YYYY', '12 Hour', 'Imperial', 'ap', 'Hey Mycroft', '16000', '1', 'HH EY . M AY K R AO F T', '1e-90', '1.0', '1.5'
-
-
 def format_date(value):
     value = int(value)
     value = datetime.datetime.fromtimestamp(value//1000)
@@ -198,21 +158,6 @@ def format_timestamp(value):
     value = datetime.datetime.fromtimestamp(value//1000)
     return f'{value:%Y-%m-%d %H:%M:%S}'
 
-
-def parse_subscription(user_uuid):
-    if user_uuid in subscription:
-        subscr = subscription[user_uuid]
-        stripe_customer_id = subscr['stripe_customer_id']
-        start = format_timestamp(subscr['last_payment_ts'])
-        subscription_ts_range = '[{},)'.format(start)
-        subscription_type = subscr['type']
-        if subscription_type == 'MonthlyAccount':
-            subscription_type = 'month'
-        elif subscription_type == 'YearlyAccount':
-            subscription_type = 'year'
-        return subscription_ts_range, stripe_customer_id, subscription_type
-    else:
-        return '', '', ''
 
 
 db = connect(dbname='mycroft', user='postgres', host='127.0.0.1')
@@ -226,7 +171,7 @@ def get_subscription_uuid(subs):
         return subscription_uuids[subs]
     else:
         cursor = db.cursor()
-        cursor.execute(f'select id from account.subscription s where s.rate_period = \'{subs}\'')
+        cursor.execute(f'select id from account.membership s where s.rate_period = \'{subs}\'')
         result = cursor.fetchone()
         subscription_uuids[subs] = result
         return result
@@ -246,35 +191,46 @@ def get_tts_uuid(tts):
         return result
 
 
-def create_account(user_uuid):
-    user = users[user_uuid]
-    email = user['email']
-    password = user['password']
-    date_format, time_format, measurement_system, tts, wake_word, sample_rate, channels, pronunciation, threshold, threshold_multiplier, dynamic_energy_ratio = parse_user_setting(user_uuid)
-    subscription_ts_range, stripe_customer_id, subscription_type = parse_subscription(user_uuid)
-    cursor = db.cursor()
-
+def fill_account_table():
     query = 'insert into account.account(' \
             'id, ' \
             'email_address, ' \
             'password) ' \
             'values (%s, %s, %s)'
-    params = (user_uuid, email, password)
-    cursor.execute(query, params)
+    with db.cursor() as cur:
+        accounts = ((uuid, account['email'], account['password']) for uuid, account in users.items())
+        execute_batch(cur, query, accounts, page_size=1000)
 
-    wake_word_id = str(uuid.uuid4())
-    user['wake_word_id'] = wake_word_id
+
+def fill_account_agreement_table():
+    query = 'insert into account.agreement(account_id, agreement_id, accept_date)' \
+            'values (%s, select id from account.agreement where agreement = %s, %s)'
+    with db.cursor() as cur:
+        terms = [(uuid, format_timestamp(account['terms'])) for uuid, account in users.items()]
+        privacy = [(uuid, format_timestamp(account['privacy'])) for uuid, account in users.items()]
+        execute_batch(cur, query, terms+privacy, page_size=1000)
+
+
+def fill_wake_word_table():
     query = 'insert into device.wake_word (' \
             'id,' \
             'wake_word,' \
+            'engine,' \
             'account_id)' \
-            'values (%s, %s, %s)'
-    params = (wake_word_id, wake_word, user_uuid)
-    cursor.execute(query, params)
+            'values (%s, %s, %s, %s)'
 
-    text_to_speech_id = get_tts_uuid(tts)
-    user['text_to_speech_id'] = text_to_speech_id
+    def map_wake_word(user_id):
+        wake_word_id = str(uuid.uuid4())
+        wake_word = user_settings[user_id]['wake_word'] if user_id in user_settings else 'Hey Mycroft'
+        users[user_id]['wake_word_id'] = wake_word_id
+        return wake_word_id, wake_word, 'precise', user_id
 
+    with db.cursor() as cur:
+        wake_words = (map_wake_word(account_id) for account_id in users)
+        execute_batch(cur, query, wake_words, page_size=1000)
+
+
+def fill_account_preferences_table():
     query = 'insert into device.account_preferences(' \
             'account_id, ' \
             'date_format, ' \
@@ -283,20 +239,80 @@ def create_account(user_uuid):
             'wake_word_id,' \
             'text_to_speech_id)' \
             'values (%s, %s, %s, %s, %s, %s)'
-    params = (user_uuid, date_format, time_format, measurement_system, wake_word_id, text_to_speech_id)
-    cursor.execute(query, params)
 
-    if subscription_ts_range != '':
+    def map_account_preferences(user_uuid):
+        if user_uuid in user_settings:
+            user_setting = user_settings[user_uuid]
+            date_format = user_setting['date_format']
+            if date_format == 'DMY':
+                date_format = 'DD/MM/YYYY'
+            else:
+                date_format = 'MM/DD/YYYY'
+            time_format = user_setting['time_format']
+            if time_format == 'full':
+                time_format = '24 Hour'
+            else:
+                time_format = '12 Hour'
+            measurement_system = user_setting['measurement_system']
+            if measurement_system == 'metric':
+                measurement_system = 'Metric'
+            elif measurement_system == 'imperial':
+                measurement_system = 'Imperial'
+            tts_type = user_setting['tts_type']
+            tts_voice = user_setting['tts_voice']
+            if tts_type == 'MimicSetting':
+                if tts_voice == 'ap':
+                    tts = 'ap'
+                elif tts_voice == 'trinity':
+                    tts = 'amy'
+                else:
+                    tts = 'ap'
+            elif tts_type == 'Mimic2Setting':
+                tts = 'kusal'
+            elif tts_type == 'GoogleTTSSetting':
+                tts = 'google'
+            else:
+                tts = 'ap'
+            text_to_speech_id = get_tts_uuid(tts)
+            users[user_uuid]['text_to_speech_id'] = text_to_speech_id
+            return user_uuid, date_format, time_format, measurement_system, users[user_uuid]['wake_word_id'], text_to_speech_id
+        else:
+            text_to_speech_id = get_tts_uuid('ap')
+            users[user_uuid]['text_to_speech_id'] = text_to_speech_id
+            return user_uuid, 'MM/DD/YYYY', '12 Hour', 'Imperial', users[user_uuid]['wake_word_id'], text_to_speech_id
+
+    with db.cursor() as cur:
+        account_preferences = (map_account_preferences(user_uuid) for user_uuid in users)
+        execute_batch(cur, query, account_preferences, page_size=1000)
+
+
+def fill_subscription_table():
+    query = 'insert into account.account_membership(' \
+            'account_id, ' \
+            'membership_id, ' \
+            'membership_ts_range, ' \
+            'payment_account_id,' \
+            'payment_method) ' \
+            'values (%s, %s, %s, %s, %s)'
+
+    def map_subscription(user_uuid):
+        subscr = subscription[user_uuid]
+        stripe_customer_id = subscr['stripe_customer_id']
+        start = format_timestamp(subscr['last_payment_ts'])
+        subscription_ts_range = '[{},)'.format(start)
+        subscription_type = subscr['type']
+        if subscription_type == 'MonthlyAccount':
+            subscription_type = 'month'
+        elif subscription_type == 'YearlyAccount':
+            subscription_type = 'year'
         subscription_uuid = get_subscription_uuid(subscription_type)
-        query = 'insert into account.account_subscription(' \
-                'account_id, ' \
-                'subscription_id, ' \
-                'subscription_ts_range, ' \
-                'stripe_customer_id) ' \
-                'values (%s, %s, %s, %s)'
-        params = (user_uuid, subscription_uuid, subscription_ts_range, stripe_customer_id)
-        cursor.execute(query, params)
+        return user_uuid, subscription_uuid, subscription_ts_range, stripe_customer_id, 'Stripe'
+    with db.cursor() as cur:
+        account_subscriptions = (map_subscription(user_uuid) for user_uuid in subscription)
+        execute_batch(cur, query, account_subscriptions, page_size=1000)
 
+
+def fill_wake_word_settings_table():
     query = 'insert into device.wake_word_settings(' \
             'wake_word_id,' \
             'sample_rate,' \
@@ -306,123 +322,125 @@ def create_account(user_uuid):
             'threshold_multiplier,' \
             'dynamic_energy_ratio)' \
             'values (%s, %s, %s, %s, %s, %s, %s)'
-    params = (wake_word_id, sample_rate, channels, pronunciation, threshold, threshold_multiplier, dynamic_energy_ratio)
-    cursor.execute(query, params)
 
-load_csv()
+    def map_wake_word_settings(user_uuid):
+        user_setting = user_settings[user_uuid]
+        wake_word_id = users[user_uuid]['wake_word_id']
+        sample_rate = user_setting['sample_rate']
+        channels = user_setting['channels']
+        pronunciation = user_setting['pronunciation']
+        threshold = user_setting['threshold']
+        threshold_multiplier = user_setting['threshold_multiplier']
+        dynamic_energy_ratio = user_setting['dynamic_energy_ratio']
+        return wake_word_id, sample_rate, channels, pronunciation, threshold, threshold_multiplier, dynamic_energy_ratio
+    with db.cursor() as cur:
+        account_wake_word_settings = (map_wake_word_settings(user_uuid) for user_uuid in users if user_uuid in user_settings)
+        execute_batch(cur, query, account_wake_word_settings, page_size=1000)
 
-for account in users:
-    print('Creating user {}'.format(account))
-    create_account(account)
+
+def change_device_name():
+    for user in user_devices:
+        if user in users:
+            device_names = defaultdict(list)
+            for device_uuid, name in user_devices[user]:
+                device_names[name].append(device_uuid)
+            for name in device_names:
+                uuids = device_names[name]
+                if len(uuids) > 1:
+                    count = 1
+                    for uuid in uuids:
+                        devices[uuid]['name'] = '{name}-{uuid}'.format(name=name, uuid=uuid)
+                        count += 1
 
 
-def create_device(device_uuid, category):
-    print('Creating device {} with category {}'.format(device_uuid, category))
-    device = devices[device_uuid]
-    account_id = device['user_uuid']
-    device_name = device['name']
-    description = device['description']
-    platform = device['platform']
-    enclosure_version = device['enclosure_version']
-    core_version = device['core_version']
-
-    wake_word_id = users[account_id]['wake_word_id']
-    text_to_speech_id = users[account_id]['text_to_speech_id']
-
-    cursor = db.cursor()
-    query = 'select cat.id from device.category cat left join account.account acc on cat.account_id = acc.id where acc.id = %s and cat.category = %s'
-    params = (account_id, category)
-    cursor.execute(query, params)
-    category_id = cursor.fetchone()
-    if category_id is None:
-        query = 'insert into device.category(id, account_id, category) values (%s, %s, %s)'
-        category_id = str(uuid.uuid4())
-        params = (category_id, account_id, category)
-        cursor.execute(query, params)
-
+def fill_device_table():
     query = 'insert into device.device(' \
             'id, ' \
             'account_id, ' \
             'name, ' \
-            'category_id,' \
             'placement,' \
             'platform,' \
             'enclosure_version,' \
             'core_version,' \
             'wake_word_id,' \
             'text_to_speech_id) ' \
-            'values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
-    params = (device_uuid, account_id, device_name, category_id, description, platform, enclosure_version, core_version, wake_word_id, text_to_speech_id)
-    cursor.execute(query, params)
+            'values (%s, %s, %s, %s, %s, %s, %s, %s, %s)'
+
+    def map_device(device_id):
+        device = devices[device_id]
+        account_id = device['user_uuid']
+        name = device['name']
+        placement = device['description']
+        platform = device['platform']
+        enclosure_version = device['enclosure_version']
+        core_version = device['core_version']
+        wake_word_id = users[account_id]['wake_word_id']
+        text_to_speech_id = users[account_id]['text_to_speech_id']
+        return device_id, account_id, name, placement, platform, enclosure_version, core_version, wake_word_id, text_to_speech_id
+    with db.cursor() as cur:
+        devices_batch = (map_device(device_id) for user in user_devices if user in users for device_id, name in user_devices[user])
+        execute_batch(cur, query, devices_batch, page_size=1000)
 
 
-def create_device_skills(device_uuid):
-    cursor = db.cursor()
-    if device_uuid in device_to_skill:
-        for skill_uuid in device_to_skill[device_uuid]:
-            skill = skills[skill_uuid]
-            version_hash = skill['identifier']
-            skill_name = skill['name']
-            print('Creating skill with id {}'.format(skill_uuid))
-            query = 'insert into skill.skill(id, name) values (%s, %s)'
-            params = (skill_uuid, skill_name)
-            cursor.execute(query, params)
-
-            skill_version_id = str(uuid.uuid4())
-            query = 'insert into skill.setting_version(id, skill_id, version_hash) values (%s, %s, %s)'
-            params = (skill_version_id, skill_uuid, version_hash)
-            cursor.execute(query, params)
-
-            device_skill_id = str(uuid.uuid4())
-            query = 'insert into device.device_skill (id, device_id, skill_id) values (%s, %s, %s)'
-            params = (device_skill_id, device_uuid, skill_uuid)
-            cursor.execute(query, params)
-            for section_uuid in skill_to_section[skill_uuid]:
-                print('Creating section with id {}'.format(section_uuid))
-                query = 'insert into skill.setting_section(id, skill_version_id, section, display_order) values (%s, %s, %s, %s)'
-                section = skill_sections[section_uuid]
-                section_name = section['section']
-                display_order = section['display_order']
-                params = (section_uuid, skill_version_id, section_name, display_order)
-                cursor.execute(query, params)
-                for field_uuid in section_to_field[section_uuid]:
-                    print('Creating field with id {}'.format(field_uuid))
-                    query = 'insert into skill.setting(id, setting_section_id, setting, setting_type, hint, label, placeholder, hidden, options, display_order) values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
-                    field = skill_fields[field_uuid]
-                    setting = field['name']
-                    setting_type = field['type']
-                    hint = field['hint']
-                    label = field['label']
-                    placeholder = field['placeholder']
-                    hidden = field['hide']
-                    options = field['options']
-                    display_order = field['order']
-                    params = (field_uuid, section_uuid, setting, setting_type, hint, label, placeholder, hidden == 'true', options, display_order)
-                    cursor.execute(query, params)
-
-                    field_value = skill_field_values[field_uuid]['field_value']
-                    query = 'insert into device.skill_setting(device_skill_id, setting_id, value) values (%s, %s, %s)'
-                    params = (device_skill_id, field_uuid, field_value)
-                    cursor.execute(query, params)
-
-
-def create_devices():
+def fill_skills_table():
+    skills_batch = []
+    settings_meta_batch = []
+    device_skill_batch = []
     for user in user_devices:
         if user in users:
-            category = {}
             for device_uuid, name in user_devices[user]:
-                if name in category:
-                    category[name].append(device_uuid)
-                else:
-                    category[name] = [device_uuid]
-            print('User {} Categories: {}'.format(user, category))
-            for name in category:
-                group = 1
-                for device_uuid in category[name]:
-                    create_device(device_uuid, 'Group {}'.format(group))
-                    create_device_skills(device_uuid)
-                    group += 1
+                if device_uuid in device_to_skill:
+                    for skill_uuid in device_to_skill[device_uuid]:
+                        skill = skills[skill_uuid]
+                        skill_name = skill['name']
+                        sections = []
+                        settings = {}
+                        if skill_uuid in skill_to_section:
+                            for section_uuid in skill_to_section[skill_uuid]:
+                                section = skill_sections[section_uuid]
+                                section_name = section['section']
+                                fields = []
+                                if section_uuid in section_to_field:
+                                    for field_uuid in section_to_field[section_uuid]:
+                                        fields.append(skill_fields[field_uuid])
+                                        settings[skill_fields[field_uuid]['name']] = skill_field_values[field_uuid]['field_value']
+                                sections.append({'name': section_name, 'fields': fields})
+                        skill_setting_meta = {'name': skill_name, 'skillMetadata': {'sections': sections}}
+                        skills_batch.append((skill_uuid, skill_name))
+                        meta_id = str(uuid.uuid4())
+                        settings_meta_batch.append((meta_id, skill_uuid, json.dumps(skill_setting_meta)))
+                        device_skill_batch.append((device_uuid, skill_uuid, meta_id, json.dumps(settings)))
 
+    with db.cursor() as curr:
+        query = 'insert into skill.skill(id, name) values (%s, %s)'
+        execute_batch(curr, query, skills_batch, page_size=1000)
+        query = 'insert into skill.settings_display(id, skill_id, settings_display) values (%s, %s, %s)'
+        execute_batch(curr, query, settings_meta_batch, page_size=1000)
+        query = 'insert into device.device_skill(device_id, skill_id, skill_settings_display_id, settings) ' \
+                'values (%s, %s, %s, %s)'
+        execute_batch(curr, query, device_skill_batch, page_size=1000)
 
-create_devices()
+start = time.time()
+load_csv()
+end = time.time()
 
+print('Time to load CSVs {}'.format(end - start))
+
+start = time.time()
+print('Importing account table')
+fill_account_table()
+print('Importing wake word table')
+fill_wake_word_table()
+print('Importing account preferences table')
+fill_account_preferences_table()
+print('Importing subscription table')
+fill_subscription_table()
+print('Importing wake word settings table')
+fill_wake_word_settings_table()
+print('Importing device table')
+change_device_name()
+fill_device_table()
+print('Filling skills table')
+fill_skills_table()
+end = time.time()
+print('Time to import: {}'.format(end-start))

@@ -19,7 +19,19 @@ class SkillRepository(RepositoryBase):
         )
         sql_results = self.cursor.select_all(query)
         if sql_results:
-            return [result['skill'] for result in sql_results]
+            skills = []
+            for result in sql_results:
+                sections = self._fill_setting_with_values(result['settings'], result['settings_display'])
+                skill = {
+                    'uuid': result['id'],
+                    'name': result['name'],
+                    'identifier': result['name'],
+                    'skillMetadata': {
+                        'sections': sections
+                    }
+                }
+                skills.append(skill)
+            return skills
 
     def get_skill_settings_by_device_id_and_version_hash(self, device_id, version_hash):
         """Return a skill setting for a given device id and skill version hash
@@ -32,9 +44,26 @@ class SkillRepository(RepositoryBase):
             'get_skill_setting_by_device_id_and_version_hash.sql',
             args=dict(device_id=device_id, version_hash=version_hash)
         )
-        sql_results = self.cursor.select_all(query)
+        sql_results = self.cursor.select_one(query)
         if sql_results:
-            return sql_results[0]['skill']
+            sections = self._fill_setting_with_values(sql_results['settings'], sql_results['settings_meta'])
+            skill = {
+                'uuid': sql_results['id'],
+                'name': sql_results['name'],
+                'identifier': sql_results['name'],
+                'skillMetadata': {
+                    'sections': sections
+                }
+            }
+            return skill
+
+    def _fill_setting_with_values(self, settings: dict, setting_meta: dict):
+        sections = setting_meta['skillMetadata']['sections']
+        for section in sections:
+            section_fields = section['fields']
+            for field in section_fields:
+                field['value'] = settings[field['name']]
+        return setting_meta
 
     def get_skills_for_account(self, account_id) -> List[Skill]:
         skills = []

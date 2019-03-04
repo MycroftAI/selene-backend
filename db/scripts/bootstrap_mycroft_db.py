@@ -146,7 +146,8 @@ for schema in SCHEMAS:
 template_db.close_db()
 
 print('Copying template to new database.')
-postgres_db = PostgresDB(dbname='postgres', user='chrisveilleux')
+# Copy template to new database.
+postgres_db = PostgresDB(dbname='postgres', user='postgres')
 postgres_db.execute_sql(get_sql_from_file('create_mycroft_db.sql'))
 postgres_db.close_db()
 
