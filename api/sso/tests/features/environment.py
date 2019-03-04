@@ -8,7 +8,7 @@ from selene.data.account import (
     Account,
     AccountAgreement,
     AccountRepository,
-    AccountSubscription,
+    AccountMembership,
     Agreement,
     AgreementRepository,
     PRIVACY_POLICY
@@ -52,11 +52,12 @@ def _add_agreement(context, db):
 def _add_account(context, db):
     test_account = Account(
         email_address='foo@mycroft.ai',
-        display_name='foobar',
-        subscription=AccountSubscription(
-            type='Monthly Supporter',
+        username='foobar',
+        membership=AccountMembership(
+            type='Monthly Membership',
             start_date=date.today(),
-            stripe_customer_id='foo'
+            payment_method='Stripe',
+            payment_account_id='foo'
         ),
         agreements=[
             AccountAgreement(type=PRIVACY_POLICY, accept_date=date.today())
