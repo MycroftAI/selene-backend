@@ -13,8 +13,8 @@ class DeviceSubscriptionEndpoint(SeleneEndpoint):
         with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
             account = AccountRepository(db).get_account_by_device_id(device_id)
         if account:
-            subscription = account.subscription
-            response = {'@type': subscription.type if subscription is not None else 'free'}, HTTPStatus.OK
+            membership = account.membership
+            response = {'@type': membership.type if membership is not None else 'free'}, HTTPStatus.OK
         else:
             response = '', HTTPStatus.NO_CONTENT
         return response
