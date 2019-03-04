@@ -12,6 +12,7 @@ from .endpoints.device_activate import DeviceActivateEndpoint
 from .endpoints.device_code import DeviceCodeEndpoint
 from .endpoints.device_email import DeviceEmailEndpoint
 from .endpoints.device_metrics import DeviceMetricsEndpoint, MetricsService
+from .endpoints.device_refresh_token import DeviceRefreshTokenEndpoint
 from .endpoints.device_setting import DeviceSettingEndpoint
 from .endpoints.device_skill import DeviceSkillEndpoint
 from .endpoints.device_skills import DeviceSkillsEndpoint
@@ -107,4 +108,9 @@ public.add_url_rule(
     '/device/<string:device_id>/metric/<path:metric>',
     view_func=DeviceMetricsEndpoint.as_view('device_metric_api'),
     methods=['POST']
+)
+public.add_url_rule(
+    '/auth/token',
+    view_func=DeviceRefreshTokenEndpoint.as_view('refresh_token_api'),
+    methods=['GET']
 )
