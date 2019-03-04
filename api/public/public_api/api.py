@@ -20,6 +20,7 @@ from .endpoints.device_subscription import DeviceSubscriptionEndpoint
 from .endpoints.google_stt import GoogleSTTEndpoint
 from .endpoints.open_weather_map import OpenWeatherMapEndpoint
 from .endpoints.wolfram_alpha import WolframAlphaEndpoint
+from .endpoints.wolfram_alpha_spoken import WolframAlphaSpokenEndpoint
 
 public = Flask(__name__)
 public.config.from_object(get_base_config())
@@ -112,5 +113,10 @@ public.add_url_rule(
 public.add_url_rule(
     '/auth/token',
     view_func=DeviceRefreshTokenEndpoint.as_view('refresh_token_api'),
+    methods=['GET']
+)
+public.add_url_rule(
+    '/wolframAlphaSpoken',
+    view_func=WolframAlphaSpokenEndpoint.as_view('wolfram_alpha_spoken_api'),
     methods=['GET']
 )

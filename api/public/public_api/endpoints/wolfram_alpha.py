@@ -3,6 +3,7 @@ from http import HTTPStatus
 
 import requests
 from flask import Response
+
 from selene.api import SeleneEndpoint
 
 
@@ -17,6 +18,6 @@ class WolframAlphaEndpoint(SeleneEndpoint):
         input = self.request.args.get('input')
         if input:
             params = dict(appid=self.wolfram_alpha_key, input=input)
-            response = requests.get(self.wolfram_alpha_url, params=params)
+            response = requests.get(self.wolfram_alpha_url + '/v2/query', params=params)
             if response.status_code == HTTPStatus.OK:
                 return Response(response.content, mimetype='text/xml')
