@@ -203,12 +203,13 @@ def fill_account_table():
 
 
 def fill_account_agreement_table():
-    query = 'insert into account.agreement(account_id, agreement_id, accept_date)' \
-            'values (%s, select id from account.agreement where agreement = %s, %s)'
+    query = 'insert into account.account_agreement(account_id, agreement_id, accept_date)' \
+            'values (%s, (select id from account.agreement where agreement = %s), %s)'
     with db.cursor() as cur:
-        terms = [(uuid, format_timestamp(account['terms'])) for uuid, account in users.items()]
-        privacy = [(uuid, format_timestamp(account['privacy'])) for uuid, account in users.items()]
-        execute_batch(cur, query, terms+privacy, page_size=1000)
+        terms = ((uuid, 'Terms of Use', format_timestamp(account['terms'])) for uuid, account in users.items() if account['terms'] != '')
+        privacy = ((uuid, 'Privacy Policy', format_timestamp(account['privacy'])) for uuid, account in users.items() if account['privacy'] != '')
+        execute_batch(cur, query, terms, page_size=1000)
+        execute_batch(cur, query, privacy, page_size=1000)
 
 
 def fill_wake_word_table():
@@ -403,7 +404,8 @@ def fill_skills_table():
                                 if section_uuid in section_to_field:
                                     for field_uuid in section_to_field[section_uuid]:
                                         fields.append(skill_fields[field_uuid])
-                                        settings[skill_fields[field_uuid]['name']] = skill_field_values[field_uuid]['field_value']
+                                        if field_uuid in skill_field_values:
+                                            settings[skill_fields[field_uuid]['name']] = skill_field_values[field_uuid]['field_value']
                                 sections.append({'name': section_name, 'fields': fields})
                         skill_setting_meta = {'name': skill_name, 'skillMetadata': {'sections': sections}}
                         skills_batch.append((skill_uuid, skill_name))
@@ -429,6 +431,8 @@ print('Time to load CSVs {}'.format(end - start))
 start = time.time()
 print('Importing account table')
 fill_account_table()
+print('Importing agreements table')
+fill_account_agreement_table()
 print('Importing wake word table')
 fill_wake_word_table()
 print('Importing account preferences table')
@@ -440,7 +444,7 @@ fill_wake_word_settings_table()
 print('Importing device table')
 change_device_name()
 fill_device_table()
-print('Filling skills table')
+print('Importing skills table')
 fill_skills_table()
 end = time.time()
 print('Time to import: {}'.format(end-start))
