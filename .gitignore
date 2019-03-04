@@ -4,9 +4,13 @@
 /dist
 /tmp
 /out-tsc
+**/*.egg-info
 
 # dependencies
 **/node_modules
+
+# python notebooks
+*.ipynb
 
 # IDEs and editors
 **/.idea
