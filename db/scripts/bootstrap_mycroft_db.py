@@ -21,7 +21,7 @@ ACCOUNT_TABLE_ORDER = (
 )
 SKILL_TABLE_ORDER = (
     'skill',
-    'setting_meta',
+    'settings_display',
     'branch',
     'activation',
     'category',
@@ -65,15 +65,15 @@ class PostgresDB(object):
         cursor.execute(sql)
 
 
-postgres_db = PostgresDB(dbname='postgres', user='chrisveilleux')
+postgres_db = PostgresDB(dbname='postgres', user='postgres')
 
-# Destroy any objects we will be creating later.
+print('Destroying any objects we will be creating later.')
 for db_destroy_file in DB_DESTROY_FILES:
     postgres_db.execute_sql(
         get_sql_from_file(db_destroy_file)
     )
 
-# Create the extensions, mycroft database, and selene roles
+print('Creating the extensions, mycroft database, and selene roles')
 for db_setup_file in DB_CREATE_FILES:
     postgres_db.execute_sql(
         get_sql_from_file(db_setup_file)
@@ -87,20 +87,21 @@ template_db.execute_sql(
     get_sql_from_file(path.join('create_extensions.sql'))
 )
 
-# Create user-defined data types
+print('Creating user-defined data types')
 type_directory = path.join(MYCROFT_DB_DIR, 'types')
 for type_file in glob(type_directory + '/*.sql'):
     template_db.execute_sql(
         get_sql_from_file(path.join(type_directory, type_file))
     )
 
-# Create the schemas and grant access
+print('Create the schemas and grant access')
 for schema in SCHEMAS:
     template_db.execute_sql(
         get_sql_from_file(schema + '_schema/create_schema.sql')
     )
 
-# Create the account schema tables first as other schemas have tables with
+print('Creating the account schema tables')
+# These are created first as other schemas have tables with
 # foreign keys to these tables.
 for table in ACCOUNT_TABLE_ORDER:
     create_table_file = path.join(
@@ -112,7 +113,8 @@ for table in ACCOUNT_TABLE_ORDER:
         get_sql_from_file(create_table_file)
     )
 
-# Create the account schema tables first as other schemas have tables with
+print('Creating the skill schema tables')
+# Create the skill schema tables second as other schemas have tables with
 # foreign keys to these tables.
 for table in SKILL_TABLE_ORDER:
     create_table_file = path.join(
@@ -124,8 +126,7 @@ for table in SKILL_TABLE_ORDER:
         get_sql_from_file(create_table_file)
     )
 
-# Create the account schema tables first as other schemas have tables with
-# foreign keys to these tables.
+print('Creating the device schema tables')
 for table in DEVICE_TABLE_ORDER:
     create_table_file = path.join(
         'device_schema',
@@ -136,7 +137,7 @@ for table in DEVICE_TABLE_ORDER:
         get_sql_from_file(create_table_file)
     )
 
-# Grant access to schemas and tables
+print('Granting access to schemas and tables')
 for schema in SCHEMAS:
     template_db.execute_sql(
         get_sql_from_file(schema + '_schema/grants.sql')
@@ -144,7 +145,7 @@ for schema in SCHEMAS:
 
 template_db.close_db()
 
-# Copy template to new database.
+print('Copying template to new database.')
 postgres_db = PostgresDB(dbname='postgres', user='chrisveilleux')
 postgres_db.execute_sql(get_sql_from_file('create_mycroft_db.sql'))
 postgres_db.close_db()
