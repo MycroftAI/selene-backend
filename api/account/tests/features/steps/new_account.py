@@ -29,15 +29,17 @@ def build_new_account_request(context):
 def add_maybe_later_membership(context):
     context.new_account_request['support'].update(
         membership='Maybe Later',
-        stripeCustomerId=None
+        paymentMethod=None,
+        paymentAccountId=None
     )
 
 
 @given('user opts into a membership')
 def change_membership_option(context):
     context.new_account_request['support'].update(
-        membership='Monthly Supporter',
-        stripeCustomerId='barstripe'
+        membership='Monthly Membership',
+        paymentMethod='Stripe',
+        paymentAccountId='barstripe'
     )
 
 
@@ -67,13 +69,13 @@ def check_db_for_account(context, membership_option):
         )
         assert_that(account.username, equal_to('barfoo'))
         if membership_option == 'with a membership':
-            assert_that(account.subscription.type, equal_to('Monthly Supporter'))
+            assert_that(account.membership.type, equal_to('Monthly Membership'))
             assert_that(
-                account.subscription.stripe_customer_id,
+                account.membership.payment_account_id,
                 equal_to('barstripe')
             )
         elif membership_option == 'without a membership':
-            assert_that(account.subscription, none())
+            assert_that(account.membership, none())
 
         assert_that(len(account.agreements), equal_to(2))
         for agreement in account.agreements:
