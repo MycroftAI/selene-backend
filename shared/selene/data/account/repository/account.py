@@ -159,7 +159,7 @@ class AccountRepository(object):
             if result['account']['agreements'] is not None:
                 for agreement in result['account']['agreements']:
                     account_agreements.append(AccountAgreement(**agreement))
-                result['account']['agreements'] = account_agreements
+            result['account']['agreements'] = account_agreements
             if result['account']['membership'] is not None:
                 result['account']['membership'] = AccountMembership(
                     **result['account']['membership']
