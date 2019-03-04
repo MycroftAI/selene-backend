@@ -94,9 +94,10 @@ class AccountEndpoint(SeleneEndpoint):
         for agreement in response_data['agreements']:
             agreement_date = self._format_agreement_date(agreement)
             agreement['accept_date'] = agreement_date
-        membership_duration = self._format_membership_duration(response_data)
-        response_data['membership']['duration'] = membership_duration
-        del (response_data['membership']['start_date'])
+        if response_data['membership'] is not None:
+            membership_duration = self._format_membership_duration(response_data)
+            response_data['membership']['duration'] = membership_duration
+            del (response_data['membership']['start_date'])
         del (response_data['refresh_tokens'])
 
         return response_data
