@@ -9,6 +9,7 @@ from .endpoints.device import DeviceEndpoint
 from .endpoints.device_count import DeviceCountEndpoint
 from .endpoints.skills import SkillsEndpoint
 from .endpoints.skill_settings import SkillSettingsEndpoint
+from .endpoints.voice_endpoint import VoiceEndpoint
 from .endpoints.wake_word_endpoint import WakeWordEndpoint
 
 _log = configure_logger('account_api')
@@ -67,18 +68,17 @@ acct.add_url_rule(
     view_func=preferences_endpoint,
     methods=['GET']
 )
-preferences_endpoint = AccountPreferencesEndpoint.as_view(
-    'preferences_endpoint'
-)
-acct.add_url_rule(
-    '/api/preferences',
-    view_func=preferences_endpoint,
-    methods=['GET']
-)
 
 wake_word_endpoint = WakeWordEndpoint.as_view('wake_word_endpoint')
 acct.add_url_rule(
     '/api/wake-words',
     view_func=wake_word_endpoint,
+    methods=['GET']
+)
+
+voice_endpoint = VoiceEndpoint.as_view('voice_endpoint')
+acct.add_url_rule(
+    '/api/voices',
+    view_func=voice_endpoint,
     methods=['GET']
 )
