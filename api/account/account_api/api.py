@@ -4,9 +4,12 @@ from flask import Flask
 from selene.api import get_base_config, selene_api, SeleneResponse
 from selene.api.endpoints import AccountEndpoint, AgreementsEndpoint
 from selene.util.log import configure_logger
+from .endpoints.account_preferences import AccountPreferencesEndpoint
+from .endpoints.device import DeviceEndpoint
 from .endpoints.device_count import DeviceCountEndpoint
 from .endpoints.skills import SkillsEndpoint
 from .endpoints.skill_settings import SkillSettingsEndpoint
+from .endpoints.wake_word_endpoint import WakeWordEndpoint
 
 _log = configure_logger('account_api')
 
@@ -46,5 +49,12 @@ device_count_endpoint = DeviceCountEndpoint.as_view('device_count_endpoint')
 acct.add_url_rule(
     '/api/device-count',
     view_func=device_count_endpoint,
+    methods=['GET']
+)
+
+device_endpoint = DeviceEndpoint.as_view('device_endpoint')
+acct.add_url_rule(
+    '/api/devices',
+    view_func=device_endpoint,
     methods=['GET']
 )
