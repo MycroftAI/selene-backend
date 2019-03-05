@@ -67,3 +67,18 @@ acct.add_url_rule(
     view_func=preferences_endpoint,
     methods=['GET']
 )
+preferences_endpoint = AccountPreferencesEndpoint.as_view(
+    'preferences_endpoint'
+)
+acct.add_url_rule(
+    '/api/preferences',
+    view_func=preferences_endpoint,
+    methods=['GET']
+)
+
+wake_word_endpoint = WakeWordEndpoint.as_view('wake_word_endpoint')
+acct.add_url_rule(
+    '/api/wake-words',
+    view_func=wake_word_endpoint,
+    methods=['GET']
+)
