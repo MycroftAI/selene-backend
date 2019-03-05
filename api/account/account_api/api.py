@@ -7,6 +7,7 @@ from selene.util.log import configure_logger
 from .endpoints.account_preferences import AccountPreferencesEndpoint
 from .endpoints.device import DeviceEndpoint
 from .endpoints.device_count import DeviceCountEndpoint
+from .endpoints.geography import GeographyEndpoint
 from .endpoints.skills import SkillsEndpoint
 from .endpoints.skill_settings import SkillSettingsEndpoint
 from .endpoints.voice_endpoint import VoiceEndpoint
@@ -80,5 +81,12 @@ voice_endpoint = VoiceEndpoint.as_view('voice_endpoint')
 acct.add_url_rule(
     '/api/voices',
     view_func=voice_endpoint,
+    methods=['GET']
+)
+
+geography_endpoint = GeographyEndpoint.as_view('geography_endpoint')
+acct.add_url_rule(
+    '/api/geographies',
+    view_func=geography_endpoint,
     methods=['GET']
 )
