@@ -58,3 +58,12 @@ acct.add_url_rule(
     view_func=device_endpoint,
     methods=['GET']
 )
+
+preferences_endpoint = AccountPreferencesEndpoint.as_view(
+    'preferences_endpoint'
+)
+acct.add_url_rule(
+    '/api/preferences',
+    view_func=preferences_endpoint,
+    methods=['GET']
+)
