@@ -90,6 +90,7 @@ def load_csv():
             skills[skill]['device_uuid'] = dev_uuid
             skills[skill]['name'] = row[2]
             skills[skill]['description'] = row[3]
+            skills[skill]['identifier'] = row[4]
             if dev_uuid in device_to_skill:
                 device_to_skill[dev_uuid].add(skill)
             else:
@@ -385,7 +386,7 @@ def fill_device_table():
 
 def fill_skills_table():
     skills_batch = []
-    settings_meta_batch = []
+    settings_display_batch = []
     device_skill_batch = []
     for user in user_devices:
         if user in users:
@@ -394,6 +395,7 @@ def fill_skills_table():
                     for skill_uuid in device_to_skill[device_uuid]:
                         skill = skills[skill_uuid]
                         skill_name = skill['name']
+                        identifier = skill['identifier']
                         sections = []
                         settings = {}
                         if skill_uuid in skill_to_section:
@@ -407,17 +409,21 @@ def fill_skills_table():
                                         if field_uuid in skill_field_values:
                                             settings[skill_fields[field_uuid]['name']] = skill_field_values[field_uuid]['field_value']
                                 sections.append({'name': section_name, 'fields': fields})
-                        skill_setting_meta = {'name': skill_name, 'skillMetadata': {'sections': sections}}
+                        skill_setting_display = {
+                            'name': skill_name,
+                            'identifier': identifier,
+                            'skillMetadata': {'sections': sections}
+                        }
                         skills_batch.append((skill_uuid, skill_name))
                         meta_id = str(uuid.uuid4())
-                        settings_meta_batch.append((meta_id, skill_uuid, json.dumps(skill_setting_meta)))
+                        settings_display_batch.append((meta_id, skill_uuid, json.dumps(skill_setting_display)))
                         device_skill_batch.append((device_uuid, skill_uuid, meta_id, json.dumps(settings)))
 
     with db.cursor() as curr:
         query = 'insert into skill.skill(id, name) values (%s, %s)'
         execute_batch(curr, query, skills_batch, page_size=1000)
         query = 'insert into skill.settings_display(id, skill_id, settings_display) values (%s, %s, %s)'
-        execute_batch(curr, query, settings_meta_batch, page_size=1000)
+        execute_batch(curr, query, settings_display_batch, page_size=1000)
         query = 'insert into device.device_skill(device_id, skill_id, skill_settings_display_id, settings) ' \
                 'values (%s, %s, %s, %s)'
         execute_batch(curr, query, device_skill_batch, page_size=1000)
