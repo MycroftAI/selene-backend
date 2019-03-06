@@ -26,6 +26,7 @@ def add_device(context):
         data=json.dumps(device),
         content_type='application_json')
     context.device_id = response.data.decode('utf-8')
+    context.device_name = 'home'
 
 
 @when('device is activated')

@@ -52,5 +52,5 @@ class DeviceSkillsEndpoint(SeleneEndpoint):
         skill = Skill(payload)
         skill.validate()
         with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
-            SkillRepository(db).add(device_id, payload)
-        return '', HTTPStatus.OK
+            skill_id = SkillRepository(db).add(device_id, payload)
+        return {'uuid': skill_id}, HTTPStatus.OK

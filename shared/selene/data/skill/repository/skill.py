@@ -93,13 +93,14 @@ class SkillRepository(RepositoryBase):
         return skills
 
     @use_transaction
-    def add(self, device_id: str, skill: dict):
+    def add(self, device_id: str, skill: dict) -> str:
         skill_id = self._add_skill(skill['name'])
         settings_value, settings_display = self._extract_settings(skill)
         settings_display = json.dumps(skill)
         skill_settings_display_id = SettingsDisplayRepository(self.db).add(skill_id, settings_display)
         settings_value = json.dumps(settings_value)
         DeviceSkillRepository(self.db).add(device_id, skill_id, skill_settings_display_id, settings_value)
+        return skill_id
 
     def _add_skill(self, skill_name) -> str:
         db_request = self._build_db_request(
