@@ -46,7 +46,11 @@ class DeviceRefreshTokenEndpoint(PublicEndpoint):
             )
             new_login = json.dumps(login)
             # Storing device access token for one:
-            self.cache.set_with_expiration('device.session:{uuid}'.format(uuid=device_id), new_login, self.ONE_DAY)
+            self.cache.set_with_expiration(
+                'device.token.access:{access}'.format(access=access),
+                new_login,
+                self.ONE_DAY
+            )
             # Storing device refresh token for ever:
             self.cache.set('device.token.refresh:{refresh}'.format(refresh=refresh), new_login)
             return new_login

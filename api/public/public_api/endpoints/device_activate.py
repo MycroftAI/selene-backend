@@ -71,13 +71,17 @@ class DeviceActivateEndpoint(PublicEndpoint):
         refresh = self.sha512.hexdigest()
         login = dict(
             uuid=device_id,
-            accessToken= access,
+            accessToken=access,
             refreshToken=refresh,
             expiration=self.ONE_DAY
         )
         login_json = json.dumps(login)
         # Storing device access token for one:
-        self.cache.set_with_expiration('device.session:{uuid}'.format(uuid=device_id), login_json, self.ONE_DAY)
+        self.cache.set_with_expiration(
+            'device.token.access:{access}'.format(access=access),
+            login_json,
+            self.ONE_DAY
+        )
         # Storing device refresh token for ever:
         self.cache.set('device.token.refresh:{refresh}'.format(refresh=refresh), login_json)
         return login
