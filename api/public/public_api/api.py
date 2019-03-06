@@ -45,7 +45,7 @@ public.register_blueprint(selene_api)
 public.add_url_rule(
     '/device/<string:device_id>/skill',
     view_func=DeviceSkillsEndpoint.as_view('device_skill_api'),
-    methods=['GET']
+    methods=['GET', 'PUT']
 )
 public.add_url_rule(
     '/device/<string:device_id>/userSkill',

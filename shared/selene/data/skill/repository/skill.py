@@ -1,11 +1,16 @@
+import json
 from typing import List
 
+from selene.util.db import use_transaction
+from .device_skill import DeviceSkillRepository
+from .settings_display import SettingsDisplayRepository
 from ..entity.skill import Skill, SkillVersion
 from ...repository_base import RepositoryBase
 
 
 class SkillRepository(RepositoryBase):
     def __init__(self, db):
+        self.db = db
         super(SkillRepository, self).__init__(db, __file__)
 
     def get_skill_settings_by_device_id(self, device_id):
@@ -59,13 +64,15 @@ class SkillRepository(RepositoryBase):
 
     def _fill_setting_with_values(self, settings: dict, setting_meta: dict):
         sections = setting_meta['skillMetadata']['sections']
-        for section in sections:
-            section_fields = section['fields']
-            for field in section_fields:
-                name = field['name']
-                if name in settings:
-                    field['value'] = settings[field['name']]
-        return setting_meta
+        if settings:
+            for section in sections:
+                section_fields = section['fields']
+                for field in section_fields:
+                    if 'name' in field:
+                        name = field['name']
+                        if name in settings:
+                            field['value'] = settings[field['name']]
+        return sections
 
     def get_skills_for_account(self, account_id) -> List[Skill]:
         skills = []
@@ -84,3 +91,30 @@ class SkillRepository(RepositoryBase):
                 skills.append(Skill(**row['skill']))
 
         return skills
+
+    @use_transaction
+    def add(self, device_id: str, skill: dict):
+        skill_id = self._add_skill(skill['name'])
+        settings_value, settings_display = self._extract_settings(skill)
+        settings_display = json.dumps(skill)
+        skill_settings_display_id = SettingsDisplayRepository(self.db).add(skill_id, settings_display)
+        settings_value = json.dumps(settings_value)
+        DeviceSkillRepository(self.db).add(device_id, skill_id, skill_settings_display_id, settings_value)
+
+    def _add_skill(self, skill_name) -> str:
+        db_request = self._build_db_request(
+            'add_skill.sql',
+            args=dict(skill_name=skill_name)
+        )
+        result = self.cursor.insert_returning(db_request)
+        return result['id']
+
+    @staticmethod
+    def _extract_settings(skill):
+        settings = {}
+        for section in skill['skillMetadata']['sections']:
+            for field in section['fields']:
+                if 'name' in field and 'value' in field:
+                    settings[field['name']] = field['value']
+                field.pop('value', None)
+        return settings, skill
