@@ -4,7 +4,6 @@ import uuid
 from http import HTTPStatus
 
 from selene.api import PublicEndpoint
-from selene.util.cache import SeleneCache
 
 
 class DeviceRefreshTokenEndpoint(PublicEndpoint):
@@ -13,7 +12,6 @@ class DeviceRefreshTokenEndpoint(PublicEndpoint):
 
     def __init__(self):
         super(DeviceRefreshTokenEndpoint, self).__init__()
-        self.cache: SeleneCache = self.config['SELENE_CACHE']
         self.sha512 = hashlib.sha512()
 
     def get(self):

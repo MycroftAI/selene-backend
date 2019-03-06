@@ -4,7 +4,6 @@ import random
 import uuid
 
 from selene.api import PublicEndpoint
-from selene.util.cache import SeleneCache
 
 
 class DeviceCodeEndpoint(PublicEndpoint):
@@ -17,7 +16,6 @@ class DeviceCodeEndpoint(PublicEndpoint):
     def __init__(self):
         super(DeviceCodeEndpoint, self).__init__()
         self.device_pairing_time = 86400
-        self.cache: SeleneCache = self.config.get('SELENE_CACHE')
         self.sha512 = hashlib.sha512()
 
     def get(self):

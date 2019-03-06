@@ -6,7 +6,6 @@ from schematics.types import StringType, UUIDType
 
 from selene.api import PublicEndpoint
 from selene.data.device import DeviceRepository
-from selene.util.cache import SeleneCache
 from selene.util.db import get_db_connection
 
 
@@ -21,7 +20,6 @@ class AccountDeviceEndpoint(PublicEndpoint):
 
     def __init__(self):
         super(AccountDeviceEndpoint, self).__init__()
-        self.cache: SeleneCache = self.config['SELENE_CACHE']
         self.device_pairing_time = 86400
 
     def post(self, account_id):

@@ -8,7 +8,6 @@ from schematics.types import StringType
 
 from selene.api import PublicEndpoint
 from selene.data.device import DeviceRepository
-from selene.util.cache import SeleneCache
 from selene.util.db import get_db_connection
 
 
@@ -27,7 +26,6 @@ class DeviceActivateEndpoint(PublicEndpoint):
 
     def __init__(self):
         super(DeviceActivateEndpoint, self).__init__()
-        self.cache: SeleneCache = self.config.get('SELENE_CACHE')
         self.sha512 = hashlib.sha512()
 
     def post(self):
