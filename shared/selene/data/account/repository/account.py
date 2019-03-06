@@ -43,7 +43,10 @@ class AccountRepository(object):
 
     def _add_account(self, account: Account, password: str):
         """Add a row to the account table."""
-        encrypted_password = _encrypt_password(password)
+        if password is None:
+            encrypted_password = None
+        else:
+            encrypted_password = _encrypt_password(password)
         request = DatabaseRequest(
             sql=get_sql_from_file(path.join(SQL_DIR, 'add_account.sql')),
             args=dict(
