@@ -3,6 +3,7 @@ from typing import List
 
 from selene.util.db import DatabaseRequest, get_sql_from_file, Cursor
 from ..entity.device import Device
+from ..entity.geography import Geography
 from ..entity.text_to_speech import TextToSpeech
 from ..entity.wake_word import WakeWord
 
@@ -34,12 +35,22 @@ class DeviceRepository(object):
         :param account_id: uuid
         :return: List of User's devices
         """
-        query = DatabaseRequest(
-            sql=get_sql_from_file(path.join(SQL_DIR, 'get_devices_by_account_id.sql')),
+        db_request = DatabaseRequest(
+            sql=get_sql_from_file(
+                path.join(SQL_DIR, 'get_devices_by_account_id.sql')
+            ),
             args=dict(account_id=account_id)
         )
-        sql_results = self.cursor.select_all(query)
-        return [Device(**result) for result in sql_results]
+        db_results = self.cursor.select_all(db_request)
+
+        devices = []
+        for row in db_results:
+            row['wake_word'] = WakeWord(**row['wake_word'])
+            row['text_to_speech'] = TextToSpeech(**row['text_to_speech'])
+            row['geography'] = Geography(**row['geography'])
+            devices.append(Device(**row))
+
+        return devices
 
     def get_account_device_count(self, account_id):
         query = DatabaseRequest(

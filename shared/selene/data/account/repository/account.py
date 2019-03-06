@@ -43,7 +43,10 @@ class AccountRepository(object):
 
     def _add_account(self, account: Account, password: str):
         """Add a row to the account table."""
-        encrypted_password = _encrypt_password(password)
+        if password is None:
+            encrypted_password = None
+        else:
+            encrypted_password = _encrypt_password(password)
         request = DatabaseRequest(
             sql=get_sql_from_file(path.join(SQL_DIR, 'add_account.sql')),
             args=dict(
@@ -159,7 +162,7 @@ class AccountRepository(object):
             if result['account']['agreements'] is not None:
                 for agreement in result['account']['agreements']:
                     account_agreements.append(AccountAgreement(**agreement))
-                result['account']['agreements'] = account_agreements
+            result['account']['agreements'] = account_agreements
             if result['account']['membership'] is not None:
                 result['account']['membership'] = AccountMembership(
                     **result['account']['membership']

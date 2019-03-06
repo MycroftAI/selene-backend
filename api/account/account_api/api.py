@@ -4,9 +4,14 @@ from flask import Flask
 from selene.api import get_base_config, selene_api, SeleneResponse
 from selene.api.endpoints import AccountEndpoint, AgreementsEndpoint
 from selene.util.log import configure_logger
+from .endpoints.account_preferences import AccountPreferencesEndpoint
+from .endpoints.device import DeviceEndpoint
 from .endpoints.device_count import DeviceCountEndpoint
+from .endpoints.geography import GeographyEndpoint
 from .endpoints.skills import SkillsEndpoint
 from .endpoints.skill_settings import SkillSettingsEndpoint
+from .endpoints.voice_endpoint import VoiceEndpoint
+from .endpoints.wake_word_endpoint import WakeWordEndpoint
 
 _log = configure_logger('account_api')
 
@@ -46,5 +51,42 @@ device_count_endpoint = DeviceCountEndpoint.as_view('device_count_endpoint')
 acct.add_url_rule(
     '/api/device-count',
     view_func=device_count_endpoint,
+    methods=['GET']
+)
+
+device_endpoint = DeviceEndpoint.as_view('device_endpoint')
+acct.add_url_rule(
+    '/api/devices',
+    view_func=device_endpoint,
+    methods=['GET']
+)
+
+preferences_endpoint = AccountPreferencesEndpoint.as_view(
+    'preferences_endpoint'
+)
+acct.add_url_rule(
+    '/api/preferences',
+    view_func=preferences_endpoint,
+    methods=['GET']
+)
+
+wake_word_endpoint = WakeWordEndpoint.as_view('wake_word_endpoint')
+acct.add_url_rule(
+    '/api/wake-words',
+    view_func=wake_word_endpoint,
+    methods=['GET']
+)
+
+voice_endpoint = VoiceEndpoint.as_view('voice_endpoint')
+acct.add_url_rule(
+    '/api/voices',
+    view_func=voice_endpoint,
+    methods=['GET']
+)
+
+geography_endpoint = GeographyEndpoint.as_view('geography_endpoint')
+acct.add_url_rule(
+    '/api/geographies',
+    view_func=geography_endpoint,
     methods=['GET']
 )

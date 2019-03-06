@@ -6,6 +6,7 @@ class WakeWord(object):
     id: str
     wake_word: str
     engine: str
+    user_defined: bool = False
 
 
 @dataclass

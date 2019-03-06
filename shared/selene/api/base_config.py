@@ -27,7 +27,8 @@ db_connection_config = DatabaseConnectionConfig(
     db_name=os.environ['DB_NAME'],
     password=os.environ['DB_PASSWORD'],
     port=os.environ.get('DB_PORT', 5432),
-    user=os.environ['DB_USER']
+    user=os.environ['DB_USER'],
+    sslmode=os.environ.get('DB_SSLMODE')
 )
 
 

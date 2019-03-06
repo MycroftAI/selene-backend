@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from datetime import datetime
 
+from .geography import Geography
 from .text_to_speech import TextToSpeech
 from .wake_word import WakeWord
 
@@ -15,5 +16,6 @@ class Device(object):
     core_version: str
     wake_word: WakeWord
     text_to_speech: TextToSpeech
+    geography: Geography = None
     placement: str = None
     last_contact_ts: datetime = None
