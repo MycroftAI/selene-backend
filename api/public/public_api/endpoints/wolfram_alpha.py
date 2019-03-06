@@ -4,10 +4,10 @@ from http import HTTPStatus
 import requests
 from flask import Response
 
-from selene.api import SeleneEndpoint
+from selene.api import PublicEndpoint
 
 
-class WolframAlphaEndpoint(SeleneEndpoint):
+class WolframAlphaEndpoint(PublicEndpoint):
     """Proxy to the Wolfram Alpha API"""
     def __init__(self):
         super(WolframAlphaEndpoint, self).__init__()

@@ -4,7 +4,7 @@ from http import HTTPStatus
 from schematics import Model
 from schematics.types import StringType, BooleanType, ListType, ModelType
 
-from selene.api import SeleneEndpoint
+from selene.api import PublicEndpoint
 from selene.data.skill import SkillRepository
 from selene.util.db import get_db_connection
 
@@ -35,7 +35,7 @@ class Skill(Model):
     skillMetadata = ModelType(SkillMetadata)
 
 
-class DeviceSkillsEndpoint(SeleneEndpoint):
+class DeviceSkillsEndpoint(PublicEndpoint):
     """Fetch all skills associated with a given device using the API v1 format"""
 
     def __init__(self):

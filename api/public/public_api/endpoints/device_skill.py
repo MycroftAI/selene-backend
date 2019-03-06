@@ -1,11 +1,11 @@
 from http import HTTPStatus
 
-from selene.api import SeleneEndpoint
+from selene.api import PublicEndpoint
 from selene.data.skill import SkillRepository
 from selene.util.db import get_db_connection
 
 
-class DeviceSkillEndpoint(SeleneEndpoint):
+class DeviceSkillEndpoint(PublicEndpoint):
     """Return a skill setting using the API v1 format for a given device and version_hash"""
     def __init__(self):
         super(DeviceSkillEndpoint, self).__init__()

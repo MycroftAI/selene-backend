@@ -1,11 +1,11 @@
 from http import HTTPStatus
 
-from selene.api import SeleneEndpoint
+from selene.api import PublicEndpoint
 from selene.data.device import SettingRepository
 from selene.util.db import get_db_connection
 
 
-class DeviceSettingEndpoint(SeleneEndpoint):
+class DeviceSettingEndpoint(PublicEndpoint):
     """Return the device's settings for the API v1 model"""
     def __init__(self):
         super(DeviceSettingEndpoint, self).__init__()

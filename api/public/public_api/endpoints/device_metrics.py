@@ -4,7 +4,7 @@ from http import HTTPStatus
 
 import requests
 
-from selene.api import SeleneEndpoint
+from selene.api import PublicEndpoint
 from selene.data.account import AccountRepository
 from selene.util.db import get_db_connection
 
@@ -23,7 +23,7 @@ class MetricsService(object):
         requests.post(url, body)
 
 
-class DeviceMetricsEndpoint(SeleneEndpoint):
+class DeviceMetricsEndpoint(PublicEndpoint):
     """Endpoint to communicate with the metrics service"""
 
     def __init__(self):

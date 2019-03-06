@@ -18,5 +18,6 @@ class WolframAlphaSpokenEndpoint(SeleneEndpoint):
         params = dict(self.request.args)
         params['appid'] = self.wolfram_alpha_key
         response = requests.get(self.wolfram_alpha_url + '/v1/spoken', params=params)
-        response = (response.text, HTTPStatus.OK) if response.status_code == HTTPStatus.OK else ('', response.status_code)
+        code = response.status_code
+        response = (response.text, code) if code == HTTPStatus.OK else ('', code)
         return response

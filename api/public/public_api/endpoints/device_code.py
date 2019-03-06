@@ -1,13 +1,13 @@
-import json
 import hashlib
+import json
 import random
 import uuid
 
-from selene.api import SeleneEndpoint
+from selene.api import PublicEndpoint
 from selene.util.cache import SeleneCache
 
 
-class DeviceCodeEndpoint(SeleneEndpoint):
+class DeviceCodeEndpoint(PublicEndpoint):
     """Endpoint to get a pairing code"""
 
     # We need to do that to avoid ambiguous characters, like 0 and O, that is even harder to distinguish

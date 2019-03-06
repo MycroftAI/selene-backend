@@ -1,11 +1,11 @@
 from http import HTTPStatus
 
-from selene.api import SeleneEndpoint
+from selene.api import PublicEndpoint
 from selene.data.account import AccountRepository
 from selene.util.db import get_db_connection
 
 
-class DeviceSubscriptionEndpoint(SeleneEndpoint):
+class DeviceSubscriptionEndpoint(PublicEndpoint):
     def __init__(self):
         super(DeviceSubscriptionEndpoint, self).__init__()
 

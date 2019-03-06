@@ -3,11 +3,11 @@ import json
 import uuid
 from http import HTTPStatus
 
-from selene.api import SeleneEndpoint
+from selene.api import PublicEndpoint
 from selene.util.cache import SeleneCache
 
 
-class DeviceRefreshTokenEndpoint(SeleneEndpoint):
+class DeviceRefreshTokenEndpoint(PublicEndpoint):
 
     ONE_DAY = 86400
 

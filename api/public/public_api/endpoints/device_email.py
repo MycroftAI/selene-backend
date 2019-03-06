@@ -6,7 +6,7 @@ from http import HTTPStatus
 from schematics import Model
 from schematics.types import StringType
 
-from selene.api import SeleneEndpoint
+from selene.api import PublicEndpoint
 from selene.data.account import AccountRepository
 from selene.util.db import get_db_connection
 
@@ -17,7 +17,7 @@ class SendEmail(Model):
     body = StringType(required=True)
 
 
-class DeviceEmailEndpoint(SeleneEndpoint):
+class DeviceEmailEndpoint(PublicEndpoint):
     """Endpoint to send an email to the account associated to a device"""
 
     def __init__(self):

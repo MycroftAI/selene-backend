@@ -1,13 +1,12 @@
 from dataclasses import asdict
 from http import HTTPStatus
 
-from selene.api import SeleneEndpoint
+from selene.api import PublicEndpoint
 from selene.data.device import DeviceRepository
-
 from selene.util.db import get_db_connection
 
 
-class DeviceEndpoint(SeleneEndpoint):
+class DeviceEndpoint(PublicEndpoint):
     """Return the device entity using the device_id"""
     def __init__(self):
         super(DeviceEndpoint, self).__init__()

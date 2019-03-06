@@ -2,10 +2,11 @@ import json
 import os
 
 import requests
-from selene.api import SeleneEndpoint
+
+from selene.api import PublicEndpoint
 
 
-class OpenWeatherMapEndpoint(SeleneEndpoint):
+class OpenWeatherMapEndpoint(PublicEndpoint):
     """Proxy to the Open Weather Map API"""
     def __init__(self):
         super(OpenWeatherMapEndpoint, self).__init__()

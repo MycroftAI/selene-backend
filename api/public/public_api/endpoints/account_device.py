@@ -4,10 +4,10 @@ from http import HTTPStatus
 from schematics import Model
 from schematics.types import StringType, UUIDType
 
-from selene.api import SeleneEndpoint
+from selene.api import PublicEndpoint
 from selene.data.device import DeviceRepository
-from selene.util.db import get_db_connection
 from selene.util.cache import SeleneCache
+from selene.util.db import get_db_connection
 
 
 class AddDevice(Model):
@@ -16,7 +16,7 @@ class AddDevice(Model):
     text_to_speech_id = UUIDType(required=True)
 
 
-class AccountDeviceEndpoint(SeleneEndpoint):
+class AccountDeviceEndpoint(PublicEndpoint):
     """Endpoint to add a device to a given account"""
 
     def __init__(self):

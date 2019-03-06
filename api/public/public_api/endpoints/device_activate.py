@@ -6,7 +6,7 @@ from http import HTTPStatus
 from schematics import Model
 from schematics.types import StringType
 
-from selene.api import SeleneEndpoint
+from selene.api import PublicEndpoint
 from selene.data.device import DeviceRepository
 from selene.util.cache import SeleneCache
 from selene.util.db import get_db_connection
@@ -20,7 +20,7 @@ class DeviceActivate(Model):
     enclosure_version = StringType(default='unknown')
 
 
-class DeviceActivateEndpoint(SeleneEndpoint):
+class DeviceActivateEndpoint(PublicEndpoint):
     """Endpoint to activate a device and finish the pairing process"""
 
     ONE_DAY = 86400
