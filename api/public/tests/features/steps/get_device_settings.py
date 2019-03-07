@@ -8,7 +8,8 @@ from hamcrest import assert_that, equal_to, has_key
 
 @when('try to fetch device\'s setting')
 def get_device_settings(context):
-    context.response_setting = context.client.get('/device/{uuid}/setting'.format(uuid=context.device_id))
+    device_id = context.device_login['uuid']
+    context.response_setting = context.client.get('/device/{uuid}/setting'.format(uuid=device_id))
 
 
 @then('a valid setting should be returned')

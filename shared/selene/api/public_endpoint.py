@@ -1,10 +1,39 @@
+import hashlib
 import json
+import uuid
 
 from flask import current_app, request
 from flask.views import MethodView
 
 from selene.util.auth import AuthenticationError
 from ..util.cache import SeleneCache
+
+ONE_DAY = 86400
+
+
+def generate_device_login(device_id: str, cache: SeleneCache) -> dict:
+    """Generates a login session for a given device id"""
+    sha512 = hashlib.sha512()
+    sha512.update(bytes(str(uuid.uuid4()), 'utf-8'))
+    access = sha512.hexdigest()
+    sha512.update(bytes(str(uuid.uuid4()), 'utf-8'))
+    refresh = sha512.hexdigest()
+    login = dict(
+        uuid=device_id,
+        accessToken=access,
+        refreshToken=refresh,
+        expiration=ONE_DAY
+    )
+    login_json = json.dumps(login)
+    # Storing device access token for one:
+    cache.set_with_expiration(
+        'device.token.access:{access}'.format(access=access),
+        login_json,
+        ONE_DAY
+    )
+    # Storing device refresh token for ever:
+    cache.set('device.token.refresh:{refresh}'.format(refresh=refresh), login_json)
+    return login
 
 
 class PublicEndpoint(MethodView):

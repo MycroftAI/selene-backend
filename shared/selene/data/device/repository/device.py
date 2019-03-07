@@ -78,7 +78,7 @@ class DeviceRepository(object):
             # TODO: Remove the @ in the API v2
             return {'@type': rate_period} if rate_period is not None else {'@type': 'free'}
 
-    def add_device(self, account_id: str, name: str, wake_word_id: str, text_to_speech_id: str):
+    def add_device(self, account_id: str, name: str, wake_word_id: str, text_to_speech_id: str) -> str:
         """ Creates a new device with a given name and associate it to an account"""
         # TODO: validate foreign keys
         query = DatabaseRequest(
@@ -90,7 +90,8 @@ class DeviceRepository(object):
                 text_to_speech_id=text_to_speech_id
             )
         )
-        return self.cursor.insert_returning(query)
+        result = self.cursor.insert_returning(query)
+        return result['id']
 
     def update_device(self, device_id: str, platform: str, enclosure_version: str, core_version: str):
         """Updates a device in the database"""

@@ -17,8 +17,9 @@ payload = dict(
 @patch('public_api.endpoints.device_metrics.MetricsService')
 def send_metric(context, metrics_service):
     context.client_config['METRICS_SERVICE'] = metrics_service
+    device_id = context.device_login['uuid']
     context.response = context.client.post(
-        '/device/{uuid}/metric/{metric}'.format(uuid=context.device_id, metric='timing'),
+        '/device/{uuid}/metric/{metric}'.format(uuid=device_id, metric='timing'),
         data=json.dumps(payload),
         content_type='application_json'
     )
@@ -32,7 +33,7 @@ def validate_response(context):
     metrics_service.send_metric.assert_has_calls([
         call('timing',
         context.account.id,
-        context.device_id,
+        context.device_login['uuid'],
         mock.ANY)
     ])
 

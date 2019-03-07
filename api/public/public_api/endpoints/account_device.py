@@ -57,7 +57,7 @@ class AccountDeviceEndpoint(PublicEndpoint):
                 str(add_device.wake_word_id),
                 str(add_device.text_to_speech_id)
             )
-        pairing['uuid'] = result['id']
+        pairing['uuid'] = result
         self.cache.set_with_expiration(
             'pairing.token:{}'.format(pairing['token']),
             json.dumps(pairing),

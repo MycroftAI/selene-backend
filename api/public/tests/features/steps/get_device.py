@@ -8,9 +8,11 @@ from hamcrest import assert_that, equal_to, has_key
 
 @when('device is retrieved')
 def get_device(context):
-    headers = dict(Authorization='Bearer {token}'.format(token=context.device_access_token))
+    access_token = context.device_login['accessToken']
+    headers = dict(Authorization='Bearer {token}'.format(token=access_token))
+    device_id = context.device_login['uuid']
     context.get_device_response = context.client.get(
-        '/device/{uuid}'.format(uuid=context.device_id),
+        '/device/{uuid}'.format(uuid=device_id),
         headers=headers
     )
 
@@ -34,7 +36,8 @@ def get_invalid_device(context):
 
 @when('try to fetch a not allowed device')
 def get_not_allowed_device(context):
-    headers = dict(Authorization='Bearer {token}'.format(token=context.device_access_token))
+    access_token = context.device_login['accessToken']
+    headers = dict(Authorization='Bearer {token}'.format(token=access_token))
     context.get_invalid_device_response = context.client.get(
         '/device/{uuid}'.format(uuid=str(uuid.uuid4())),
         headers=headers

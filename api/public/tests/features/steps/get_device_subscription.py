@@ -12,7 +12,8 @@ from selene.util.db import get_db_connection
 
 @when('the subscription endpoint is called')
 def get_device_subscription(context):
-    context.subscription_response = context.client.get('/device/{uuid}/subscription'.format(uuid=context.device_id))
+    device_id = context.device_login['uuid']
+    context.subscription_response = context.client.get('/device/{uuid}/subscription'.format(uuid=device_id))
 
 
 @then('free type should be returned')
@@ -31,9 +32,10 @@ def get_device_subscription(context):
         payment_method='Stripe',
         payment_account_id='test_monthly'
     )
+    device_id = context.device_login['uuid']
     with get_db_connection(context.client_config['DB_CONNECTION_POOL']) as db:
         AccountRepository(db)._add_membership(context.account.id, membership)
-    context.subscription_response = context.client.get('/device/{uuid}/subscription'.format(uuid=context.device_id))
+    context.subscription_response = context.client.get('/device/{uuid}/subscription'.format(uuid=device_id))
 
 
 @then('monthly type should be returned')

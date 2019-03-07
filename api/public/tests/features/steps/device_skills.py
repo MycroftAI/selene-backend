@@ -1,7 +1,7 @@
 import json
 from http import HTTPStatus
 
-from behave import when, then
+from behave import when, then, given
 from hamcrest import assert_that, equal_to
 
 from selene.data.skill import SkillSettingRepository
@@ -75,18 +75,15 @@ skill_updated = {
 }
 
 
-@when('a skill is uploaded')
-def device_skill_uploading(context):
+@given('a device with skill settings')
+def create_skill_settings(context):
+    device_id = context.device_login['uuid']
     context.upload_device_response = context.client.put(
-        '/device/{uuid}/skill'.format(uuid=context.device_id),
+        '/device/{uuid}/skill'.format(uuid=device_id),
         data=json.dumps(skill),
         content_type='application_json'
     )
-
-
-@when('the skill is retrieved')
-def retrieve_skill(context):
-    context.get_skill_response = context.client.get('/device/{uuid}/skill'.format(uuid=context.device_id))
+    context.get_skill_response = context.client.get('/device/{uuid}/skill'.format(uuid=device_id))
 
 
 @when('the skill settings are updated')
@@ -100,30 +97,30 @@ def update_skill(context):
     with get_db_connection(context.client_config['DB_CONNECTION_POOL']) as db:
         SkillSettingRepository(db).update_device_skill_settings(skill_id, update_settings)
 
-    context.get_skill_updated_response = context.client.get('/device/{uuid}/skill'.format(uuid=context.device_id))
+
+@when('the skill settings is fetched')
+def retrieve_skill_updated(context):
+    device_id = context.device_login['uuid']
+    context.get_skill_updated_response = context.client.get('/device/{uuid}/skill'.format(uuid=device_id))
 
 
-@then('skill uploading returns status 200')
-def validate_skill_uploading(context):
+@then('the skill settings should be retrieved with the new values')
+def validate_get_skill_updated_response(context):
+    # First we validate the skill uploading
     response = context.upload_device_response
     assert_that(response.status_code, equal_to(HTTPStatus.OK))
 
-
-@then('the skill returned is the same as the skill uploaded')
-def validate_get_skill(context):
+    # Then we validate if the skill we fetch is the same that was uploaded
     response = context.get_skill_response
     assert_that(response.status_code, equal_to(HTTPStatus.OK))
     skills_response = json.loads(response.data)
     assert_that(len(skills_response), equal_to(1))
     response = skills_response[0]
-
     assert_that(response['name'], equal_to(skill['name']))
     assert_that(response['identifier'], equal_to(skill['identifier']))
     assert_that(response['skillMetadata'], equal_to(skill['skillMetadata']))
 
-
-@then('the skill settings should be retrieved with the new values')
-def validate_get_skill_updated_response(context):
+    # Then we validate if the skill was properly updated
     response = context.get_skill_updated_response
     assert_that(response.status_code, equal_to(HTTPStatus.OK))
     response_data = json.loads(response.data)

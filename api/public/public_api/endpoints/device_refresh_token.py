@@ -1,9 +1,8 @@
 import hashlib
 import json
-import uuid
 from http import HTTPStatus
 
-from selene.api import PublicEndpoint
+from selene.api import PublicEndpoint, generate_device_login
 
 
 class DeviceRefreshTokenEndpoint(PublicEndpoint):
@@ -34,23 +33,4 @@ class DeviceRefreshTokenEndpoint(PublicEndpoint):
             old_login = json.loads(session)
             device_id = old_login['uuid']
             self.cache.delete(refresh_key)
-            self.sha512.update(bytes(str(uuid.uuid4()), 'utf-8'))
-            access = self.sha512.hexdigest()
-            self.sha512.update(bytes(str(uuid.uuid4()), 'utf-8'))
-            refresh = self.sha512.hexdigest()
-            login = dict(
-                uuid=device_id,
-                accessToken=access,
-                refreshToken=refresh,
-                expiration=self.ONE_DAY
-            )
-            new_login = json.dumps(login)
-            # Storing device access token for one:
-            self.cache.set_with_expiration(
-                'device.token.access:{access}'.format(access=access),
-                new_login,
-                self.ONE_DAY
-            )
-            # Storing device refresh token for ever:
-            self.cache.set('device.token.refresh:{refresh}'.format(refresh=refresh), new_login)
-            return new_login
+            return generate_device_login(device_id, self.cache)

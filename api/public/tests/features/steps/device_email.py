@@ -1,6 +1,5 @@
 import json
 import uuid
-from email.message import EmailMessage
 from http import HTTPStatus
 from unittest.mock import patch, MagicMock
 
@@ -18,8 +17,9 @@ email_request = dict(
 @patch('smtplib.SMTP')
 def send_email(context, email_client):
     context.client_config['EMAIL_CLIENT'] = email_client
+    device_id = context.device_login['uuid']
     context.email_response = context.client.post(
-        '/device/{uuid}/email'.format(uuid=context.device_id),
+        '/device/{uuid}/email'.format(uuid=device_id),
         data=json.dumps(email_request),
         content_type='application_json'
     )
