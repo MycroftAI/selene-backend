@@ -1,9 +1,20 @@
+import json
 from dataclasses import asdict
 from http import HTTPStatus
+
+from schematics import Model
+from schematics.types import StringType
 
 from selene.api import PublicEndpoint
 from selene.data.device import DeviceRepository
 from selene.util.db import get_db_connection
+
+
+class UpdateDevice(Model):
+    coreVersion = StringType()
+    platform = StringType()
+    platform_build = StringType()
+    enclosureVersion = StringType()
 
 
 class DeviceEndpoint(PublicEndpoint):
@@ -27,3 +38,17 @@ class DeviceEndpoint(PublicEndpoint):
         else:
             response = '', HTTPStatus.NO_CONTENT
         return response
+
+    def patch(self, device_id):
+        self._authenticate(device_id)
+        payload = json.loads(self.request.data)
+        update_device = UpdateDevice(payload)
+        update_device.validate()
+        with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
+            DeviceRepository(db).update_device(
+                device_id,
+                payload.get('platform'),
+                payload.get('enclosureVersion'),
+                payload.get('coreVersion')
+            )
+        return '', HTTPStatus.OK

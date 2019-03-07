@@ -12,3 +12,8 @@ Feature: Get device's information
   Scenario: Try to get a device without passing the access token
     When try to fetch a device without the authorization header
     Then a 401 status code should be returned
+
+  Scenario: Update device information
+    When the device is updated
+    And device is retrieved
+    Then the information should be updated

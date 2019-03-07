@@ -56,7 +56,7 @@ public.add_url_rule(
 public.add_url_rule(
     '/device/<string:device_id>',
     view_func=DeviceEndpoint.as_view('device_api'),
-    methods=['GET']
+    methods=['GET', 'PATCH']
 )
 
 public.add_url_rule(
