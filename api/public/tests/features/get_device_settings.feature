@@ -5,6 +5,6 @@ Feature: Retrieve device's settings
     When try to fetch device's setting
     Then a valid setting should be returned
 
-    Scenario: Try to get the settings from a nonexistent device
-      When the settings endpoint is a called to a nonexistent device
-      Then a 204 status code should be returned for the setting
+    Scenario: Try to get the settings from a not allowed device
+      When the settings endpoint is a called to a not allowed device
+      Then a 401 status code should be returned for the setting

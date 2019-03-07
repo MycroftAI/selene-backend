@@ -14,14 +14,11 @@ class DeviceRefreshTokenEndpoint(PublicEndpoint):
         self.sha512 = hashlib.sha512()
 
     def get(self):
-        refresh = self.request.headers['Authorization']
-        if refresh.startswith('Bearer '):
-            refresh = refresh[len('Bearer '):]
-            session = self._refresh_session_token(refresh)
-            if session:
-                response = session, HTTPStatus.OK
-            else:
-                response = '', HTTPStatus.UNAUTHORIZED
+        self._authenticate()
+        refresh = self.request.headers['Authorization'][len('Bearer '):]
+        session = self._refresh_session_token(refresh)
+        if session:
+            response = session, HTTPStatus.OK
         else:
             response = '', HTTPStatus.UNAUTHORIZED
         return response

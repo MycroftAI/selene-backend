@@ -14,6 +14,7 @@ class OpenWeatherMapEndpoint(PublicEndpoint):
         self.owm_url = os.environ['OWM_URL']
 
     def get(self, path):
+        self._authenticate()
         params = dict(self.request.args)
         params['APPID'] = self.owm_key
         response = requests.get(self.owm_url + '/' + path, params=params)

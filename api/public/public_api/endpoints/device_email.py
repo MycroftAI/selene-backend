@@ -25,6 +25,7 @@ class DeviceEmailEndpoint(PublicEndpoint):
         self.email_client: smtplib.SMTP = self.config['EMAIL_CLIENT']
 
     def post(self, device_id):
+        self._authenticate(device_id)
         payload = json.loads(self.request.data)
         send_email = SendEmail(payload)
         send_email.validate()

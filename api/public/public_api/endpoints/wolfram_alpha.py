@@ -15,6 +15,7 @@ class WolframAlphaEndpoint(PublicEndpoint):
         self.wolfram_alpha_url = os.environ['WOLFRAM_ALPHA_URL']
 
     def get(self):
+        self._authenticate()
         input = self.request.args.get('input')
         if input:
             params = dict(appid=self.wolfram_alpha_key, input=input)

@@ -42,12 +42,14 @@ class DeviceSkillsEndpoint(PublicEndpoint):
         super(DeviceSkillsEndpoint, self).__init__()
 
     def get(self, device_id):
+        self._authenticate(device_id)
         with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
             skills = SkillRepository(db).get_skill_settings_by_device_id(device_id)
         response = (skills, HTTPStatus.OK) if skills is not None else ('', HTTPStatus.NO_CONTENT)
         return response
 
     def put(self, device_id):
+        self._authenticate(device_id)
         payload = json.loads(self.request.data)
         skill = Skill(payload)
         skill.validate()

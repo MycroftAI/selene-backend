@@ -13,6 +13,7 @@ class GoogleSTTEndpoint(PublicEndpoint):
         self.recognizer = Recognizer()
 
     def post(self):
+        self._authenticate()
         lang = self.request.args['lang']
         limit = int(self.request.args['limit'])
         audio = self.request.data

@@ -77,13 +77,20 @@ skill_updated = {
 
 @given('a device with skill settings')
 def create_skill_settings(context):
-    device_id = context.device_login['uuid']
+    login = context.device_login
+    device_id = login['uuid']
+    access_token = login['accessToken']
+    headers = dict(Authorization='Bearer {token}'.format(token=access_token))
     context.upload_device_response = context.client.put(
         '/device/{uuid}/skill'.format(uuid=device_id),
         data=json.dumps(skill),
-        content_type='application_json'
+        content_type='application_json',
+        headers=headers
     )
-    context.get_skill_response = context.client.get('/device/{uuid}/skill'.format(uuid=device_id))
+    context.get_skill_response = context.client.get(
+        '/device/{uuid}/skill'.format(uuid=device_id),
+        headers=headers
+    )
 
 
 @when('the skill settings are updated')
@@ -100,8 +107,14 @@ def update_skill(context):
 
 @when('the skill settings is fetched')
 def retrieve_skill_updated(context):
-    device_id = context.device_login['uuid']
-    context.get_skill_updated_response = context.client.get('/device/{uuid}/skill'.format(uuid=device_id))
+    login = context.device_login
+    device_id = login['uuid']
+    access_token = login['accessToken']
+    headers=dict(Authorization='Bearer {token}'.format(token=access_token))
+    context.get_skill_updated_response = context.client.get(
+        '/device/{uuid}/skill'.format(uuid=device_id),
+        headers=headers
+    )
 
 
 @then('the skill settings should be retrieved with the new values')

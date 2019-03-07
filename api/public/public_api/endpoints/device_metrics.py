@@ -31,6 +31,7 @@ class DeviceMetricsEndpoint(PublicEndpoint):
         self.metrics_service: MetricsService = self.config['METRICS_SERVICE']
 
     def post(self, device_id, metric):
+        self._authenticate(device_id)
         payload = json.loads(self.request.data)
         with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
             account = AccountRepository(db).get_account_by_device_id(device_id)

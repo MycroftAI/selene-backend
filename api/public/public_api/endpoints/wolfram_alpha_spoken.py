@@ -15,6 +15,7 @@ class WolframAlphaSpokenEndpoint(SeleneEndpoint):
         self.wolfram_alpha_url = os.environ['WOLFRAM_ALPHA_URL']
 
     def get(self):
+        self._authenticate()
         params = dict(self.request.args)
         params['appid'] = self.wolfram_alpha_key
         response = requests.get(self.wolfram_alpha_url + '/v1/spoken', params=params)

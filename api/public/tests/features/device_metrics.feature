@@ -4,6 +4,6 @@ Feature: Send a metric to the metric service
     When the metric is sent
     Then 200 status code should be returned
 
-  Scenario: a metric is sent by an invalid device
-    When the metric is sent by an invalid device
-    Then metrics endpoint should return 204
+  Scenario: a metric is sent by a not allowed device
+    When the metric is sent by a not allowed device
+    Then metrics endpoint should return 401

@@ -11,4 +11,4 @@ Feature: Get the subscription type from the account linked to a device
 
   Scenario: The endpoint is called to a nonexistent device
     When try to get the subscription for a nonexistent device
-    Then 204 status code should be returned for the subscription endpoint
+    Then 401 status code should be returned for the subscription endpoint

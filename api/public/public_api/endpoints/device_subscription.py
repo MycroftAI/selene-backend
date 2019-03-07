@@ -10,6 +10,7 @@ class DeviceSubscriptionEndpoint(PublicEndpoint):
         super(DeviceSubscriptionEndpoint, self).__init__()
 
     def get(self, device_id):
+        self._authenticate(device_id)
         with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
             account = AccountRepository(db).get_account_by_device_id(device_id)
         if account:
