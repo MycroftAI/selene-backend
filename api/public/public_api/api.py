@@ -12,6 +12,7 @@ from .endpoints.device_activate import DeviceActivateEndpoint
 from .endpoints.device_code import DeviceCodeEndpoint
 from .endpoints.device_email import DeviceEmailEndpoint
 from .endpoints.device_metrics import DeviceMetricsEndpoint, MetricsService
+from .endpoints.device_refresh_token import DeviceRefreshTokenEndpoint
 from .endpoints.device_setting import DeviceSettingEndpoint
 from .endpoints.device_skill import DeviceSkillEndpoint
 from .endpoints.device_skills import DeviceSkillsEndpoint
@@ -19,6 +20,7 @@ from .endpoints.device_subscription import DeviceSubscriptionEndpoint
 from .endpoints.google_stt import GoogleSTTEndpoint
 from .endpoints.open_weather_map import OpenWeatherMapEndpoint
 from .endpoints.wolfram_alpha import WolframAlphaEndpoint
+from .endpoints.wolfram_alpha_spoken import WolframAlphaSpokenEndpoint
 
 public = Flask(__name__)
 public.config.from_object(get_base_config())
@@ -43,7 +45,7 @@ public.register_blueprint(selene_api)
 public.add_url_rule(
     '/device/<string:device_id>/skill',
     view_func=DeviceSkillsEndpoint.as_view('device_skill_api'),
-    methods=['GET']
+    methods=['GET', 'PUT']
 )
 public.add_url_rule(
     '/device/<string:device_id>/userSkill',
@@ -54,7 +56,7 @@ public.add_url_rule(
 public.add_url_rule(
     '/device/<string:device_id>',
     view_func=DeviceEndpoint.as_view('device_api'),
-    methods=['GET']
+    methods=['GET', 'PATCH']
 )
 
 public.add_url_rule(
@@ -107,4 +109,14 @@ public.add_url_rule(
     '/device/<string:device_id>/metric/<path:metric>',
     view_func=DeviceMetricsEndpoint.as_view('device_metric_api'),
     methods=['POST']
+)
+public.add_url_rule(
+    '/auth/token',
+    view_func=DeviceRefreshTokenEndpoint.as_view('refresh_token_api'),
+    methods=['GET']
+)
+public.add_url_rule(
+    '/wolframAlphaSpoken',
+    view_func=WolframAlphaSpokenEndpoint.as_view('wolfram_alpha_spoken_api'),
+    methods=['GET']
 )

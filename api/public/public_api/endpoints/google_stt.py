@@ -1,12 +1,11 @@
-import os
 from io import BytesIO
 
 from speech_recognition import AudioFile, Recognizer
 
-from selene.api import SeleneEndpoint
+from selene.api import PublicEndpoint
 
 
-class GoogleSTTEndpoint(SeleneEndpoint):
+class GoogleSTTEndpoint(PublicEndpoint):
     """ Endpoint to send a flac audio file with voice and get back a utterance"""
     def __init__(self):
         super(GoogleSTTEndpoint, self).__init__()
@@ -14,6 +13,7 @@ class GoogleSTTEndpoint(SeleneEndpoint):
         self.recognizer = Recognizer()
 
     def post(self):
+        self._authenticate()
         lang = self.request.args['lang']
         limit = int(self.request.args['limit'])
         audio = self.request.data

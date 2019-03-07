@@ -1,6 +1,5 @@
 SELECT
     skill.id,
-    skill.name,
     dev_skill.settings,
     display.settings_display
 FROM

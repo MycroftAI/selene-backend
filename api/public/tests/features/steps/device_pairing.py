@@ -26,6 +26,7 @@ def add_device(context):
         data=json.dumps(device),
         content_type='application_json')
     context.device_id = response.data.decode('utf-8')
+    context.device_name = 'home'
 
 
 @when('device is activated')
@@ -39,6 +40,8 @@ def activate_device(context):
     }
     response = context.client.post('/device/activate', data=json.dumps(activate), content_type='application_json')
     context.activate_device_response = response
+    login = json.loads(response.data)
+    context.device_access_token = login['accessToken']
 
 
 @then('a login session should be returned')

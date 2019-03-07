@@ -23,7 +23,7 @@ devices_location.csv
 match (n:Device)-[:PLACED_AT]->()-[:COORDINATE]->(coord) return n.uuid, coord.latitude, coord.longitude
 
 skill.csv
-match (dev:Device)-[:SKILL_MAPPING]->()-[:SKILL]->(n:Skill) return n.uuid, dev.uuid, n.name, n.description
+match (dev:Device)-[:SKILL_MAPPING]->()-[:SKILL]->(n:Skill) return n.uuid, dev.uuid, n.name, n.description, n.identifier, n.color
 
 skill_section.csv
 match (skill:Skill)-[:METADATA]->()-[:SECTION]->(section) return section.uuid, skill.uuid, section.name, section.order order by skill.uuid

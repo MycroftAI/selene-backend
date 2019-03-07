@@ -1,13 +1,12 @@
-import json
 import hashlib
+import json
 import random
 import uuid
 
-from selene.api import SeleneEndpoint
-from selene.util.cache import SeleneCache
+from selene.api import PublicEndpoint
 
 
-class DeviceCodeEndpoint(SeleneEndpoint):
+class DeviceCodeEndpoint(PublicEndpoint):
     """Endpoint to get a pairing code"""
 
     # We need to do that to avoid ambiguous characters, like 0 and O, that is even harder to distinguish
@@ -17,7 +16,6 @@ class DeviceCodeEndpoint(SeleneEndpoint):
     def __init__(self):
         super(DeviceCodeEndpoint, self).__init__()
         self.device_pairing_time = 86400
-        self.cache: SeleneCache = self.config.get('SELENE_CACHE')
         self.sha512 = hashlib.sha512()
 
     def get(self):
