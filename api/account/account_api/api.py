@@ -8,6 +8,7 @@ from .endpoints.account_preferences import AccountPreferencesEndpoint
 from .endpoints.device import DeviceEndpoint
 from .endpoints.device_count import DeviceCountEndpoint
 from .endpoints.geography import GeographyEndpoint
+from .endpoints.membership import MembershipEndpoint
 from .endpoints.skills import SkillsEndpoint
 from .endpoints.skill_settings import SkillSettingsEndpoint
 from .endpoints.voice_endpoint import VoiceEndpoint
@@ -88,5 +89,12 @@ geography_endpoint = GeographyEndpoint.as_view('geography_endpoint')
 acct.add_url_rule(
     '/api/geographies',
     view_func=geography_endpoint,
+    methods=['GET']
+)
+
+membership_endpoint = MembershipEndpoint.as_view('membership_endpoint')
+acct.add_url_rule(
+    '/api/memberships',
+    view_func=membership_endpoint,
     methods=['GET']
 )
