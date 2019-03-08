@@ -22,6 +22,7 @@ from ..base_endpoint import SeleneEndpoint
 MONTHLY_MEMBERSHIP = 'Monthly Membership'
 YEARLY_MEMBERSHIP = 'Yearly Membership'
 NO_MEMBERSHIP = 'Maybe Later'
+STRIPE_PAYMENT = 'Stripe'
 
 
 def agreement_accepted(value):
@@ -55,8 +56,8 @@ class Support(Model):
         required=True,
         choices=(MONTHLY_MEMBERSHIP, YEARLY_MEMBERSHIP, NO_MEMBERSHIP)
     )
-    payment_method = StringType()
-    payment_account_id = StringType()
+    payment_method = StringType(choices=[STRIPE_PAYMENT])
+    payment_token = StringType()
 
     def validate_payment_account_id(self, data, value):
         if data['membership'] != NO_MEMBERSHIP:
@@ -168,7 +169,7 @@ class AccountEndpoint(SeleneEndpoint):
                 open_dataset=support_data.get('openDataset'),
                 membership=support_data.get('membership'),
                 payment_method=support_data.get('paymentMethod'),
-                payment_account_id=support_data.get('paymentAccountId')
+                payment_token=support_data.get('paymentToken')
             ))
 
         return support
@@ -188,7 +189,9 @@ class AccountEndpoint(SeleneEndpoint):
         membership_type = self.request_data['support']['membership']
         membership = None
         if membership_type != NO_MEMBERSHIP:
-            payment_account = self.request_data['support']['paymentAccountId']
+            payment_token = self.request_data['support']['paymentToken']
+            email = self.request.data['login']['userEnteredEmail']
+            payment_account = self._create_stripe_subscription(payment_token, email)
             membership = AccountMembership(
                 type=membership_type,
                 start_date=date.today(),
@@ -210,3 +213,6 @@ class AccountEndpoint(SeleneEndpoint):
                 account,
                 password=password
             )
+
+    def _create_stripe_subscription(self, token, account_email) -> str:
+        pass

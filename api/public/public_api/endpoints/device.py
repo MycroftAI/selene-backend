@@ -1,5 +1,4 @@
 import json
-from dataclasses import asdict
 from http import HTTPStatus
 
 from schematics import Model
