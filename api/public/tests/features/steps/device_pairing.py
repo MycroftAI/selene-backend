@@ -35,8 +35,8 @@ def activate_device(context):
         'token': context.pairing['token'],
         'state': context.pairing['state'],
         'platform': 'picroft',
-        'core_version': '18.8.0',
-        'enclosure_version': '1.4.0'
+        'coreVersion': '18.8.0',
+        'enclosureVersion': '1.4.0'
     }
     response = context.client.post('/v1/device/activate', data=json.dumps(activate), content_type='application_json')
     context.activate_device_response = response

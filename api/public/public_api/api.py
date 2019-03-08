@@ -4,6 +4,7 @@ from flask import Flask
 
 from selene.api import SeleneResponse, selene_api
 from selene.api.base_config import get_base_config
+from selene.api.public_endpoint import check_oauth_token
 from selene.util.cache import SeleneCache
 from .endpoints.account_device import AccountDeviceEndpoint
 from .endpoints.device import DeviceEndpoint
@@ -120,3 +121,11 @@ public.add_url_rule(
     view_func=WolframAlphaSpokenEndpoint.as_view('wolfram_alpha_spoken_api'),
     methods=['GET']
 )
+
+
+"""
+This is a workaround to allow the API return 401 when we call a non existent path. Use case:
+GET /device/{uuid} with empty uuid. Core today uses the 401 to validate if it needs to perform a pairing process
+Whe should fix that in a future version because we have to return 404 when we call a non existent path
+"""
+public.before_request(check_oauth_token)

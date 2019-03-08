@@ -3,6 +3,7 @@ import json
 from http import HTTPStatus
 
 from selene.api import PublicEndpoint, generate_device_login
+from selene.util.auth import AuthenticationError
 
 
 class DeviceRefreshTokenEndpoint(PublicEndpoint):
@@ -14,11 +15,17 @@ class DeviceRefreshTokenEndpoint(PublicEndpoint):
         self.sha512 = hashlib.sha512()
 
     def get(self):
-        self._authenticate()
-        refresh = self.request.headers['Authorization'][len('Bearer '):]
-        session = self._refresh_session_token(refresh)
-        if session:
-            response = session, HTTPStatus.OK
+        headers = self.request.headers
+        if 'Authorization' not in headers:
+            raise AuthenticationError('Oauth token not found')
+        token_header = self.request.headers['Authorization']
+        if token_header.startswith('Bearer '):
+            refresh = token_header[len('Bearer '):]
+            session = self._refresh_session_token(refresh)
+            if session:
+                response = session, HTTPStatus.OK
+            else:
+                response = '', HTTPStatus.UNAUTHORIZED
         else:
             response = '', HTTPStatus.UNAUTHORIZED
         return response
