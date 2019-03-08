@@ -7,4 +7,5 @@ class Membership(object):
     type: str
     rate: Decimal
     rate_period: str
+    stripe_plan: str
     id: str = None
