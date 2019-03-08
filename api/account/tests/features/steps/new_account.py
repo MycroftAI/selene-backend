@@ -39,7 +39,7 @@ def change_membership_option(context):
     context.new_account_request['support'].update(
         membership='Monthly Membership',
         paymentMethod='Stripe',
-        paymentAccountId='barstripe'
+        paymentToken='tok_visa'
     )
 
 
