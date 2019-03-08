@@ -10,7 +10,7 @@ def refresh_token(context):
     login = json.loads(context.activate_device_response.data)
     refresh = login['refreshToken']
     context.refresh_token_response = context.client.get(
-        '/auth/token',
+        '/v1/auth/token',
         headers={'Authorization': 'Bearer {token}'.format(token=refresh)}
     )
 
@@ -35,7 +35,7 @@ def validate_refresh_token(context):
 @when('try to refresh an invalid refresh token')
 def refresh_invalid_token(context):
     context.refresh_invalid_token_response = context.client.get(
-        '/auth/token',
+        '/v1/auth/token',
         headers={'Authorization': 'Bearer {token}'.format(token='123')}
     )
 

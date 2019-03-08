@@ -18,7 +18,7 @@ def get_device(context):
     headers = dict(Authorization='Bearer {token}'.format(token=access_token))
     device_id = context.device_login['uuid']
     context.get_device_response = context.client.get(
-        '/device/{uuid}'.format(uuid=device_id),
+        '/v1/device/{uuid}'.format(uuid=device_id),
         headers=headers
     )
 
@@ -37,7 +37,7 @@ def validate_response(context):
 
 @when('try to fetch a device without the authorization header')
 def get_invalid_device(context):
-    context.get_invalid_device_response = context.client.get('/device/{uuid}'.format(uuid=str(uuid.uuid4())))
+    context.get_invalid_device_response = context.client.get('/v1/device/{uuid}'.format(uuid=str(uuid.uuid4())))
 
 
 @when('try to fetch a not allowed device')
@@ -45,7 +45,7 @@ def get_not_allowed_device(context):
     access_token = context.device_login['accessToken']
     headers = dict(Authorization='Bearer {token}'.format(token=access_token))
     context.get_invalid_device_response = context.client.get(
-        '/device/{uuid}'.format(uuid=str(uuid.uuid4())),
+        '/v1/device/{uuid}'.format(uuid=str(uuid.uuid4())),
         headers=headers
     )
 
@@ -64,7 +64,7 @@ def update_device(context):
     headers = dict(Authorization='Bearer {token}'.format(token=access_token))
 
     context.update_device_response = context.client.patch(
-        '/device/{uuid}'.format(uuid=device_id),
+        '/v1/device/{uuid}'.format(uuid=device_id),
         data=json.dumps(new_fields),
         content_type='application_json',
         headers=headers

@@ -21,7 +21,7 @@ def send_email(context, email_client):
     device_id = login['uuid']
     access_token = login['accessToken']
     context.email_response = context.client.post(
-        '/device/{uuid}/email'.format(uuid=device_id),
+        '/v1/device/{uuid}/email'.format(uuid=device_id),
         data=json.dumps(email_request),
         content_type='application_json',
         headers=dict(Authorization='Bearer {token}'.format(token=access_token))
@@ -41,7 +41,7 @@ def validate_response(context):
 def send_email_invalid_device(context, email_client):
     context.client_config['EMAIL_CLIENT'] = email_client
     context.email_invalid_response = context.client.post(
-        '/device/{uuid}/email'.format(uuid=str(uuid.uuid4())),
+        '/v1/device/{uuid}/email'.format(uuid=str(uuid.uuid4())),
         data=json.dumps(email_request),
         content_type='application_json'
     )

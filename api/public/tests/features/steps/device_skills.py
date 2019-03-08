@@ -82,13 +82,13 @@ def create_skill_settings(context):
     access_token = login['accessToken']
     headers = dict(Authorization='Bearer {token}'.format(token=access_token))
     context.upload_device_response = context.client.put(
-        '/device/{uuid}/skill'.format(uuid=device_id),
+        '/v1/device/{uuid}/skill'.format(uuid=device_id),
         data=json.dumps(skill),
         content_type='application_json',
         headers=headers
     )
     context.get_skill_response = context.client.get(
-        '/device/{uuid}/skill'.format(uuid=device_id),
+        '/v1/device/{uuid}/skill'.format(uuid=device_id),
         headers=headers
     )
 
@@ -112,7 +112,7 @@ def retrieve_skill_updated(context):
     access_token = login['accessToken']
     headers=dict(Authorization='Bearer {token}'.format(token=access_token))
     context.get_skill_updated_response = context.client.get(
-        '/device/{uuid}/skill'.format(uuid=device_id),
+        '/v1/device/{uuid}/skill'.format(uuid=device_id),
         headers=headers
     )
 
