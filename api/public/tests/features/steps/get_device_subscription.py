@@ -17,7 +17,7 @@ def get_device_subscription(context):
     access_token = login['accessToken']
     headers = dict(Authorization='Bearer {token}'.format(token=access_token))
     context.subscription_response = context.client.get(
-        '/device/{uuid}/subscription'.format(uuid=device_id),
+        '/v1/device/{uuid}/subscription'.format(uuid=device_id),
         headers=headers
     )
 
@@ -45,7 +45,7 @@ def get_device_subscription(context):
     with get_db_connection(context.client_config['DB_CONNECTION_POOL']) as db:
         AccountRepository(db)._add_membership(context.account.id, membership)
     context.subscription_response = context.client.get(
-        '/device/{uuid}/subscription'.format(uuid=device_id),
+        '/v1/device/{uuid}/subscription'.format(uuid=device_id),
         headers=headers
     )
 
@@ -63,7 +63,7 @@ def get_subscription_nonexistent_device(context):
     access_token = context.device_login['accessToken']
     headers = dict(Authorization='Bearer {token}'.format(token=access_token))
     context.invalid_subscription_response = context.client.get(
-        '/device/{uuid}/subscription'.format(uuid=str(uuid.uuid4())),
+        '/v1/device/{uuid}/subscription'.format(uuid=str(uuid.uuid4())),
         headers=headers
     )
 

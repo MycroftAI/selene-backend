@@ -14,7 +14,7 @@ def call_google_stt_endpoint(context):
     with open(path.join(path.dirname(__file__), 'resources/test_stt.flac'), 'rb') as flac:
         audio = BytesIO(flac.read())
         context.response = context.client.post(
-            '/stt?lang=en-US&limit=1',
+            '/v1/stt?lang=en-US&limit=1',
             data=audio,
             headers=headers
         )
