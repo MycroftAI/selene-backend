@@ -209,7 +209,8 @@ class AccountEndpoint(SeleneEndpoint):
             payment_token = self.request_data['support']['paymentToken']
             email = self.request_data['login']['userEnteredEmail']
             plan = self._get_plan(membership_type).stripe_plan
-            payment_account_id, start = self._create_stripe_subscription(payment_token, email, plan)
+            payment_account_id, start = self._create_stripe_subscription(None, payment_token, email, plan)
+
             membership = AccountMembership(
                 type=membership_type,
                 start_date=date.today(),
@@ -287,3 +288,4 @@ class AccountEndpoint(SeleneEndpoint):
                 type=membership
             )
             AccountRepository(db).add_membership(self.account.id, new_membership)
+
