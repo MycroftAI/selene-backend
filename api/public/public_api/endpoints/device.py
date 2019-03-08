@@ -1,4 +1,5 @@
 import json
+from dataclasses import asdict
 from http import HTTPStatus
 
 from schematics import Model
@@ -44,17 +45,11 @@ class DeviceEndpoint(PublicEndpoint):
         payload = json.loads(self.request.data)
         update_device = UpdateDevice(payload)
         update_device.validate()
-        platform = payload.get('platform')
-        platform = 'unknown' if platform is None else platform
-        enclosure_version = payload.get('enclosureVersion')
-        enclosure_version = 'unknown' if enclosure_version is None else enclosure_version
-        core_version = payload.get('coreVersion')
-        core_version = 'unknown' if core_version is None else core_version
         with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
             DeviceRepository(db).update_device(
                 device_id,
-                platform,
-                enclosure_version,
-                core_version
+                payload.get('platform') or 'unknown',
+                payload.get('enclosureVersion') or 'unknown',
+                payload.get('coreVersion') or 'unknown'
             )
         return '', HTTPStatus.OK
