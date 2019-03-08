@@ -13,7 +13,7 @@ def get_device_settings(context):
     access_token = login['accessToken']
     headers=dict(Authorization='Bearer {token}'.format(token=access_token))
     context.response_setting = context.client.get(
-        '/device/{uuid}/setting'.format(uuid=device_id),
+        '/v1/device/{uuid}/setting'.format(uuid=device_id),
         headers=headers
     )
 
@@ -36,7 +36,7 @@ def get_device_settings(context):
     access_token = context.device_login['accessToken']
     headers = dict(Authorization='Bearer {token}'.format(token=access_token))
     context.get_invalid_setting_response = context.client.get(
-        '/device/{uuid}/setting'.format(uuid=str(uuid.uuid4())),
+        '/v1/device/{uuid}/setting'.format(uuid=str(uuid.uuid4())),
         headers=headers
     )
 

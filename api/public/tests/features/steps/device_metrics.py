@@ -22,7 +22,7 @@ def send_metric(context, metrics_service):
     access_token = login['accessToken']
     headers = dict(Authorization='Bearer {token}'.format(token=access_token))
     context.response = context.client.post(
-        '/device/{uuid}/metric/{metric}'.format(uuid=device_id, metric='timing'),
+        '/v1/device/{uuid}/metric/{metric}'.format(uuid=device_id, metric='timing'),
         data=json.dumps(payload),
         content_type='application_json',
         headers=headers
@@ -48,7 +48,7 @@ def send_metrics_invalid(context, metrics_service):
     context.client_config['METRICS_SERVICE'] = metrics_service
     headers = dict(Authorization='Bearer {token}'.format(token=context.device_login['accessToken']))
     context.response = context.client.post(
-        '/device/{uuid}/metric/{metric}'.format(uuid=str(uuid.uuid4()), metric='timing'),
+        '/v1/device/{uuid}/metric/{metric}'.format(uuid=str(uuid.uuid4()), metric='timing'),
         data=json.dumps(payload),
         content_type='application_json',
         headers=headers
