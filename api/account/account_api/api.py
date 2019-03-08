@@ -9,6 +9,7 @@ from .endpoints.device import DeviceEndpoint
 from .endpoints.device_count import DeviceCountEndpoint
 from .endpoints.geography import GeographyEndpoint
 from .endpoints.membership import MembershipEndpoint
+
 from .endpoints.skill_settings import SkillSettingsEndpoint
 from .endpoints.skills import SkillsEndpoint
 from .endpoints.voice_endpoint import VoiceEndpoint
