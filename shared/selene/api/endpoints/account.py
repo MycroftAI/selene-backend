@@ -1,8 +1,10 @@
 """API endpoint to return the a logged-in user's profile"""
+import os
 from dataclasses import asdict
 from datetime import date, datetime, timedelta
 from http import HTTPStatus
 
+import stripe
 from flask import json, jsonify
 from schematics import Model
 from schematics.exceptions import ValidationError
@@ -14,8 +16,8 @@ from selene.data.account import (
     AccountRepository,
     AccountMembership,
     PRIVACY_POLICY,
-    TERMS_OF_USE
-)
+    TERMS_OF_USE,
+    MembershipRepository)
 from selene.util.db import get_db_connection
 from ..base_endpoint import SeleneEndpoint
 
@@ -23,6 +25,8 @@ MONTHLY_MEMBERSHIP = 'Monthly Membership'
 YEARLY_MEMBERSHIP = 'Yearly Membership'
 NO_MEMBERSHIP = 'Maybe Later'
 STRIPE_PAYMENT = 'Stripe'
+
+stripe.api_key = os.environ['STRIPE_PRIVATE_KEY']
 
 
 def agreement_accepted(value):
@@ -190,13 +194,14 @@ class AccountEndpoint(SeleneEndpoint):
         membership = None
         if membership_type != NO_MEMBERSHIP:
             payment_token = self.request_data['support']['paymentToken']
-            email = self.request.data['login']['userEnteredEmail']
-            payment_account = self._create_stripe_subscription(payment_token, email)
+            email = self.request_data['login']['userEnteredEmail']
+            plan = self._get_plan(membership_type).stripe_plan
+            payment_account_id, start = self._create_stripe_subscription(payment_token, email, plan)
             membership = AccountMembership(
                 type=membership_type,
                 start_date=date.today(),
                 payment_method=self.request_data['support']['paymentMethod'],
-                payment_account_id=payment_account
+                payment_account_id=payment_account_id
             )
         account = Account(
             email_address=email_address,
@@ -214,5 +219,11 @@ class AccountEndpoint(SeleneEndpoint):
                 password=password
             )
 
-    def _create_stripe_subscription(self, token, account_email) -> str:
-        pass
+    def _create_stripe_subscription(self, token, user_email, plan):
+        customer = stripe.Customer.create(source=token, email=user_email)
+        subscription = stripe.Subscription.create(customer=customer.id, items=[{'plan': plan}])
+        return customer.id, subscription.current_period_start
+
+    def _get_plan(self, plan):
+        with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
+            return MembershipRepository(db).get_membership_by_type(plan)
