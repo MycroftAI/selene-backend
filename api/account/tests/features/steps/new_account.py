@@ -2,7 +2,7 @@ from datetime import date
 
 from behave import given, then, when
 from flask import json
-from hamcrest import assert_that, equal_to, is_in, none, not_none
+from hamcrest import assert_that, equal_to, is_in, none, not_none, starts_with
 
 from selene.data.account import AccountRepository, PRIVACY_POLICY, TERMS_OF_USE
 from selene.util.db import get_db_connection
@@ -72,7 +72,7 @@ def check_db_for_account(context, membership_option):
             assert_that(account.membership.type, equal_to('Monthly Membership'))
             assert_that(
                 account.membership.payment_account_id,
-                equal_to('barstripe')
+                starts_with('cus')
             )
         elif membership_option == 'without a membership':
             assert_that(account.membership, none())

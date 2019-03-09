@@ -14,6 +14,14 @@ class MembershipRepository(RepositoryBase):
 
         return [Membership(**row) for row in db_result]
 
+    def get_membership_by_type(self, type: str):
+        db_request = self._build_db_request(
+            sql_file_name='get_membership_by_type.sql',
+            args=dict(type=type)
+        )
+        db_result = self.cursor.select_one(db_request)
+        return Membership(**db_result)
+
     def add(self, membership: Membership):
         db_request = self._build_db_request(
             'add_membership.sql',
