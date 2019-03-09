@@ -12,6 +12,7 @@ flask = "*"
 requests = "*"
 SpeechRecognition = "*"
 uwsgi = "*"
+stripe = "*"
 
 [requires]
 python_version = "3.7"
