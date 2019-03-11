@@ -11,6 +11,25 @@ from ..util.cache import SeleneCache
 ONE_DAY = 86400
 
 
+def check_oauth_token():
+    exclude_paths = ['/v1/device/code', '/v1/device/activate', '/api/account', '/v1/auth/token']
+    exclude = any(request.path.startswith(path) for path in exclude_paths)
+
+    if not exclude:
+        headers = request.headers
+        if 'Authorization' not in headers:
+            raise AuthenticationError('Oauth token not found')
+        token_header = headers['Authorization']
+        device_authenticated = False
+        if token_header.startswith('Bearer '):
+            token = token_header[len('Bearer '):]
+            session = current_app.config['SELENE_CACHE'].get('device.token.access:{access}'.format(access=token))
+            if session:
+                device_authenticated = True
+        if not device_authenticated:
+            raise AuthenticationError('device not authorized')
+
+
 def generate_device_login(device_id: str, cache: SeleneCache) -> dict:
     """Generates a login session for a given device id"""
     sha512 = hashlib.sha512()
@@ -49,7 +68,7 @@ class PublicEndpoint(MethodView):
         if 'Authorization' not in headers:
             raise AuthenticationError('Oauth token not found')
         token_header = self.request.headers['Authorization']
-        device_authenticated = True
+        device_authenticated = False
         if token_header.startswith('Bearer '):
             token = token_header[len('Bearer '):]
             session = self.cache.get('device.token.access:{access}'.format(access=token))

@@ -14,7 +14,7 @@ class DeviceRepository(object):
     def __init__(self, db):
         self.cursor = Cursor(db)
 
-    def get_device_by_id(self, device_id: str) -> Device:
+    def get_device_by_id(self, device_id: str) -> dict:
         """Fetch a device using a given device id
 
         :param device_id: uuid
@@ -25,9 +25,7 @@ class DeviceRepository(object):
             args=dict(device_id=device_id)
         )
 
-        sql_results = self.cursor.select_one(query)
-        if sql_results:
-            return Device(**sql_results)
+        return self.cursor.select_one(query)
 
     def get_devices_by_account_id(self, account_id: str) -> List[Device]:
         """Fetch all devices associated to a user from a given account id

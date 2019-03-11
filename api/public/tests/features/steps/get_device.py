@@ -33,6 +33,9 @@ def validate_response(context):
     assert_that(device, has_key('coreVersion'))
     assert_that(device, has_key('enclosureVersion'))
     assert_that(device, has_key('platform'))
+    assert_that(device, has_key('user'))
+    assert_that(device['user'], has_key('uuid'))
+    assert_that(device['user']['uuid'], equal_to(context.account.id))
 
 
 @when('try to fetch a device without the authorization header')

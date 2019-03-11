@@ -14,8 +14,9 @@ class DeviceActivate(Model):
     token = StringType(required=True)
     state = StringType(required=True)
     platform = StringType(default='unknown')
-    core_version = StringType(default='unknown')
-    enclosure_version = StringType(default='unknown')
+    coreVersion = StringType(default='unknown')
+    enclosureVersion = StringType(default='unknown')
+    platform_build = StringType()
 
 
 class DeviceActivateEndpoint(PublicEndpoint):
@@ -27,16 +28,14 @@ class DeviceActivateEndpoint(PublicEndpoint):
     def post(self):
         payload = json.loads(self.request.data)
         device_activate = DeviceActivate(payload)
-        if device_activate:
-            pairing = self._get_pairing_session(device_activate)
-            if pairing:
-                device_id = pairing['uuid']
-                self._activate(device_id, device_activate)
-                response = generate_device_login(device_id, self.cache), HTTPStatus.OK
-            else:
-                response = '', HTTPStatus.NO_CONTENT
+        device_activate.validate()
+        pairing = self._get_pairing_session(device_activate)
+        if pairing:
+            device_id = pairing['uuid']
+            self._activate(device_id, device_activate)
+            response = generate_device_login(device_id, self.cache), HTTPStatus.OK
         else:
-            response = '', HTTPStatus.NO_CONTENT
+            response = '', HTTPStatus.NOT_FOUND
         return response
 
     def _get_pairing_session(self, device_activate: DeviceActivate):
@@ -56,8 +55,8 @@ class DeviceActivateEndpoint(PublicEndpoint):
             DeviceRepository(db).update_device(
                 device_id,
                 str(device_activate.platform),
-                str(device_activate.enclosure_version),
-                str(device_activate.core_version)
+                str(device_activate.enclosureVersion),
+                str(device_activate.coreVersion)
             )
 
     @staticmethod

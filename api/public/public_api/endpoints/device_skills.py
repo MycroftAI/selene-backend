@@ -17,7 +17,7 @@ class SkillField(Model):
     placeholder = StringType()
     hide = BooleanType()
     value = StringType()
-    option = StringType()
+    options = StringType()
 
 
 class SkillSection(Model):
@@ -33,7 +33,7 @@ class Skill(Model):
     name = StringType(required=True)
     identifier = StringType(required=True)
     skillMetadata = ModelType(SkillMetadata)
-
+    color = StringType()
 
 class DeviceSkillsEndpoint(PublicEndpoint):
     """Fetch all skills associated with a given device using the API v1 format"""
