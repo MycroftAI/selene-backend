@@ -1,1 +1,1 @@
-CREATE DATABASE mycroft_template WITH OWNER = mycroft;
+CREATE DATABASE mycroft_template WITH OWNER = selene;

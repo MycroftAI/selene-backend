@@ -4,7 +4,7 @@ from os import path
 from psycopg2 import connect
 
 MYCROFT_DB_DIR = path.join(path.abspath('..'), 'mycroft')
-SCHEMAS = ('account', 'skill', 'device')
+SCHEMAS = ('account', 'skill', 'device', 'geography')
 DB_DESTROY_FILES = (
     'drop_mycroft_db.sql',
     'drop_template_db.sql',
@@ -22,24 +22,25 @@ ACCOUNT_TABLE_ORDER = (
 SKILL_TABLE_ORDER = (
     'skill',
     'settings_display',
-    'branch',
-    'activation',
-    'category',
-    'credit',
-    'platform',
-    'tag',
+    'display',
     'oauth_credential',
     'oauth_token'
 )
 DEVICE_TABLE_ORDER = (
     'category',
-    'location',
+    'geography',
     'text_to_speech',
     'wake_word',
     'wake_word_settings',
     'account_preferences',
     'device',
     'device_skill',
+)
+GEOGRAPHY_TABLE_ORDER = (
+    'country',
+    'timezone',
+    'region',
+    'city'
 )
 
 schema_directory = '{}_schema'
@@ -65,7 +66,7 @@ class PostgresDB(object):
         cursor.execute(sql)
 
 
-postgres_db = PostgresDB(dbname='postgres', user='postgres')
+postgres_db = PostgresDB(dbname='postgres', user='chrisveilleux')
 
 print('Destroying any objects we will be creating later.')
 for db_destroy_file in DB_DESTROY_FILES:
@@ -137,6 +138,17 @@ for table in DEVICE_TABLE_ORDER:
         get_sql_from_file(create_table_file)
     )
 
+print('Creating the geography schema tables')
+for table in GEOGRAPHY_TABLE_ORDER:
+    create_table_file = path.join(
+        'geography_schema',
+        'tables',
+        table + '.sql'
+    )
+    template_db.execute_sql(
+        get_sql_from_file(create_table_file)
+    )
+
 print('Granting access to schemas and tables')
 for schema in SCHEMAS:
     template_db.execute_sql(
@@ -146,8 +158,7 @@ for schema in SCHEMAS:
 template_db.close_db()
 
 print('Copying template to new database.')
-# Copy template to new database.
-postgres_db = PostgresDB(dbname='postgres', user='postgres')
+postgres_db = PostgresDB(dbname='postgres', user='chrisveilleux')
 postgres_db.execute_sql(get_sql_from_file('create_mycroft_db.sql'))
 postgres_db.close_db()
 

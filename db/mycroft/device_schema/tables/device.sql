@@ -8,7 +8,7 @@ CREATE TABLE device.device (
     wake_word_id        uuid            NOT NULL REFERENCES device.wake_word,
     text_to_speech_id   uuid            NOT NULL REFERENCES device.text_to_speech,
     category_id         uuid            REFERENCES device.category,
-    location_id         uuid            REFERENCES device.location,
+    geography_id        uuid            REFERENCES device.geography,
     placement           text,
     last_contact_ts     timestamp,
     insert_ts           TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
