@@ -43,7 +43,7 @@ def get_device_subscription(context):
     access_token = login['accessToken']
     headers=dict(Authorization='Bearer {token}'.format(token=access_token))
     with get_db_connection(context.client_config['DB_CONNECTION_POOL']) as db:
-        AccountRepository(db)._add_membership(context.account.id, membership)
+        AccountRepository(db).add_membership(context.account.id, membership)
     context.subscription_response = context.client.get(
         '/v1/device/{uuid}/subscription'.format(uuid=device_id),
         headers=headers

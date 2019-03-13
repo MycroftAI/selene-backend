@@ -35,7 +35,7 @@ class AccountRepository(object):
         account_id = self._add_account(account, password)
         self._add_agreements(account_id, account.agreements)
         if account.membership is not None:
-            self._add_membership(account_id, account.membership)
+            self.add_membership(account_id, account.membership)
 
         _log.info('Added account {}'.format(account.email_address))
 
@@ -73,7 +73,7 @@ class AccountRepository(object):
             )
             self.cursor.insert(request)
 
-    def _add_membership(self, acct_id: str, membership: AccountMembership):
+    def add_membership(self, acct_id: str, membership: AccountMembership):
         """A membership is optional, add it if one was selected"""
         request = DatabaseRequest(
             sql=get_sql_from_file(

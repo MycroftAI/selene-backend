@@ -63,13 +63,21 @@ class Support(Model):
     payment_method = StringType(choices=[STRIPE_PAYMENT])
     payment_token = StringType()
 
-    def validate_payment_account_id(self, data, value):
-        if data['membership'] != NO_MEMBERSHIP:
-            if not data['payment_account_id']:
-                raise ValidationError(
-                    'Membership requires a payment account ID'
-                )
-        return value
+
+class AddMembership(Model):
+    membership = StringType(
+        required=True,
+        choices=(MONTHLY_MEMBERSHIP, YEARLY_MEMBERSHIP, NO_MEMBERSHIP)
+    )
+    payment_method = StringType(required=True, choices=[STRIPE_PAYMENT])
+    payment_token = StringType(required=True)
+
+
+class UpdateMembership(Model):
+    membership = StringType(
+        required=True,
+        choices=(MONTHLY_MEMBERSHIP, YEARLY_MEMBERSHIP, NO_MEMBERSHIP)
+    )
 
 
 class AddAccountRequest(Model):
@@ -142,6 +150,11 @@ class AccountEndpoint(SeleneEndpoint):
         self._add_account(email_address, password)
 
         return jsonify('Account added successfully'), HTTPStatus.OK
+
+    def patch(self):
+        self._authenticate()
+        self.request_data = json.loads(self.request.data)
+        self._update_support()
 
     def _validate_request(self):
         add_request = AddAccountRequest(dict(
@@ -219,11 +232,58 @@ class AccountEndpoint(SeleneEndpoint):
                 password=password
             )
 
-    def _create_stripe_subscription(self, token, user_email, plan):
-        customer = stripe.Customer.create(source=token, email=user_email)
-        subscription = stripe.Subscription.create(customer=customer.id, items=[{'plan': plan}])
-        return customer.id, subscription.current_period_start
+    def _create_stripe_subscription(self, customer_id, token, user_email, plan):
+        if customer_id is None:
+            customer = stripe.Customer.create(source=token, email=user_email)
+            customer_id = customer.id
+        subscription = stripe.Subscription.create(customer=customer_id, items=[{'plan': plan}])
+
+        # TODO: store subscription.id
+        start = subscription.current_period_start
+        start = date.fromtimestamp(start)
+        return customer_id, start
 
     def _get_plan(self, plan):
         with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
             return MembershipRepository(db).get_membership_by_type(plan)
+
+    def _update_support(self):
+        with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
+            membership_repository = MembershipRepository(db)
+            active_membership = membership_repository.get_active_membership_by_account_id(self.account.id)
+            if active_membership:
+                active_membership.end_date = datetime.now()
+                # TODO: use the subscription id to delete the membership on stripe
+                membership_repository.finish_membership(active_membership)
+                add_membership = UpdateMembership(self.request_data.get('support'))
+                add_membership.validate()
+                support = self.request_data['support']
+                membership = support['membership']
+                stripe_plan = self._get_plan(membership)
+                stripe_id, start_date = self._create_stripe_subscription(
+                    active_membership.payment_account_id,
+                    None,
+                    self.account.email_address,
+                    stripe_plan
+                )
+            else:
+                add_membership = AddMembership(self.request_data.get('support'))
+                add_membership.validate()
+                support = self.request_data['support']
+                membership = support['membership']
+                token = support['payment']
+                stripe_plan = self._get_plan(membership)
+                stripe_id, start_date = self._create_stripe_subscription(
+                    None,
+                    token,
+                    self.account.email_address,
+                    stripe_plan
+                )
+
+            new_membership = AccountMembership(
+                start_date=start_date,
+                payment_method=STRIPE_PAYMENT,
+                payment_account_id=stripe_id,
+                type=membership
+            )
+            AccountRepository(db).add_membership(self.account.id, new_membership)
