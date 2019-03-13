@@ -5,7 +5,8 @@ INSERT INTO
         time_format,
         measurement_system,
         wake_word_id,
-        text_to_speech_id
+        text_to_speech_id,
+        geography_id
       )
 VALUES
     (
@@ -14,5 +15,6 @@ VALUES
         %(time_format)s,
         %(measurement_system)s,
         %(wake_word_id)s,
-        %(text_to_speech_id)s
+        %(text_to_speech_id)s,
+        %(geography_id)
     )

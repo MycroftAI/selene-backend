@@ -1,9 +1,12 @@
 SELECT
     id,
     country,
-    postal_code,
-    time_zone
+    state,
+    city,
+    time_zone,
+    latitude,
+    longitude
 FROM
-    device.location
+    device.geography
 WHERE
     account_id = %(account_id)s
