@@ -7,7 +7,7 @@ CREATE TABLE device.account_preferences (
     measurement_system  measurement_system_enum NOT NULL DEFAULT  'Imperial',
     wake_word_id        uuid                    NOT NULL REFERENCES device.wake_word,
     text_to_speech_id   uuid                    NOT NULL REFERENCES device.text_to_speech,
-    location_id         uuid                    REFERENCES device.location,
+    geography_id         uuid                   REFERENCES device.geography,
     insert_ts           TIMESTAMP               NOT NULL DEFAULT CURRENT_TIMESTAMP
 
 );

@@ -28,7 +28,7 @@ SKILL_TABLE_ORDER = (
 )
 DEVICE_TABLE_ORDER = (
     'category',
-    'location',
+    'geography',
     'text_to_speech',
     'wake_word',
     'wake_word_settings',
@@ -38,9 +38,9 @@ DEVICE_TABLE_ORDER = (
 )
 GEOGRAPHY_TABLE_ORDER = (
     'country',
+    'timezone',
     'region',
-    'city',
-    'timezone'
+    'city'
 )
 
 schema_directory = '{}_schema'
