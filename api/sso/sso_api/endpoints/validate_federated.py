@@ -6,11 +6,16 @@ so all we need to to to complete login is validate that the email address exists
 on our database and build JWTs for access and refresh.
 """
 from http import HTTPStatus
+from logging import getLogger
+
+from flask import json
 
 from selene.api import SeleneEndpoint
 from selene.data.account import AccountRepository, RefreshTokenRepository
 from selene.util.auth import AuthenticationError
 from selene.util.db import get_db_connection
+
+_log = getLogger()
 
 
 class ValidateFederatedEndpoint(SeleneEndpoint):
@@ -26,7 +31,8 @@ class ValidateFederatedEndpoint(SeleneEndpoint):
 
     def _get_account_by_email(self):
         """Use email returned by the authentication platform for validation"""
-        email_address = self.request.form['email']
+        request_data = json.loads(self.request.data)
+        email_address = request_data['email']
         with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
             acct_repository = AccountRepository(db)
             self.account = acct_repository.get_account_by_email(email_address)

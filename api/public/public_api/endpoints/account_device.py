@@ -4,10 +4,9 @@ from http import HTTPStatus
 from schematics import Model
 from schematics.types import StringType, UUIDType
 
-from selene.api import SeleneEndpoint
+from selene.api import PublicEndpoint
 from selene.data.device import DeviceRepository
 from selene.util.db import get_db_connection
-from selene.util.cache import SeleneCache
 
 
 class AddDevice(Model):
@@ -16,12 +15,11 @@ class AddDevice(Model):
     text_to_speech_id = UUIDType(required=True)
 
 
-class AccountDeviceEndpoint(SeleneEndpoint):
+class AccountDeviceEndpoint(PublicEndpoint):
     """Endpoint to add a device to a given account"""
 
     def __init__(self):
         super(AccountDeviceEndpoint, self).__init__()
-        self.cache: SeleneCache = self.config['SELENE_CACHE']
         self.device_pairing_time = 86400
 
     def post(self, account_id):
@@ -59,7 +57,7 @@ class AccountDeviceEndpoint(SeleneEndpoint):
                 str(add_device.wake_word_id),
                 str(add_device.text_to_speech_id)
             )
-        pairing['uuid'] = result['id']
+        pairing['uuid'] = result
         self.cache.set_with_expiration(
             'pairing.token:{}'.format(pairing['token']),
             json.dumps(pairing),

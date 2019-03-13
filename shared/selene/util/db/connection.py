@@ -28,6 +28,7 @@ class DatabaseConnectionConfig(object):
     user: str
     password: str
     port: int = field(default=5432)
+    sslmode: str = None
 
 
 @contextmanager
@@ -47,12 +48,21 @@ def connect_to_db(connection_config: DatabaseConnectionConfig, autocommit=True):
     log_msg = 'establishing connection to the {db_name} database'
     _log.info(log_msg.format(db_name=connection_config.db_name))
     try:
-        db = connect(
-            host=connection_config.host,
-            dbname=connection_config.db_name,
-            user=connection_config.user,
-            cursor_factory=RealDictCursor,
-        )
+        if connection_config.sslmode is None:
+            db = connect(
+                host=connection_config.host,
+                dbname=connection_config.db_name,
+                user=connection_config.user,
+                cursor_factory=RealDictCursor,
+            )
+        else:
+            db = connect(
+                host=connection_config.host,
+                dbname=connection_config.db_name,
+                user=connection_config.user,
+                cursor_factory=RealDictCursor,
+                sslmode=connection_config.sslmode
+            )
         db.autocommit = autocommit
         yield db
     finally:

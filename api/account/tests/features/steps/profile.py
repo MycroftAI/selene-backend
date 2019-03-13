@@ -3,7 +3,7 @@ from http import HTTPStatus
 import json
 
 from behave import given, then, when
-from hamcrest import assert_that, equal_to, has_item
+from hamcrest import assert_that, equal_to, has_item, none
 
 from selene.api.testing import generate_access_token, generate_refresh_token
 from selene.data.account import PRIVACY_POLICY
@@ -29,19 +29,19 @@ def validate_response(context):
         equal_to(context.account.email_address)
     )
     assert_that(
-        response_data['subscription']['type'],
-        equal_to('Monthly Supporter')
+        response_data['membership']['type'],
+        equal_to('Monthly Membership')
     )
+    assert_that(response_data['membership']['duration'], none())
     assert_that(
-        response_data['subscription']['startDate'],
-        equal_to(str(date.today()))
-    )
-    assert_that(
-        response_data['subscription'], has_item('id')
+        response_data['membership'], has_item('id')
     )
 
     assert_that(len(response_data['agreements']), equal_to(1))
     agreement = response_data['agreements'][0]
     assert_that(agreement['type'], equal_to(PRIVACY_POLICY))
-    assert_that(agreement['acceptDate'], equal_to(str(date.today())))
+    assert_that(
+        agreement['acceptDate'],
+        equal_to(str(date.today().strftime('%B %d, %Y')))
+    )
     assert_that(agreement, has_item('id'))

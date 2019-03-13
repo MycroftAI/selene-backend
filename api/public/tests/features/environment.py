@@ -4,6 +4,7 @@ from datetime import date, timedelta
 from behave import fixture, use_fixture
 
 from public_api.api import public
+from selene.api import generate_device_login
 from selene.data.account import (
     Account,
     AccountRepository,
@@ -24,7 +25,7 @@ account = Account(
                 AccountAgreement(type=PRIVACY_POLICY, accept_date=date.today()),
                 AccountAgreement(type=TERMS_OF_USE, accept_date=date.today())
             ],
-    subscription=None
+    membership=None
 )
 
 wake_word = WakeWord(
@@ -91,6 +92,15 @@ def _add_account(context, db):
     device_repository = DeviceRepository(db)
     context.wake_word_id = device_repository.add_wake_word(context.account.id, wake_word)
     context.text_to_speech_id = device_repository.add_text_to_speech(text_to_speech)
+    cache = context.client_config['SELENE_CACHE']
+    context.device_name = 'test'
+    device_id = device_repository.add_device(
+        account_id,
+        context.device_name,
+        context.wake_word_id,
+        context.text_to_speech_id
+    )
+    context.device_login = generate_device_login(device_id, cache)
 
 
 def _add_account_preference(context, db):

@@ -1,6 +1,5 @@
 import json
 import uuid
-from email.message import EmailMessage
 from http import HTTPStatus
 from unittest.mock import patch, MagicMock
 
@@ -18,10 +17,14 @@ email_request = dict(
 @patch('smtplib.SMTP')
 def send_email(context, email_client):
     context.client_config['EMAIL_CLIENT'] = email_client
+    login = context.device_login
+    device_id = login['uuid']
+    access_token = login['accessToken']
     context.email_response = context.client.post(
-        '/device/{uuid}/email'.format(uuid=context.device_id),
+        '/v1/device/{uuid}/email'.format(uuid=device_id),
         data=json.dumps(email_request),
-        content_type='application_json'
+        content_type='application_json',
+        headers=dict(Authorization='Bearer {token}'.format(token=access_token))
     )
 
 
@@ -33,20 +36,20 @@ def validate_response(context):
     email_client.send_message.assert_called()
 
 
-@when('the email endpoint is called for a nonexistent device')
+@when('the email endpoint is called by a not allowed device')
 @patch('smtplib.SMTP')
 def send_email_invalid_device(context, email_client):
     context.client_config['EMAIL_CLIENT'] = email_client
     context.email_invalid_response = context.client.post(
-        '/device/{uuid}/email'.format(uuid=str(uuid.uuid4())),
+        '/v1/device/{uuid}/email'.format(uuid=str(uuid.uuid4())),
         data=json.dumps(email_request),
         content_type='application_json'
     )
 
 
-@then('204 status code should be returned')
+@then('401 status code should be returned by the email endpoint')
 def validate_response_invalid_device(context):
     response = context.email_invalid_response
-    assert_that(response.status_code, equal_to(HTTPStatus.NO_CONTENT))
+    assert_that(response.status_code, equal_to(HTTPStatus.UNAUTHORIZED))
     email_client: MagicMock = context.client_config['EMAIL_CLIENT']
     email_client.send_message.assert_not_called()

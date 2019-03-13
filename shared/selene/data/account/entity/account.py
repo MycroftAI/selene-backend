@@ -16,7 +16,8 @@ class AccountMembership(object):
     """Represents the subscription plan chosen by the user"""
     type: str
     start_date: date
-    stripe_customer_id: str
+    payment_method: str
+    payment_account_id: str
     id: str = None
 
 

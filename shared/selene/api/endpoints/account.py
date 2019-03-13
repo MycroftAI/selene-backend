@@ -19,8 +19,8 @@ from selene.data.account import (
 from selene.util.db import get_db_connection
 from ..base_endpoint import SeleneEndpoint
 
-MONTHLY_MEMBERSHIP = 'Monthly Supporter'
-YEARLY_MEMBERSHIP = 'Yearly Supporter'
+MONTHLY_MEMBERSHIP = 'Monthly Membership'
+YEARLY_MEMBERSHIP = 'Yearly Membership'
 NO_MEMBERSHIP = 'Maybe Later'
 
 
@@ -55,12 +55,15 @@ class Support(Model):
         required=True,
         choices=(MONTHLY_MEMBERSHIP, YEARLY_MEMBERSHIP, NO_MEMBERSHIP)
     )
-    stripe_customer_id = StringType()
+    payment_method = StringType()
+    payment_account_id = StringType()
 
-    def validate_stripe_customer_id(self, data, value):
+    def validate_payment_account_id(self, data, value):
         if data['membership'] != NO_MEMBERSHIP:
-            if not data['stripe_customer_id']:
-                raise ValidationError('Membership requires a stripe ID')
+            if not data['payment_account_id']:
+                raise ValidationError(
+                    'Membership requires a payment account ID'
+                )
         return value
 
 
@@ -91,9 +94,12 @@ class AccountEndpoint(SeleneEndpoint):
         for agreement in response_data['agreements']:
             agreement_date = self._format_agreement_date(agreement)
             agreement['accept_date'] = agreement_date
-        membership_duration = self._format_membership_duration(response_data)
-        response_data['membership']['duration'] = membership_duration
-        del (response_data['membership']['start_date'])
+        if response_data['membership'] is None:
+            response_data['membership'] = dict(type=NO_MEMBERSHIP)
+        else:
+            membership_duration = self._format_membership_duration(response_data)
+            response_data['membership']['duration'] = membership_duration
+            del (response_data['membership']['start_date'])
         del (response_data['refresh_tokens'])
 
         return response_data
@@ -161,7 +167,8 @@ class AccountEndpoint(SeleneEndpoint):
             support = Support(dict(
                 open_dataset=support_data.get('openDataset'),
                 membership=support_data.get('membership'),
-                stripe_customer_id=support_data.get('stripeCustomerId')
+                payment_method=support_data.get('paymentMethod'),
+                payment_account_id=support_data.get('paymentAccountId')
             ))
 
         return support
@@ -181,11 +188,12 @@ class AccountEndpoint(SeleneEndpoint):
         membership_type = self.request_data['support']['membership']
         membership = None
         if membership_type != NO_MEMBERSHIP:
-            stripe_id = self.request_data['support']['stripeCustomerId']
+            payment_account = self.request_data['support']['paymentAccountId']
             membership = AccountMembership(
                 type=membership_type,
                 start_date=date.today(),
-                stripe_customer_id=stripe_id
+                payment_method=self.request_data['support']['paymentMethod'],
+                payment_account_id=payment_account
             )
         account = Account(
             email_address=email_address,

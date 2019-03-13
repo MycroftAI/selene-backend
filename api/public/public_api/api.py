@@ -1,10 +1,10 @@
 import os
-import smtplib
 
 from flask import Flask
 
 from selene.api import SeleneResponse, selene_api
 from selene.api.base_config import get_base_config
+from selene.api.public_endpoint import check_oauth_token
 from selene.util.cache import SeleneCache
 from .endpoints.account_device import AccountDeviceEndpoint
 from .endpoints.device import DeviceEndpoint
@@ -12,6 +12,7 @@ from .endpoints.device_activate import DeviceActivateEndpoint
 from .endpoints.device_code import DeviceCodeEndpoint
 from .endpoints.device_email import DeviceEmailEndpoint
 from .endpoints.device_metrics import DeviceMetricsEndpoint, MetricsService
+from .endpoints.device_refresh_token import DeviceRefreshTokenEndpoint
 from .endpoints.device_setting import DeviceSettingEndpoint
 from .endpoints.device_skill import DeviceSkillEndpoint
 from .endpoints.device_skills import DeviceSkillsEndpoint
@@ -19,6 +20,7 @@ from .endpoints.device_subscription import DeviceSubscriptionEndpoint
 from .endpoints.google_stt import GoogleSTTEndpoint
 from .endpoints.open_weather_map import OpenWeatherMapEndpoint
 from .endpoints.wolfram_alpha import WolframAlphaEndpoint
+from .endpoints.wolfram_alpha_spoken import WolframAlphaSpokenEndpoint
 
 public = Flask(__name__)
 public.config.from_object(get_base_config())
@@ -30,9 +32,10 @@ host = os.environ['EMAIL_SERVICE_HOST']
 port = os.environ['EMAIL_SERVICE_PORT']
 user = os.environ['EMAIL_SERVICE_USER']
 password = os.environ['EMAIL_SERVICE_PASSWORD']
-email_client = smtplib.SMTP(host, port)
-email_client.login(user, password)
-public.config['EMAIL_CLIENT'] = email_client
+# TODO: test with another email service and move this logic to the email endpoint
+#email_client = smtplib.SMTP(host, port)
+#email_client.login(user, password)
+#public.config['EMAIL_CLIENT'] = email_client
 
 public.config['METRICS_SERVICE'] = MetricsService()
 
@@ -41,55 +44,55 @@ public.register_blueprint(selene_api)
 
 
 public.add_url_rule(
-    '/device/<string:device_id>/skill',
+    '/v1/device/<string:device_id>/skill',
     view_func=DeviceSkillsEndpoint.as_view('device_skill_api'),
-    methods=['GET']
+    methods=['GET', 'PUT']
 )
 public.add_url_rule(
-    '/device/<string:device_id>/userSkill',
+    '/v1/device/<string:device_id>/userSkill',
     view_func=DeviceSkillEndpoint.as_view('device_user_skill_api'),
     methods=['GET']
 )
 
 public.add_url_rule(
-    '/device/<string:device_id>',
+    '/v1/device/<string:device_id>',
     view_func=DeviceEndpoint.as_view('device_api'),
-    methods=['GET']
+    methods=['GET', 'PATCH']
 )
 
 public.add_url_rule(
-    '/device/<string:device_id>/setting',
+    '/v1/device/<string:device_id>/setting',
     view_func=DeviceSettingEndpoint.as_view('device_settings_api'),
     methods=['GET']
 )
 
 public.add_url_rule(
-    '/device/<string:device_id>/subscription',
+    '/v1/device/<string:device_id>/subscription',
     view_func=DeviceSubscriptionEndpoint.as_view('device_subscription_api'),
     methods=['GET']
 )
 public.add_url_rule(
-    '/wa',
+    '/v1/wa',
     view_func=WolframAlphaEndpoint.as_view('wolfram_alpha_api'),
     methods=['GET']
 )  # TODO: change this path in the API v2
 public.add_url_rule(
-    '/owm/<path:path>',
+    '/v1/owm/<path:path>',
     view_func=OpenWeatherMapEndpoint.as_view('open_weather_map_api'),
     methods=['GET']
 )     # TODO: change this path in the API v2
 public.add_url_rule(
-    '/stt',
+    '/v1/stt',
     view_func=GoogleSTTEndpoint.as_view('google_stt_api'),
     methods=['POST']
 )  # TODO: change this path in the API v2
 public.add_url_rule(
-    '/device/code',
+    '/v1/device/code',
     view_func=DeviceCodeEndpoint.as_view('device_code_api'),
     methods=['GET']
 )
 public.add_url_rule(
-    '/device/activate',
+    '/v1/device/activate',
     view_func=DeviceActivateEndpoint.as_view('device_activate_api'),
     methods=['POST']
 )
@@ -99,12 +102,30 @@ public.add_url_rule(
     methods=['POST']
 )
 public.add_url_rule(
-    '/device/<string:device_id>/email',
+    '/v1/device/<string:device_id>/email',
     view_func=DeviceEmailEndpoint.as_view('device_email_api'),
     methods=['POST']
 )
 public.add_url_rule(
-    '/device/<string:device_id>/metric/<path:metric>',
+    '/v1/device/<string:device_id>/metric/<path:metric>',
     view_func=DeviceMetricsEndpoint.as_view('device_metric_api'),
     methods=['POST']
 )
+public.add_url_rule(
+    '/v1/auth/token',
+    view_func=DeviceRefreshTokenEndpoint.as_view('refresh_token_api'),
+    methods=['GET']
+)
+public.add_url_rule(
+    '/v1/wolframAlphaSpoken',
+    view_func=WolframAlphaSpokenEndpoint.as_view('wolfram_alpha_spoken_api'),
+    methods=['GET']
+)
+
+
+"""
+This is a workaround to allow the API return 401 when we call a non existent path. Use case:
+GET /device/{uuid} with empty uuid. Core today uses the 401 to validate if it needs to perform a pairing process
+Whe should fix that in a future version because we have to return 404 when we call a non existent path
+"""
+public.before_request(check_oauth_token)

@@ -9,9 +9,15 @@ from hamcrest import assert_that, equal_to
 
 @When('A flac audio with the utterance "tell me a joke" is passed')
 def call_google_stt_endpoint(context):
+    access_token = context.device_login['accessToken']
+    headers = dict(Authorization='Bearer {token}'.format(token=access_token))
     with open(path.join(path.dirname(__file__), 'resources/test_stt.flac'), 'rb') as flac:
         audio = BytesIO(flac.read())
-        context.response = context.client.post('/stt?lang=en-US&limit=1', data=audio)
+        context.response = context.client.post(
+            '/v1/stt?lang=en-US&limit=1',
+            data=audio,
+            headers=headers
+        )
 
 
 @Then('return the utterance "tell me a joke"')

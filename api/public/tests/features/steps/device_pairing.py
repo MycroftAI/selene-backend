@@ -8,7 +8,7 @@ from hamcrest import assert_that, equal_to, has_key
 @given('a device pairing code')
 def get_device_pairing_code(context):
     state = str(uuid.uuid4())
-    response = context.client.get('/device/code?state={state}'.format(state=state))
+    response = context.client.get('/v1/device/code?state={state}'.format(state=state))
     context.pairing = json.loads(response.data)
     context.state = state
 
@@ -26,6 +26,7 @@ def add_device(context):
         data=json.dumps(device),
         content_type='application_json')
     context.device_id = response.data.decode('utf-8')
+    context.device_name = 'home'
 
 
 @when('device is activated')
@@ -34,11 +35,13 @@ def activate_device(context):
         'token': context.pairing['token'],
         'state': context.pairing['state'],
         'platform': 'picroft',
-        'core_version': '18.8.0',
-        'enclosure_version': '1.4.0'
+        'coreVersion': '18.8.0',
+        'enclosureVersion': '1.4.0'
     }
-    response = context.client.post('/device/activate', data=json.dumps(activate), content_type='application_json')
+    response = context.client.post('/v1/device/activate', data=json.dumps(activate), content_type='application_json')
     context.activate_device_response = response
+    login = json.loads(response.data)
+    context.device_access_token = login['accessToken']
 
 
 @then('a login session should be returned')
