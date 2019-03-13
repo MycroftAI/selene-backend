@@ -1,3 +1,4 @@
+from selene.data.account import AccountMembership
 from ..entity.membership import Membership
 from ...repository_base import RepositoryBase
 
@@ -22,6 +23,15 @@ class MembershipRepository(RepositoryBase):
         db_result = self.cursor.select_one(db_request)
         return Membership(**db_result)
 
+    def get_active_membership_by_account_id(self, account_id) -> AccountMembership:
+        db_request = self._build_db_request(
+            sql_file_name='get_active_membership_by_account_id.sql',
+            args=dict(account_id=account_id)
+        )
+        db_result = self.cursor.select_one(db_request)
+        if db_result:
+            return AccountMembership(**db_result)
+
     def add(self, membership: Membership):
         db_request = self._build_db_request(
             'add_membership.sql',
@@ -37,7 +47,20 @@ class MembershipRepository(RepositoryBase):
 
     def remove(self, membership: Membership):
         db_request = self._build_db_request(
-            'delete_membership.sql',
+            sql_file_name='delete_membership.sql',
             args=dict(membership_id=membership.id)
         )
         self.cursor.delete(db_request)
+
+    def finish_membership(self, membership: AccountMembership):
+        db_request = self._build_db_request(
+            sql_file_name='finish_membership.sql',
+            args=dict(
+                id=membership.id,
+                membership_ts_range='[{start},{end}]'.format(
+                    start=membership.start_date,
+                    end=membership.end_date
+                )
+            )
+        )
+        self.cursor.update(db_request)

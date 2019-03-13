@@ -9,8 +9,8 @@ from .endpoints.device import DeviceEndpoint
 from .endpoints.device_count import DeviceCountEndpoint
 from .endpoints.geography import GeographyEndpoint
 from .endpoints.membership import MembershipEndpoint
-from .endpoints.skills import SkillsEndpoint
 from .endpoints.skill_settings import SkillSettingsEndpoint
+from .endpoints.skills import SkillsEndpoint
 from .endpoints.voice_endpoint import VoiceEndpoint
 from .endpoints.wake_word_endpoint import WakeWordEndpoint
 
@@ -26,7 +26,7 @@ acct.register_blueprint(selene_api)
 acct.add_url_rule(
     '/api/account',
     view_func=AccountEndpoint.as_view('account_api'),
-    methods=['GET', 'POST']
+    methods=['GET', 'POST', 'PATCH']
 )
 acct.add_url_rule(
     '/api/agreement/<string:agreement_type>',
