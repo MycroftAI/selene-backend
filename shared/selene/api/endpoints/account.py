@@ -287,4 +287,3 @@ class AccountEndpoint(SeleneEndpoint):
                 type=membership
             )
             AccountRepository(db).add_membership(self.account.id, new_membership)
-
