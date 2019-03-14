@@ -15,15 +15,18 @@ SELECT
         'engine', tts.engine
     ) AS voice,
     json_build_object(
-        'id', l.id,
-        'country', l.country,
-        'postal_code', l.postal_code,
-        'time_zone', l.time_zone
+        'id', g.id,
+        'country', g.country,
+        'state', g.state,
+        'city', g.city,
+        'time_zone', g.time_zone,
+        'latitude', g.latitude,
+        'longitude', g.longitude
     ) AS geography
 FROM
     device.account_preferences ap
     LEFT JOIN device.wake_word ww ON ap.wake_word_id = ww.id
     LEFT JOIN device.text_to_speech tts ON ap.text_to_speech_id = tts.id
-    LEFT JOIN device.location l ON ap.location_id = l.id
+    LEFT JOIN device.geography g ON ap.geography_id = g.id
 WHERE
     ap.account_id = %(account_id)s
