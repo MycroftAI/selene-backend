@@ -26,12 +26,16 @@ new_account_request = dict(
 )
 
 monthly_membership = {
-        'support': {
-            'membership': 'Monthly Membership',
-            'payment_method': 'Stripe',
-            'payment_token': 'tok_visa'
-        }
-    }
+    'membership': 'Monthly Membership',
+    'paymentMethod': 'Stripe',
+    'paymentToken': 'tok_visa'
+}
+
+yearly_membership = {
+    'membership': 'Yearly Membership',
+    'payment_method': 'Stripe',
+    'payment_token': 'tok_visa'
+}
 
 
 @given('a user with a free account')
@@ -57,7 +61,7 @@ def create_account(context):
 def update_membership(context):
     context.client.patch(
         '/api/account',
-        data=json.dumps(monthly_membership),
+        data=json.dumps({'support': monthly_membership}),
         content_type='application_json'
     )
 
@@ -71,5 +75,55 @@ def request_account(context):
 @then('the account should have a monthly membership')
 def monthly_account(context):
     account = context.response_account
-    assert_that(account.membership.type, equal_to(monthly_membership['support']['membership']))
+    assert_that(account.membership.type, equal_to(monthly_membership['membership']))
+    assert_that(account.membership.payment_account_id, starts_with('cus'))
+
+
+@given('a user with a monthly membership')
+def create_monthly_account(context):
+    new_account_request['support'].update(
+        membership=monthly_membership['membership'],
+        paymentMethod=monthly_membership['paymentMethod'],
+        paymentToken=monthly_membership['paymentToken']
+    )
+    context.client.post(
+        '/api/account',
+        data=json.dumps(new_account_request),
+        content_type='application_json'
+    )
+    with get_db_connection(context.client_config['DB_CONNECTION_POOL']) as db:
+        account = AccountRepository(db).get_account_by_email(new_account_request['login']['userEnteredEmail'])
+        context.account = account
+        generate_access_token(context)
+        generate_refresh_token(context)
+
+
+@when('the membership is cancelled')
+def cancel_membership(context):
+    context.client.patch(
+        '/api/account',
+        data=json.dumps(free_membership),
+        content_type='application_json'
+    )
+
+
+@then('the account should have no membership')
+def free_account(context):
+    account = context.response_account
+    assert_that(account.membership, none())
+
+
+@when('the membership is changed to yearly')
+def change_to_yearly_account(context):
+    context.client.patch(
+        '/api/account',
+        data=json.dumps({'support': {'membership': yearly_membership['membership']}}),
+        content_type='application_json'
+    )
+
+
+@then('the account should have a yearly membership')
+def yearly_account(context):
+    account = context.response_account
+    assert_that(account.membership.type, equal_to(yearly_membership['membership']))
     assert_that(account.membership.payment_account_id, starts_with('cus'))
