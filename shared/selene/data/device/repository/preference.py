@@ -17,17 +17,21 @@ class PreferenceRepository(RepositoryBase):
         )
 
         db_result = self.cursor.select_one(db_request)
-        if db_result['geography'] is None:
-            db_result['geography'] = None
+        if db_result is None:
+            preferences = None
         else:
-            db_result['geography'] = Geography(**db_result['geography'])
-        if db_result['wake_word']['id'] is None:
-            db_result['wake_word'] = None
-        else:
-            db_result['wake_word'] = WakeWord(**db_result['wake_word'])
-        if db_result['voice']['id'] is None:
-            db_result['voice'] = None
-        else:
-            db_result['voice'] = TextToSpeech(**db_result['voice'])
+            if db_result['geography'] is None:
+                db_result['geography'] = None
+            else:
+                db_result['geography'] = Geography(**db_result['geography'])
+            if db_result['wake_word']['id'] is None:
+                db_result['wake_word'] = None
+            else:
+                db_result['wake_word'] = WakeWord(**db_result['wake_word'])
+            if db_result['voice']['id'] is None:
+                db_result['voice'] = None
+            else:
+                db_result['voice'] = TextToSpeech(**db_result['voice'])
+            preferences = AccountPreferences(**db_result)
 
-        return AccountPreferences(**db_result)
+        return preferences
