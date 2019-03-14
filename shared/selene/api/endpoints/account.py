@@ -23,7 +23,6 @@ from ..base_endpoint import SeleneEndpoint
 
 MONTHLY_MEMBERSHIP = 'Monthly Membership'
 YEARLY_MEMBERSHIP = 'Yearly Membership'
-NO_MEMBERSHIP = 'Maybe Later'
 STRIPE_PAYMENT = 'Stripe'
 
 stripe.api_key = os.environ['STRIPE_PRIVATE_KEY']
@@ -57,8 +56,7 @@ class Login(Model):
 class Support(Model):
     open_dataset = BooleanType(required=True)
     membership = StringType(
-        required=True,
-        choices=(MONTHLY_MEMBERSHIP, YEARLY_MEMBERSHIP, NO_MEMBERSHIP)
+        choices=(MONTHLY_MEMBERSHIP, YEARLY_MEMBERSHIP)
     )
     payment_method = StringType(choices=[STRIPE_PAYMENT])
     payment_token = StringType()
@@ -67,7 +65,7 @@ class Support(Model):
 class AddMembership(Model):
     membership = StringType(
         required=True,
-        choices=(MONTHLY_MEMBERSHIP, YEARLY_MEMBERSHIP, NO_MEMBERSHIP)
+        choices=(MONTHLY_MEMBERSHIP, YEARLY_MEMBERSHIP)
     )
     payment_method = StringType(required=True, choices=[STRIPE_PAYMENT])
     payment_token = StringType(required=True)
@@ -76,7 +74,7 @@ class AddMembership(Model):
 class UpdateMembership(Model):
     membership = StringType(
         required=True,
-        choices=(MONTHLY_MEMBERSHIP, YEARLY_MEMBERSHIP, NO_MEMBERSHIP)
+        choices=(MONTHLY_MEMBERSHIP, YEARLY_MEMBERSHIP)
     )
 
 
@@ -108,7 +106,7 @@ class AccountEndpoint(SeleneEndpoint):
             agreement_date = self._format_agreement_date(agreement)
             agreement['accept_date'] = agreement_date
         if response_data['membership'] is None:
-            response_data['membership'] = dict(type=NO_MEMBERSHIP)
+            response_data['membership'] = None
         else:
             membership_duration = self._format_membership_duration(response_data)
             response_data['membership']['duration'] = membership_duration
@@ -205,7 +203,7 @@ class AccountEndpoint(SeleneEndpoint):
     def _add_account(self, email_address, password):
         membership_type = self.request_data['support']['membership']
         membership = None
-        if membership_type != NO_MEMBERSHIP:
+        if membership_type is not None:
             payment_token = self.request_data['support']['paymentToken']
             email = self.request_data['login']['userEnteredEmail']
             plan = self._get_plan(membership_type).stripe_plan
