@@ -66,7 +66,7 @@ class PostgresDB(object):
         cursor.execute(sql)
 
 
-postgres_db = PostgresDB(dbname='postgres', user='chrisveilleux')
+postgres_db = PostgresDB(dbname='postgres', user='postgres')
 
 print('Destroying any objects we will be creating later.')
 for db_destroy_file in DB_DESTROY_FILES:
@@ -158,7 +158,7 @@ for schema in SCHEMAS:
 template_db.close_db()
 
 print('Copying template to new database.')
-postgres_db = PostgresDB(dbname='postgres', user='chrisveilleux')
+postgres_db = PostgresDB(dbname='postgres', user='mycroft')
 postgres_db.execute_sql(get_sql_from_file('create_mycroft_db.sql'))
 postgres_db.close_db()
 
