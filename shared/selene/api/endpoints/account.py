@@ -67,8 +67,8 @@ class AddMembership(Model):
         required=True,
         choices=(MONTHLY_MEMBERSHIP, YEARLY_MEMBERSHIP)
     )
-    payment_method = StringType(required=True, choices=[STRIPE_PAYMENT])
-    payment_token = StringType(required=True)
+    paymentMethod = StringType(required=True, choices=[STRIPE_PAYMENT])
+    paymentToken = StringType(required=True)
 
 
 class UpdateMembership(Model):
@@ -250,7 +250,7 @@ class AccountEndpoint(SeleneEndpoint):
             membership_repository = MembershipRepository(db)
             active_membership = membership_repository.get_active_membership_by_account_id(self.account.id)
             if active_membership:
-                active_membership.end_date = datetime.now()
+                active_membership.end_date = datetime.utcnow()
                 # TODO: use the subscription id to delete the membership on stripe
                 membership_repository.finish_membership(active_membership)
                 add_membership = UpdateMembership(self.request_data.get('support'))
@@ -269,7 +269,7 @@ class AccountEndpoint(SeleneEndpoint):
                 add_membership.validate()
                 support = self.request_data['support']
                 membership_type = support['membership']
-                token = support['payment_token']
+                token = support['paymentToken']
                 membership = self._get_plan(membership_type)
                 stripe_id, start_date = self._create_stripe_subscription(
                     None,
