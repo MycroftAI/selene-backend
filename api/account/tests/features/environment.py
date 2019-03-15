@@ -64,7 +64,8 @@ def _add_account(context, db):
             type='Monthly Membership',
             start_date=date.today(),
             payment_method='Stripe',
-            payment_account_id='foo'
+            payment_account_id='foo',
+            payment_id='bar'
         ),
         agreements=[
             AccountAgreement(type=PRIVACY_POLICY, accept_date=date.today())

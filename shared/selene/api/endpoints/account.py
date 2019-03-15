@@ -207,12 +207,19 @@ class AccountEndpoint(SeleneEndpoint):
             payment_token = self.request_data['support']['paymentToken']
             email = self.request_data['login']['userEnteredEmail']
             plan = self._get_plan(membership_type).stripe_plan
-            payment_account_id, start = self._create_stripe_subscription(None, payment_token, email, plan)
+            payment_account_id, start, subscription_id = self._create_stripe_subscription(
+                None,
+                payment_token,
+                email,
+                plan
+            )
+
             membership = AccountMembership(
                 type=membership_type,
                 start_date=date.today(),
                 payment_method=self.request_data['support']['paymentMethod'],
-                payment_account_id=payment_account_id
+                payment_account_id=payment_account_id,
+                payment_id=subscription_id
             )
         account = Account(
             email_address=email_address,
@@ -236,10 +243,9 @@ class AccountEndpoint(SeleneEndpoint):
             customer_id = customer.id
         subscription = stripe.Subscription.create(customer=customer_id, items=[{'plan': plan}])
 
-        # TODO: store subscription.id
         start = subscription.current_period_start
         start = date.fromtimestamp(start)
-        return customer_id, start
+        return customer_id, start, subscription.id
 
     def _get_plan(self, plan):
         with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
@@ -251,14 +257,15 @@ class AccountEndpoint(SeleneEndpoint):
             active_membership = membership_repository.get_active_membership_by_account_id(self.account.id)
             if active_membership:
                 active_membership.end_date = datetime.utcnow()
-                # TODO: use the subscription id to delete the membership on stripe
+                active_stripe_subscription = stripe.Subscription.retrieve(active_membership.payment_id)
+                active_stripe_subscription.delete()
                 membership_repository.finish_membership(active_membership)
                 add_membership = UpdateMembership(self.request_data.get('support'))
                 add_membership.validate()
                 support = self.request_data['support']
                 membership_type = support['membership']
                 membership = self._get_plan(membership_type)
-                stripe_id, start_date = self._create_stripe_subscription(
+                stripe_id, start_date, subscription_stripe_id = self._create_stripe_subscription(
                     active_membership.payment_account_id,
                     None,
                     self.account.email_address,
@@ -271,7 +278,7 @@ class AccountEndpoint(SeleneEndpoint):
                 membership_type = support['membership']
                 token = support['paymentToken']
                 membership = self._get_plan(membership_type)
-                stripe_id, start_date = self._create_stripe_subscription(
+                stripe_id, start_date, subscription_stripe_id = self._create_stripe_subscription(
                     None,
                     token,
                     self.account.email_address,
@@ -282,6 +289,7 @@ class AccountEndpoint(SeleneEndpoint):
                 start_date=start_date,
                 payment_method=STRIPE_PAYMENT,
                 payment_account_id=stripe_id,
+                payment_id=subscription_stripe_id,
                 type=membership_type
             )
             AccountRepository(db).add_membership(self.account.id, new_membership)

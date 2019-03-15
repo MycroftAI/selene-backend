@@ -8,6 +8,7 @@ CREATE TABLE account.account_membership (
     membership_ts_range     tsrange                 NOT NULL,
     payment_method          payment_method_enum     NOT NULL,
     payment_account_id      text                    NOT NULL,
+    payment_id              text                    NOT NULL,
     insert_ts               TIMESTAMP               NOT NULL
             DEFAULT CURRENT_TIMESTAMP,
     EXCLUDE USING gist (account_id WITH =, membership_ts_range with &&),

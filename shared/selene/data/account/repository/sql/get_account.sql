@@ -29,7 +29,8 @@ WITH
                 'type', m.type,
                 'start_date', lower(am.membership_ts_range)::DATE,
                 'payment_method', am.payment_method,
-                'payment_account_id', am.payment_account_id
+                'payment_account_id', am.payment_account_id,
+                'payment_id', am.payment_id
             )
         FROM
             account.account_membership am
