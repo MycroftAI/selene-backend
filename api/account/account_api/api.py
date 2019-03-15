@@ -5,12 +5,16 @@ from selene.api import get_base_config, selene_api, SeleneResponse
 from selene.api.endpoints import AccountEndpoint, AgreementsEndpoint
 from selene.util.log import configure_logger
 from .endpoints.account_preferences import AccountPreferencesEndpoint
+from .endpoints.city import CityEndpoint
+from .endpoints.country import CountryEndpoint
 from .endpoints.device import DeviceEndpoint
 from .endpoints.device_count import DeviceCountEndpoint
 from .endpoints.geography import GeographyEndpoint
 from .endpoints.membership import MembershipEndpoint
+from .endpoints.region import RegionEndpoint
 from .endpoints.skill_settings import SkillSettingsEndpoint
 from .endpoints.skills import SkillsEndpoint
+from .endpoints.timezone import TimezoneEndpoint
 from .endpoints.voice_endpoint import VoiceEndpoint
 from .endpoints.wake_word_endpoint import WakeWordEndpoint
 
@@ -96,5 +100,33 @@ membership_endpoint = MembershipEndpoint.as_view('membership_endpoint')
 acct.add_url_rule(
     '/api/memberships',
     view_func=membership_endpoint,
+    methods=['GET']
+)
+
+country_endpoint = CountryEndpoint.as_view('country_endpoint')
+acct.add_url_rule(
+    '/api/countries',
+    view_func=country_endpoint,
+    methods=['GET']
+)
+
+region_endpoint = RegionEndpoint.as_view('region_endpoint')
+acct.add_url_rule(
+    '/api/regions',
+    view_func=region_endpoint,
+    methods=['GET']
+)
+
+city_endpoint = CityEndpoint.as_view('city_endpoint')
+acct.add_url_rule(
+    '/api/cities',
+    view_func=city_endpoint,
+    methods=['GET']
+)
+
+timezone_endpoint = TimezoneEndpoint.as_view('timezone_endpoint')
+acct.add_url_rule(
+    '/api/timezones',
+    view_func=timezone_endpoint,
     methods=['GET']
 )
