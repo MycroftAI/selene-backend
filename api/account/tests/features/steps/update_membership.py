@@ -2,7 +2,7 @@ import json
 from datetime import date
 
 from behave import given, when, then
-from hamcrest import assert_that, equal_to, starts_with
+from hamcrest import assert_that, equal_to, starts_with, none
 
 from selene.api.testing import generate_access_token, generate_refresh_token
 from selene.data.account import AccountRepository, Account, AccountAgreement, PRIVACY_POLICY
@@ -24,6 +24,10 @@ new_account_request = dict(
         paymentAccountId=None
     )
 )
+
+free_membership = {
+    'support': None
+}
 
 monthly_membership = {
     'membership': 'Monthly Membership',
