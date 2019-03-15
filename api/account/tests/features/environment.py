@@ -83,6 +83,12 @@ def after_scenario(context, _):
         bar_acct = acct_repository.get_account_by_email('bar@mycroft.ai')
         if bar_acct is not None:
             acct_repository.remove(bar_acct)
+        foo_acct = acct_repository.get_account_by_email('foo@mycroft.ai')
+        if foo_acct is not None:
+            acct_repository.remove(foo_acct)
+        test_acct = acct_repository.get_account_by_email('test@mycroft.ai')
+        if test_acct is not None:
+            acct_repository.remove(test_acct)
         agreement_repository = AgreementRepository(db)
         agreement_repository.remove(context.privacy_policy, testing=True)
         agreement_repository.remove(context.terms_of_use, testing=True)
