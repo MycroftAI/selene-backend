@@ -25,9 +25,14 @@ class DeviceEndpoint(SeleneEndpoint):
                 id=device.text_to_speech.id,
                 name=device.text_to_speech.display_name
             )
-            location = dict(
+            geography = dict(
                 id=device.geography.id,
-                name=device.geography.country
+                country=device.geography.country,
+                region=device.geography.state,
+                city=device.geography.city,
+                timezone=device.geography.time_zone,
+                latitude=device.geography.latitude,
+                longitude=device.geography.longitude
             )
             placement = dict(
                 id=None,
@@ -38,7 +43,7 @@ class DeviceEndpoint(SeleneEndpoint):
                     core_version=device.core_version,
                     enclosure_version=device.enclosure_version,
                     id=device.id,
-                    location=location,
+                    geography=geography,
                     name=device.name,
                     placement=placement,
                     platform=device.platform,
