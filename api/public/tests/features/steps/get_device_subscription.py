@@ -36,7 +36,8 @@ def get_device_subscription(context):
         start_date=date.today(),
         type='Monthly Membership',
         payment_method='Stripe',
-        payment_account_id='test_monthly'
+        payment_account_id='test_monthly',
+        payment_id='stripe_id'
     )
     login = context.device_login
     device_id = login['uuid']
