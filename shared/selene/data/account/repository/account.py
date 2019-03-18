@@ -83,7 +83,8 @@ class AccountRepository(object):
                 account_id=acct_id,
                 membership_type=membership.type,
                 payment_method=membership.payment_method,
-                payment_account_id=membership.payment_account_id
+                payment_account_id=membership.payment_account_id,
+                payment_id=membership.payment_id
             )
         )
         self.cursor.insert(request)

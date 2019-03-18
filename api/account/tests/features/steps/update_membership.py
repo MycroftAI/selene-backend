@@ -1,10 +1,11 @@
 import json
+from datetime import date
 
 from behave import given, when, then
 from hamcrest import assert_that, equal_to, starts_with, none
 
 from selene.api.testing import generate_access_token, generate_refresh_token
-from selene.data.account import AccountRepository
+from selene.data.account import AccountRepository, Account, AccountAgreement, PRIVACY_POLICY
 from selene.util.db import get_db_connection
 
 new_account_request = dict(
@@ -14,11 +15,13 @@ new_account_request = dict(
     login=dict(
         federatedEmail=None,
         userEnteredEmail='test@mycroft.ai',
-        password='test'
+        password='12345678'
     ),
     support=dict(
         openDataset=True,
-        membership=None
+        membership='Maybe Later',
+        paymentMethod=None,
+        paymentAccountId=None
     )
 )
 
@@ -40,15 +43,20 @@ yearly_membership = {
 
 
 @given('a user with a free account')
-def create_account_free_account(context):
-    context.client.post(
-        '/api/account',
-        data=json.dumps(new_account_request),
-        content_type='application_json'
+def create_account(context):
+    context.account = Account(
+        email_address='test@mycroft.ai',
+        username='test',
+        refresh_tokens=[],
+        membership=None,
+        agreements=[
+            AccountAgreement(type=PRIVACY_POLICY, accept_date=date.today())
+        ]
     )
     with get_db_connection(context.client_config['DB_CONNECTION_POOL']) as db:
-        account = AccountRepository(db).get_account_by_email(new_account_request['login']['userEnteredEmail'])
-        context.account = account
+        acct_repository = AccountRepository(db)
+        account_id = acct_repository.add(context.account, 'foo')
+        context.account.id = account_id
         generate_access_token(context)
         generate_refresh_token(context)
 

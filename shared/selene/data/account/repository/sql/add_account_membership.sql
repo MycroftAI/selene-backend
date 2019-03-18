@@ -4,7 +4,8 @@ INSERT INTO
         membership_id,
         membership_ts_range,
         payment_method,
-        payment_account_id
+        payment_account_id,
+        payment_id
     )
 VALUES
     (
@@ -19,5 +20,6 @@ VALUES
         ),
         '[now,]',
         %(payment_method)s,
-        %(payment_account_id)s
+        %(payment_account_id)s,
+        %(payment_id)s
     )
