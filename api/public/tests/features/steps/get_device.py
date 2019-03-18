@@ -91,6 +91,18 @@ def validate_update(context):
     assert_that(device['platform'], equal_to(new_fields['platform']))
 
 
+@given('a device with a valid etag')
+def get_device_etag(context):
+    access_token = context.device_login['accessToken']
+    headers = dict(Authorization='Bearer {token}'.format(token=access_token))
+    device_id = context.device_login['uuid']
+    context.get_device_response = context.client.get(
+        '/v1/device/{uuid}'.format(uuid=device_id),
+        headers=headers
+    )
+    context.device_etag = context.get_device_response.headers.get('ETag')
+
+
 @when('try to fetch a device using a valid etag')
 def get_device_using_etag(context):
     etag = context.device_etag
