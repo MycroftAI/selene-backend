@@ -23,6 +23,8 @@ class DeviceEndpoint(PublicEndpoint):
 
     def get(self, device_id):
         self._authenticate(device_id)
+        etag_key = 'device.etag:{uuid}'.format(uuid=device_id)
+        self._validate_etag(etag_key)
         with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
             device = DeviceRepository(db).get_device_by_id(device_id)
         if device:
@@ -35,6 +37,8 @@ class DeviceEndpoint(PublicEndpoint):
             device['user'] = dict(uuid=device['account_id'])
             del device['account_id']
             response = device, HTTPStatus.OK
+
+            self._add_etag(etag_key)
         else:
             response = '', HTTPStatus.NO_CONTENT
         return response
