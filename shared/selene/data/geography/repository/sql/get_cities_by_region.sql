@@ -9,3 +9,5 @@ FROM
     INNER JOIN geography.timezone t ON c.timezone_id = t.id
 WHERE
     region_id = %(region_id)s
+ORDER BY
+    c.name

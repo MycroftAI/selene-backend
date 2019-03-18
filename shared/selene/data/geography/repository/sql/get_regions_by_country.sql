@@ -6,3 +6,5 @@ FROM
     geography.region
 WHERE
     country_id = %(country_id)s
+ORDER BY
+    name

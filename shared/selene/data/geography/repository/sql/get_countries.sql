@@ -4,3 +4,5 @@ SELECT
     name
 FROM
     geography.country
+ORDER BY
+    name
