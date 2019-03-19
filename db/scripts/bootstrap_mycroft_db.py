@@ -127,10 +127,10 @@ for table in SKILL_TABLE_ORDER:
         get_sql_from_file(create_table_file)
     )
 
-print('Creating the device schema tables')
-for table in DEVICE_TABLE_ORDER:
+print('Creating the geography schema tables')
+for table in GEOGRAPHY_TABLE_ORDER:
     create_table_file = path.join(
-        'device_schema',
+        'geography_schema',
         'tables',
         table + '.sql'
     )
@@ -138,10 +138,10 @@ for table in DEVICE_TABLE_ORDER:
         get_sql_from_file(create_table_file)
     )
 
-print('Creating the geography schema tables')
-for table in GEOGRAPHY_TABLE_ORDER:
+print('Creating the device schema tables')
+for table in DEVICE_TABLE_ORDER:
     create_table_file = path.join(
-        'geography_schema',
+        'device_schema',
         'tables',
         table + '.sql'
     )
