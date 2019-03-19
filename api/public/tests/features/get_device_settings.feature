@@ -15,6 +15,11 @@ Feature: Retrieve device's settings
       Then 304 status code should be returned by the device's settings endpoint
 
     Scenario: Try to get a device's settings using a expired etag
-      Given a device's setting with a valid etag
+      Given a device's setting etag expired by the web ui at device level
+      When try to fetch the device's settings using an expired etag
+      Then 200 status code should be returned by the device's setting endpoint and a new etag
+
+    Scenario: Try to get a device's settings using a expired etag
+      Given a device's setting etag expired by the web ui at account level
       When try to fetch the device's settings using an expired etag
       Then 200 status code should be returned by the device's setting endpoint and a new etag

@@ -5,6 +5,8 @@ from http import HTTPStatus
 from behave import when, then, given
 from hamcrest import assert_that, equal_to, has_key, is_not
 
+from selene.api.etag import ETagManager, device_setting_etag_key
+
 
 @when('try to fetch device\'s setting')
 def get_device_settings(context):
@@ -49,14 +51,9 @@ def validate_response(context):
 
 @given('a device\'s setting with a valid etag')
 def get_device_setting_etag(context):
-    access_token = context.device_login['accessToken']
-    headers = dict(Authorization='Bearer {token}'.format(token=access_token))
     device_id = context.device_login['uuid']
-    context.get_device_response = context.client.get(
-        '/v1/device/{uuid}/setting'.format(uuid=device_id),
-        headers=headers
-    )
-    context.device_etag = context.get_device_response.headers.get('ETag')
+    etag_manager: ETagManager = context.etag_manager
+    context.device_etag = etag_manager.get(device_setting_etag_key(device_id))
 
 
 @when('try to fetch the device\'s settings using a valid etag')
@@ -80,10 +77,26 @@ def validate_etag_response(context):
     assert_that(response.status_code, equal_to(HTTPStatus.NOT_MODIFIED))
 
 
+@given('a device\'s setting etag expired by the web ui at device level')
+def expire_etag_device_level(context):
+    device_id = context.device_login['uuid']
+    etag_manager: ETagManager = context.etag_manager
+    context.device_etag = etag_manager.get(device_setting_etag_key(device_id))
+    etag_manager.expire_device_setting_etag_by_device_id(device_id)
+
+
+@given('a device\'s setting etag expired by the web ui at account level')
+def expire_etag_account_level(context):
+    account_id = context.account.id
+    device_id = context.device_login['uuid']
+    etag_manager: ETagManager = context.etag_manager
+    context.device_etag = etag_manager.get(device_setting_etag_key(device_id))
+    etag_manager.expire_device_setting_etag_by_account_id(account_id)
+
+
 @when('try to fetch the device\'s settings using an expired etag')
 def get_device_settings_using_etag(context):
-    etag = '123'
-    context.device_etag = etag
+    etag = context.device_etag
     access_token = context.device_login['accessToken']
     device_id = context.device_login['uuid']
     headers = {

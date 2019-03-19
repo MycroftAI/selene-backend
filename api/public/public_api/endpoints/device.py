@@ -5,6 +5,7 @@ from schematics import Model
 from schematics.types import StringType
 
 from selene.api import PublicEndpoint
+from selene.api import device_etag_key
 from selene.data.device import DeviceRepository
 from selene.util.db import get_db_connection
 
@@ -23,8 +24,7 @@ class DeviceEndpoint(PublicEndpoint):
 
     def get(self, device_id):
         self._authenticate(device_id)
-        etag_key = 'device.etag:{uuid}'.format(uuid=device_id)
-        self._validate_etag(etag_key)
+        self._validate_etag(device_etag_key(device_id))
         with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
             device = DeviceRepository(db).get_device_by_id(device_id)
         if device:
@@ -38,7 +38,7 @@ class DeviceEndpoint(PublicEndpoint):
             del device['account_id']
             response = device, HTTPStatus.OK
 
-            self._add_etag(etag_key)
+            self._add_etag(device_etag_key(device_id))
         else:
             response = '', HTTPStatus.NO_CONTENT
         return response

@@ -5,6 +5,7 @@ from behave import fixture, use_fixture
 
 from public_api.api import public
 from selene.api import generate_device_login
+from selene.api.etag import ETagManager
 from selene.data.account import (
     Account,
     AccountRepository,
@@ -55,6 +56,8 @@ def before_feature(context, _):
 
 
 def before_scenario(context, _):
+    cache = context.client_config['SELENE_CACHE']
+    context.etag_manager = ETagManager(cache, context.client_config)
     with get_db_connection(context.client_config['DB_CONNECTION_POOL']) as db:
         _add_agreements(context, db)
         _add_account(context, db)

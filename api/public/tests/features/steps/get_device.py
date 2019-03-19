@@ -5,7 +5,7 @@ from http import HTTPStatus
 from behave import when, then, given
 from hamcrest import assert_that, equal_to, has_key, not_none, is_not
 
-from selene.util.cache import SeleneCache
+from selene.api.etag import ETagManager, device_etag_key
 
 new_fields = dict(
     platform='mycroft_mark_1',
@@ -93,14 +93,9 @@ def validate_update(context):
 
 @given('a device with a valid etag')
 def get_device_etag(context):
-    access_token = context.device_login['accessToken']
-    headers = dict(Authorization='Bearer {token}'.format(token=access_token))
+    etag_manager: ETagManager = context.etag_manager
     device_id = context.device_login['uuid']
-    context.get_device_response = context.client.get(
-        '/v1/device/{uuid}'.format(uuid=device_id),
-        headers=headers
-    )
-    context.device_etag = context.get_device_response.headers.get('ETag')
+    context.device_etag = etag_manager.get(device_etag_key(device_id))
 
 
 @when('try to fetch a device using a valid etag')
@@ -125,13 +120,12 @@ def validate_etag(context):
     assert_that(response.status_code, equal_to(HTTPStatus.NOT_MODIFIED))
 
 
-@given('an etag expired by selene ui')
+@given('a device\'s etag expired by the web ui')
 def expire_etag(context):
-    context.device_etag = '123'
-    new_etag = '456'
+    etag_manager: ETagManager = context.etag_manager
     device_id = context.device_login['uuid']
-    cache: SeleneCache = context.client_config['SELENE_CACHE']
-    cache.set('device.etag:{uuid}'.format(uuid=device_id), new_etag)
+    context.device_etag = etag_manager.get(device_etag_key(device_id))
+    etag_manager.expire_device_etag_by_device_id(device_id)
 
 
 @when('try to fetch a device using an expired etag')

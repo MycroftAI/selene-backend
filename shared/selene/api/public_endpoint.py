@@ -1,12 +1,11 @@
 import hashlib
 import json
-import random
-import string
 import uuid
 
 from flask import current_app, request, Response, after_this_request
 from flask.views import MethodView
 
+from selene.api.etag import ETagManager
 from selene.util.auth import AuthenticationError
 from selene.util.not_modified import NotModifiedError
 from ..util.cache import SeleneCache
@@ -61,12 +60,11 @@ def generate_device_login(device_id: str, cache: SeleneCache) -> dict:
 class PublicEndpoint(MethodView):
     """Abstract class for all endpoints used by Mycroft devices"""
 
-    etag_chars = string.ascii_letters + string.digits
-
     def __init__(self):
         self.config: dict = current_app.config
         self.request = request
         self.cache: SeleneCache = self.config['SELENE_CACHE']
+        self.etag_manager: ETagManager = ETagManager(self.cache, self.config)
 
     def _authenticate(self, device_id: str = None):
         headers = self.request.headers
@@ -90,10 +88,7 @@ class PublicEndpoint(MethodView):
     def _add_etag(self, key):
         """Add a etag header to the response. We try to get the etag from the cache using the given key.
         If the cache has the etag, we use it, otherwise we generate a etag, store it and add it to the response"""
-        etag = self.cache.get(key)
-        if etag is None:
-            etag = ''.join(random.choice(self.etag_chars) for _ in range(32))
-            self.cache.set(key, etag)
+        etag = self.etag_manager.get(key)
 
         @after_this_request
         def set_etag_header(response: Response):

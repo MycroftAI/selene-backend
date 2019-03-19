@@ -24,7 +24,7 @@ Feature: Get device's information
     Then 304 status code should be returned by the device endpoint
 
   Scenario: Get a device using an expired etag
-    Given an etag expired by selene ui
+    Given a device's etag expired by the web ui
     When try to fetch a device using an expired etag
     Then should return status 200
     And a new etag
