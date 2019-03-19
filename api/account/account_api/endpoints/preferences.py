@@ -1,9 +1,25 @@
 from dataclasses import asdict
 from http import HTTPStatus
 
+from flask import json
+from schematics import Model
+from schematics.types import StringType
+
 from selene.api import SeleneEndpoint
 from selene.data.device import PreferenceRepository
 from selene.util.db import get_db_connection
+
+
+class PreferencesRequest(Model):
+    date_format = StringType(
+        required=True,
+        choices=['DD/MM/YYYY', 'MM/DD/YYYY']
+    )
+    measurement_system = StringType(
+        required=True,
+        choices=['Imperial', 'Metric']
+    )
+    time_format = StringType(required=True, choices=['12 Hour', '24 Hour'])
 
 
 class AccountPreferencesEndpoint(SeleneEndpoint):
@@ -40,10 +56,27 @@ class AccountPreferencesEndpoint(SeleneEndpoint):
                 id=self.preferences.voice.id,
                 name=self.preferences.voice.display_name
             )
-        if self.preferences.geography is not None:
-            response_data['geography'] = dict(
-                id=self.preferences.geography.id,
-                name=self.preferences.geography.country
-            )
 
         return response_data
+
+    def post(self):
+        self._authenticate()
+        preferences = self._validate_request()
+        self._add_preferences(preferences)
+
+        return '', HTTPStatus.NO_CONTENT
+
+    def _validate_request(self):
+        request_data = json.loads(self.request.data)
+        preferences = PreferencesRequest()
+        preferences.date_format = request_data['dateFormat']
+        preferences.measurement_system = request_data['measurementSystem']
+        preferences.time_format = request_data['timeFormat']
+        preferences.validate()
+
+        return preferences
+
+    def _add_preferences(self, preferences):
+        with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
+            preferences_repository = PreferenceRepository(db, self.account.id)
+            preferences_repository.add(preferences)

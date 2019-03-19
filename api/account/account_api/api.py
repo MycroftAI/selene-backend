@@ -4,7 +4,7 @@ from flask import Flask
 from selene.api import get_base_config, selene_api, SeleneResponse
 from selene.api.endpoints import AccountEndpoint, AgreementsEndpoint
 from selene.util.log import configure_logger
-from .endpoints.account_preferences import AccountPreferencesEndpoint
+from .endpoints.preferences import AccountPreferencesEndpoint
 from .endpoints.city import CityEndpoint
 from .endpoints.country import CountryEndpoint
 from .endpoints.device import DeviceEndpoint
@@ -72,7 +72,7 @@ preferences_endpoint = AccountPreferencesEndpoint.as_view(
 acct.add_url_rule(
     '/api/preferences',
     view_func=preferences_endpoint,
-    methods=['GET']
+    methods=['GET', 'POST']
 )
 
 wake_word_endpoint = WakeWordEndpoint.as_view('wake_word_endpoint')
