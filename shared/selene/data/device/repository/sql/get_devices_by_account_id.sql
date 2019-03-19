@@ -19,17 +19,21 @@ SELECT
     ) AS text_to_speech,
     json_build_object(
         'id', g.id,
-        'country', g.country,
-        'state', g.state,
-        'city', g.city,
-        'time_zone', g.time_zone,
-        'latitude', g.latitude,
-        'longitude', g.longitude
+        'country', ctry.name,
+        'region', r.name,
+        'city', cty.name,
+        'time_zone', tz.name,
+        'latitude', cty.latitude,
+        'longitude', cty.longitude
     ) AS geography
 FROM
     device.device d
     INNER JOIN device.wake_word ww ON d.wake_word_id = ww.id
     INNER JOIN device.text_to_speech tts ON d.text_to_speech_id = tts.id
-    LEFT JOIN device.geography g ON d.geography_id = g.id
+    INNER JOIN device.geography g ON d.geography_id = g.id
+    INNER JOIN geography.country ctry ON g.country_id = ctry.id
+    INNER JOIN geography.city cty ON g.city_id = cty.id
+    INNER JOIN geography.region r ON g.region_id = r.id
+    INNER JOIN geography.timezone tz ON g.timezone_id = tz.id
 WHERE
     d.account_id = %(account_id)s

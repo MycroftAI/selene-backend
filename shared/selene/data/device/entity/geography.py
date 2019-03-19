@@ -5,7 +5,7 @@ from decimal import Decimal
 @dataclass
 class Geography(object):
     country: str
-    state: str
+    region: str
     city: str
     time_zone: str
     latitude: Decimal
