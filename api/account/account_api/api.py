@@ -64,7 +64,7 @@ device_endpoint = DeviceEndpoint.as_view('device_endpoint')
 acct.add_url_rule(
     '/api/devices',
     view_func=device_endpoint,
-    methods=['GET']
+    methods=['GET', 'POST']
 )
 
 preferences_endpoint = AccountPreferencesEndpoint.as_view(
