@@ -1,7 +1,15 @@
 from http import HTTPStatus
 
-from behave import then
+from behave import given, then
 from hamcrest import assert_that, equal_to
+
+from selene.api.testing import generate_access_token, generate_refresh_token
+
+
+@given('an authenticated user')
+def setup_authenticated_user(context):
+    generate_access_token(context)
+    generate_refresh_token(context)
 
 
 @then('the request will be successful')
