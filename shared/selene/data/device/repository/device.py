@@ -76,18 +76,14 @@ class DeviceRepository(object):
             # TODO: Remove the @ in the API v2
             return {'@type': rate_period} if rate_period is not None else {'@type': 'free'}
 
-    def add_device(self, account_id: str, name: str, wake_word_id: str, text_to_speech_id: str, geography_id: str) -> str:
-        """ Creates a new device with a given name and associate it to an account"""
-        # TODO: validate foreign keys
+    def add_device(self, account_id: str, device: dict) -> str:
+        """Insert a row on the device table"""
+        db_request_args = dict(account_id=account_id)
+        db_request_args.update(device)
+        del(db_request_args['pairing_code'])
         query = DatabaseRequest(
             sql=get_sql_from_file(path.join(SQL_DIR, 'add_device.sql')),
-            args=dict(
-                account_id=account_id,
-                name=name,
-                wake_word_id=wake_word_id,
-                text_to_speech_id=text_to_speech_id,
-                geography_id=geography_id
-            )
+            args=db_request_args
         )
         result = self.cursor.insert_returning(query)
         return result['id']
