@@ -13,7 +13,11 @@ from selene.data.account import (
     TERMS_OF_USE,
     Agreement,
     AgreementRepository)
-from selene.data.device import DeviceRepository, SettingRepository
+from selene.data.device import (
+    DeviceRepository,
+    GeographyRepository,
+    SettingRepository
+)
 from selene.data.device.entity.text_to_speech import TextToSpeech
 from selene.data.device.entity.wake_word import WakeWord
 from selene.util.db import get_db_connection
@@ -30,7 +34,8 @@ account = Account(
 
 wake_word = WakeWord(
     id=str(uuid.uuid4()),
-    wake_word='hey mycroft',
+    setting_name='test',
+    display_name='test',
     engine='precise'
 )
 
@@ -59,6 +64,8 @@ def before_scenario(context, _):
         _add_agreements(context, db)
         _add_account(context, db)
         _add_account_preference(context, db)
+        _add_geography(context, db)
+        _add_device(context, db)
 
 
 def after_scenario(context, _):
@@ -89,17 +96,41 @@ def _add_account(context, db):
     context.account = account
     account_id = AccountRepository(db).add(account, password='test1234')
     context.account.id = account_id
+
+
+def _add_geography(context, db):
+    geography = dict(
+        country='United States',
+        region='Missouri',
+        city='Kansas City',
+        timezone='America/Chicago'
+    )
+    geography_repository = GeographyRepository(db, context.account.id)
+    context.geography_id = geography_repository.add(geography)
+
+
+def _add_device(context, db):
+    device = dict(
+        name='test',
+        pairing_code='ABC123',
+        placement='kitchen',
+        country='United States',
+        region='Missouri',
+        city='Kansas City',
+        timezone='America/Chicago',
+        wake_word='Hey Mycroft',
+        voice='American Male'
+    )
     device_repository = DeviceRepository(db)
-    context.wake_word_id = device_repository.add_wake_word(context.account.id, wake_word)
-    context.text_to_speech_id = device_repository.add_text_to_speech(text_to_speech)
+    context.wake_word_id = device_repository.add_wake_word(
+        context.account.id, wake_word
+    )
+    context.text_to_speech_id = device_repository.add_text_to_speech(
+        text_to_speech
+    )
     cache = context.client_config['SELENE_CACHE']
     context.device_name = 'test'
-    device_id = device_repository.add_device(
-        account_id,
-        context.device_name,
-        context.wake_word_id,
-        context.text_to_speech_id
-    )
+    device_id = device_repository.add_device(context.account.id, device)
     context.device_login = generate_device_login(device_id, cache)
 
 
@@ -108,9 +139,7 @@ def _add_account_preference(context, db):
         account_id=context.account.id,
         date_format='MM/DD/YYYY',
         time_format='12 Hour',
-        measurement_system='Imperial',
-        wake_word_id=context.wake_word_id,
-        text_to_speech_id=context.text_to_speech_id
+        measurement_system='Imperial'
     )
     SettingRepository(db).add_account_preferences(account_preferences)
 
