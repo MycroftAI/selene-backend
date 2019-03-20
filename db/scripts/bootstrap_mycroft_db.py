@@ -33,6 +33,7 @@ DEVICE_TABLE_ORDER = (
     'wake_word',
     'wake_word_settings',
     'account_preferences',
+    'account_defaults',
     'device',
     'device_skill',
 )

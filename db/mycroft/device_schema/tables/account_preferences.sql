@@ -10,18 +10,6 @@ CREATE TABLE device.account_preferences (
             DEFAULT '12 Hour',
     measurement_system  measurement_system_enum NOT NULL
             DEFAULT 'Imperial',
-    wake_word_id        uuid
-            REFERENCES device.wake_word,
-    text_to_speech_id   uuid
-            REFERENCES device.text_to_speech,
-    country_id          uuid
-            REFERENCES geography.country,
-    region_id           uuid
-            REFERENCES geography.region,
-    city_id             uuid
-            REFERENCES geography.city,
-    timezone_id         uuid
-            REFERENCES geography.timezone,
     insert_ts           TIMESTAMP               NOT NULL
             DEFAULT CURRENT_TIMESTAMP
 
