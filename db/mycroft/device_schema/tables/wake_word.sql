@@ -5,5 +5,5 @@ CREATE TABLE device.wake_word (
     account_id      uuid        REFERENCES account.account ON DELETE CASCADE,
     engine          text        NOT NULL,
     insert_ts   TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE (account_id, wake_word)
+    UNIQUE (account_id, setting_name)
 );
