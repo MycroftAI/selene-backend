@@ -7,6 +7,7 @@ from selene.util.log import configure_logger
 from .endpoints.preferences import AccountPreferencesEndpoint
 from .endpoints.city import CityEndpoint
 from .endpoints.country import CountryEndpoint
+from .endpoints.defaults import AccountDefaultsEndpoint
 from .endpoints.device import DeviceEndpoint
 from .endpoints.device_count import DeviceCountEndpoint
 from .endpoints.geography import GeographyEndpoint
@@ -129,4 +130,11 @@ acct.add_url_rule(
     '/api/timezones',
     view_func=timezone_endpoint,
     methods=['GET']
+)
+
+defaults_endpoint = AccountDefaultsEndpoint.as_view('defaults_endpoint')
+acct.add_url_rule(
+    '/api/defaults',
+    view_func=defaults_endpoint,
+    methods=['GET', 'POST']
 )
