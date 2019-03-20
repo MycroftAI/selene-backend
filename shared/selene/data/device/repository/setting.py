@@ -51,9 +51,7 @@ class SettingRepository(object):
                 account_id=preferences['account_id'],
                 date_format=preferences['date_format'],
                 time_format=preferences['time_format'],
-                measurement_system=preferences['measurement_system'],
-                wake_word_id=preferences['wake_word_id'],
-                text_to_speech_id=preferences['text_to_speech_id']
+                measurement_system=preferences['measurement_system']
             )
         )
         self.cursor.insert(query)
