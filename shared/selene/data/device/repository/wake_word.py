@@ -24,7 +24,8 @@ class WakeWordRepository(RepositoryBase):
         db_request = self._build_db_request(
             sql_file_name='add_wake_word.sql',
             args=dict(
-                wake_word=wake_word.wake_word,
+                setting_name=wake_word.setting_name,
+                display_name=wake_word.display_name,
                 account_id=self.account_id,
                 engine=wake_word.engine,
             )

@@ -4,7 +4,8 @@ from dataclasses import dataclass
 @dataclass
 class WakeWord(object):
     id: str
-    wake_word: str
+    display_name: str
+    setting_name: str
     engine: str
     user_defined: bool = False
 

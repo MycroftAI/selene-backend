@@ -7,7 +7,8 @@ SELECT
     d.placement,
     d.last_contact_ts,
     json_build_object(
-        'wake_word', ww.wake_word,
+        'setting_name', ww.setting_name,
+        'display_name', ww.display_name,
         'engine', ww.engine,
         'id', ww.id
     ) AS wake_word,

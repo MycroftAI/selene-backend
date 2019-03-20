@@ -1,6 +1,7 @@
 SELECT
     id,
-    wake_word,
+    setting_name,
+    display_name,
     engine,
     account_id IS NOT NULL AS user_defined
 FROM
