@@ -22,5 +22,5 @@ CREATE TABLE device.device (
     last_contact_ts     timestamp,
     insert_ts           TIMESTAMP       NOT NULL
             DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE (account_id, category_id, name)
+    UNIQUE (account_id, name)
 );
