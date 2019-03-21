@@ -17,3 +17,14 @@ Feature: Get device's information
     When the device is updated
     And device is retrieved
     Then the information should be updated
+
+  Scenario: Get a not modified device using etag
+    Given a device with a valid etag
+    When try to fetch a device using a valid etag
+    Then 304 status code should be returned by the device endpoint
+
+  Scenario: Get a device using an expired etag
+    Given a device's etag expired by the web ui
+    When try to fetch a device using an expired etag
+    Then should return status 200
+    And a new etag

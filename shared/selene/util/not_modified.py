@@ -1,0 +1,3 @@
+
+class NotModifiedError(Exception):
+    pass

@@ -37,12 +37,12 @@ def get_device_subscription(context):
         type='Monthly Membership',
         payment_method='Stripe',
         payment_account_id='test_monthly',
-        payment_id='test_payment_id'
+        payment_id='stripe_id'
     )
     login = context.device_login
     device_id = login['uuid']
     access_token = login['accessToken']
-    headers = dict(Authorization='Bearer {token}'.format(token=access_token))
+    headers=dict(Authorization='Bearer {token}'.format(token=access_token))
     with get_db_connection(context.client_config['DB_CONNECTION_POOL']) as db:
         AccountRepository(db).add_membership(context.account.id, membership)
     context.subscription_response = context.client.get(
