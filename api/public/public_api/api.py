@@ -6,7 +6,6 @@ from selene.api import SeleneResponse, selene_api
 from selene.api.base_config import get_base_config
 from selene.api.public_endpoint import check_oauth_token
 from selene.util.cache import SeleneCache
-from .endpoints.account_device import AccountDeviceEndpoint
 from .endpoints.device import DeviceEndpoint
 from .endpoints.device_activate import DeviceActivateEndpoint
 from .endpoints.device_code import DeviceCodeEndpoint
@@ -94,11 +93,6 @@ public.add_url_rule(
 public.add_url_rule(
     '/v1/device/activate',
     view_func=DeviceActivateEndpoint.as_view('device_activate_api'),
-    methods=['POST']
-)
-public.add_url_rule(
-    '/api/account/<string:account_id>/device',
-    view_func=AccountDeviceEndpoint.as_view('account_device_api'),
     methods=['POST']
 )
 public.add_url_rule(

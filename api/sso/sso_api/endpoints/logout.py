@@ -30,4 +30,4 @@ class LogoutEndpoint(SeleneEndpoint):
         self._generate_tokens()
         self._set_token_cookies(expire=True)
 
-        self.response = ('logged out', HTTPStatus.OK)
+        self.response = ('', HTTPStatus.NO_CONTENT)

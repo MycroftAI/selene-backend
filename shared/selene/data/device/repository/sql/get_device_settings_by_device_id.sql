@@ -8,7 +8,7 @@ SELECT
     'uuid', wk_word_st.id,
     'sampleRate', wk_word_st.sample_rate,
     'channels', wk_word_st.channels,
-    'wakeWord', wk_word.wake_word,
+    'wakeWord', wk_word.setting_name,
     'phonemes', wk_word_st.pronunciation,
     'threshold', wk_word_st.threshold,
     'multiplier', wk_word_st.threshold_multiplier,

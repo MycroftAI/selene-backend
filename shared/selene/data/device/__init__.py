@@ -1,3 +1,4 @@
+from .repository.default import DefaultsRepository
 from .repository.device import DeviceRepository
 from .repository.geography import GeographyRepository
 from .repository.preference import PreferenceRepository
