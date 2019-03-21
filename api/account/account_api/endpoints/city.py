@@ -7,9 +7,7 @@ from selene.util.db import get_db_connection
 
 class CityEndpoint(SeleneEndpoint):
     def get(self):
-        query_string = self.request.query_string.decode()
-        region_id = query_string.split('=')[1]
-
+        region_id = self.request.args['region_id']
         with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
             city_repository = CityRepository(db)
             cities = city_repository.get_cities_by_region(region_id=region_id)

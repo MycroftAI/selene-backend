@@ -7,9 +7,7 @@ from selene.util.db import get_db_connection
 
 class TimezoneEndpoint(SeleneEndpoint):
     def get(self):
-        query_string = self.request.query_string.decode()
-        country_id = query_string.split('=')[1]
-
+        country_id = self.request.args['country_id']
         with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
             timezone_repository = TimezoneRepository(db)
             timezones = timezone_repository.get_timezones_by_country(country_id)
