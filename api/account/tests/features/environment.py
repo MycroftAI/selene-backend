@@ -13,6 +13,8 @@ from selene.data.account import (
     PRIVACY_POLICY,
     TERMS_OF_USE
 )
+from selene.data.device import GeographyRepository
+from selene.util.cache import SeleneCache
 from selene.util.db import get_db_connection
 
 
@@ -33,6 +35,7 @@ def before_scenario(context, _):
     with get_db_connection(context.client_config['DB_CONNECTION_POOL']) as db:
         _add_agreements(context, db)
         _add_account(context, db)
+        _add_geography(context, db)
 
 
 def _add_agreements(context, db):
@@ -64,7 +67,8 @@ def _add_account(context, db):
             type='Monthly Membership',
             start_date=date.today(),
             payment_method='Stripe',
-            payment_account_id='foo'
+            payment_account_id='foo',
+            payment_id='bar'
         ),
         agreements=[
             AccountAgreement(type=PRIVACY_POLICY, accept_date=date.today())
@@ -76,13 +80,44 @@ def _add_account(context, db):
     context.account.id = account_id
 
 
+def _add_geography(context, db):
+    geography = dict(
+        country='United States',
+        region='Missouri',
+        city='Kansas City',
+        timezone='America/Chicago'
+    )
+    geo_repository = GeographyRepository(db, context.account.id)
+    context.geography_id = geo_repository.add(geography)
+
+
 def after_scenario(context, _):
     with get_db_connection(context.client_config['DB_CONNECTION_POOL']) as db:
-        acct_repository = AccountRepository(db)
-        acct_repository.remove(context.account)
-        bar_acct = acct_repository.get_account_by_email('bar@mycroft.ai')
-        if bar_acct is not None:
-            acct_repository.remove(bar_acct)
-        agreement_repository = AgreementRepository(db)
-        agreement_repository.remove(context.privacy_policy, testing=True)
-        agreement_repository.remove(context.terms_of_use, testing=True)
+        _delete_account(context, db)
+        _delete_agreements(context, db)
+    _clean_cache()
+
+
+def _delete_account(context, db):
+    acct_repository = AccountRepository(db)
+    acct_repository.remove(context.account)
+    bar_acct = acct_repository.get_account_by_email('bar@mycroft.ai')
+    if bar_acct is not None:
+        acct_repository.remove(bar_acct)
+    foo_acct = acct_repository.get_account_by_email('foo@mycroft.ai')
+    if foo_acct is not None:
+        acct_repository.remove(foo_acct)
+    test_acct = acct_repository.get_account_by_email('test@mycroft.ai')
+    if test_acct is not None:
+        acct_repository.remove(test_acct)
+
+
+def _delete_agreements(context, db):
+    agreement_repository = AgreementRepository(db)
+    agreement_repository.remove(context.privacy_policy, testing=True)
+    agreement_repository.remove(context.terms_of_use, testing=True)
+
+
+def _clean_cache():
+    cache = SeleneCache()
+    cache.delete('pairing.token:this is a token')

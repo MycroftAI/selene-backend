@@ -3,16 +3,12 @@ INSERT INTO
         account_id,
         date_format,
         time_format,
-        measurement_system,
-        wake_word_id,
-        text_to_speech_id
+        measurement_system
       )
 VALUES
     (
         %(account_id)s,
         %(date_format)s,
         %(time_format)s,
-        %(measurement_system)s,
-        %(wake_word_id)s,
-        %(text_to_speech_id)s
+        %(measurement_system)s
     )

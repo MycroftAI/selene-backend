@@ -1,5 +1,5 @@
-from datetime import date
 from dataclasses import dataclass
+from datetime import date
 from typing import List
 
 
@@ -18,7 +18,9 @@ class AccountMembership(object):
     start_date: date
     payment_method: str
     payment_account_id: str
+    payment_id: str
     id: str = None
+    end_date: date = None
 
 
 @dataclass

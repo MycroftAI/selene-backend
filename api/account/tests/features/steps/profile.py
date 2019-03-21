@@ -2,17 +2,10 @@ from datetime import date
 from http import HTTPStatus
 import json
 
-from behave import given, then, when
+from behave import then, when
 from hamcrest import assert_that, equal_to, has_item, none
 
-from selene.api.testing import generate_access_token, generate_refresh_token
 from selene.data.account import PRIVACY_POLICY
-
-
-@given('an authenticated user')
-def setup_authenticated_user(context):
-    generate_access_token(context)
-    generate_refresh_token(context)
 
 
 @when('a user requests their profile')
