@@ -2,10 +2,12 @@ import hashlib
 import json
 import uuid
 
-from flask import current_app, request
+from flask import current_app, request, Response, after_this_request
 from flask.views import MethodView
 
+from selene.api.etag import ETagManager
 from selene.util.auth import AuthenticationError
+from selene.util.not_modified import NotModifiedError
 from ..util.cache import SeleneCache
 
 ONE_DAY = 86400
@@ -62,6 +64,7 @@ class PublicEndpoint(MethodView):
         self.config: dict = current_app.config
         self.request = request
         self.cache: SeleneCache = self.config['SELENE_CACHE']
+        self.etag_manager: ETagManager = ETagManager(self.cache, self.config)
 
     def _authenticate(self, device_id: str = None):
         headers = self.request.headers
@@ -81,3 +84,20 @@ class PublicEndpoint(MethodView):
                     device_authenticated = True
         if not device_authenticated:
             raise AuthenticationError('device not authorized')
+
+    def _add_etag(self, key):
+        """Add a etag header to the response. We try to get the etag from the cache using the given key.
+        If the cache has the etag, we use it, otherwise we generate a etag, store it and add it to the response"""
+        etag = self.etag_manager.get(key)
+
+        @after_this_request
+        def set_etag_header(response: Response):
+            response.headers['ETag'] = etag
+            return response
+
+    def _validate_etag(self, key):
+        etag_from_request = self.request.headers.get('If-None-Match')
+        if etag_from_request is not None:
+            etag_from_cache = self.cache.get(key)
+            if etag_from_cache is not None and etag_from_request == etag_from_cache.decode('utf-8'):
+                raise NotModifiedError()
