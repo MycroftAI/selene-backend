@@ -20,14 +20,6 @@ class PreferenceRepository(RepositoryBase):
         if db_result is None:
             preferences = None
         else:
-            if db_result['wake_word']['id'] is None:
-                db_result['wake_word'] = None
-            else:
-                db_result['wake_word'] = WakeWord(**db_result['wake_word'])
-            if db_result['voice']['id'] is None:
-                db_result['voice'] = None
-            else:
-                db_result['voice'] = TextToSpeech(**db_result['voice'])
             preferences = AccountPreferences(**db_result)
 
         return preferences
