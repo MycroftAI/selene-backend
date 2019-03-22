@@ -77,10 +77,6 @@ class DeviceEndpoint(SeleneEndpoint):
                 latitude=device.geography.latitude,
                 longitude=device.geography.longitude
             )
-            placement = dict(
-                id=None,
-                name=device.placement
-            )
             response_data.append(
                 dict(
                     core_version=device.core_version,
@@ -88,7 +84,7 @@ class DeviceEndpoint(SeleneEndpoint):
                     id=device.id,
                     geography=geography,
                     name=device.name,
-                    placement=placement,
+                    placement=device.placement,
                     platform=device.platform,
                     voice=voice,
                     wake_word=wake_word,
