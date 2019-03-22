@@ -1,4 +1,5 @@
 SELECT
+    ad.id,
     json_build_object(
         'id', cntry.id,
         'iso_code', cntry.iso_code,
@@ -34,11 +35,11 @@ SELECT
     ) AS voice
 FROM
     device.account_defaults ad
-    INNER JOIN geography.country cntry ON cntry.id = ad.country_id
-    INNER JOIN geography.region r ON r.id = ad.region_id
-    INNER JOIN geography.city cty ON cty.id = ad.city_id
-    INNER JOIN geography.timezone tz ON tz.id = ad.timezone_id
-    INNER JOIN device.wake_word ww ON ad.wake_word_id = ww.id
-    INNER JOIN device.text_to_speech tts ON ad.text_to_speech_id = tts.id
+    LEFT JOIN geography.country cntry ON cntry.id = ad.country_id
+    LEFT JOIN geography.region r ON r.id = ad.region_id
+    LEFT JOIN geography.city cty ON cty.id = ad.city_id
+    LEFT JOIN geography.timezone tz ON tz.id = ad.timezone_id
+    LEFT JOIN device.wake_word ww ON ad.wake_word_id = ww.id
+    LEFT JOIN device.text_to_speech tts ON ad.text_to_speech_id = tts.id
 WHERE
     ad.account_id = %(account_id)s

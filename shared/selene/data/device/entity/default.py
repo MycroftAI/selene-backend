@@ -7,10 +7,10 @@ from .wake_word import WakeWord
 
 @dataclass
 class AccountDefaults(object):
-    id: str
     city: City = None
     country: Country = None
     region: Region = None
     timezone: Timezone = None
     voice: TextToSpeech = None
     wake_word: WakeWord = None
+    id: str = None
