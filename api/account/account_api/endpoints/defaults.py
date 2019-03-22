@@ -49,16 +49,16 @@ class AccountDefaultsEndpoint(SeleneEndpoint):
 
     def _validate_request(self):
         request_data = json.loads(self.request.data)
-        preferences = DefaultsRequest()
-        preferences.city = request_data.get('city')
-        preferences.country = request_data.get('country')
-        preferences.region = request_data.get('region')
-        preferences.timezone = request_data.get('timezone')
-        preferences.voice = request_data['voice']
-        preferences.wake_word = request_data['wakeWord']
-        preferences.validate()
+        defaults = DefaultsRequest()
+        defaults.city = request_data.get('city')
+        defaults.country = request_data.get('country')
+        defaults.region = request_data.get('region')
+        defaults.timezone = request_data.get('timezone')
+        defaults.voice = request_data['voice']
+        defaults.wake_word = request_data['wakeWord']
+        defaults.validate()
 
-        return preferences
+        return defaults
 
     def _add_defaults(self, preferences):
         with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
