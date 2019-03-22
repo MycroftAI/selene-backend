@@ -5,7 +5,15 @@ VALUES
         %(account_id)s,
         %(name)s,
         %(placement)s,
-        (SELECT id FROM device.wake_word WHERE display_name = %(wake_word)s),
+        (
+            SELECT
+                id
+            FROM
+                device.wake_word
+            WHERE
+                (account_id IS NULL OR account_id = %(account_id)s)
+                AND display_name = %(wake_word)s
+        ),
         (SELECT id FROM device.text_to_speech WHERE display_name = %(voice)s),
         (
             SELECT
