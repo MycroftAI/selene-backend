@@ -16,12 +16,32 @@ class GeographyRepository(RepositoryBase):
 
         return [Geography(**row) for row in db_response]
 
-    def add(self, geography):
-        db_request_args = dict(account_id=self.account_id)
-        db_request_args.update(geography)
+    def get_geography_id(self, geography: Geography):
+        geography_id = None
+        acct_geographies = self.get_account_geographies()
+        for acct_geography in acct_geographies:
+            match = (
+                acct_geography.city == geography.city and
+                acct_geography.country == geography.country and
+                acct_geography.region == geography.region and
+                acct_geography.time_zone == geography.time_zone
+            )
+            if match:
+                geography_id = acct_geography.id
+                break
+
+        return geography_id
+
+    def add(self, geography: Geography):
         db_request = self._build_db_request(
             sql_file_name='add_geography.sql',
-            args=db_request_args
+            args=dict(
+                account_id=self.account_id,
+                city=geography.city,
+                country=geography.country,
+                region=geography.region,
+                timezone=geography.time_zone
+            )
         )
         db_result = self.cursor.insert_returning(db_request)
 

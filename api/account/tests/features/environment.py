@@ -13,7 +13,7 @@ from selene.data.account import (
     PRIVACY_POLICY,
     TERMS_OF_USE
 )
-from selene.data.device import GeographyRepository
+from selene.data.device import Geography, GeographyRepository
 from selene.util.cache import SeleneCache
 from selene.util.db import get_db_connection
 
@@ -81,11 +81,11 @@ def _add_account(context, db):
 
 
 def _add_geography(context, db):
-    geography = dict(
+    geography = Geography(
         country='United States',
         region='Missouri',
         city='Kansas City',
-        timezone='America/Chicago'
+        time_zone='America/Chicago'
     )
     geo_repository = GeographyRepository(db, context.account.id)
     context.geography_id = geo_repository.add(geography)

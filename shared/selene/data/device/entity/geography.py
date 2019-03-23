@@ -8,6 +8,6 @@ class Geography(object):
     region: str
     city: str
     time_zone: str
-    latitude: Decimal
-    longitude: Decimal
+    latitude: Decimal = None
+    longitude: Decimal = None
     id: str = None
