@@ -94,6 +94,11 @@ class DeviceEndpoint(SeleneEndpoint):
         return response_data
 
     def post(self):
+        # TODO: Look into ways to improve this by passing IDs instead of names
+        # This code was written to deal with it's author's ignorance with
+        # angular forms (I can say that because I am the idiot).  If the
+        # frontend can pass the IDs instead of the names, the queries run here
+        # would be more efficient.
         self._authenticate()
         device = self._validate_request()
         device_id = self._pair_device(device)
