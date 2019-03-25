@@ -2,6 +2,7 @@ import os
 
 from flask import Flask
 
+from public_api.endpoints.device_location import DeviceLocationEndpoint
 from selene.api import SeleneResponse, selene_api
 from selene.api.base_config import get_base_config
 from selene.api.public_endpoint import check_oauth_token
@@ -115,7 +116,11 @@ public.add_url_rule(
     view_func=WolframAlphaSpokenEndpoint.as_view('wolfram_alpha_spoken_api'),
     methods=['GET']
 )
-
+public.add_url_rule(
+    '/v1/device/<string:device_id>/location',
+    view_func=DeviceLocationEndpoint.as_view('device_location_api'),
+    methods=['GET']
+)
 
 """
 This is a workaround to allow the API return 401 when we call a non existent path. Use case:

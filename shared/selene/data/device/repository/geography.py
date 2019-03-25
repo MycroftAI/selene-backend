@@ -46,3 +46,10 @@ class GeographyRepository(RepositoryBase):
         db_result = self.cursor.insert_returning(db_request)
 
         return db_result['id']
+
+    def get_location_by_device_id(self, device_id):
+        db_request = self._build_db_request(
+            sql_file_name='get_location_by_device_id.sql',
+            args=dict(device_id=device_id)
+        )
+        return self.cursor.select_one(db_request)
