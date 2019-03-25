@@ -18,15 +18,9 @@ class SkillsEndpoint(SeleneEndpoint):
 
         response_data = []
         for skill in skills:
-            if skill.versions:
-                latest_version = skill.versions[0]
-                display_name = latest_version.display_name
-            else:
-                display_name = skill.name
-
             response_data.append(dict(
                 id=skill.id,
-                name=display_name,
+                name=skill.name,
                 has_settings=skill.has_settings
             ))
 

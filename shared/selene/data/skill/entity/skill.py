@@ -40,6 +40,5 @@ class SkillVersion(object):
 class Skill(object):
     name: str
     url: str
-    versions: List[SkillVersion]
     has_settings: bool
     id: str = None

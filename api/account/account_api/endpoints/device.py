@@ -7,7 +7,7 @@ from schematics.types import StringType
 from schematics.exceptions import ValidationError
 
 from selene.api import SeleneEndpoint
-from selene.data.device import DeviceRepository
+from selene.data.device import DeviceRepository, Geography, GeographyRepository
 from selene.util.cache import SeleneCache
 from selene.util.db import get_db_connection
 
@@ -77,10 +77,6 @@ class DeviceEndpoint(SeleneEndpoint):
                 latitude=device.geography.latitude,
                 longitude=device.geography.longitude
             )
-            placement = dict(
-                id=None,
-                name=device.placement
-            )
             response_data.append(
                 dict(
                     core_version=device.core_version,
@@ -88,7 +84,7 @@ class DeviceEndpoint(SeleneEndpoint):
                     id=device.id,
                     geography=geography,
                     name=device.name,
-                    placement=placement,
+                    placement=device.placement,
                     platform=device.platform,
                     voice=voice,
                     wake_word=wake_word,
@@ -98,6 +94,11 @@ class DeviceEndpoint(SeleneEndpoint):
         return response_data
 
     def post(self):
+        # TODO: Look into ways to improve this by passing IDs instead of names
+        # This code was written to deal with it's author's ignorance with
+        # angular forms (I can say that because I am the idiot).  If the
+        # frontend can pass the IDs instead of the names, the queries run here
+        # would be more efficient.
         self._authenticate()
         device = self._validate_request()
         device_id = self._pair_device(device)
@@ -148,6 +149,7 @@ class DeviceEndpoint(SeleneEndpoint):
     def _add_device(self, device: NewDeviceRequest):
         """Creates a device and associate it to a pairing session"""
         with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
+            self._ensure_geography_exists(db, device.to_native())
             device_repository = DeviceRepository(db)
             device_id = device_repository.add_device(
                 self.account.id,
@@ -155,6 +157,18 @@ class DeviceEndpoint(SeleneEndpoint):
             )
 
         return device_id
+
+    def _ensure_geography_exists(self, db, device: dict):
+        geography = Geography(
+            city=device['city'],
+            country=device['country'],
+            region=device['region'],
+            time_zone=device['timezone']
+        )
+        geography_repository = GeographyRepository(db, self.account.id)
+        geography_id = geography_repository.get_geography_id(geography)
+        if geography_id is None:
+            geography_repository.add(geography)
 
     def _build_pairing_token(self, pairing_data):
         self.cache.set_with_expiration(

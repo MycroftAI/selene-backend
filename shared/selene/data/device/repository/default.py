@@ -38,11 +38,6 @@ class DefaultsRepository(RepositoryBase):
         if db_result is None:
             defaults = None
         else:
-            for key, dataclass in defaults_dataclasses.items():
-                if db_result[key]['id'] is None:
-                    db_result[key] = None
-                else:
-                    db_result[key] = dataclass(**db_result[key])
             defaults = AccountDefaults(**db_result)
 
         return defaults

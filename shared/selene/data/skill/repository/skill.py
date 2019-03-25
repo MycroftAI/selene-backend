@@ -4,7 +4,7 @@ from typing import List
 from selene.util.db import use_transaction
 from .device_skill import DeviceSkillRepository
 from .settings_display import SettingsDisplayRepository
-from ..entity.skill import Skill, SkillVersion
+from ..entity.skill import Skill
 from ...repository_base import RepositoryBase
 
 
@@ -83,11 +83,6 @@ class SkillRepository(RepositoryBase):
         db_result = self.cursor.select_all(db_request)
         if db_result is not None:
             for row in db_result:
-                skill_versions = []
-                if row['skill']['versions'] is not None:
-                    for version in row['skill']['versions']:
-                        skill_versions.append(SkillVersion(**version))
-                    row['skill']['versions'] = skill_versions
                 skills.append(Skill(**row['skill']))
 
         return skills
