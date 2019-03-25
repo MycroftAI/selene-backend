@@ -17,8 +17,8 @@ from selene.data.account import (
 from selene.data.device import (
     DeviceRepository,
     GeographyRepository,
-    SettingRepository
-)
+    SettingRepository,
+    Geography)
 from selene.data.device.entity.text_to_speech import TextToSpeech
 from selene.data.device.entity.wake_word import WakeWord
 from selene.util.db import get_db_connection
@@ -106,10 +106,10 @@ def _add_geography(context, db):
         country='United States',
         region='Missouri',
         city='Kansas City',
-        timezone='America/Chicago'
+        time_zone='America/Chicago'
     )
     geography_repository = GeographyRepository(db, context.account.id)
-    context.geography_id = geography_repository.add(geography)
+    context.geography_id = geography_repository.add(Geography(**geography))
 
 
 def _add_device(context, db):
@@ -121,7 +121,7 @@ def _add_device(context, db):
         region='Missouri',
         city='Kansas City',
         timezone='America/Chicago',
-        wake_word='Hey Mycroft',
+        wake_word='test',
         voice='American Male'
     )
     device_repository = DeviceRepository(db)
