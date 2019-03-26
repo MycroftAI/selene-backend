@@ -47,8 +47,11 @@ class ValidateFederatedEndpoint(SeleneEndpoint):
         google_response = requests.get(
             'https://oauth2.googleapis.com/tokeninfo?id_token=' + token
         )
-        auth_data = json.loads(google_response.content)
-        self.email_address = auth_data['email']
+        if google_response.status_code == HTTPStatus.OK:
+            google_account = json.loads(google_response.content)
+            self.email_address = google_account['email']
+        else:
+            raise AuthenticationError('invalid Google token')
 
     def _get_email_from_facebook(self, token):
         facebook_api = GraphAPI(token)
