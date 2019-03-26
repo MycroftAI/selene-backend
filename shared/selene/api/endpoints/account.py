@@ -305,3 +305,11 @@ class AccountEndpoint(SeleneEndpoint):
         active_stripe_subscription = stripe.Subscription.retrieve(active_membership.payment_id)
         active_stripe_subscription.delete()
         membership_repository.finish_membership(active_membership)
+
+    def delete(self):
+        self._authenticate()
+        with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
+            account_repository = AccountRepository(db)
+            account_repository.remove(self.account)
+
+        return '', HTTPStatus.NO_CONTENT
