@@ -6,6 +6,7 @@ from schematics import Model
 from schematics.types import StringType, BooleanType, ListType, ModelType
 
 from selene.api import PublicEndpoint
+from selene.api.etag import device_skill_etag_key
 from selene.data.skill import SkillRepository
 from selene.util.db import get_db_connection
 
@@ -59,10 +60,13 @@ class DeviceSkillsEndpoint(PublicEndpoint):
 
     def get(self, device_id):
         self._authenticate(device_id)
+        self._validate_etag(device_skill_etag_key(device_id))
         with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
             skills = SkillRepository(db).get_skill_settings_by_device_id(device_id)
+
         if skills is not None:
             response = Response(json.dumps(skills), status=HTTPStatus.OK, content_type='application_json')
+            self._add_etag(device_skill_etag_key(device_id))
         else:
             response = Response('', status=HTTPStatus.NO_CONTENT, content_type='application_json')
         return response
