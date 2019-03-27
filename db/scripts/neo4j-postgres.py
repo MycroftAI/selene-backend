@@ -21,6 +21,23 @@ device_to_skill = {}
 skill_to_section = {}
 section_to_field = {}
 device_to_field = {}
+locations = {}
+timezones = {}
+cities = {}
+regions = {}
+countries = {}
+device_location = {}
+hey_mycroft = str(uuid.uuid4())
+christopher = str(uuid.uuid4())
+ezra = str(uuid.uuid4())
+jarvis = str(uuid.uuid4())
+
+default_wake_words = {
+    'hey mycroft': hey_mycroft,
+    'christopher': christopher,
+    'hey ezra': ezra,
+    'hey jarvis': jarvis
+}
 
 
 def load_csv():
@@ -160,8 +177,8 @@ def format_timestamp(value):
     return f'{value:%Y-%m-%d %H:%M:%S}'
 
 
-
 db = connect(dbname='mycroft', user='postgres', host='127.0.0.1')
+
 db.autocommit = True
 
 subscription_uuids = {}
@@ -213,22 +230,60 @@ def fill_account_agreement_table():
         execute_batch(cur, query, privacy, page_size=1000)
 
 
+def fill_default_wake_word():
+    query1 = 'insert into device.wake_word (' \
+             'id,' \
+             'setting_name,' \
+             'display_name,' \
+             'engine)' \
+             'values (%s, %s, %s, %s)'
+    query2 = 'insert into device.wake_word_settings(' \
+             'wake_word_id,' \
+             'sample_rate,' \
+             'channels,' \
+             'pronunciation,' \
+             'threshold,' \
+             'threshold_multiplier,' \
+             'dynamic_energy_ratio)' \
+             'values (%s, %s, %s, %s, %s, %s, %s)'
+    wake_words = [
+        (hey_mycroft, 'Hey Mycroft', 'Hey Mycroft', 'precise'),
+        (christopher, 'Christopher', 'Christopher', 'precise'),
+        (ezra, 'Hey Ezra', 'Hey Ezra', 'precise'),
+        (jarvis, 'Hey Jarvis', 'Hey Jarvis', 'precise')
+    ]
+    wake_word_settings = [
+        (hey_mycroft, '16000', '1', 'HH EY . M AY K R AO F T', '1e-90', '1', '1.5'),
+        (christopher, '16000', '1', 'K R IH S T AH F ER .', '1e-25', '1', '1.5'),
+        (ezra, '16000', '1', 'HH EY . EH Z R AH', '1e-10', '1', '2.5'),
+        (jarvis, '16000', '1', 'HH EY . JH AA R V AH S', '1e-25', '1', '1.5')
+    ]
+    with db.cursor() as cur:
+        execute_batch(cur, query1, wake_words)
+        execute_batch(cur, query2, wake_word_settings)
+
+
 def fill_wake_word_table():
     query = 'insert into device.wake_word (' \
             'id,' \
-            'wake_word,' \
+            'setting_name,' \
+            'display_name,' \
             'engine,' \
             'account_id)' \
-            'values (%s, %s, %s, %s)'
+            'values (%s, %s, %s, %s, %s)'
 
     def map_wake_word(user_id):
         wake_word_id = str(uuid.uuid4())
-        wake_word = user_settings[user_id]['wake_word'] if user_id in user_settings else 'Hey Mycroft'
+        wake_word = user_settings[user_id]['wake_word'].lower() if user_id in user_settings else 'hey mycroft'
+        mycroft_wake_word = default_wake_words.get(wake_word)
+        if mycroft_wake_word is not None:
+            wake_word_id = mycroft_wake_word
         users[user_id]['wake_word_id'] = wake_word_id
-        return wake_word_id, wake_word, 'precise', user_id
+        return wake_word_id, wake_word, wake_word, 'precise', user_id
 
     with db.cursor() as cur:
         wake_words = (map_wake_word(account_id) for account_id in users)
+        wake_words = (wk for wk in wake_words if wk[0] not in (hey_mycroft, christopher, ezra, jarvis))
         execute_batch(cur, query, wake_words, page_size=1000)
 
 
@@ -237,10 +292,8 @@ def fill_account_preferences_table():
             'account_id, ' \
             'date_format, ' \
             'time_format, ' \
-            'measurement_system,' \
-            'wake_word_id,' \
-            'text_to_speech_id)' \
-            'values (%s, %s, %s, %s, %s, %s)'
+            'measurement_system)' \
+            'values (%s, %s, %s, %s)'
 
     def map_account_preferences(user_uuid):
         if user_uuid in user_settings:
@@ -277,11 +330,11 @@ def fill_account_preferences_table():
                 tts = 'ap'
             text_to_speech_id = get_tts_uuid(tts)
             users[user_uuid]['text_to_speech_id'] = text_to_speech_id
-            return user_uuid, date_format, time_format, measurement_system, users[user_uuid]['wake_word_id'], text_to_speech_id
+            return user_uuid, date_format, time_format, measurement_system
         else:
             text_to_speech_id = get_tts_uuid('ap')
             users[user_uuid]['text_to_speech_id'] = text_to_speech_id
-            return user_uuid, 'MM/DD/YYYY', '12 Hour', 'Imperial', users[user_uuid]['wake_word_id'], text_to_speech_id
+            return user_uuid, 'MM/DD/YYYY', '12 Hour', 'Imperial'
 
     with db.cursor() as cur:
         account_preferences = (map_account_preferences(user_uuid) for user_uuid in users)
@@ -294,8 +347,9 @@ def fill_subscription_table():
             'membership_id, ' \
             'membership_ts_range, ' \
             'payment_account_id,' \
-            'payment_method) ' \
-            'values (%s, %s, %s, %s, %s)'
+            'payment_method,' \
+            'payment_id) ' \
+            'values (%s, %s, %s, %s, %s, %s)'
 
     def map_subscription(user_uuid):
         subscr = subscription[user_uuid]
@@ -308,7 +362,7 @@ def fill_subscription_table():
         elif subscription_type == 'YearlyAccount':
             subscription_type = 'year'
         subscription_uuid = get_subscription_uuid(subscription_type)
-        return user_uuid, subscription_uuid, subscription_ts_range, stripe_customer_id, 'Stripe'
+        return user_uuid, subscription_uuid, subscription_ts_range, stripe_customer_id, 'Stripe', 'subscription_id'
     with db.cursor() as cur:
         account_subscriptions = (map_subscription(user_uuid) for user_uuid in subscription)
         execute_batch(cur, query, account_subscriptions, page_size=1000)
@@ -337,6 +391,7 @@ def fill_wake_word_settings_table():
         return wake_word_id, sample_rate, channels, pronunciation, threshold, threshold_multiplier, dynamic_energy_ratio
     with db.cursor() as cur:
         account_wake_word_settings = (map_wake_word_settings(user_uuid) for user_uuid in users if user_uuid in user_settings)
+        account_wake_word_settings = (wks for wks in account_wake_word_settings if wks[0] not in (hey_mycroft, christopher, ezra, jarvis))
         execute_batch(cur, query, account_wake_word_settings, page_size=1000)
 
 
@@ -365,8 +420,39 @@ def fill_device_table():
             'enclosure_version,' \
             'core_version,' \
             'wake_word_id,' \
+            'geography_id,' \
             'text_to_speech_id) ' \
-            'values (%s, %s, %s, %s, %s, %s, %s, %s, %s)'
+            'values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+    query2 = 'insert into device.geography(' \
+             'id,' \
+             'account_id,' \
+             'country_id,' \
+             'region_id,' \
+             'city_id,' \
+             'timezone_id) ' \
+             'values (%s, %s, %s, %s, %s, %s)'
+
+    with db.cursor() as cur:
+        query_geography = """
+        SELECT
+            city.id, region.id, country.id, timezone.id
+        FROM 
+            geography.city city
+        INNER JOIN
+            geography.region region ON city.region_id = region.id
+        INNER JOIN
+            geography.country country ON region.country_id = country.id
+        INNER JOIN
+            geography.timezone timezone ON country.id = timezone.country_id
+        WHERE
+            city.name = %s and region.name = %s and timezone.name = %s;
+        """
+        cur.execute(query_geography, ('Lawrence', 'Kansas', 'America/Chicago'))
+        city, region, country, timezone = cur.fetchone()
+
+    def map_geography(account_id):
+        geography_id = str(uuid.uuid4())
+        return geography_id, account_id, country, region, city, timezone
 
     def map_device(device_id):
         device = devices[device_id]
@@ -377,10 +463,37 @@ def fill_device_table():
         enclosure_version = device['enclosure_version']
         core_version = device['core_version']
         wake_word_id = users[account_id]['wake_word_id']
-        text_to_speech_id = users[account_id]['text_to_speech_id']
-        return device_id, account_id, name, placement, platform, enclosure_version, core_version, wake_word_id, text_to_speech_id
+        geography_id = device['geography_id']
+
+        user_setting = user_settings[account_id]
+        tts_type = user_setting['tts_type']
+        tts_voice = user_setting['tts_voice']
+        if tts_type == 'MimicSetting':
+            if tts_voice == 'ap':
+                tts = 'ap'
+            elif tts_voice == 'trinity':
+                tts = 'amy'
+            else:
+                tts = 'ap'
+        elif tts_type == 'Mimic2Setting':
+            tts = 'kusal'
+        elif tts_type == 'GoogleTTSSetting':
+            tts = 'google'
+        else:
+            tts = 'ap'
+        text_to_speech_id = get_tts_uuid(tts)
+
+        return device_id, account_id, name, placement, platform, enclosure_version, core_version, wake_word_id, geography_id, text_to_speech_id
     with db.cursor() as cur:
-        devices_batch = (map_device(device_id) for user in user_devices if user in users for device_id, name in user_devices[user])
+        geography_batch = []
+        for user in user_devices:
+            if user in users and user in user_settings:
+                geography = map_geography(user)
+                geography_batch.append(geography)
+                for device_id, name in user_devices[user]:
+                    devices[device_id]['geography_id'] = geography[0]
+        execute_batch(cur, query2, geography_batch, page_size=1000)
+        devices_batch = (map_device(device_id) for user in user_devices if user in users and user in user_settings for device_id, name in user_devices[user])
         execute_batch(cur, query, devices_batch, page_size=1000)
 
 
@@ -389,7 +502,7 @@ def fill_skills_table():
     settings_display_batch = []
     device_skill_batch = []
     for user in user_devices:
-        if user in users:
+        if user in users and user in user_settings:
             for device_uuid, name in user_devices[user]:
                 if device_uuid in device_to_skill:
                     for skill_uuid in device_to_skill[device_uuid]:
@@ -436,15 +549,16 @@ print('Time to load CSVs {}'.format(end - start))
 
 start = time.time()
 print('Importing account table')
-fill_account_table()
+#fill_account_table()
 print('Importing agreements table')
-fill_account_agreement_table()
-print('Importing wake word table')
-fill_wake_word_table()
+#fill_account_agreement_table()
 print('Importing account preferences table')
-fill_account_preferences_table()
+#fill_account_preferences_table()
 print('Importing subscription table')
-fill_subscription_table()
+#fill_subscription_table()
+print('Importing wake word table')
+fill_default_wake_word()
+fill_wake_word_table()
 print('Importing wake word settings table')
 fill_wake_word_settings_table()
 print('Importing device table')

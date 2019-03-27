@@ -10,10 +10,12 @@ from .endpoints.device import DeviceEndpoint
 from .endpoints.device_activate import DeviceActivateEndpoint
 from .endpoints.device_code import DeviceCodeEndpoint
 from .endpoints.device_email import DeviceEmailEndpoint
+from .endpoints.device_location import DeviceLocationEndpoint
 from .endpoints.device_metrics import DeviceMetricsEndpoint, MetricsService
 from .endpoints.device_refresh_token import DeviceRefreshTokenEndpoint
 from .endpoints.device_setting import DeviceSettingEndpoint
 from .endpoints.device_skill import DeviceSkillEndpoint
+from .endpoints.device_skill_manifest import DeviceSkillManifestEndpoint
 from .endpoints.device_skills import DeviceSkillsEndpoint
 from .endpoints.device_subscription import DeviceSubscriptionEndpoint
 from .endpoints.google_stt import GoogleSTTEndpoint
@@ -114,6 +116,16 @@ public.add_url_rule(
     '/v1/wolframAlphaSpoken',
     view_func=WolframAlphaSpokenEndpoint.as_view('wolfram_alpha_spoken_api'),
     methods=['GET']
+)
+public.add_url_rule(
+    '/v1/device/<string:device_id>/location',
+    view_func=DeviceLocationEndpoint.as_view('device_location_api'),
+    methods=['GET']
+)
+public.add_url_rule(
+    '/v1/device/<string:device_id>/skillJson',
+    view_func=DeviceSkillManifestEndpoint.as_view('skill_manifest_api'),
+    methods=['GET', 'PUT']
 )
 
 
