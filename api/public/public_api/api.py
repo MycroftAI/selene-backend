@@ -2,7 +2,6 @@ import os
 
 from flask import Flask
 
-from public_api.endpoints.device_location import DeviceLocationEndpoint
 from selene.api import SeleneResponse, selene_api
 from selene.api.base_config import get_base_config
 from selene.api.public_endpoint import check_oauth_token
@@ -21,6 +20,8 @@ from .endpoints.google_stt import GoogleSTTEndpoint
 from .endpoints.open_weather_map import OpenWeatherMapEndpoint
 from .endpoints.wolfram_alpha import WolframAlphaEndpoint
 from .endpoints.wolfram_alpha_spoken import WolframAlphaSpokenEndpoint
+from .endpoints.device_location import DeviceLocationEndpoint
+from .endpoints.device_skill_manifest import DeviceSkillManifest
 
 public = Flask(__name__)
 public.config.from_object(get_base_config())
@@ -121,6 +122,12 @@ public.add_url_rule(
     view_func=DeviceLocationEndpoint.as_view('device_location_api'),
     methods=['GET']
 )
+public.add_url_rule(
+    '/v1/device/<string:device_id>/skillJson',
+    view_func=DeviceSkillManifest.as_view('skill_manifest_api'),
+    methods=['PUT']
+)
+
 
 """
 This is a workaround to allow the API return 401 when we call a non existent path. Use case:

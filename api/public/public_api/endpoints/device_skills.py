@@ -29,11 +29,19 @@ class SkillMetadata(Model):
     sections = ListType(ModelType(SkillSection))
 
 
+class SkillIcon(Model):
+    color = StringType()
+    icon = StringType()
+
+
 class Skill(Model):
     name = StringType(required=True)
     identifier = StringType(required=True)
     skillMetadata = ModelType(SkillMetadata)
     color = StringType()
+    icon_img = StringType()
+    icon = ModelType(SkillIcon)
+
 
 class DeviceSkillsEndpoint(PublicEndpoint):
     """Fetch all skills associated with a given device using the API v1 format"""

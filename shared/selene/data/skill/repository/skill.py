@@ -1,4 +1,5 @@
 import json
+from datetime import datetime
 from typing import List
 
 from selene.util.db import use_transaction
@@ -114,3 +115,20 @@ class SkillRepository(RepositoryBase):
                     settings[field['name']] = field['value']
                 field.pop('value', None)
         return settings, skill
+
+    def update_skills_manifest(self, device_id: str, skill_manifest: List[dict]):
+        for skill in skill_manifest:
+            skill['device_id'] = device_id
+            installed = skill.get('installed')
+            if installed:
+                installed = datetime.fromtimestamp(installed)
+                skill['installed'] = installed
+            updated = skill.get('updated')
+            if updated:
+                updated = datetime.fromtimestamp(updated)
+                skill['updated'] = updated
+        db_batch_request = self._build_db_batch_request(
+            'update_skill_manifest.sql',
+            args=skill_manifest
+        )
+        self.cursor.batch_update(db_batch_request)
