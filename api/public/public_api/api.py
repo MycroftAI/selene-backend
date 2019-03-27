@@ -125,7 +125,7 @@ public.add_url_rule(
 public.add_url_rule(
     '/v1/device/<string:device_id>/skillJson',
     view_func=DeviceSkillManifest.as_view('skill_manifest_api'),
-    methods=['PUT']
+    methods=['GET', 'PUT']
 )
 
 

@@ -132,3 +132,10 @@ class SkillRepository(RepositoryBase):
             args=skill_manifest
         )
         self.cursor.batch_update(db_batch_request)
+
+    def get_skills_manifest(self, device_id: str):
+        db_request = self._build_db_request(
+            sql_file_name='get_skills_manifest_by_device_id.sql',
+            args=dict(device_id=device_id)
+        )
+        return self.cursor.select_all(db_request)

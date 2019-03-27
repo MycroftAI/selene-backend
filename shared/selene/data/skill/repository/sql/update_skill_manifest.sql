@@ -2,7 +2,7 @@ UPDATE
     device.device_skill dev_skill
 SET
     install_method = %(origin)s,
-    install_status = %(status)s,
+    install_status = %(installation)s,
     install_failure_reason = %(failure_message)s,
     install_ts = %(installed)s,
     update_ts = %(updated)s
