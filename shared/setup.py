@@ -17,6 +17,7 @@ setup(
         'pyjwt',
         'psycopg2-binary',
         'redis',
-        'schematics'
+        'schematics',
+        'stripe'
     ]
 )

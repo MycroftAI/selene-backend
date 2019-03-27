@@ -31,7 +31,7 @@ acct.register_blueprint(selene_api)
 acct.add_url_rule(
     '/api/account',
     view_func=AccountEndpoint.as_view('account_api'),
-    methods=['GET', 'POST', 'PATCH']
+    methods=['GET', 'POST', 'PATCH', 'DELETE']
 )
 acct.add_url_rule(
     '/api/agreement/<string:agreement_type>',
