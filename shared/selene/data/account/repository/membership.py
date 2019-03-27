@@ -15,22 +15,25 @@ class MembershipRepository(RepositoryBase):
 
         return [Membership(**row) for row in db_result]
 
-    def get_membership_by_type(self, type: str):
+    def get_membership_by_type(self, membership_type: str):
         db_request = self._build_db_request(
             sql_file_name='get_membership_by_type.sql',
-            args=dict(type=type)
+            args=dict(type=membership_type)
         )
         db_result = self.cursor.select_one(db_request)
         return Membership(**db_result)
 
-    def get_active_membership_by_account_id(self, account_id) -> AccountMembership:
+    def get_active_account_membership(self, account_id) -> AccountMembership:
+        account_membership = None
         db_request = self._build_db_request(
             sql_file_name='get_active_membership_by_account_id.sql',
             args=dict(account_id=account_id)
         )
         db_result = self.cursor.select_one(db_request)
         if db_result:
-            return AccountMembership(**db_result)
+            account_membership = AccountMembership(**db_result)
+
+        return account_membership
 
     def add(self, membership: Membership):
         db_request = self._build_db_request(
