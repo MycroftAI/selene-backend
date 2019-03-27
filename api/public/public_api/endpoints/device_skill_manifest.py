@@ -25,9 +25,9 @@ class SkillJson(Model):
     skills = ListType(ModelType(SkillManifest, required=True))
 
 
-class DeviceSkillManifest(PublicEndpoint):
+class DeviceSkillManifestEndpoint(PublicEndpoint):
     def __init__(self):
-        super(DeviceSkillManifest, self).__init__()
+        super(DeviceSkillManifestEndpoint, self).__init__()
 
     def get(self, device_id):
         self._authenticate()
@@ -35,19 +35,22 @@ class DeviceSkillManifest(PublicEndpoint):
             skills_manifest = SkillRepository(db).get_skills_manifest(device_id)
         if skills_manifest:
             for skill in skills_manifest:
-                installed = skill.get('installed')
-                if installed:
-                    installed = installed.timestamp()
-                    skill['installed'] = installed
-                updated = skill.get('updated')
-                if updated:
-                    updated = updated.timestamp()
-                    skill['updated'] = updated
+                self._convert_to_timestamp(skill)
             skills_manifest = {'skills': skills_manifest}
             response = skills_manifest, HTTPStatus.OK
         else:
             response = '', HTTPStatus.NOT_MODIFIED
         return response
+
+    def _convert_to_timestamp(self, skill):
+        installed = skill.get('installed')
+        if installed:
+            installed = installed.timestamp()
+            skill['installed'] = installed
+        updated = skill.get('updated')
+        if updated:
+            updated = updated.timestamp()
+            skill['updated'] = updated
 
     def put(self, device_id):
         self._authenticate(device_id)

@@ -10,18 +10,18 @@ from .endpoints.device import DeviceEndpoint
 from .endpoints.device_activate import DeviceActivateEndpoint
 from .endpoints.device_code import DeviceCodeEndpoint
 from .endpoints.device_email import DeviceEmailEndpoint
+from .endpoints.device_location import DeviceLocationEndpoint
 from .endpoints.device_metrics import DeviceMetricsEndpoint, MetricsService
 from .endpoints.device_refresh_token import DeviceRefreshTokenEndpoint
 from .endpoints.device_setting import DeviceSettingEndpoint
 from .endpoints.device_skill import DeviceSkillEndpoint
+from .endpoints.device_skill_manifest import DeviceSkillManifestEndpoint
 from .endpoints.device_skills import DeviceSkillsEndpoint
 from .endpoints.device_subscription import DeviceSubscriptionEndpoint
 from .endpoints.google_stt import GoogleSTTEndpoint
 from .endpoints.open_weather_map import OpenWeatherMapEndpoint
 from .endpoints.wolfram_alpha import WolframAlphaEndpoint
 from .endpoints.wolfram_alpha_spoken import WolframAlphaSpokenEndpoint
-from .endpoints.device_location import DeviceLocationEndpoint
-from .endpoints.device_skill_manifest import DeviceSkillManifest
 
 public = Flask(__name__)
 public.config.from_object(get_base_config())
@@ -124,7 +124,7 @@ public.add_url_rule(
 )
 public.add_url_rule(
     '/v1/device/<string:device_id>/skillJson',
-    view_func=DeviceSkillManifest.as_view('skill_manifest_api'),
+    view_func=DeviceSkillManifestEndpoint.as_view('skill_manifest_api'),
     methods=['GET', 'PUT']
 )
 
