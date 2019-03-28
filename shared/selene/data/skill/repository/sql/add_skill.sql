@@ -1,6 +1,6 @@
 INSERT INTO
-    skill.skill(name)
+    skill.skill (global_id, name)
 VALUES
-    (%(skill_name)s)
+    (%(global_id)s, %(skill_name)s)
 RETURNING
     id

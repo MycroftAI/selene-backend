@@ -90,7 +90,7 @@ class SkillRepository(RepositoryBase):
 
     @use_transaction
     def add(self, device_id: str, skill: dict) -> str:
-        skill_id = self._add_skill(skill['name'])
+        skill_id = self._add_skill(skill['global_id'], skill['name'])
         settings_value, settings_display = self._extract_settings(skill)
         settings_display = json.dumps(skill)
         skill_settings_display_id = SettingsDisplayRepository(self.db).add(skill_id, settings_display)
@@ -98,13 +98,14 @@ class SkillRepository(RepositoryBase):
         DeviceSkillRepository(self.db).add(device_id, skill_id, skill_settings_display_id, settings_value)
         return skill_id
 
-    def _add_skill(self, skill_name) -> str:
+    def _add_skill(self, global_id: str, name: str) -> str:
         db_request = self._build_db_request(
-            'add_skill.sql',
-            args=dict(skill_name=skill_name)
+            sql_file_name='add_skill.sql',
+            args=dict(global_id=global_id, skill_name=name)
         )
-        result = self.cursor.insert_returning(db_request)
-        return result['id']
+        db_result = self.cursor.insert_returning(db_request)
+
+        return db_result['id']
 
     @staticmethod
     def _extract_settings(skill):
@@ -142,3 +143,22 @@ class SkillRepository(RepositoryBase):
             args=dict(device_id=device_id)
         )
         return self.cursor.select_all(db_request)
+
+    def get_installer_skill(self):
+        return self._select_one_into_dataclass(
+            dataclass=Skill,
+            sql_file_name='get_installer_skill_settings.sql'
+        )
+
+    def ensure_skill_exists(self, global_id: str, name: str) -> str:
+        skill = self._select_one_into_dataclass(
+            dataclass=Skill,
+            sql_file_name='get_skill_by_global_id.sql',
+            args=dict(global_id=global_id)
+        )
+        if skill is None:
+            skill_id = self._add_skill(global_id, name)
+        else:
+            skill_id = skill.id
+
+        return skill_id

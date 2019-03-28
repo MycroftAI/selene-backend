@@ -12,8 +12,8 @@ WITH
 SELECT DISTINCT
     json_build_object(
         'id', s.id,
+        'global_id', s.global_id,
         'name', s.name,
-        'url', s.url,
         'has_settings', sm.has_settings
     )::jsonb as skill
 FROM

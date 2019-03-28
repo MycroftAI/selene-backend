@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from datetime import datetime
 from typing import List
 
 
@@ -38,7 +39,7 @@ class SkillVersion(object):
 
 @dataclass
 class Skill(object):
+    global_id: str
     name: str
-    url: str
-    has_settings: bool
+    has_settings: bool = None
     id: str = None
