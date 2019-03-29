@@ -30,8 +30,6 @@ MONTHLY_MEMBERSHIP = 'Monthly Membership'
 YEARLY_MEMBERSHIP = 'Yearly Membership'
 STRIPE_PAYMENT = 'Stripe'
 
-stripe.api_key = os.environ['STRIPE_PRIVATE_KEY']
-
 
 def agreement_accepted(value):
     if not value:
@@ -101,6 +99,7 @@ class AccountEndpoint(SeleneEndpoint):
     def __init__(self):
         super(AccountEndpoint, self).__init__()
         self.request_data = None
+        stripe.api_key = os.environ['STRIPE_PRIVATE_KEY']
 
     def get(self):
         """Process HTTP GET request for an account."""
