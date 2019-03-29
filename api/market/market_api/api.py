@@ -1,30 +1,53 @@
 """Entry point for the API that supports the Mycroft Marketplace."""
 from flask import Flask
-from flask_restful import Api
 
-from .config import get_config_location
-from market_api.endpoints import (
+from selene.api import get_base_config, selene_api, SeleneResponse
+from selene.api.endpoints import AccountEndpoint
+from .endpoints import (
     AvailableSkillsEndpoint,
     SkillDetailEndpoint,
     SkillInstallEndpoint,
-    SkillInstallationsEndpoint,
-    UserEndpoint
+    SkillInstallStatusEndpoint
 )
 
 # Define the Flask application
 market = Flask(__name__)
-market.config.from_object(get_config_location())
+market.config.from_object(get_base_config())
+market.response_class = SeleneResponse
+market.register_blueprint(selene_api)
 
 # Define the API and its endpoints.
-market_api = Api(market)
-market_api.add_resource(AvailableSkillsEndpoint, '/api/skill/available')
-market_api.add_resource(
-    SkillDetailEndpoint,
-    '/api/skill/detail/<skill_name>'
+account_endpoint = AccountEndpoint.as_view('account_endpoint')
+market.add_url_rule(
+    '/api/account',
+    view_func=account_endpoint,
+    methods=['GET']
 )
-market_api.add_resource(SkillInstallEndpoint, '/api/skill/install')
-market_api.add_resource(
-    SkillInstallationsEndpoint,
-    '/api/skill/installations'
+
+available_endpoint = AvailableSkillsEndpoint.as_view('available_endpoint')
+market.add_url_rule(
+    '/api/skills/available',
+    view_func=available_endpoint,
+    methods=['GET']
 )
-market_api.add_resource(UserEndpoint, '/api/user')
+
+status_endpoint = SkillInstallStatusEndpoint.as_view('status_endpoint')
+market.add_url_rule(
+    '/api/skills/status',
+    view_func=status_endpoint,
+    methods=['GET']
+)
+
+skill_detail_endpoint = SkillDetailEndpoint.as_view('skill_detail_endpoint')
+market.add_url_rule(
+    '/api/skills/<string:skill_display_id>',
+    view_func=skill_detail_endpoint,
+    methods=['GET']
+)
+
+install_endpoint = SkillInstallEndpoint.as_view('install_endpoint')
+market.add_url_rule(
+    '/api/skills/install',
+    view_func=install_endpoint,
+    methods=['PUT']
+)

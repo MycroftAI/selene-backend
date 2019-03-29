@@ -6,13 +6,12 @@ name = "pypi"
 [packages]
 flask = "*"
 requests = "*"
-flask-restful = "*"
 pyjwt = "*"
 uwsgi = "*"
 markdown = "*"
+selene = {editable = true, path = "./../../shared"}
 
 [dev-packages]
-selene = {path = "./../../shared"}
 
 [requires]
 python_version = "3.7"
