@@ -9,6 +9,16 @@ from ..entity.skill import Skill
 from ...repository_base import RepositoryBase
 
 
+def _parse_skill_gid(skill_gid):
+    id_parts = skill_gid.split('|')
+    if id_parts[0].startswith('@'):
+        family_name = id_parts[1]
+    else:
+        family_name = id_parts[0]
+
+    return family_name
+
+
 class SkillRepository(RepositoryBase):
     def __init__(self, db):
         self.db = db
@@ -150,13 +160,14 @@ class SkillRepository(RepositoryBase):
             sql_file_name='get_installer_skill_settings.sql'
         )
 
-    def ensure_skill_exists(self, skill_gid: str, family_name: str) -> str:
+    def ensure_skill_exists(self, skill_gid: str) -> str:
         skill = self._select_one_into_dataclass(
             dataclass=Skill,
             sql_file_name='get_skill_by_global_id.sql',
             args=dict(skill_gid=skill_gid)
         )
         if skill is None:
+            family_name = _parse_skill_gid(skill_gid)
             skill_id = self._add_skill(skill_gid, family_name)
         else:
             skill_id = skill.id
