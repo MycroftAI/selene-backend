@@ -73,6 +73,7 @@ class AvailableSkillsEndpoint(SeleneEndpoint):
         """Build the response data from the skill service response"""
         for skill in skills_to_include:
             skill_info = dict(
+                display_name=skill.display_data.get('display_name'),
                 icon=skill.display_data.get('icon'),
                 iconImage=skill.display_data.get('icon_img'),
                 isMycroftMade=False,
@@ -80,7 +81,6 @@ class AvailableSkillsEndpoint(SeleneEndpoint):
                 marketCategory='Undefined',
                 id=skill.id,
                 summary=skill.display_data.get('short_desc'),
-                title=skill.display_data.get('title'),
                 trigger=None
             )
             examples = skill.display_data.get('examples')

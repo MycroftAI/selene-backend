@@ -41,10 +41,8 @@ with connect_to_db(mycroft_db) as db:
     display_repository = SkillDisplayRepository(db)
     for skill_name, skill_metadata in skills_metadata.items():
         # Ensure the skill exists on the skill table
-        # TODO: change this to use the actual global id when available.
         skill_id = skill_repository.ensure_skill_exists(
-            # skill_metadata['global_id']
-            skill_metadata['name'],
+            skill_metadata['skill_gid'],
             skill_metadata['name']
         )
 

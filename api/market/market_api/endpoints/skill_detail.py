@@ -46,6 +46,7 @@ class SkillDetailEndpoint(SeleneEndpoint):
                 skill_display.display_data.get('description'),
                 output_format='html5'
             ),
+            display_name=skill_display.display_data['display_name'],
             icon=skill_display.display_data.get('icon'),
             iconImage=skill_display.display_data.get('icon_img'),
             isSystemSkill=False,
@@ -70,7 +71,6 @@ class SkillDetailEndpoint(SeleneEndpoint):
                 skill_display.display_data['short_desc'],
                 output_format='html5'
             ),
-            title=skill_display.display_data['title'],
             triggers=skill_display.display_data['examples']
         )
         if skill_display.display_data['tags'] is not None:
