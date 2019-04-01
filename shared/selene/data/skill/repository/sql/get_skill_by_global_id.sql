@@ -1,8 +1,7 @@
 SELECT
     id,
-    global_id,
-    name
+    skill_gid
 FROM
     skill.skill
 WHERE
-    global_id = %(global_id)s;
+    skill_gid = %(skill_gid)s;

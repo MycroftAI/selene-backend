@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from datetime import datetime
 from typing import List
 
 
@@ -40,6 +39,6 @@ class SkillVersion(object):
 @dataclass
 class Skill(object):
     skill_gid: str
-    family_name: str
+    family_name: str = None
     has_settings: bool = None
     id: str = None
