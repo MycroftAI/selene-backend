@@ -39,9 +39,7 @@ class SkillRepository(RepositoryBase):
             for result in sql_results:
                 sections = self._fill_setting_with_values(result['settings'], result['settings_display'])
                 skill = {
-                    'uuid': result['id'],
-                    'name': result['settings_display']['name'],
-                    'identifier': result['settings_display']['identifier'],
+                    'skill_gid': result['settings_display']['skill_gid'],
                     'skillMetadata': {
                         'sections': sections
                     }
@@ -64,9 +62,7 @@ class SkillRepository(RepositoryBase):
         if sql_results:
             sections = self._fill_setting_with_values(sql_results['settings'], sql_results['settings_display'])
             skill = {
-                'uuid': sql_results['id'],
-                'name': sql_results['settings_display']['name'],
-                'identifier': sql_results['settings_display']['identifier'],
+                'skill_gid': sql_results['settings_display']['skill_gid'],
                 'skillMetadata': {
                     'sections': sections
                 }
@@ -100,7 +96,7 @@ class SkillRepository(RepositoryBase):
 
     @use_transaction
     def add(self, device_id: str, skill: dict) -> str:
-        skill_id = self._add_skill(skill['global_id'], skill['name'])
+        skill_id = self.ensure_skill_exists(skill['skill_gid'])
         settings_value, settings_display = self._extract_settings(skill)
         settings_display = json.dumps(skill)
         skill_settings_display_id = SettingsDisplayRepository(self.db).add(skill_id, settings_display)
@@ -108,10 +104,10 @@ class SkillRepository(RepositoryBase):
         DeviceSkillRepository(self.db).add(device_id, skill_id, skill_settings_display_id, settings_value)
         return skill_id
 
-    def _add_skill(self, global_id: str, name: str) -> str:
+    def _add_skill(self, skill_gid: str, name: str) -> str:
         db_request = self._build_db_request(
             sql_file_name='add_skill.sql',
-            args=dict(global_id=global_id, skill_name=name)
+            args=dict(skill_gid=skill_gid, family_name=name)
         )
         db_result = self.cursor.insert_returning(db_request)
 

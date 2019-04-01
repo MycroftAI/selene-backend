@@ -4,7 +4,7 @@ SELECT
     dev_skill.install_failure_reason as failure_message,
     dev_skill.install_ts as installed,
     dev_skill.update_ts as updated,
-    skill.name as name
+    skill.skill_gid as skill_gid
 FROM
     device.device dev
 INNER JOIN

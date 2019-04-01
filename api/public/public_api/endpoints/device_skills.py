@@ -1,12 +1,22 @@
 import json
 from http import HTTPStatus
 
+from flask import Response
 from schematics import Model
 from schematics.types import StringType, BooleanType, ListType, ModelType
 
 from selene.api import PublicEndpoint
 from selene.data.skill import SkillRepository
 from selene.util.db import get_db_connection
+
+global_id_pattern = '^([^\|@]+)\|([^\|]+$)'             # matches <submodule_name>|<branch>
+global_id_dirt_pattern = '^@(.*)\|(.*)\|(.*)$'          # matches @<device_id>|<submodule_name>|<branch>
+global_id_non_msm_pattern = '^@([^\|]+)\|([^\|]+$)'     # matches @<device_id>|<folder_name>
+global_id_any_pattern = '(?:{})|(?:{})|(?:{})'.format(
+    global_id_pattern,
+    global_id_dirt_pattern,
+    global_id_non_msm_pattern
+)
 
 
 class SkillField(Model):
@@ -35,10 +45,8 @@ class SkillIcon(Model):
 
 
 class Skill(Model):
-    name = StringType(required=True)
-    identifier = StringType(required=True)
+    skill_gid = StringType(required=True, regex=global_id_any_pattern)
     skillMetadata = ModelType(SkillMetadata)
-    color = StringType()
     icon_img = StringType()
     icon = ModelType(SkillIcon)
 
@@ -53,7 +61,10 @@ class DeviceSkillsEndpoint(PublicEndpoint):
         self._authenticate(device_id)
         with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
             skills = SkillRepository(db).get_skill_settings_by_device_id(device_id)
-        response = (skills, HTTPStatus.OK) if skills is not None else ('', HTTPStatus.NO_CONTENT)
+        if skills is not None:
+            response = Response(json.dumps(skills), status=HTTPStatus.OK, content_type='application_json')
+        else:
+            response = Response('', status=HTTPStatus.NO_CONTENT, content_type='application_json')
         return response
 
     def put(self, device_id):
