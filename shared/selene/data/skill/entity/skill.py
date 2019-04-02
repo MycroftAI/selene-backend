@@ -38,7 +38,7 @@ class SkillVersion(object):
 
 @dataclass
 class Skill(object):
-    name: str
-    url: str
-    has_settings: bool
+    skill_gid: str
+    family_name: str = None
+    has_settings: bool = None
     id: str = None

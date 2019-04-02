@@ -17,5 +17,5 @@ WHERE
         INNER JOIN
             skill.skill skill ON dev_skill.skill_id = skill.id
         WHERE
-            dev.id = %(device_id)s AND skill.name = %(name)s
+            dev.id = %(device_id)s AND skill.skill_gid = %(skill_gid)s
     )

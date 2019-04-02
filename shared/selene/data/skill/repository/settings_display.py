@@ -8,8 +8,14 @@ class SettingsDisplayRepository(RepositoryBase):
 
     def add(self, skill_id: str, settings_display: str) -> str:
         db_request = self._build_db_request(
-            sql_file_name='add_settings_display.sql',
+            sql_file_name='get_settings_display.sql',
             args=dict(skill_id=skill_id, settings_display=settings_display)
         )
-        result = self.cursor.insert_returning(db_request)
+        result = self.cursor.select_one(db_request)
+        if result is None:
+            db_request = self._build_db_request(
+                sql_file_name='add_settings_display.sql',
+                args=dict(skill_id=skill_id, settings_display=settings_display)
+            )
+            result = self.cursor.insert_returning(db_request)
         return result['id']

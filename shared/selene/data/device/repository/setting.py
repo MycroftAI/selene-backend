@@ -29,6 +29,20 @@ class SettingRepository(object):
         else:
             return 'google', ''
 
+    def _format_date_v1(self, date: str):
+        if date == 'DD/MM/YYYY':
+            result = 'DMY'
+        else:
+            result = 'MDY'
+        return result
+
+    def _format_time_v1(self, time: str):
+        if time == '24 Hour':
+            result = 'full'
+        else:
+            result = 'half'
+        return result
+
     def get_device_settings(self, device_id):
         """Return the device settings aggregating the tables account preference, text to speech, wake word and
         wake word settings
@@ -42,6 +56,8 @@ class SettingRepository(object):
             tts_setting = self.convert_text_to_speech_setting(tts_setting['setting_name'], tts_setting['engine'])
             tts_setting = [{'@type': tts_setting[0], 'voice': tts_setting[1]}]
             response['tts_settings'] = tts_setting
+            response['date_format'] = self._format_date_v1(response['date_format'])
+            response['time_format'] = self._format_time_v1(response['time_format'])
             return response
 
     def add_account_preferences(self, preferences: dict):

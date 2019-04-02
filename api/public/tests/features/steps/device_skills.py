@@ -2,14 +2,14 @@ import json
 from http import HTTPStatus
 
 from behave import when, then, given
-from hamcrest import assert_that, equal_to
+from hamcrest import assert_that, equal_to, not_none, is_not
 
+from selene.api.etag import ETagManager, device_skill_etag_key
 from selene.data.skill import SkillSettingRepository
 from selene.util.db import get_db_connection
 
 skill = {
-    "name": "Test",
-    'identifier': 'Test-123%',
+    'skill_gid': 'wolfram-alpha|19.02',
     "skillMetadata": {
         "sections": [
             {
@@ -44,8 +44,7 @@ new_settings = {
 }
 
 skill_updated = {
-    "name": "Test",
-    'identifier': 'Test-123%',
+    'skill_gid': 'wolfram-alpha|19.02',
     "skillMetadata": {
         "sections": [
             {
@@ -129,8 +128,7 @@ def validate_get_skill_updated_response(context):
     skills_response = json.loads(response.data)
     assert_that(len(skills_response), equal_to(1))
     response = skills_response[0]
-    assert_that(response['name'], equal_to(skill['name']))
-    assert_that(response['identifier'], equal_to(skill['identifier']))
+    assert_that(response['skill_gid'], equal_to(skill['skill_gid']))
     assert_that(response['skillMetadata'], equal_to(skill['skillMetadata']))
 
     # Then we validate if the skill was properly updated
@@ -139,6 +137,55 @@ def validate_get_skill_updated_response(context):
     response_data = json.loads(response.data)
     assert_that(len(response_data), equal_to(1))
     response_data = response_data[0]
-    assert_that(response_data['name'], equal_to(skill_updated['name']))
-    assert_that(response_data['identifier'], equal_to(skill_updated['identifier']))
+    assert_that(response_data['skill_gid'], equal_to(skill_updated['skill_gid']))
     assert_that(response_data['skillMetadata'], equal_to(skill_updated['skillMetadata']))
+
+
+@when('the skill settings are fetched using a valid etag')
+def get_skills_etag(context):
+    etag_manager: ETagManager = context.etag_manager
+    login = context.device_login
+    device_id = login['uuid']
+    skill_etag = etag_manager.get(device_skill_etag_key(device_id))
+    access_token = login['accessToken']
+    headers = {
+        'Authorization': 'Bearer {token}'.format(token=access_token),
+        'If-None-Match': skill_etag
+    }
+    context.get_skill_response = context.client.get(
+        '/v1/device/{uuid}/skill'.format(uuid=device_id),
+        headers=headers
+    )
+
+
+@then('the skill setting endpoint should return 304')
+def validate_etag(context):
+    response = context.get_skill_response
+    assert_that(response.status_code, HTTPStatus.NOT_MODIFIED)
+
+
+@when('the skill settings are fetched using an expired etag')
+def get_skills_expired_etag(context):
+    etag_manager: ETagManager = context.etag_manager
+    login = context.device_login
+    device_id = login['uuid']
+    context.old_skill_etag = etag_manager.get(device_skill_etag_key(device_id))
+    etag_manager.expire_skill_etag_by_device_id(device_id)
+    access_token = login['accessToken']
+    headers = {
+        'Authorization': 'Bearer {token}'.format(token=access_token),
+        'If-None-Match': context.old_skill_etag
+    }
+    context.get_skill_response = context.client.get(
+        '/v1/device/{uuid}/skill'.format(uuid=device_id),
+        headers=headers
+    )
+
+
+@then('the skill settings endpoint should return a new etag')
+def validate_expired_etag(context):
+    response = context.get_skill_response
+    assert_that(response.status_code, equal_to(HTTPStatus.OK))
+    new_etag = response.headers.get('ETag')
+    assert_that(new_etag, not_none())
+    assert_that(context.old_skill_etag, is_not(new_etag))
