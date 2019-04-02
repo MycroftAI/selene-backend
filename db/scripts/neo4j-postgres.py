@@ -179,6 +179,7 @@ def format_timestamp(value):
 
 db = connect(dbname='mycroft', user='postgres', host='127.0.0.1')
 
+
 db.autocommit = True
 
 subscription_uuids = {}
@@ -565,6 +566,6 @@ print('Importing device table')
 change_device_name()
 fill_device_table()
 print('Importing skills table')
-fill_skills_table()
+#fill_skills_table()
 end = time.time()
 print('Time to import: {}'.format(end-start))
