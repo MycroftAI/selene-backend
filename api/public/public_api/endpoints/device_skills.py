@@ -46,10 +46,12 @@ class SkillIcon(Model):
 
 
 class Skill(Model):
+    name = StringType()
     skill_gid = StringType(required=True, regex=global_id_any_pattern)
     skillMetadata = ModelType(SkillMetadata)
     icon_img = StringType()
     icon = ModelType(SkillIcon)
+    display_name = StringType()
 
 
 class DeviceSkillsEndpoint(PublicEndpoint):
