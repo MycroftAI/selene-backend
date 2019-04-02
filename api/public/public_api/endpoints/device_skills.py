@@ -52,6 +52,8 @@ class Skill(Model):
     icon_img = StringType()
     icon = ModelType(SkillIcon)
     display_name = StringType()
+    color = StringType()
+    identifier = StringType()
 
 
 class DeviceSkillsEndpoint(PublicEndpoint):
