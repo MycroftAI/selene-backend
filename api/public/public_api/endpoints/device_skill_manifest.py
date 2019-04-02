@@ -1,6 +1,7 @@
 import json
 from http import HTTPStatus
 
+from flask import Response
 from schematics import Model
 from schematics.types import StringType, ModelType, ListType, DateTimeType
 
@@ -10,7 +11,7 @@ from selene.util.db import get_db_connection
 
 
 class SkillManifest(Model):
-    name = StringType(default='')
+    skill_gid = StringType(default='')
     origin = StringType(default='')
     installation = StringType(default='')
     failure_message = StringType(default='')
@@ -37,7 +38,8 @@ class DeviceSkillManifestEndpoint(PublicEndpoint):
             for skill in skills_manifest:
                 self._convert_to_timestamp(skill)
             skills_manifest = {'skills': skills_manifest}
-            response = skills_manifest, HTTPStatus.OK
+            skills_manifest = json.dumps(skills_manifest)
+            response = Response(skills_manifest, status=HTTPStatus.OK, content_type='application/json')
         else:
             response = '', HTTPStatus.NOT_MODIFIED
         return response

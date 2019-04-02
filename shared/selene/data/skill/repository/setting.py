@@ -2,6 +2,7 @@ import json
 from typing import List
 
 from selene.util.db import use_transaction
+from .skill import SkillRepository
 from ..entity.skill_setting import AccountSkillSetting
 from ...repository_base import RepositoryBase
 
@@ -29,6 +30,23 @@ class SkillSettingRepository(RepositoryBase):
                     settings_values=row['settings_values'],
                     devices=row['devices']
                 )
+            )
+
+        return skill_settings
+
+    def get_installer_settings(self, account_id: str):
+        skill_repo = SkillRepository(self.db)
+        skills = skill_repo.get_skills_for_account(account_id)
+        installer_skill_id = None
+        for skill in skills:
+            if skill.name == 'mycroft_installer':
+                installer_skill_id = skill.id
+
+        skill_settings = None
+        if installer_skill_id is not None:
+            skill_settings = self.get_account_skill_settings(
+                installer_skill_id,
+                account_id
             )
 
         return skill_settings
