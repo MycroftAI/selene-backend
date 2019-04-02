@@ -42,8 +42,7 @@ with connect_to_db(mycroft_db) as db:
     for skill_name, skill_metadata in skills_metadata.items():
         # Ensure the skill exists on the skill table
         skill_id = skill_repository.ensure_skill_exists(
-            skill_metadata['skill_gid'],
-            skill_metadata['name']
+            skill_metadata['skill_gid']
         )
 
         # add the skill display row
