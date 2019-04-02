@@ -10,6 +10,7 @@ class AuthenticationError(Exception):
 
 
 class AuthenticationToken(object):
+    # TODO: move duration argument to generate method
     def __init__(self, secret: str, duration: int):
         self.secret = secret
         self.duration = duration

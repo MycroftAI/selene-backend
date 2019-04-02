@@ -1,3 +1,6 @@
 from .authenticate_internal import AuthenticateInternalEndpoint
 from .logout import LogoutEndpoint
+from .password_change import PasswordChangeEndpoint
+from .password_reset import PasswordResetEndpoint
 from .validate_federated import ValidateFederatedEndpoint
+from .validate_token import ValidateTokenEndpoint

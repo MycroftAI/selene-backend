@@ -1,18 +1,12 @@
 from logging import getLogger
-from os import environ, path
+from os import environ
 from typing import List
 
 from passlib.hash import sha512_crypt
 
-from selene.util.db import (
-    DatabaseRequest,
-    Cursor,
-    get_sql_from_file,
-    use_transaction
-)
+from selene.util.db import use_transaction
 from ..entity.account import Account, AccountAgreement, AccountMembership
-
-SQL_DIR = path.join(path.dirname(__file__), 'sql')
+from ...repository_base import RepositoryBase
 
 _log = getLogger('selene.data.account')
 
@@ -25,10 +19,10 @@ def _encrypt_password(password):
     return hash_result[hashed_password_index:]
 
 
-class AccountRepository(object):
+class AccountRepository(RepositoryBase):
     def __init__(self, db):
+        super(AccountRepository, self).__init__(db, __file__)
         self.db = db
-        self.cursor = Cursor(db)
 
     @use_transaction
     def add(self, account: Account, password: str) -> str:
@@ -47,8 +41,8 @@ class AccountRepository(object):
             encrypted_password = None
         else:
             encrypted_password = _encrypt_password(password)
-        request = DatabaseRequest(
-            sql=get_sql_from_file(path.join(SQL_DIR, 'add_account.sql')),
+        request = self._build_db_request(
+            sql_file_name='add_account.sql',
             args=dict(
                 email_address=account.email_address,
                 password=encrypted_password,
@@ -62,10 +56,8 @@ class AccountRepository(object):
     def _add_agreements(self, acct_id: str, agreements: List[AccountAgreement]):
         """Accounts cannot be added without agreeing to terms and privacy"""
         for agreement in agreements:
-            request = DatabaseRequest(
-                sql=get_sql_from_file(
-                    path.join(SQL_DIR, 'add_account_agreement.sql')
-                ),
+            request = self._build_db_request(
+                sql_file_name='add_account_agreement.sql',
                 args=dict(
                     account_id=acct_id,
                     agreement_name=agreement.type
@@ -75,10 +67,8 @@ class AccountRepository(object):
 
     def add_membership(self, acct_id: str, membership: AccountMembership):
         """A membership is optional, add it if one was selected"""
-        request = DatabaseRequest(
-            sql=get_sql_from_file(
-                path.join(SQL_DIR, 'add_account_membership.sql')
-            ),
+        request = self._build_db_request(
+            sql_file_name='add_account_membership.sql',
             args=dict(
                 account_id=acct_id,
                 membership_type=membership.type,
@@ -91,8 +81,8 @@ class AccountRepository(object):
 
     def remove(self, account: Account):
         """Delete and account and all of its children"""
-        request = DatabaseRequest(
-            sql=get_sql_from_file(path.join(SQL_DIR, 'remove_account.sql')),
+        request = self._build_db_request(
+            sql_file_name='remove_account.sql',
             args=dict(id=account.id)
         )
         self.cursor.delete(request)
@@ -107,10 +97,13 @@ class AccountRepository(object):
         :return: an account entity, if one is found
         """
         account_id_resolver = '%(account_id)s'
-        sql = get_sql_from_file(path.join(SQL_DIR, 'get_account.sql')).format(
-            account_id_resolver=account_id_resolver,
+        request = self._build_db_request(
+            sql_file_name='get_account.sql',
+            args=dict(account_id=account_id),
         )
-        request = DatabaseRequest(sql=sql, args=dict(account_id=account_id))
+        request.sql = request.sql.format(
+            account_id_resolver=account_id_resolver
+        )
 
         return self._get_account(request)
 
@@ -119,12 +112,12 @@ class AccountRepository(object):
             '(SELECT id FROM account.account '
             'WHERE email_address = %(email_address)s)'
         )
-        sql = get_sql_from_file(path.join(SQL_DIR, 'get_account.sql')).format(
-            account_id_resolver=account_id_resolver,
-        )
-        request = DatabaseRequest(
-            sql=sql,
+        request = self._build_db_request(
+            sql_file_name='get_account.sql',
             args=dict(email_address=email_address),
+        )
+        request.sql = request.sql.format(
+            account_id_resolver=account_id_resolver
         )
 
         return self._get_account(request)
@@ -143,13 +136,13 @@ class AccountRepository(object):
             '(SELECT id FROM account.account '
             'WHERE email_address = %(email_address)s and password=%(password)s)'
         )
-        sql = get_sql_from_file(
-            path.join(SQL_DIR, 'get_account.sql')
-        )
         encrypted_password = _encrypt_password(password)
-        request = DatabaseRequest(
-            sql=sql.format(account_id_resolver=account_id_resolver),
+        request = self._build_db_request(
+            sql_file_name='get_account.sql',
             args=dict(email_address=email, password=encrypted_password),
+        )
+        request.sql = request.sql.format(
+            account_id_resolver=account_id_resolver
         )
 
         return self._get_account(request)
@@ -173,9 +166,17 @@ class AccountRepository(object):
         return account
 
     def get_account_by_device_id(self, device_id) -> Account:
-        """Return an account using the id of the device associated to the account"""
-        request = DatabaseRequest(
-            sql=get_sql_from_file(path.join(SQL_DIR, 'get_account_by_device_id.sql')),
+        """Return an account associated with the specified device."""
+        request = self._build_db_request(
+            sql_file_name='get_account_by_device_id.sql',
             args=dict(device_id=device_id)
         )
         return self._get_account(request)
+
+    def change_password(self, account_id, password):
+        encrypted_password = _encrypt_password(password)
+        db_request = self._build_db_request(
+            sql_file_name='change_password.sql',
+            args=dict(account_id=account_id, password=encrypted_password)
+        )
+        self.cursor.update(db_request)
