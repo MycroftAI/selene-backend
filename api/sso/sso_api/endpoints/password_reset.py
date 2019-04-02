@@ -30,7 +30,7 @@ class PasswordResetEndpoint(SeleneEndpoint):
 
     def _generate_reset_token(self):
         reset_token = AuthenticationToken(
-            self.config['ACCESS_SECRET'],
+            self.config['RESET_SECRET'],
             ONE_HOUR
         )
         reset_token.generate(self.account.id)
