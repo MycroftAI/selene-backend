@@ -1,4 +1,5 @@
 from http import HTTPStatus
+
 from selene.api import SeleneEndpoint
 from selene.data.skill import SkillRepository
 from selene.util.db import get_db_connection
@@ -20,7 +21,7 @@ class SkillsEndpoint(SeleneEndpoint):
         for skill in skills:
             response_data.append(dict(
                 id=skill.id,
-                name=skill.name,
+                name=skill.family_name,
                 has_settings=skill.has_settings
             ))
 
