@@ -1,7 +1,4 @@
 from ..entity.preference import AccountPreferences
-from ..entity.geography import Geography
-from ..entity.text_to_speech import TextToSpeech
-from ..entity.wake_word import WakeWord
 from ...repository_base import RepositoryBase
 
 
@@ -24,9 +21,9 @@ class PreferenceRepository(RepositoryBase):
 
         return preferences
 
-    def add(self, preferences):
+    def upsert(self, preferences):
         db_request = self._build_db_request(
-            sql_file_name='add_account_preferences.sql',
+            sql_file_name='upsert_preferences.sql',
             args=dict(
                 account_id=self.account_id,
                 date_format=preferences['date_format'],

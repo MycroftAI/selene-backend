@@ -104,6 +104,6 @@ class AvailableSkillsEndpoint(SeleneEndpoint):
         sorted_skills = sorted(
             self.response_skills,
             key=lambda skill:
-            skill['title']
+            skill['display_name']
         )
         self.response_skills = sorted_skills

@@ -8,7 +8,7 @@ VALUES
     )
 ON CONFLICT
     (skill_id, core_version)
-    DO UPDATE SET
+DO UPDATE SET
     display_data = %(display_data)s
 RETURNING
     id

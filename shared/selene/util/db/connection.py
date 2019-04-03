@@ -53,6 +53,7 @@ def connect_to_db(connection_config: DatabaseConnectionConfig, autocommit=True):
                 host=connection_config.host,
                 dbname=connection_config.db_name,
                 user=connection_config.user,
+                port=connection_config.port,
                 cursor_factory=RealDictCursor,
             )
         else:
@@ -60,6 +61,8 @@ def connect_to_db(connection_config: DatabaseConnectionConfig, autocommit=True):
                 host=connection_config.host,
                 dbname=connection_config.db_name,
                 user=connection_config.user,
+                password=connection_config.password,
+                port=connection_config.port,
                 cursor_factory=RealDictCursor,
                 sslmode=connection_config.sslmode
             )
