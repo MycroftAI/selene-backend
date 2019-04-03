@@ -82,3 +82,9 @@ class ETagManager(object):
         """Expire the locations' etag for a given device
         :param device_id: device uuid"""
         self._expire(device_skill_etag_key(device_id))
+
+    def expire_skill_etag_by_account_id(self, account_id):
+        with get_db_connection(self.db_connection_pool) as db:
+            devices = DeviceRepository(db).get_devices_by_account_id(account_id)
+            for device in devices:
+                self.expire_skill_etag_by_device_id(device.id)

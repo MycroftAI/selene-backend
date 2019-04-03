@@ -3,6 +3,7 @@ from flask import Flask
 
 from selene.api import get_base_config, selene_api, SeleneResponse
 from selene.api.endpoints import AccountEndpoint, AgreementsEndpoint
+from selene.util.cache import SeleneCache
 from selene.util.log import configure_logger
 from .endpoints import (
     PreferencesEndpoint,
@@ -29,6 +30,7 @@ acct = Flask(__name__)
 acct.config.from_object(get_base_config())
 acct.response_class = SeleneResponse
 acct.register_blueprint(selene_api)
+acct.config['SELENE_CACHE'] = SeleneCache()
 
 account_endpoint = AccountEndpoint.as_view('account_endpoint')
 acct.add_url_rule(
