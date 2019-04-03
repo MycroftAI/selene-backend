@@ -59,15 +59,3 @@ class SettingRepository(object):
             response['date_format'] = self._format_date_v1(response['date_format'])
             response['time_format'] = self._format_time_v1(response['time_format'])
             return response
-
-    def add_account_preferences(self, preferences: dict):
-        query = DatabaseRequest(
-            sql=get_sql_from_file(path.join(SQL_DIR, 'add_account_preferences.sql')),
-            args=dict(
-                account_id=preferences['account_id'],
-                date_format=preferences['date_format'],
-                time_format=preferences['time_format'],
-                measurement_system=preferences['measurement_system']
-            )
-        )
-        self.cursor.insert(query)

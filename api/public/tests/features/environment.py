@@ -17,7 +17,7 @@ from selene.data.account import (
 from selene.data.device import (
     DeviceRepository,
     GeographyRepository,
-    SettingRepository,
+    PreferenceRepository,
     Geography)
 from selene.data.device.entity.text_to_speech import TextToSpeech
 from selene.data.device.entity.wake_word import WakeWord
@@ -144,7 +144,7 @@ def _add_account_preference(context, db):
         time_format='12 Hour',
         measurement_system='Imperial'
     )
-    SettingRepository(db).add_account_preferences(account_preferences)
+    PreferenceRepository(db, context.account.id).upsert(account_preferences)
 
 
 def _remove_account(context, db):

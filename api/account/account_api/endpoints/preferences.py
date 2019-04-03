@@ -22,9 +22,9 @@ class PreferencesRequest(Model):
     time_format = StringType(required=True, choices=['12 Hour', '24 Hour'])
 
 
-class AccountPreferencesEndpoint(SeleneEndpoint):
+class PreferencesEndpoint(SeleneEndpoint):
     def __init__(self):
-        super(AccountPreferencesEndpoint, self).__init__()
+        super(PreferencesEndpoint, self).__init__()
         self.preferences = None
 
     def get(self):
@@ -61,22 +61,28 @@ class AccountPreferencesEndpoint(SeleneEndpoint):
 
     def post(self):
         self._authenticate()
-        preferences = self._validate_request()
-        self._add_preferences(preferences)
+        self._validate_request()
+        self._upsert_preferences()
+
+        return '', HTTPStatus.NO_CONTENT
+
+    def patch(self):
+        self._authenticate()
+        self._validate_request()
+        self._upsert_preferences()
 
         return '', HTTPStatus.NO_CONTENT
 
     def _validate_request(self):
-        request_data = json.loads(self.request.data)
-        preferences = PreferencesRequest()
-        preferences.date_format = request_data['dateFormat']
-        preferences.measurement_system = request_data['measurementSystem']
-        preferences.time_format = request_data['timeFormat']
-        preferences.validate()
+        self.preferences = PreferencesRequest()
+        self.preferences.date_format = self.request.json['dateFormat']
+        self.preferences.measurement_system = (
+            self.request.json['measurementSystem']
+        )
+        self.preferences.time_format = self.request.json['timeFormat']
+        self.preferences.validate()
 
-        return preferences
-
-    def _add_preferences(self, preferences):
+    def _upsert_preferences(self):
         with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
             preferences_repository = PreferenceRepository(db, self.account.id)
-            preferences_repository.add(preferences)
+            preferences_repository.upsert(self.preferences.to_native())
