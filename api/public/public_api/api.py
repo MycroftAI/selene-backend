@@ -6,6 +6,7 @@ from selene.api import SeleneResponse, selene_api
 from selene.api.base_config import get_base_config
 from selene.api.public_endpoint import check_oauth_token
 from selene.util.cache import SeleneCache
+from selene.util.log import configure_logger
 from .endpoints.device import DeviceEndpoint
 from .endpoints.device_activate import DeviceActivateEndpoint
 from .endpoints.device_code import DeviceCodeEndpoint
@@ -22,6 +23,8 @@ from .endpoints.google_stt import GoogleSTTEndpoint
 from .endpoints.open_weather_map import OpenWeatherMapEndpoint
 from .endpoints.wolfram_alpha import WolframAlphaEndpoint
 from .endpoints.wolfram_alpha_spoken import WolframAlphaSpokenEndpoint
+
+_log = configure_logger('public_api')
 
 public = Flask(__name__)
 public.config.from_object(get_base_config())
