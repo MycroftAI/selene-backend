@@ -3,8 +3,8 @@ from logging import getLogger
 
 from flask import json
 from schematics import Model
-from schematics.types import StringType
 from schematics.exceptions import ValidationError
+from schematics.types import StringType
 
 from selene.api import SeleneEndpoint
 from selene.data.device import DeviceRepository, Geography, GeographyRepository
@@ -41,7 +41,6 @@ class DeviceEndpoint(SeleneEndpoint):
     def __init__(self):
         super(DeviceEndpoint, self).__init__()
         self.devices = None
-        self.cache = SeleneCache()
 
     def get(self):
         self._authenticate()

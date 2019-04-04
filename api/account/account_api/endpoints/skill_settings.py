@@ -60,3 +60,4 @@ class SkillSettingsEndpoint(SeleneEndpoint):
                 skill_id,
                 new_skill_settings
             )
+        self.etag_manager.expire_skill_etag_by_account_id(self.account.id)
