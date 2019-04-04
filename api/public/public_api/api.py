@@ -6,6 +6,7 @@ from selene.api import SeleneResponse, selene_api
 from selene.api.base_config import get_base_config
 from selene.api.public_endpoint import check_oauth_token
 from selene.util.cache import SeleneCache
+from selene.util.log import configure_logger
 from .endpoints.device import DeviceEndpoint
 from .endpoints.device_activate import DeviceActivateEndpoint
 from .endpoints.device_code import DeviceCodeEndpoint
@@ -43,6 +44,7 @@ public.config['METRICS_SERVICE'] = MetricsService()
 public.response_class = SeleneResponse
 public.register_blueprint(selene_api)
 
+_log = configure_logger('public_api')
 
 public.add_url_rule(
     '/v1/device/<string:device_id>/skill',
