@@ -28,7 +28,7 @@ from logging import (
     getLogger,
     handlers,
     StreamHandler,
-    WARN
+    INFO
 )
 
 
@@ -36,8 +36,9 @@ class LoggingConfig(object):
     """Configure a logger with a daily log file and a console log"""
     def __init__(self, log_file_name):
         self.logger = getLogger()
+        self.logger.level = DEBUG
         self.file_log_level = DEBUG
-        self.console_log_level = WARN
+        self.console_log_level = INFO
         self.log_file_path = path.join('/var/log/mycroft', log_file_name)
         self.log_msg_formatter = Formatter(
             '{asctime} | {levelname:8} | {process:5} | {name} | {message}',
@@ -77,4 +78,4 @@ def configure_logger(logger_name: str):
     logging_config = LoggingConfig(logger_name + '.log')
     logging_config.configure()
 
-    return getLogger(logger_name)
+    return logging_config.logger
