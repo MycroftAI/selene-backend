@@ -1,18 +1,15 @@
-from os import path
 from typing import List
 
-from selene.util.db import DatabaseRequest, get_sql_from_file, Cursor
 from ..entity.device import Device
 from ..entity.geography import Geography
 from ..entity.text_to_speech import TextToSpeech
 from ..entity.wake_word import WakeWord
+from ...repository_base import RepositoryBase
 
-SQL_DIR = path.join(path.dirname(__file__), 'sql')
 
-
-class DeviceRepository(object):
+class DeviceRepository(RepositoryBase):
     def __init__(self, db):
-        self.cursor = Cursor(db)
+        super(DeviceRepository, self).__init__(db, __file__)
 
     def get_device_by_id(self, device_id: str) -> dict:
         """Fetch a device using a given device id
@@ -20,12 +17,12 @@ class DeviceRepository(object):
         :param device_id: uuid
         :return: Device entity
         """
-        query = DatabaseRequest(
-            sql=get_sql_from_file(path.join(SQL_DIR, 'get_device_by_id.sql')),
+        db_request = self._build_db_request(
+            sql_file_name='get_device_by_id.sql',
             args=dict(device_id=device_id)
         )
 
-        return self.cursor.select_one(query)
+        return self.cursor.select_one(db_request)
 
     def get_devices_by_account_id(self, account_id: str) -> List[Device]:
         """Fetch all devices associated to a user from a given account id
@@ -33,10 +30,8 @@ class DeviceRepository(object):
         :param account_id: uuid
         :return: List of User's devices
         """
-        db_request = DatabaseRequest(
-            sql=get_sql_from_file(
-                path.join(SQL_DIR, 'get_devices_by_account_id.sql')
-            ),
+        db_request = self._build_db_request(
+            sql_file_name='get_devices_by_account_id.sql',
             args=dict(account_id=account_id)
         )
         db_results = self.cursor.select_all(db_request)
@@ -51,28 +46,25 @@ class DeviceRepository(object):
         return devices
 
     def get_account_device_count(self, account_id):
-        query = DatabaseRequest(
-            sql=get_sql_from_file(
-                path.join(SQL_DIR, 'get_account_device_count.sql')
-            ),
+        db_request = self._build_db_request(
+            sql_file_name='get_account_device_count.sql',
             args=dict(account_id=account_id)
-
         )
-        sql_results = self.cursor.select_one(query)
+        db_results = self.cursor.select_one(db_request)
 
-        return sql_results['device_count']
+        return db_results['device_count']
 
     def get_subscription_type_by_device_id(self, device_id):
         """Return the type of subscription of device's owner
         :param device_id: device uuid
         """
-        query = DatabaseRequest(
-            sql=get_sql_from_file(path.join(SQL_DIR, 'get_subscription_type_by_device_id.sql')),
+        db_request = self._build_db_request(
+            sql_file_name='get_subscription_type_by_device_id.sql',
             args=dict(device_id=device_id)
         )
-        sql_result = self.cursor.select_one(query)
-        if sql_result:
-            rate_period = sql_result['rate_period']
+        db_result = self.cursor.select_one(db_request)
+        if db_result:
+            rate_period = db_result['rate_period']
             # TODO: Remove the @ in the API v2
             return {'@type': rate_period} if rate_period is not None else {'@type': 'free'}
 
@@ -81,17 +73,17 @@ class DeviceRepository(object):
         db_request_args = dict(account_id=account_id)
         db_request_args.update(device)
         del(db_request_args['pairing_code'])
-        query = DatabaseRequest(
-            sql=get_sql_from_file(path.join(SQL_DIR, 'add_device.sql')),
+        db_request = self._build_db_request(
+            sql_file_name='add_device.sql',
             args=db_request_args
         )
-        result = self.cursor.insert_returning(query)
-        return result['id']
+        db_result = self.cursor.insert_returning(db_request)
+        return db_result['id']
 
     def update_device(self, device_id: str, platform: str, enclosure_version: str, core_version: str):
         """Updates a device in the database"""
-        query = DatabaseRequest(
-            sql=get_sql_from_file(path.join(SQL_DIR, 'update_device.sql')),
+        db_request =self._build_db_request(
+            sql_file_name='update_device.sql',
             args=dict(
                 device_id=device_id,
                 platform=platform,
@@ -99,16 +91,17 @@ class DeviceRepository(object):
                 core_version=core_version
             )
         )
-        return self.cursor.insert(query)
+        return self.cursor.insert(db_request)
 
     def add_wake_word(self, account_id: str, wake_word: WakeWord) -> str:
         """Adds a row to the wake word table
+
         :param account_id: the account that we are linking to the wake word
         :param wake_word: wake_word entity
         :return wake word id
         """
-        query = DatabaseRequest(
-            sql=get_sql_from_file(path.join(SQL_DIR, 'add_wake_word.sql')),
+        db_request = self._build_db_request(
+            sql_file_name='add_wake_word.sql',
             args=dict(
                 setting_name=wake_word.setting_name,
                 display_name=wake_word.display_name,
@@ -116,36 +109,47 @@ class DeviceRepository(object):
                 engine=wake_word.engine
             )
         )
-        result = self.cursor.insert_returning(query)
+        result = self.cursor.insert_returning(db_request)
         return result['id']
 
     def add_text_to_speech(self, text_to_speech: TextToSpeech) -> str:
         """Add a row to the text to speech table
+
         :param text_to_speech: text to speech entity
-        :return text to speech id"""
-        query = DatabaseRequest(
-            sql=get_sql_from_file(path.join(SQL_DIR, 'add_text_to_speech.sql')),
+        :return text to speech id
+        """
+        db_request = self._build_db_request(
+            sql_file_name='add_text_to_speech.sql',
             args=dict(
                 setting_name=text_to_speech.setting_name,
                 display_name=text_to_speech.display_name,
                 engine=text_to_speech.engine
             )
         )
-        result = self.cursor.insert_returning(query)
-        return result['id']
+        db_result = self.cursor.insert_returning(db_request)
+
+        return db_result['id']
 
     def remove_wake_word(self, wake_word_id: str):
         """Remove a  wake word from the database using id"""
-        query = DatabaseRequest(
-            sql=get_sql_from_file(path.join(SQL_DIR, 'remove_wake_word.sql')),
+        db_request = self._build_db_request(
+            sql_file_name='remove_wake_word.sql',
             args=dict(wake_word_id=wake_word_id)
         )
-        self.cursor.delete(query)
+        self.cursor.delete(db_request)
 
     def remove_text_to_speech(self, text_to_speech_id: str):
         """Remove a text to speech from the database using id"""
-        query = DatabaseRequest(
-            sql=get_sql_from_file(path.join(SQL_DIR, 'remove_text_to_speech.sql')),
+        db_request = self._build_db_request(
+            sql_file_name='remove_text_to_speech.sql',
             args=dict(text_to_speech_id=text_to_speech_id)
         )
-        self.cursor.delete(query)
+        self.cursor.delete(db_request)
+
+    def remove(self, device_id):
+        db_request = self._build_db_request(
+            sql_file_name='remove_device.sql',
+            args=dict(device_id=device_id)
+        )
+
+        self.cursor.delete(db_request)

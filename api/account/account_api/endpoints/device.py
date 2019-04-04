@@ -176,3 +176,14 @@ class DeviceEndpoint(SeleneEndpoint):
             value=json.dumps(pairing_data),
             expiration=ONE_DAY
         )
+
+    def delete(self, device_id):
+        self._authenticate()
+        self._delete_device(device_id)
+
+        return '', HTTPStatus.NO_CONTENT
+
+    def _delete_device(self, device_id):
+        with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
+            device_repository = DeviceRepository(db)
+            device_repository.remove(device_id)

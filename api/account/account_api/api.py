@@ -73,6 +73,11 @@ acct.add_url_rule(
     view_func=device_endpoint,
     methods=['GET', 'POST']
 )
+acct.add_url_rule(
+    '/api/devices/<string:device_id>',
+    view_func=device_endpoint,
+    methods=['DELETE']
+)
 
 device_count_endpoint = DeviceCountEndpoint.as_view('device_count_endpoint')
 acct.add_url_rule(
