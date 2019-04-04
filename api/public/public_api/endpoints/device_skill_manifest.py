@@ -1,5 +1,6 @@
 import json
 from http import HTTPStatus
+from logging import getLogger
 
 from flask import Response
 from schematics import Model
@@ -24,6 +25,9 @@ class SkillManifest(Model):
 class SkillJson(Model):
     blacklist = ListType(StringType)
     skills = ListType(ModelType(SkillManifest, required=True))
+
+
+_log = getLogger(__package__)
 
 
 class DeviceSkillManifestEndpoint(PublicEndpoint):
@@ -55,10 +59,13 @@ class DeviceSkillManifestEndpoint(PublicEndpoint):
             skill['updated'] = updated
 
     def put(self, device_id):
-        self._authenticate(device_id)
-        payload = json.loads(self.request.data)
-        skill_json = SkillJson(payload)
-        skill_json.validate()
-        with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
-            SkillRepository(db).update_skills_manifest(device_id, payload['skills'])
+        try:
+            self._authenticate(device_id)
+            payload = json.loads(self.request.data)
+            skill_json = SkillJson(payload)
+            skill_json.validate()
+            with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
+                SkillRepository(db).update_skills_manifest(device_id, payload['skills'])
+        except Exception as e:
+            _log.info('MANIFEST ==================='.format(str(e)))
         return '', HTTPStatus.OK
