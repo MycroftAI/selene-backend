@@ -59,7 +59,7 @@ class Cursor(object):
             select was issued, a list of results objects otherwise.
         """
         with self.db.cursor() as cursor:
-            _log.debug(cursor.mogrify(db_request.sql, db_request.args))
+            _log.debug(cursor.mogrify(db_request.sql, db_request.args).decode())
             cursor.execute(db_request.sql, db_request.args)
             if singleton:
                 execution_result = cursor.fetchone()
@@ -96,7 +96,7 @@ class Cursor(object):
             select was issued, a list of results objects otherwise.
         """
         with self.db.cursor() as cursor:
-            _log.debug(cursor.mogrify(db_request.sql, db_request.args))
+            _log.debug(cursor.mogrify(db_request.sql, db_request.args).decode())
             cursor.execute(db_request.sql, db_request.args)
             _log.debug(str(cursor.rowcount) + 'rows affected')
             return cursor.rowcount

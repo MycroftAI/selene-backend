@@ -3,12 +3,15 @@ from flask import Flask
 
 from selene.api import get_base_config, selene_api, SeleneResponse
 from selene.api.endpoints import AccountEndpoint
+from selene.util.log import configure_logger
 from .endpoints import (
     AvailableSkillsEndpoint,
     SkillDetailEndpoint,
     SkillInstallEndpoint,
     SkillInstallStatusEndpoint
 )
+
+_log = configure_logger('market_api')
 
 # Define the Flask application
 market = Flask(__name__)
