@@ -3,6 +3,7 @@ from http import HTTPStatus
 from flask import json
 
 from selene.api import SeleneEndpoint, snake_to_camel
+from selene.api.etag import ETagManager
 from selene.data.skill import SkillSettingRepository
 from selene.util.db import get_db_connection
 
@@ -28,6 +29,10 @@ class SkillSettingsEndpoint(SeleneEndpoint):
     def __init__(self):
         super(SkillSettingsEndpoint, self).__init__()
         self.account_skills = None
+        self.etag_manager: ETagManager = ETagManager(
+            self.config['SELENE_CACHE'],
+            self.config
+        )
 
     def get(self, skill_id):
         self._authenticate()

@@ -43,7 +43,14 @@ class AccountDefaultsEndpoint(SeleneEndpoint):
     def post(self):
         self._authenticate()
         defaults = self._validate_request()
-        self._add_defaults(defaults)
+        self._upsert_defaults(defaults)
+
+        return '', HTTPStatus.NO_CONTENT
+
+    def patch(self):
+        self._authenticate()
+        defaults = self._validate_request()
+        self._upsert_defaults(defaults)
 
         return '', HTTPStatus.NO_CONTENT
 
@@ -60,7 +67,7 @@ class AccountDefaultsEndpoint(SeleneEndpoint):
 
         return defaults
 
-    def _add_defaults(self, preferences):
+    def _upsert_defaults(self, defaults):
         with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
             defaults_repository = DefaultsRepository(db, self.account.id)
-            defaults_repository.add(preferences.to_native())
+            defaults_repository.upsert(defaults.to_native())

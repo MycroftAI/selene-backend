@@ -19,12 +19,12 @@ class DefaultsRepository(RepositoryBase):
         super(DefaultsRepository, self).__init__(db, __file__)
         self.account_id = account_id
 
-    def add(self, defaults):
+    def upsert(self, defaults):
         db_request_args = dict(account_id=self.account_id)
         db_request_args.update(defaults)
         db_request_args['wake_word'] = db_request_args['wake_word']
         db_request = self._build_db_request(
-            sql_file_name='add_account_defaults.sql',
+            sql_file_name='upsert_defaults.sql',
             args=db_request_args
         )
         self.cursor.insert(db_request)

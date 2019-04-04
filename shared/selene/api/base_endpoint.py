@@ -5,14 +5,12 @@ from logging import getLogger
 from flask import after_this_request, current_app, request
 from flask.views import MethodView
 
-from selene.api.etag import ETagManager
 from selene.data.account import (
     Account,
     AccountRepository,
     RefreshTokenRepository
 )
 from selene.util.auth import AuthenticationError, AuthenticationToken
-from selene.util.cache import SeleneCache
 from selene.util.db import get_db_connection
 
 ACCESS_TOKEN_COOKIE_NAME = 'seleneAccess'
@@ -44,8 +42,6 @@ class SeleneEndpoint(MethodView):
         self.account: Account = None
         self.access_token = self._init_access_token()
         self.refresh_token = self._init_refresh_token()
-        self.cache: SeleneCache = self.config['SELENE_CACHE']
-        self.etag_manager: ETagManager = ETagManager(self.cache, self.config)
 
     def _init_access_token(self):
         return AuthenticationToken(

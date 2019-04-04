@@ -41,6 +41,7 @@ class DeviceEndpoint(SeleneEndpoint):
     def __init__(self):
         super(DeviceEndpoint, self).__init__()
         self.devices = None
+        self.cache = self.config['SELENE_CACHE']
 
     def get(self):
         self._authenticate()
