@@ -64,7 +64,7 @@ defaults_endpoint = AccountDefaultsEndpoint.as_view('defaults_endpoint')
 acct.add_url_rule(
     '/api/defaults',
     view_func=defaults_endpoint,
-    methods=['GET', 'POST']
+    methods=['GET', 'PATCH', 'POST']
 )
 
 device_endpoint = DeviceEndpoint.as_view('device_endpoint')
