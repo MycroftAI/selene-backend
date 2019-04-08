@@ -38,9 +38,13 @@ class ValidateFederatedEndpoint(SeleneEndpoint):
 
     def _get_email_address(self):
         if self.request.json['platform'] == 'Google':
-            get_google_account_email(self.request.json['token'])
+            self.email_address = get_google_account_email(
+                self.request.json['token']
+            )
         elif self.request.json['platform'] == 'Facebook':
-            get_facebook_account_email(self.request.json['token'])
+            self.email_address = get_facebook_account_email(
+                self.request.json['token']
+            )
 
     def _get_account_by_email(self):
         """Use email returned by the authentication platform for validation"""
