@@ -73,4 +73,5 @@ def get_google_account_email(token):
 def get_facebook_account_email(token):
     facebook_api = GraphAPI(token)
     facebook_account = facebook_api.get_object(id='me?fields=email')
+
     return facebook_account['email']
