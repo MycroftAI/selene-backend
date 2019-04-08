@@ -21,7 +21,7 @@ class SkillsEndpoint(SeleneEndpoint):
         for skill in skills:
             response_data.append(dict(
                 id=skill.id,
-                name=skill.family_name,
+                name=skill.display_name or skill.family_name,
                 has_settings=skill.has_settings
             ))
 

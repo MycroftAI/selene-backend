@@ -1,8 +1,12 @@
 """Logic for generating and validating JWT authentication tokens."""
 from datetime import datetime
+from http import HTTPStatus
+import json
 from time import time
 
+from facebook import GraphAPI
 import jwt
+import requests
 
 
 class AuthenticationError(Exception):
@@ -51,3 +55,23 @@ class AuthenticationToken(object):
                 self.is_valid = False
 
         return account_id
+
+
+def get_google_account_email(token):
+    google_response = requests.get(
+        'https://oauth2.googleapis.com/tokeninfo?id_token=' + token
+    )
+    if google_response.status_code == HTTPStatus.OK:
+        google_account = json.loads(google_response.content)
+        email_address = google_account['email']
+    else:
+        raise AuthenticationError('invalid Google token')
+
+    return email_address
+
+
+def get_facebook_account_email(token):
+    facebook_api = GraphAPI(token)
+    facebook_account = facebook_api.get_object(id='me?fields=email')
+
+    return facebook_account['email']

@@ -18,6 +18,10 @@ from selene.data.account import (
     PRIVACY_POLICY,
     TERMS_OF_USE,
     MembershipRepository)
+from selene.util.auth import (
+    get_facebook_account_email,
+    get_google_account_email
+)
 from selene.util.db import get_db_connection
 from selene.util.payment import (
     cancel_stripe_subscription,
@@ -37,12 +41,13 @@ def agreement_accepted(value):
 
 
 class Login(Model):
-    federated_email = EmailType()
+    federated_platform = StringType(choices=['Facebook', 'Google'])
+    federated_token = StringType()
     user_entered_email = EmailType()
     password = StringType()
 
     def validate_user_entered_email(self, data, value):
-        if data['federated_email'] is None:
+        if data['federated_token'] is None:
             if value is None:
                 raise ValidationError(
                     'either a federated login or an email address is required'
@@ -172,7 +177,8 @@ class AccountEndpoint(SeleneEndpoint):
         login_data = self.request_data['login']
         if login_data is not None:
             login = Login(dict(
-                federated_email=login_data.get('federatedEmail'),
+                federated_platform=login_data.get('federatedPlatform'),
+                federated_token=login_data.get('federatedToken'),
                 user_entered_email=login_data.get('userEnteredEmail'),
                 password=login_data.get('password')
             ))
@@ -194,12 +200,18 @@ class AccountEndpoint(SeleneEndpoint):
 
     def _determine_login_method(self):
         login_data = self.request_data['login']
-        if login_data['federatedEmail'] is None:
+        password = None
+        if login_data['federatedPlatform'] == 'Facebook':
+            email_address = get_facebook_account_email(
+                login_data['federatedToken']
+            )
+        elif login_data['federatedPlatform'] == 'Google':
+            email_address = get_google_account_email(
+                login_data['federatedToken']
+            )
+        else:
             email_address = login_data['userEnteredEmail']
             password = login_data['password']
-        else:
-            email_address = login_data['federatedEmail']
-            password = None
 
         return email_address, password
 
