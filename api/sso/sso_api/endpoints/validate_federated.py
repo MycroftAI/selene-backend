@@ -8,13 +8,13 @@ on our database and build JWTs for access and refresh.
 from http import HTTPStatus
 from logging import getLogger
 
-from facebook import GraphAPI
-from flask import json
-import requests
-
 from selene.api import SeleneEndpoint
 from selene.data.account import AccountRepository, RefreshTokenRepository
-from selene.util.auth import AuthenticationError
+from selene.util.auth import (
+    AuthenticationError,
+    get_facebook_account_email,
+    get_google_account_email
+)
 from selene.util.db import get_db_connection
 
 _log = getLogger()
@@ -37,26 +37,10 @@ class ValidateFederatedEndpoint(SeleneEndpoint):
         return self.response
 
     def _get_email_address(self):
-        request_data = json.loads(self.request.data)
-        if request_data['platform'] == 'Google':
-            self._get_email_from_google(request_data['token'])
-        elif request_data['platform'] == 'Facebook':
-            self._get_email_from_facebook(request_data['token'])
-
-    def _get_email_from_google(self, token):
-        google_response = requests.get(
-            'https://oauth2.googleapis.com/tokeninfo?id_token=' + token
-        )
-        if google_response.status_code == HTTPStatus.OK:
-            google_account = json.loads(google_response.content)
-            self.email_address = google_account['email']
-        else:
-            raise AuthenticationError('invalid Google token')
-
-    def _get_email_from_facebook(self, token):
-        facebook_api = GraphAPI(token)
-        facebook_account = facebook_api.get_object(id='me?fields=email')
-        self.email_address = facebook_account['email']
+        if self.request.json['platform'] == 'Google':
+            get_google_account_email(self.request.json['token'])
+        elif self.request.json['platform'] == 'Facebook':
+            get_facebook_account_email(self.request.json['token'])
 
     def _get_account_by_email(self):
         """Use email returned by the authentication platform for validation"""

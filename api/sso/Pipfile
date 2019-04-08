@@ -8,7 +8,6 @@ flask = "*"
 certifi = "*"
 selene = {editable = true,path = "./../../shared"}
 uwsgi = "*"
-facebook-sdk = "*"
 
 [dev-packages]
 behave = "*"
