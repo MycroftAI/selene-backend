@@ -6,9 +6,8 @@ Feature: federated login
      When single sign on validates the account
      Then login request succeeds
       And response contains authentication tokens
-      And account has new refresh token
 
   Scenario: User without account signs in via Facebook
     Given user "bar@mycroft.ai" authenticates through facebook
      When single sign on validates the account
-     Then login fails with "account not found" error
+     Then login fails with "no account found for provided email" error

@@ -7,4 +7,3 @@ Feature: logout
      When user attempts to logout
      Then request is successful
       And response contains expired token cookies
-      And refresh token in request is removed from account

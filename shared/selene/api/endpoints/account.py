@@ -125,7 +125,6 @@ class AccountEndpoint(SeleneEndpoint):
             membership_duration = self._format_membership_duration(response_data)
             response_data['membership']['duration'] = membership_duration
             del (response_data['membership']['start_date'])
-        del (response_data['refresh_tokens'])
 
         return response_data
 

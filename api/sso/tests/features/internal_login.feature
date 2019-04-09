@@ -7,7 +7,6 @@ Feature: internal login
      When user attempts to login
      Then login request succeeds
       And response contains authentication tokens
-      And account has new refresh token
 
   Scenario: User signs in with invalid email/password combination
     Given user enters email address "foo@mycroft.ai" and password "bar"

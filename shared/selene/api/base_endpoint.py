@@ -1,15 +1,10 @@
 """Base class for Flask API endpoints"""
-from copy import deepcopy
 from logging import getLogger
 
 from flask import after_this_request, current_app, request
 from flask.views import MethodView
 
-from selene.data.account import (
-    Account,
-    AccountRepository,
-    RefreshTokenRepository
-)
+from selene.data.account import Account, AccountRepository
 from selene.util.auth import AuthenticationError, AuthenticationToken
 from selene.util.db import get_db_connection
 
@@ -74,15 +69,19 @@ class SeleneEndpoint(MethodView):
     def _validate_auth_tokens(self):
         """Ensure the tokens are passed in request and are well formed."""
         self._get_auth_tokens()
-        account_id = self._decode_access_token()
+        self._decode_access_token()
         if self.access_token.is_expired:
-            account_id = self._decode_refresh_token()
-        if account_id is None:
+            self._decode_refresh_token()
+        account_not_found = (
+            self.access_token.account_id is None and
+            self.refresh_token.account_id is None
+        )
+        if account_not_found:
             raise AuthenticationError(
                 'failed to retrieve account ID from authentication tokens'
             )
 
-        return account_id
+        return self.access_token.account_id or self.refresh_token.account_id
 
     def _get_auth_tokens(self):
         self.access_token.jwt = self.request.cookies.get(
@@ -96,24 +95,20 @@ class SeleneEndpoint(MethodView):
 
     def _decode_access_token(self):
         """Decode the JWT to get the account ID and check for errors."""
-        account_id = self.access_token.validate()
+        self.access_token.validate()
 
         if not self.access_token.is_valid:
             raise AuthenticationError('invalid access token')
 
-        return account_id
-
     def _decode_refresh_token(self):
         """Decode the JWT to get the account ID and check for errors."""
-        account_id = self.refresh_token.validate()
+        self.refresh_token.validate()
 
-        if not self.access_token.is_valid:
+        if not self.refresh_token.is_valid:
             raise AuthenticationError('invalid refresh token')
 
         if self.refresh_token.is_expired:
             raise AuthenticationError('authentication tokens expired')
-
-        return account_id
 
     def _get_account(self, account_id):
         """Use account ID from decoded authentication token to get account."""
@@ -130,22 +125,9 @@ class SeleneEndpoint(MethodView):
             _log.error('account ID {} not on database'.format(account_id))
             raise AuthenticationError('account not found')
 
-        token_not_found = (
-            self.account.refresh_tokens is None or
-            self.refresh_token.jwt not in self.account.refresh_tokens
-        )
-        if token_not_found:
-            log_msg = 'account ID {} does not have token {}'
-            _log.error(log_msg.format(account_id, self.refresh_token.jwt))
-            raise AuthenticationError(
-                'refresh token does not exist for this account'
-            )
-
     def _refresh_auth_tokens(self):
         """Steps necessary to refresh the tokens used for authentication."""
-        old_refresh_token = deepcopy(self.refresh_token)
         self._generate_tokens()
-        self._update_refresh_token_on_db(old_refresh_token)
         self._set_token_cookies()
 
     def _generate_tokens(self):
@@ -189,11 +171,3 @@ class SeleneEndpoint(MethodView):
             response.set_cookie(**refresh_token_cookie)
 
             return response
-
-    def _update_refresh_token_on_db(self, old_refresh_token):
-        """Replace the refresh token on the request with the newly minted one"""
-        with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
-            token_repository = RefreshTokenRepository(db, self.account.id)
-            token_repository.delete_refresh_token(old_refresh_token.jwt)
-            if not old_refresh_token.is_expired:
-                token_repository.add_refresh_token(self.refresh_token.jwt)
