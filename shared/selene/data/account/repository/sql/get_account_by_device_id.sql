@@ -1,16 +1,4 @@
 WITH
-    refresh_tokens AS (
-        SELECT
-            array_agg(refresh_token)
-        FROM
-            account.refresh_token acc_ref
-        INNER JOIN
-            account.account acc ON acc_ref.account_id = acc.id
-        INNER JOIN
-            device.device dev ON acc.id = dev.account_id
-        WHERE
-            dev.id = %(device_id)s
-    ),
     agreements AS (
         SELECT
             array_agg(
@@ -59,7 +47,6 @@ SELECT
         'email_address', acc.email_address,
         'username', acc.username,
         'membership', (SELECT * FROM membership),
-        'refresh_tokens', (SELECT * FROM refresh_tokens),
         'agreements', (SELECT * FROM agreements)
     ) as account
 FROM
