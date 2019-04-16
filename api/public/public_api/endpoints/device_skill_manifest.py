@@ -4,7 +4,7 @@ from logging import getLogger
 
 from flask import Response
 from schematics import Model
-from schematics.types import StringType, ModelType, ListType, DateTimeType
+from schematics.types import StringType, ModelType, ListType, DateTimeType, IntType, BooleanType
 
 from selene.api import PublicEndpoint
 from selene.data.skill import SkillRepository
@@ -12,18 +12,20 @@ from selene.util.db import get_db_connection
 
 
 class SkillManifest(Model):
-    skill_gid = StringType(default='')
+    name = StringType(required=True)
     origin = StringType(default='')
     installation = StringType(default='')
     failure_message = StringType(default='')
     status = StringType(default='')
-    beta = StringType(default='')
+    beta = BooleanType(default='')
     installed = DateTimeType()
     updated = DateTimeType()
+    update = DateTimeType()
 
 
 class SkillJson(Model):
     blacklist = ListType(StringType)
+    version = IntType()
     skills = ListType(ModelType(SkillManifest, required=True))
 
 
@@ -50,22 +52,19 @@ class DeviceSkillManifestEndpoint(PublicEndpoint):
 
     def _convert_to_timestamp(self, skill):
         installed = skill.get('installed')
-        if installed:
+        if installed and installed != 0:
             installed = installed.timestamp()
             skill['installed'] = installed
         updated = skill.get('updated')
-        if updated:
+        if updated and updated != 0:
             updated = updated.timestamp()
             skill['updated'] = updated
 
     def put(self, device_id):
-        try:
-            self._authenticate(device_id)
-            payload = json.loads(self.request.data)
-            skill_json = SkillJson(payload)
-            skill_json.validate()
-            with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
-                SkillRepository(db).update_skills_manifest(device_id, payload['skills'])
-        except Exception as e:
-            _log.info('MANIFEST ==================='.format(str(e)))
+        self._authenticate(device_id)
+        payload = json.loads(self.request.data)
+        skill_json = SkillJson(payload)
+        skill_json.validate()
+        with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
+            SkillRepository(db).update_skills_manifest(device_id, payload['skills'])
         return '', HTTPStatus.OK

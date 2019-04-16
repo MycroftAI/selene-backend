@@ -11,8 +11,6 @@ from logging import getLogger
 from os import path
 from typing import List
 
-from psycopg2.extras import execute_batch
-
 _log = getLogger(__package__)
 
 
@@ -103,7 +101,8 @@ class Cursor(object):
 
     def _execute_batch(self, db_request: DatabaseBatchRequest):
         with self.db.cursor() as cursor:
-            execute_batch(cursor, db_request.sql, db_request.args)
+            cursor.executemany(db_request.sql, db_request.args)
+            #execute_batch(cursor, db_request.sql, db_request.args)
 
     def delete(self, db_request: DatabaseRequest):
         """Helper function for SQL delete statements"""

@@ -39,11 +39,17 @@ class SkillRepository(RepositoryBase):
             for result in sql_results:
                 sections = self._fill_setting_with_values(result['settings'], result['settings_display'])
                 skill = {
-                    'skill_gid': result['settings_display']['skill_gid'],
                     'skillMetadata': {
                         'sections': sections
                     }
                 }
+                display = result['settings_display']
+                skill_gid = display.get('skill_gid')
+                if skill_gid:
+                    skill['skill_gid'] = skill_gid
+                identifier = display.get('identifier')
+                if identifier:
+                    skill['identifier'] = identifier
                 skills.append(skill)
             return skills
 
@@ -96,6 +102,7 @@ class SkillRepository(RepositoryBase):
 
     @use_transaction
     def add(self, device_id: str, skill: dict) -> str:
+        skill['skill_gid'] = skill.get('skill_gid') or skill.get('identifier')
         skill_id = self.ensure_skill_exists(skill['skill_gid'])
         settings_value, settings_display = self._extract_settings(skill)
         settings_display = json.dumps(skill)
@@ -124,10 +131,11 @@ class SkillRepository(RepositoryBase):
                 field.pop('value', None)
         return settings, skill
 
-    def update_skills_manifest(self, device_id: str, skill_manifest: List[dict]):
+    def update_skills_manifest(self, device_id: str, skill_manifest):
         for skill in skill_manifest:
             skill['device_id'] = device_id
             self._convert_to_datetime(skill)
+
         db_batch_request = self._build_db_batch_request(
             'update_skill_manifest.sql',
             args=skill_manifest
@@ -135,14 +143,22 @@ class SkillRepository(RepositoryBase):
         self.cursor.batch_update(db_batch_request)
 
     def _convert_to_datetime(self, skill):
+
         installed = skill.get('installed')
-        if installed:
+        if installed and installed != 0:
             installed = datetime.fromtimestamp(installed)
             skill['installed'] = installed
+        else:
+            skill['installed'] = datetime.now()
         updated = skill.get('updated')
-        if updated:
+        if updated and updated != 0:
             updated = datetime.fromtimestamp(updated)
             skill['updated'] = updated
+        else:
+            skill['updated'] = datetime.now()
+        failure_message = skill.get('failure_message')
+        if failure_message is None:
+            skill['failure_message'] = ''
 
     def get_skills_manifest(self, device_id: str):
         db_request = self._build_db_request(

@@ -1,3 +1,4 @@
+import json
 from http import HTTPStatus
 
 from flask import Blueprint
@@ -11,7 +12,7 @@ selene_api = Blueprint('selene_api', __name__)
 
 @selene_api.app_errorhandler(DataError)
 def handle_data_error(error):
-    return error.to_primitive(), HTTPStatus.BAD_REQUEST
+    return json.dumps(error.to_primitive()), HTTPStatus.BAD_REQUEST
 
 
 @selene_api.app_errorhandler(AuthenticationError)

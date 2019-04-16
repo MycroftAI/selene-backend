@@ -3,6 +3,7 @@ from http import HTTPStatus
 
 from flask import Response
 from schematics import Model
+from schematics.exceptions import ValidationError
 from schematics.types import StringType, BooleanType, ListType, ModelType
 
 from selene.api import PublicEndpoint
@@ -47,13 +48,18 @@ class SkillIcon(Model):
 
 class Skill(Model):
     name = StringType()
-    skill_gid = StringType(required=True, regex=global_id_any_pattern)
+    skill_gid = StringType(regex=global_id_any_pattern)
     skillMetadata = ModelType(SkillMetadata)
     icon_img = StringType()
     icon = ModelType(SkillIcon)
     display_name = StringType()
     color = StringType()
     identifier = StringType()
+
+    def validate_skill_gid(self, data, value):
+        if data['skill_gid'] is None and data['identifier'] is None:
+            raise ValidationError('skill should have either skill_gid or identifier define')
+        return value
 
 
 class DeviceSkillsEndpoint(PublicEndpoint):
