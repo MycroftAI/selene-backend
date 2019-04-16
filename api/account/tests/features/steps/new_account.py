@@ -12,7 +12,8 @@ new_account_request = dict(
     termsOfUse=True,
     privacyPolicy=True,
     login=dict(
-        federatedEmail=None,
+        federatedPlatform=None,
+        federatedToken=None,
         userEnteredEmail='bar@mycroft.ai',
         password='bar'
     ),

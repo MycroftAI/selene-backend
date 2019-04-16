@@ -62,7 +62,6 @@ def _add_account(context, db):
     context.account = Account(
         email_address='foo@mycroft.ai',
         username='foobar',
-        refresh_tokens=[],
         membership=AccountMembership(
             type='Monthly Membership',
             start_date=date.today(),

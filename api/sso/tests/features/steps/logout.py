@@ -24,7 +24,7 @@ def call_logout_endpoint(context):
 
 @then('request is successful')
 def check_for_logout_success(context):
-    assert_that(context.response.status_code, equal_to(HTTPStatus.OK))
+    assert_that(context.response.status_code, equal_to(HTTPStatus.NO_CONTENT))
     assert_that(
         context.response.headers['Access-Control-Allow-Origin'],
         equal_to('*')
@@ -34,15 +34,6 @@ def check_for_logout_success(context):
 @then('response contains expired token cookies')
 def check_response_cookies(context):
     validate_token_cookies(context, expired=True)
-
-
-@then('refresh token in request is removed from account')
-def check_refresh_token_removed(context):
-    account = get_account(context)
-    assert_that(
-        account.refresh_tokens,
-        is_not(has_item(context.refresh_token))
-    )
 
 
 @then('logout fails with "{error_message}" error')

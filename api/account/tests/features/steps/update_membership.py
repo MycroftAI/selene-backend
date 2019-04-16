@@ -18,7 +18,8 @@ new_account_request = dict(
     termsOfUse=True,
     privacyPolicy=True,
     login=dict(
-        federatedEmail=None,
+        federatedPlatform=None,
+        federatedToken=None,
         userEnteredEmail='test@mycroft.ai',
         password='12345678'
     ),
@@ -41,7 +42,6 @@ def create_account(context):
     context.account = Account(
         email_address='test@mycroft.ai',
         username='test',
-        refresh_tokens=[],
         membership=None,
         agreements=[
             AccountAgreement(type=PRIVACY_POLICY, accept_date=date.today())

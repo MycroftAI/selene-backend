@@ -41,14 +41,12 @@ def check_for_new_cookies(context):
         acct_repository = AccountRepository(db)
         account = acct_repository.get_account_by_id(context.account.id)
 
-    assert_that(account.refresh_tokens, has_item(context.refresh_token))
-
     refresh_token = AuthenticationToken(
         context.client_config['REFRESH_SECRET'],
         0
     )
     refresh_token.jwt = context.refresh_token
-    account_id = refresh_token.validate()
+    refresh_token.validate()
     assert_that(refresh_token.is_valid, equal_to(True))
     assert_that(refresh_token.is_expired, equal_to(False))
-    assert_that(account_id, equal_to(account.id))
+    assert_that(refresh_token.account_id, equal_to(account.id))

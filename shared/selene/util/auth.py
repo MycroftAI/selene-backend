@@ -19,6 +19,7 @@ class AuthenticationToken(object):
         self.secret = secret
         self.duration = duration
         self.jwt: str = ''
+        self.account_id = None
         self.is_valid: bool = None
         self.is_expired: bool = None
 
@@ -26,6 +27,7 @@ class AuthenticationToken(object):
         """
         Generates a JWT token
         """
+        self.account_id = account_id
         payload = dict(
             iat=datetime.utcnow(),
             exp=time() + self.duration,
@@ -41,20 +43,18 @@ class AuthenticationToken(object):
         """Decodes the auth token and performs some preliminary validation."""
         self.is_expired = False
         self.is_valid = True
-        account_id = None
+        self.account_id = None
 
         if self.jwt is None:
             self.is_expired = True
         else:
             try:
                 payload = jwt.decode(self.jwt, self.secret)
-                account_id = payload['sub']
+                self.account_id = payload['sub']
             except jwt.ExpiredSignatureError:
                 self.is_expired = True
             except jwt.InvalidTokenError:
                 self.is_valid = False
-
-        return account_id
 
 
 def get_google_account_email(token):

@@ -31,4 +31,3 @@ class Account(object):
     agreements: List[AccountAgreement]
     membership: AccountMembership = None
     id: str = None
-    refresh_tokens: List[str] = None

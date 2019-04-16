@@ -1,12 +1,4 @@
 WITH
-    refresh_tokens AS (
-        SELECT
-            array_agg(refresh_token)
-        FROM
-            account.refresh_token
-        WHERE
-            account_id = {account_id_resolver}
-    ),
     agreements AS (
         SELECT
             array_agg(
@@ -45,7 +37,6 @@ SELECT
         'email_address', email_address,
         'username', username,
         'membership', (SELECT * FROM membership),
-        'refresh_tokens', (SELECT * FROM refresh_tokens),
         'agreements', (SELECT * FROM agreements)
     ) as account
 FROM
