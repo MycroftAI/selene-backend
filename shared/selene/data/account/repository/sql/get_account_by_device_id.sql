@@ -59,7 +59,6 @@ SELECT
         'email_address', acc.email_address,
         'username', acc.username,
         'membership', (SELECT * FROM membership),
-        'refresh_tokens', (SELECT * FROM refresh_tokens),
         'agreements', (SELECT * FROM agreements)
     ) as account
 FROM
