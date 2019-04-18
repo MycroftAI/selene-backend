@@ -1,3 +1,4 @@
+from dataclasses import asdict
 from http import HTTPStatus
 from logging import getLogger
 
@@ -7,6 +8,7 @@ from schematics.exceptions import ValidationError
 from schematics.types import StringType
 
 from selene.api import SeleneEndpoint
+from selene.api.etag import ETagManager
 from selene.data.device import DeviceRepository, Geography, GeographyRepository
 from selene.util.cache import SeleneCache
 from selene.util.db import get_db_connection
@@ -25,11 +27,10 @@ def validate_pairing_code(pairing_code):
         raise ValidationError('pairing code not found')
 
 
-class NewDeviceRequest(Model):
+class UpdateDeviceRequest(Model):
     city = StringType(required=True)
     country = StringType(required=True)
     name = StringType(required=True)
-    pairing_code = StringType(required=True, validators=[validate_pairing_code])
     placement = StringType()
     region = StringType(required=True)
     timezone = StringType(required=True)
@@ -37,59 +38,48 @@ class NewDeviceRequest(Model):
     voice = StringType(required=True)
 
 
+class NewDeviceRequest(UpdateDeviceRequest):
+    pairing_code = StringType(required=True, validators=[validate_pairing_code])
+
+
 class DeviceEndpoint(SeleneEndpoint):
     def __init__(self):
         super(DeviceEndpoint, self).__init__()
         self.devices = None
         self.cache = self.config['SELENE_CACHE']
+        self.etag_manager: ETagManager = ETagManager(self.cache, self.config)
 
-    def get(self):
+    def get(self, device_id):
         self._authenticate()
-        self._get_devices()
-        response_data = self._build_response()
+        if device_id is None:
+            response_data = self._get_devices()
+        else:
+            response_data = self._get_device(device_id)
 
         return response_data, HTTPStatus.OK
 
     def _get_devices(self):
         with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
             device_repository = DeviceRepository(db)
-            self.devices = device_repository.get_devices_by_account_id(
+            devices = device_repository.get_devices_by_account_id(
                 self.account.id
             )
-
-    def _build_response(self):
         response_data = []
-        for device in self.devices:
-            wake_word = dict(
-                id=device.wake_word.id,
-                name=device.wake_word.display_name
+        for device in devices:
+            device_dict = asdict(device)
+            device_dict['voice'] = device_dict.pop('text_to_speech')
+            response_data.append(device_dict)
+
+        return response_data
+
+    def _get_device(self, device_id):
+        with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
+            device_repository = DeviceRepository(db)
+            device = device_repository.get_device_by_id(
+                device_id
             )
-            voice = dict(
-                id=device.text_to_speech.id,
-                name=device.text_to_speech.display_name
-            )
-            geography = dict(
-                id=device.geography.id,
-                country=device.geography.country,
-                region=device.geography.region,
-                city=device.geography.city,
-                timezone=device.geography.time_zone,
-                latitude=device.geography.latitude,
-                longitude=device.geography.longitude
-            )
-            response_data.append(
-                dict(
-                    core_version=device.core_version,
-                    enclosure_version=device.enclosure_version,
-                    id=device.id,
-                    geography=geography,
-                    name=device.name,
-                    placement=device.placement,
-                    platform=device.platform,
-                    voice=voice,
-                    wake_word=wake_word,
-                )
-            )
+        response_data = asdict(device)
+        response_data['voice'] = response_data.pop('text_to_speech')
 
         return response_data
 
@@ -105,13 +95,16 @@ class DeviceEndpoint(SeleneEndpoint):
 
         return device_id, HTTPStatus.OK
 
-    def _validate_request(self) -> NewDeviceRequest:
+    def _validate_request(self):
         request_data = json.loads(self.request.data)
-        device = NewDeviceRequest()
+        if self.request.method == 'POST':
+            device = NewDeviceRequest()
+            device.pairing_code = request_data['pairingCode']
+        else:
+            device = UpdateDeviceRequest()
         device.city = request_data['city']
         device.country = request_data['country']
         device.name = request_data['name']
-        device.pairing_code = request_data['pairingCode']
         device.placement = request_data['placement']
         device.region = request_data['region']
         device.timezone = request_data['timezone']
@@ -149,12 +142,11 @@ class DeviceEndpoint(SeleneEndpoint):
     def _add_device(self, device: NewDeviceRequest):
         """Creates a device and associate it to a pairing session"""
         with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
-            self._ensure_geography_exists(db, device.to_native())
+            device_dict = device.to_native()
+            geography_id = self._ensure_geography_exists(db, device_dict)
+            device_dict.update(geography_id=geography_id)
             device_repository = DeviceRepository(db)
-            device_id = device_repository.add_device(
-                self.account.id,
-                device.to_native()
-            )
+            device_id = device_repository.add(self.account.id, device_dict)
 
         return device_id
 
@@ -168,7 +160,9 @@ class DeviceEndpoint(SeleneEndpoint):
         geography_repository = GeographyRepository(db, self.account.id)
         geography_id = geography_repository.get_geography_id(geography)
         if geography_id is None:
-            geography_repository.add(geography)
+            geography_id = geography_repository.add(geography)
+
+        return geography_id
 
     def _build_pairing_token(self, pairing_data):
         self.cache.set_with_expiration(
@@ -187,3 +181,24 @@ class DeviceEndpoint(SeleneEndpoint):
         with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
             device_repository = DeviceRepository(db)
             device_repository.remove(device_id)
+
+    def patch(self, device_id):
+        self._authenticate()
+        updates = self._validate_request()
+        self._update_device(device_id, updates)
+        self.etag_manager.expire_device_etag_by_device_id(device_id)
+        self.etag_manager.expire_device_location_etag_by_device_id(device_id)
+
+        return '', HTTPStatus.NO_CONTENT
+
+    def _update_device(self, device_id, updates):
+        device_updates = updates.to_native()
+        with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
+            geography_id = self._ensure_geography_exists(db, device_updates)
+            device_updates.update(geography_id=geography_id)
+            device_repository = DeviceRepository(db)
+            device_repository.update_device_from_account(
+                self.account.id,
+                device_id,
+                device_updates
+            )

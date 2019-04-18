@@ -4,12 +4,13 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
-selene = {editable = true,path = "./../../shared"}
 behave = "*"
+pyhamcrest = "*"
 
 [packages]
 flask = "*"
 requests = "*"
+selene = {editable = true,path = "./../../shared"}
 SpeechRecognition = "*"
 uwsgi = "*"
 stripe = "*"

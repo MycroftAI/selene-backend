@@ -1,5 +1,6 @@
 SELECT
     d.id,
+    d.account_id,
     d.name,
     d.platform,
     d.enclosure_version,
@@ -19,14 +20,28 @@ SELECT
         'id', tts.id
     ) AS text_to_speech,
     json_build_object(
-        'id', g.id,
-        'country', ctry.name,
-        'region', r.name,
-        'city', cty.name,
-        'time_zone', tz.name,
+        'id', ctry.id,
+        'name', ctry.name,
+        'iso_code', ctry.iso_code
+    ) AS country,
+    json_build_object(
+        'id', cty.id,
+        'name', cty.name,
+        'timezone', cty.name,
         'latitude', cty.latitude,
         'longitude', cty.longitude
-    ) AS geography
+    ) AS city,
+    json_build_object(
+        'id', r.id,
+        'name', r.name,
+        'region_code', r.region_code
+    ) AS region,
+    json_build_object(
+        'id', tz.id,
+        'name',tz.name,
+        'dst_offset', tz.dst_offset,
+        'gmt_offset', tz.gmt_offset
+    ) AS timezone
 FROM
     device.device d
     INNER JOIN device.wake_word ww ON d.wake_word_id = ww.id

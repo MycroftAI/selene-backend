@@ -1,7 +1,7 @@
 from typing import List
 
+from selene.data.geography import City, Country, Region, Timezone
 from ..entity.device import Device
-from ..entity.geography import Geography
 from ..entity.text_to_speech import TextToSpeech
 from ..entity.wake_word import WakeWord
 from ...repository_base import RepositoryBase
@@ -11,7 +11,7 @@ class DeviceRepository(RepositoryBase):
     def __init__(self, db):
         super(DeviceRepository, self).__init__(db, __file__)
 
-    def get_device_by_id(self, device_id: str) -> dict:
+    def get_device_by_id(self, device_id: str) -> Device:
         """Fetch a device using a given device id
 
         :param device_id: uuid
@@ -21,8 +21,14 @@ class DeviceRepository(RepositoryBase):
             sql_file_name='get_device_by_id.sql',
             args=dict(device_id=device_id)
         )
+        db_result = self.cursor.select_one(db_request)
 
-        return self.cursor.select_one(db_request)
+        if db_result is None:
+            device = None
+        else:
+            device = Device(**db_result)
+
+        return device
 
     def get_devices_by_account_id(self, account_id: str) -> List[Device]:
         """Fetch all devices associated to a user from a given account id
@@ -38,9 +44,12 @@ class DeviceRepository(RepositoryBase):
 
         devices = []
         for row in db_results:
+            row['city'] = City(**row['city'])
+            row['country'] = Country(**row['country'])
+            row['region'] = Region(**row['region'])
+            row['timezone'] = Timezone(**row['timezone'])
             row['wake_word'] = WakeWord(**row['wake_word'])
             row['text_to_speech'] = TextToSpeech(**row['text_to_speech'])
-            row['geography'] = Geography(**row['geography'])
             devices.append(Device(**row))
 
         return devices
@@ -66,9 +75,9 @@ class DeviceRepository(RepositoryBase):
         if db_result:
             rate_period = db_result['rate_period']
             # TODO: Remove the @ in the API v2
-            return {'@type': rate_period} if rate_period is not None else {'@type': 'free'}
+            return {'@type': 'free' if rate_period is None else rate_period}
 
-    def add_device(self, account_id: str, device: dict) -> str:
+    def add(self, account_id: str, device: dict) -> str:
         """Insert a row on the device table"""
         db_request_args = dict(account_id=account_id)
         db_request_args.update(device)
@@ -80,18 +89,15 @@ class DeviceRepository(RepositoryBase):
         db_result = self.cursor.insert_returning(db_request)
         return db_result['id']
 
-    def update_device(self, device_id: str, platform: str, enclosure_version: str, core_version: str):
-        """Updates a device in the database"""
-        db_request =self._build_db_request(
-            sql_file_name='update_device.sql',
-            args=dict(
-                device_id=device_id,
-                platform=platform,
-                enclosure_version=enclosure_version,
-                core_version=core_version
-            )
+    def update_device_from_core(self, device_id: str, updates: dict):
+        """Updates a device with data sent to the API from Mycroft core"""
+        db_request_args = dict(device_id=device_id)
+        db_request_args.update(updates)
+        db_request = self._build_db_request(
+            sql_file_name='update_device_from_core.sql',
+            args=db_request_args
         )
-        return self.cursor.insert(db_request)
+        self.cursor.update(db_request)
 
     def add_wake_word(self, account_id: str, wake_word: WakeWord) -> str:
         """Adds a row to the wake word table
@@ -153,3 +159,14 @@ class DeviceRepository(RepositoryBase):
         )
 
         self.cursor.delete(db_request)
+
+    def update_device_from_account(self, account_id, device_id, updates):
+        """Updates a device with data sent to the API from account.mycroft.ai"""
+        db_request_args = dict(account_id=account_id, device_id=device_id)
+        db_request_args.update(updates)
+        db_request = self._build_db_request(
+            sql_file_name='update_device_from_account.sql',
+            args=db_request_args
+        )
+
+        self.cursor.update(db_request)

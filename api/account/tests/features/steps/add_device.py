@@ -62,9 +62,9 @@ def validate_response(context):
         device = device_repository.get_device_by_id(device_id)
 
     assert_that(device, not_none())
-    assert_that(device['name'], equal_to('home'))
-    assert_that(device['placement'], equal_to('kitchen'))
-    assert_that(device['account_id'], equal_to(context.account.id))
+    assert_that(device.name, equal_to('home'))
+    assert_that(device.placement, equal_to('kitchen'))
+    assert_that(device.account_id, equal_to(context.account.id))
 
 
 @then('the pairing token is added to cache')
