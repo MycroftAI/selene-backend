@@ -8,7 +8,7 @@ authentication, which uses a 3rd party authentication, like Google.
 from binascii import a2b_base64
 from http import HTTPStatus
 
-from selene.data.account import Account, AccountRepository, RefreshTokenRepository
+from selene.data.account import Account, AccountRepository
 from selene.api import SeleneEndpoint
 from selene.util.auth import AuthenticationError
 from selene.util.db import get_db_connection
@@ -24,7 +24,6 @@ class AuthenticateInternalEndpoint(SeleneEndpoint):
         """Process HTTP GET request."""
         self._authenticate_credentials()
         self._generate_tokens()
-        self._add_refresh_token_to_db()
         self._set_token_cookies()
 
         self.response = dict(result='user authenticated'), HTTPStatus.OK
@@ -50,13 +49,3 @@ class AuthenticateInternalEndpoint(SeleneEndpoint):
             raise AuthenticationError('provided credentials not found')
         self.access_token.account_id = self.account.id
         self.refresh_token.account_id = self.account.id
-
-    def _add_refresh_token_to_db(self):
-        """Track refresh tokens in the database.
-
-        We need to store the value of the refresh token in the database so
-        that we can validate it when it is used to request new tokens.
-        """
-        with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
-            token_repo = RefreshTokenRepository(db, self.account.id)
-            token_repo.add_refresh_token(self.refresh_token.jwt)
