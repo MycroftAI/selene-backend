@@ -9,7 +9,7 @@ from http import HTTPStatus
 from logging import getLogger
 
 from selene.api import SeleneEndpoint
-from selene.data.account import AccountRepository, RefreshTokenRepository
+from selene.data.account import AccountRepository
 from selene.util.auth import (
     AuthenticationError,
     get_facebook_account_email,
@@ -31,7 +31,6 @@ class ValidateFederatedEndpoint(SeleneEndpoint):
         self._get_account_by_email()
         self._generate_tokens()
         self._set_token_cookies()
-        self._add_refresh_token_to_db()
         self.response = dict(result='account validated'), HTTPStatus.OK
 
         return self.response
@@ -59,14 +58,3 @@ class ValidateFederatedEndpoint(SeleneEndpoint):
 
         if self.account is None:
             raise AuthenticationError('no account found for provided email')
-
-    def _add_refresh_token_to_db(self):
-        """Track refresh tokens in the database.
-
-        We need to store the value of the refresh token in the database so
-        that we can validate it when it is used to request new tokens.
-
-        """
-        with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
-            token_repo = RefreshTokenRepository(db, self.account.id)
-            token_repo.add_refresh_token(self.refresh_token.jwt)
