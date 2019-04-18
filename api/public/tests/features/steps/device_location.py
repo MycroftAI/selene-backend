@@ -34,6 +34,7 @@ def validate_location(context):
 
     timezone = location['timezone']
     assert_that(timezone, has_key('name'))
+    assert_that(timezone, has_key('code'))
     assert_that(timezone, has_key('offset'))
     assert_that(timezone, has_key('dstOffset'))
 

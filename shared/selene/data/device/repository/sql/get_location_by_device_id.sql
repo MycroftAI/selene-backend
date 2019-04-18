@@ -5,8 +5,9 @@ SELECT
     ) as coordinate,
     json_build_object(
         'name', timezone.name,
-        'offset', timezone.gmt_offset,
-        'dstOffset', timezone.dst_offset
+        'code', timezone.name,
+        'offset', trunc(timezone.gmt_offset * 60 * 60 * 1000),
+        'dstOffset', trunc(timezone.dst_offset * 60 * 60 * 1000)
     ) as timezone,
     json_build_object(
         'name', city.name,

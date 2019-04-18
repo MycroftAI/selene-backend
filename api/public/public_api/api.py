@@ -46,6 +46,7 @@ public.config['METRICS_SERVICE'] = MetricsService()
 public.response_class = SeleneResponse
 public.register_blueprint(selene_api)
 
+_log = configure_logger('public_api')
 
 public.add_url_rule(
     '/v1/device/<string:device_id>/skill',

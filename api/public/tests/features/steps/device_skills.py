@@ -10,6 +10,7 @@ from selene.util.db import get_db_connection
 
 skill = {
     'skill_gid': 'wolfram-alpha|19.02',
+    'identifier': 'wolfram-alpha-123456',
     "skillMetadata": {
         "sections": [
             {
@@ -129,6 +130,7 @@ def validate_get_skill_updated_response(context):
     assert_that(len(skills_response), equal_to(1))
     response = skills_response[0]
     assert_that(response['skill_gid'], equal_to(skill['skill_gid']))
+    assert_that(response['identifier'], equal_to(skill['identifier']))
     assert_that(response['skillMetadata'], equal_to(skill['skillMetadata']))
 
     # Then we validate if the skill was properly updated

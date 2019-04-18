@@ -13,7 +13,6 @@ DB_DESTROY_FILES = (
 DB_CREATE_FILES = ('create_roles.sql', 'create_template_db.sql')
 ACCOUNT_TABLE_ORDER = (
     'account',
-    'refresh_token',
     'agreement',
     'account_agreement',
     'membership',
