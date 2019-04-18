@@ -33,32 +33,35 @@ class DeviceActivateEndpoint(PublicEndpoint):
         if pairing:
             device_id = pairing['uuid']
             self._activate(device_id, device_activate)
-            response = generate_device_login(device_id, self.cache), HTTPStatus.OK
+            response = (
+                generate_device_login(device_id, self.cache),
+                HTTPStatus.OK
+            )
         else:
             response = '', HTTPStatus.NOT_FOUND
         return response
 
     def _get_pairing_session(self, device_activate: DeviceActivate):
-        """Get the pairing session from the cache if device_activate has the same state that
-        the state stored in the pairing session"""
+        """Get the pairing session from the cache.
+
+        device_activate must have same state as that stored in the
+        pairing session.
+        """
         token = str(device_activate.token)
-        pairing = self.cache.get(self._token_key(token))
+        token_key = 'pairing.token:{}'.format(token)
+        pairing = self.cache.get(token_key)
         if pairing:
             pairing = json.loads(pairing)
             if str(device_activate.state) == pairing['state']:
-                self.cache.delete(self._token_key(token))
+                self.cache.delete(token_key)
                 return pairing
 
     def _activate(self, device_id: str, device_activate: DeviceActivate):
-        """Updates a device in the database with the core version, platform and enclosure_version fields"""
+        """Updates the core version, platform and enclosure_version columns"""
         with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
-            DeviceRepository(db).update_device(
-                device_id,
-                str(device_activate.platform),
-                str(device_activate.enclosureVersion),
-                str(device_activate.coreVersion)
+            updates = dict(
+                platform=str(device_activate.platform),
+                enclosure_version=str(device_activate.enclosureVersion),
+                core_version=str(device_activate.coreVersion)
             )
-
-    @staticmethod
-    def _token_key(token):
-        return 'pairing.token:{}'.format(token)
+            DeviceRepository(db).update_device_from_core(device_id, updates)

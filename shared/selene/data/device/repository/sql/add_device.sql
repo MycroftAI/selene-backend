@@ -15,21 +15,6 @@ VALUES
                 AND display_name = %(wake_word)s
         ),
         (SELECT id FROM device.text_to_speech WHERE display_name = %(voice)s),
-        (
-            SELECT
-                g.id
-            FROM
-                device.geography g
-                INNER JOIN geography.country cntry ON cntry.id = g.country_id
-                INNER JOIN geography.region r ON r.id = g.region_id
-                INNER JOIN geography.city cty ON cty.id = g.city_id
-                INNER JOIN geography.timezone tz ON tz.id = g.timezone_id
-            WHERE
-                g.account_id = %(account_id)s
-                AND cntry.name = %(country)s
-                AND r.name = %(region)s
-                AND cty.name = %(city)s
-                AND tz.name = %(timezone)s
-        )
+        %(geography_id)s
     )
 RETURNING id

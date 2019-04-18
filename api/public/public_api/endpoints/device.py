@@ -27,20 +27,22 @@ class DeviceEndpoint(PublicEndpoint):
         self._validate_etag(device_etag_key(device_id))
         with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
             device = DeviceRepository(db).get_device_by_id(device_id)
-        if device:
-            if 'placement' in device:
-                device['description'] = device.pop('placement')
-            if 'core_version' in device:
-                device['coreVersion'] = device.pop('core_version')
-            if 'enclosure_version' in device:
-                device['enclosureVersion'] = device.pop('enclosure_version')
-            device['user'] = dict(uuid=device['account_id'])
-            del device['account_id']
-            response = device, HTTPStatus.OK
+
+        if device is not None:
+            response_data = dict(
+                name=device.name,
+                description=device.placement,
+                coreVersion=device.core_version,
+                enclosureVersion=device.enclosure_version,
+                platform=device.platform,
+                user=dict(uuid=device.account_id)
+            )
+            response = response_data, HTTPStatus.OK
 
             self._add_etag(device_etag_key(device_id))
         else:
             response = '', HTTPStatus.NO_CONTENT
+
         return response
 
     def patch(self, device_id):
@@ -49,10 +51,10 @@ class DeviceEndpoint(PublicEndpoint):
         update_device = UpdateDevice(payload)
         update_device.validate()
         with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
-            DeviceRepository(db).update_device(
-                device_id,
-                payload.get('platform') or 'unknown',
-                payload.get('enclosureVersion') or 'unknown',
-                payload.get('coreVersion') or 'unknown'
+            updates = dict(
+                platform=payload.get('platform') or 'unknown',
+                enclosure_version=payload.get('enclosureVersion') or 'unknown',
+                core_version=payload.get('coreVersion') or 'unknown'
             )
+            DeviceRepository(db).update_device_from_core(device_id, updates)
         return '', HTTPStatus.OK

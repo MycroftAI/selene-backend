@@ -15,8 +15,9 @@ from .endpoints import (
     GeographyEndpoint,
     MembershipEndpoint,
     RegionEndpoint,
-    SkillSettingsEndpoint,
     SkillsEndpoint,
+    # SkillOauthEndpoint,
+    SkillSettingsEndpoint,
     TimezoneEndpoint,
     VoiceEndpoint,
     WakeWordEndpoint
@@ -70,13 +71,19 @@ acct.add_url_rule(
 device_endpoint = DeviceEndpoint.as_view('device_endpoint')
 acct.add_url_rule(
     '/api/devices',
+    defaults={'device_id': None},
     view_func=device_endpoint,
-    methods=['GET', 'POST']
+    methods=['GET']
+)
+acct.add_url_rule(
+    '/api/devices',
+    view_func=device_endpoint,
+    methods=['POST']
 )
 acct.add_url_rule(
     '/api/devices/<string:device_id>',
     view_func=device_endpoint,
-    methods=['DELETE']
+    methods=['DELETE', 'GET', 'PATCH']
 )
 
 device_count_endpoint = DeviceCountEndpoint.as_view('device_count_endpoint')
@@ -127,6 +134,13 @@ acct.add_url_rule(
     view_func=skill_endpoint,
     methods=['GET']
 )
+
+# skill_oauth_endpoint = SkillOauthEndpoint.as_view('skill_oauth_endpoint')
+# acct.add_url_rule(
+#     '/api/skills/oauth/<int:oauth_id>',
+#     view_func=skill_oauth_endpoint,
+#     methods=['GET']
+# )
 
 timezone_endpoint = TimezoneEndpoint.as_view('timezone_endpoint')
 acct.add_url_rule(

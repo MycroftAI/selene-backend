@@ -117,6 +117,7 @@ def _add_device(context, db):
         name='test',
         pairing_code='ABC123',
         placement='kitchen',
+        geography_id=context.geography_id,
         country='United States',
         region='Missouri',
         city='Kansas City',
@@ -133,7 +134,7 @@ def _add_device(context, db):
     )
     cache = context.client_config['SELENE_CACHE']
     context.device_name = 'test'
-    device_id = device_repository.add_device(context.account.id, device)
+    device_id = device_repository.add(context.account.id, device)
     context.device_login = generate_device_login(device_id, cache)
 
 
