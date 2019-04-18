@@ -8,6 +8,7 @@ from schematics.exceptions import ValidationError
 from schematics.types import StringType
 
 from selene.api import SeleneEndpoint
+from selene.api.etag import ETagManager
 from selene.data.device import DeviceRepository, Geography, GeographyRepository
 from selene.util.cache import SeleneCache
 from selene.util.db import get_db_connection
@@ -46,6 +47,7 @@ class DeviceEndpoint(SeleneEndpoint):
         super(DeviceEndpoint, self).__init__()
         self.devices = None
         self.cache = self.config['SELENE_CACHE']
+        self.etag_manager: ETagManager = ETagManager(self.cache, self.config)
 
     def get(self, device_id):
         self._authenticate()
@@ -184,6 +186,8 @@ class DeviceEndpoint(SeleneEndpoint):
         self._authenticate()
         updates = self._validate_request()
         self._update_device(device_id, updates)
+        self.etag_manager.expire_device_etag_by_device_id(device_id)
+        self.etag_manager.expire_device_location_etag_by_device_id(device_id)
 
         return '', HTTPStatus.NO_CONTENT
 
