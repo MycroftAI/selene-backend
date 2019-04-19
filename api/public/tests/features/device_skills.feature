@@ -16,3 +16,7 @@ Feature: Upload and fetch skills
     Given a device with skill settings
     When the skill settings are fetched using an expired etag
     Then the skill settings endpoint should return a new etag
+
+  Scenario: Upload a skill with empty settings
+    When a skill with empty settings is uploaded
+    Then the endpoint to retrieve the skill should return 200

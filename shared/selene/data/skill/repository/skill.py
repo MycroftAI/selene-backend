@@ -38,11 +38,9 @@ class SkillRepository(RepositoryBase):
             skills = []
             for result in sql_results:
                 sections = self._fill_setting_with_values(result['settings'], result['settings_display'])
-                skill = {
-                    'skillMetadata': {
-                        'sections': sections
-                    }
-                }
+                skill = {}
+                if sections:
+                    skill['skillMetadata'] = {'sections': sections}
                 display = result['settings_display']
                 skill_gid = display.get('skill_gid')
                 if skill_gid:
@@ -76,16 +74,18 @@ class SkillRepository(RepositoryBase):
             return skill
 
     def _fill_setting_with_values(self, settings: dict, setting_meta: dict):
-        sections = setting_meta['skillMetadata']['sections']
-        if settings:
-            for section in sections:
-                section_fields = section['fields']
-                for field in section_fields:
-                    if 'name' in field:
-                        name = field['name']
-                        if name in settings:
-                            field['value'] = settings[field['name']]
-        return sections
+        skill_metadata = setting_meta.get('skillMetadata')
+        if skill_metadata:
+            sections = skill_metadata['sections']
+            if settings:
+                for section in sections:
+                    section_fields = section['fields']
+                    for field in section_fields:
+                        if 'name' in field:
+                            name = field['name']
+                            if name in settings:
+                                field['value'] = settings[field['name']]
+            return sections
 
     def get_skills_for_account(self, account_id) -> List[Skill]:
         skills = []
@@ -124,12 +124,17 @@ class SkillRepository(RepositoryBase):
     @staticmethod
     def _extract_settings(skill):
         settings = {}
-        for section in skill['skillMetadata']['sections']:
-            for field in section['fields']:
-                if 'name' in field and 'value' in field:
-                    settings[field['name']] = field['value']
-                field.pop('value', None)
-        return settings, skill
+        skill_metadata = skill.get('skillMetadata')
+        if skill_metadata:
+            for section in skill_metadata['sections']:
+                for field in section['fields']:
+                    if 'name' in field and 'value' in field:
+                        settings[field['name']] = field['value']
+                    field.pop('value', None)
+            result = settings, skill
+        else:
+            result = '', ''
+        return result
 
     def update_skills_manifest(self, device_id: str, skill_manifest):
         for skill in skill_manifest:
