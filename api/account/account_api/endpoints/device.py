@@ -188,6 +188,7 @@ class DeviceEndpoint(SeleneEndpoint):
         self._update_device(device_id, updates)
         self.etag_manager.expire_device_etag_by_device_id(device_id)
         self.etag_manager.expire_device_location_etag_by_device_id(device_id)
+        self.etag_manager.expire_device_setting_etag_by_device_id(device_id)
 
         return '', HTTPStatus.NO_CONTENT
 
