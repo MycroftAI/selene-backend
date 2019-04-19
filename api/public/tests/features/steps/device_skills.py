@@ -225,3 +225,5 @@ def validate_empty_skill_uploading(context):
     assert_that(response.status_code, equal_to(HTTPStatus.OK))
     new_etag = response.headers.get('ETag')
     assert_that(new_etag, not_none())
+    retrieved_skill = json.loads(context.get_skill_response.data)
+    assert_that([skill_empty_settings], equal_to(retrieved_skill))
