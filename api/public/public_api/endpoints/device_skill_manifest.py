@@ -4,11 +4,17 @@ from logging import getLogger
 
 from flask import Response
 from schematics import Model
-from schematics.types import StringType, ModelType, ListType, DateTimeType, IntType, BooleanType
+from schematics.types import (
+    StringType,
+    ModelType,
+    ListType,
+    DateTimeType,
+    IntType,
+    BooleanType
+)
 
 from selene.api import PublicEndpoint
 from selene.data.skill import SkillRepository
-from selene.util.db import get_db_connection
 
 
 class SkillManifest(Model):
@@ -38,14 +44,17 @@ class DeviceSkillManifestEndpoint(PublicEndpoint):
 
     def get(self, device_id):
         self._authenticate()
-        with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
-            skills_manifest = SkillRepository(db).get_skills_manifest(device_id)
+        skills_manifest = SkillRepository(self.db).get_skills_manifest(device_id)
         if skills_manifest:
             for skill in skills_manifest:
                 self._convert_to_timestamp(skill)
             skills_manifest = {'skills': skills_manifest}
             skills_manifest = json.dumps(skills_manifest)
-            response = Response(skills_manifest, status=HTTPStatus.OK, content_type='application/json')
+            response = Response(
+                skills_manifest,
+                status=HTTPStatus.OK,
+                content_type='application/json'
+            )
         else:
             response = '', HTTPStatus.NOT_MODIFIED
         return response
@@ -65,6 +74,5 @@ class DeviceSkillManifestEndpoint(PublicEndpoint):
         payload = json.loads(self.request.data)
         skill_json = SkillJson(payload)
         skill_json.validate()
-        with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
-            SkillRepository(db).update_skills_manifest(device_id, payload['skills'])
+        SkillRepository(self.db).update_skills_manifest(device_id, payload['skills'])
         return '', HTTPStatus.OK

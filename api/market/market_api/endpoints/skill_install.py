@@ -7,7 +7,6 @@ from schematics.types import StringType
 
 from selene.api import SeleneEndpoint
 from selene.data.skill import AccountSkillSetting, SkillSettingRepository
-from selene.util.db import get_db_connection
 
 INSTALL_SECTION = 'to_install'
 UNINSTALL_SECTION = 'to_remove'
@@ -50,11 +49,10 @@ class SkillInstallEndpoint(SeleneEndpoint):
         install_request.validate()
 
     def _get_installer_settings(self):
-        with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
-            settings_repo = SkillSettingRepository(db)
-            self.installer_settings = settings_repo.get_installer_settings(
-                self.account.id
-            )
+        settings_repo = SkillSettingRepository(self.db)
+        self.installer_settings = settings_repo.get_installer_settings(
+            self.account.id
+        )
 
     def _apply_update(self):
         for settings in self.installer_settings:
@@ -73,10 +71,9 @@ class SkillInstallEndpoint(SeleneEndpoint):
             self._update_skill_settings(settings)
 
     def _update_skill_settings(self, settings):
-        with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
-            settings_repo = SkillSettingRepository(db)
-            settings_repo.update_device_skill_settings(
-                self.account.id,
-                settings.devices,
-                settings.settings_values
-            )
+        settings_repo = SkillSettingRepository(self.db)
+        settings_repo.update_device_skill_settings(
+            self.account.id,
+            settings.devices,
+            settings.settings_values
+        )

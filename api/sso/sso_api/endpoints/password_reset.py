@@ -4,7 +4,6 @@ import os
 from selene.api import SeleneEndpoint
 from selene.data.account import AccountRepository
 from selene.util.auth import AuthenticationToken
-from selene.util.db import get_db_connection
 from selene.util.email import EmailMessage, SeleneMailer
 
 ONE_HOUR = 3600
@@ -22,11 +21,10 @@ class PasswordResetEndpoint(SeleneEndpoint):
         return '', HTTPStatus.OK
 
     def _get_account_from_email(self):
-        with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
-            acct_repository = AccountRepository(db)
-            self.account = acct_repository.get_account_by_email(
-                self.request.json['emailAddress']
-            )
+        acct_repository = AccountRepository(self.db)
+        self.account = acct_repository.get_account_by_email(
+            self.request.json['emailAddress']
+        )
 
     def _generate_reset_token(self):
         reset_token = AuthenticationToken(

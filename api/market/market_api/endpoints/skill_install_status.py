@@ -6,7 +6,6 @@ from typing import List
 from selene.api import SeleneEndpoint
 from selene.data.device import DeviceSkill, DeviceSkillRepository
 from selene.util.auth import AuthenticationError
-from selene.util.db import get_db_connection
 
 VALID_STATUS_VALUES = (
     'failed',
@@ -36,11 +35,10 @@ class SkillInstallStatusEndpoint(SeleneEndpoint):
         return self.response
 
     def _get_installed_skills(self):
-        with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
-            skill_repo = DeviceSkillRepository(db)
-            installed_skills = skill_repo.get_installed_skills_for_account(
-                self.account.id
-            )
+        skill_repo = DeviceSkillRepository(self.db)
+        installed_skills = skill_repo.get_installed_skills_for_account(
+            self.account.id
+        )
         for skill in installed_skills:
             self.installed_skills[skill.skill_id].append(skill)
 

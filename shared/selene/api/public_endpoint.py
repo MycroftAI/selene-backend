@@ -2,7 +2,13 @@ import hashlib
 import json
 import uuid
 
-from flask import current_app, request, Response, after_this_request
+from flask import (
+    current_app,
+    request,
+    Response,
+    after_this_request,
+    g as global_context
+)
 from flask.views import MethodView
 
 from selene.api.etag import ETagManager
@@ -63,6 +69,8 @@ class PublicEndpoint(MethodView):
     def __init__(self):
         self.config: dict = current_app.config
         self.request = request
+        self.db = global_context.db
+        global_context.url = request.url
         self.cache: SeleneCache = self.config['SELENE_CACHE']
         self.etag_manager: ETagManager = ETagManager(self.cache, self.config)
 

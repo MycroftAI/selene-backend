@@ -11,7 +11,6 @@ from http import HTTPStatus
 from selene.data.account import Account, AccountRepository
 from selene.api import SeleneEndpoint
 from selene.util.auth import AuthenticationError
-from selene.util.db import get_db_connection
 
 
 class AuthenticateInternalEndpoint(SeleneEndpoint):
@@ -39,12 +38,11 @@ class AuthenticateInternalEndpoint(SeleneEndpoint):
         basic_credentials = self.request.headers['authorization']
         binary_credentials = a2b_base64(basic_credentials.strip('Basic '))
         email_address, password = binary_credentials.decode().split(':')
-        with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
-            acct_repository = AccountRepository(db)
-            self.account = acct_repository.get_account_from_credentials(
-                    email_address,
-                    password
-            )
+        acct_repository = AccountRepository(self.db)
+        self.account = acct_repository.get_account_from_credentials(
+                email_address,
+                password
+        )
         if self.account is None:
             raise AuthenticationError('provided credentials not found')
         self.access_token.account_id = self.account.id

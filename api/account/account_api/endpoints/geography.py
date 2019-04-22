@@ -2,7 +2,6 @@ from http import HTTPStatus
 
 from selene.api import SeleneEndpoint
 from selene.data.device import GeographyRepository
-from selene.util.db import get_db_connection
 
 
 class GeographyEndpoint(SeleneEndpoint):
@@ -13,9 +12,8 @@ class GeographyEndpoint(SeleneEndpoint):
         return response_data, HTTPStatus.OK
 
     def _build_response_data(self):
-        with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
-            geography_repostiory = GeographyRepository(db, self.account.id)
-            geographies = geography_repostiory.get_account_geographies()
+        geography_repository = GeographyRepository(self.db, self.account.id)
+        geographies = geography_repository.get_account_geographies()
 
         response_data = []
         for geography in geographies:

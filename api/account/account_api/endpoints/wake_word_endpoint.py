@@ -2,7 +2,6 @@ from http import HTTPStatus
 
 from selene.api import SeleneEndpoint
 from selene.data.device import WakeWordRepository
-from selene.util.db import get_db_connection
 
 
 class WakeWordEndpoint(SeleneEndpoint):
@@ -13,9 +12,8 @@ class WakeWordEndpoint(SeleneEndpoint):
         return response_data, HTTPStatus.OK
 
     def _build_response_data(self):
-        with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
-            wake_word_repository = WakeWordRepository(db, self.account.id)
-            wake_words = wake_word_repository.get_wake_words()
+        wake_word_repository = WakeWordRepository(self.db, self.account.id)
+        wake_words = wake_word_repository.get_wake_words()
 
         response_data = []
         for wake_word in wake_words:

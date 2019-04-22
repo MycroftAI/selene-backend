@@ -1,7 +1,7 @@
 """Base class for Flask API endpoints"""
 from logging import getLogger
 
-from flask import after_this_request, current_app, request
+from flask import after_this_request, current_app, request, g as global_context
 from flask.views import MethodView
 
 from selene.data.account import Account, AccountRepository
@@ -34,6 +34,8 @@ class SeleneEndpoint(MethodView):
         self.config: dict = current_app.config
         self.request = request
         self.response: tuple = None
+        self.db = global_context.db
+        global_context.url = request.url
         self.account: Account = None
         self.access_token = self._init_access_token()
         self.refresh_token = self._init_refresh_token()
@@ -124,6 +126,8 @@ class SeleneEndpoint(MethodView):
         if self.account is None:
             _log.error('account ID {} not on database'.format(account_id))
             raise AuthenticationError('account not found')
+        else:
+            global_context.account_id = self.account.id
 
     def _refresh_auth_tokens(self):
         """Steps necessary to refresh the tokens used for authentication."""

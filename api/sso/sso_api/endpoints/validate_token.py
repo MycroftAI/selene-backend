@@ -1,6 +1,6 @@
 from http import HTTPStatus
 from selene.api import SeleneEndpoint
-from selene.util.auth import AuthenticationError, AuthenticationToken
+from selene.util.auth import AuthenticationToken
 
 
 class ValidateTokenEndpoint(SeleneEndpoint):

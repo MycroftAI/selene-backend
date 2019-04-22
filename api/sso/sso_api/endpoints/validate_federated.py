@@ -15,7 +15,6 @@ from selene.util.auth import (
     get_facebook_account_email,
     get_google_account_email
 )
-from selene.util.db import get_db_connection
 
 _log = getLogger()
 
@@ -50,11 +49,10 @@ class ValidateFederatedEndpoint(SeleneEndpoint):
         if self.email_address is None:
             raise AuthenticationError('could not retrieve email from provider')
 
-        with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
-            acct_repository = AccountRepository(db)
-            self.account = acct_repository.get_account_by_email(
-                self.email_address
-            )
+        acct_repository = AccountRepository(self.db)
+        self.account = acct_repository.get_account_by_email(
+            self.email_address
+        )
 
         if self.account is None:
             raise AuthenticationError('no account found for provided email')

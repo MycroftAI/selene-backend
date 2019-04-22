@@ -6,7 +6,6 @@ from typing import List
 
 from selene.api import SeleneEndpoint
 from selene.data.skill import SkillDisplay, SkillDisplayRepository
-from selene.util.db import get_db_connection
 
 _log = getLogger(__package__)
 
@@ -34,9 +33,8 @@ class AvailableSkillsEndpoint(SeleneEndpoint):
         the contents of a JSON object in the mycroft-skills-data Github
         repository.  The JSON object contains metadata about each skill.
         """
-        with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
-            display_repo = SkillDisplayRepository(db)
-            self.available_skills = display_repo.get_display_data_for_skills()
+        display_repo = SkillDisplayRepository(self.db)
+        self.available_skills = display_repo.get_display_data_for_skills()
 
     def _build_response_data(self):
         """Build the data to include in the response."""

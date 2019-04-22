@@ -7,7 +7,6 @@ from schematics.types import StringType
 from selene.api import PublicEndpoint
 from selene.api import generate_device_login
 from selene.data.device import DeviceRepository
-from selene.util.db import get_db_connection
 
 
 class DeviceActivate(Model):
@@ -58,10 +57,9 @@ class DeviceActivateEndpoint(PublicEndpoint):
 
     def _activate(self, device_id: str, device_activate: DeviceActivate):
         """Updates the core version, platform and enclosure_version columns"""
-        with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
-            updates = dict(
-                platform=str(device_activate.platform),
-                enclosure_version=str(device_activate.enclosureVersion),
-                core_version=str(device_activate.coreVersion)
-            )
-            DeviceRepository(db).update_device_from_core(device_id, updates)
+        updates = dict(
+            platform=str(device_activate.platform),
+            enclosure_version=str(device_activate.enclosureVersion),
+            core_version=str(device_activate.coreVersion)
+        )
+        DeviceRepository(self.db).update_device_from_core(device_id, updates)

@@ -6,7 +6,6 @@ from schematics.types import StringType
 
 from selene.api import SeleneEndpoint
 from selene.data.device import DefaultsRepository
-from selene.util.db import get_db_connection
 
 
 class DefaultsRequest(Model):
@@ -36,9 +35,8 @@ class AccountDefaultsEndpoint(SeleneEndpoint):
         return response_data, response_code
 
     def _get_defaults(self):
-        with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
-            default_repository = DefaultsRepository(db, self.account.id)
-            self.defaults = default_repository.get_account_defaults()
+        default_repository = DefaultsRepository(self.db, self.account.id)
+        self.defaults = default_repository.get_account_defaults()
 
     def post(self):
         self._authenticate()
@@ -68,6 +66,5 @@ class AccountDefaultsEndpoint(SeleneEndpoint):
         return defaults
 
     def _upsert_defaults(self, defaults):
-        with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
-            defaults_repository = DefaultsRepository(db, self.account.id)
-            defaults_repository.upsert(defaults.to_native())
+        defaults_repository = DefaultsRepository(self.db, self.account.id)
+        defaults_repository.upsert(defaults.to_native())

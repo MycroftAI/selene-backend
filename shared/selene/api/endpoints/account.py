@@ -22,7 +22,6 @@ from selene.util.auth import (
     get_facebook_account_email,
     get_google_account_email
 )
-from selene.util.db import get_db_connection
 from selene.util.payment import (
     cancel_stripe_subscription,
     create_stripe_account,
@@ -225,12 +224,8 @@ class AccountEndpoint(SeleneEndpoint):
             ],
             membership=account_membership
         )
-        with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
-            acct_repository = AccountRepository(db)
-            acct_repository.add(
-                account,
-                password=password
-            )
+        acct_repository = AccountRepository(self.db)
+        acct_repository.add(account, password=password)
 
     def _build_account_membership(self):
         membership_type = self.request_data['support']['membership']
@@ -299,9 +294,8 @@ class AccountEndpoint(SeleneEndpoint):
                 self._update_membership(requested_update.to_native())
 
     def _get_stripe_plan(self, plan):
-        with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
-            membership_repository = MembershipRepository(db)
-            membership = membership_repository.get_membership_by_type(plan)
+        membership_repository = MembershipRepository(self.db)
+        membership = membership_repository.get_membership_by_type(plan)
 
         return membership.stripe_plan
 
@@ -328,11 +322,10 @@ class AccountEndpoint(SeleneEndpoint):
                 self._add_membership(membership_change, active_membership)
 
     def _get_active_membership(self):
-        with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
-            membership_repo = MembershipRepository(db)
-            active_membership = membership_repo.get_active_account_membership(
-                self.account.id
-            )
+        membership_repo = MembershipRepository(self.db)
+        active_membership = membership_repo.get_active_account_membership(
+            self.account.id
+        )
 
         return active_membership
 
@@ -357,21 +350,18 @@ class AccountEndpoint(SeleneEndpoint):
             type=membership_change['membership_type']
         )
 
-        with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
-            account_repository = AccountRepository(db)
-            account_repository.add_membership(self.account.id, new_membership)
+        account_repository = AccountRepository(self.db)
+        account_repository.add_membership(self.account.id, new_membership)
 
     def _cancel_membership(self, active_membership):
         cancel_stripe_subscription(active_membership.payment_id)
         active_membership.end_date = datetime.utcnow()
-        with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
-            membership_repository = MembershipRepository(db)
-            membership_repository.finish_membership(active_membership)
+        membership_repository = MembershipRepository(self.db)
+        membership_repository.finish_membership(active_membership)
 
     def delete(self):
         self._authenticate()
-        with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
-            account_repository = AccountRepository(db)
-            account_repository.remove(self.account)
+        account_repository = AccountRepository(self.db)
+        account_repository.remove(self.account)
 
         return '', HTTPStatus.NO_CONTENT
