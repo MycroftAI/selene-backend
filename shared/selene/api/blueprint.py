@@ -7,10 +7,7 @@ from schematics.exceptions import DataError
 
 from selene.data.metrics import ApiMetric, ApiMetricsRepository
 from selene.util.auth import AuthenticationError
-from selene.util.db import (
-    get_db_connection_from_pool,
-    return_db_connection_to_pool
-)
+from selene.util.db import return_db_connection_to_pool
 from selene.util.not_modified import NotModifiedError
 
 selene_api = Blueprint('selene_api', __name__)
@@ -34,10 +31,6 @@ def handle_not_modified(error):
 @selene_api.before_app_request
 def setup_request():
     global_context.start_ts = datetime.utcnow()
-    if 'db' not in global_context:
-        global_context.db = get_db_connection_from_pool(
-            current_app.config['DB_CONNECTION_POOL']
-        )
 
 
 @selene_api.after_app_request

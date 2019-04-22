@@ -6,7 +6,7 @@ from flask.views import MethodView
 
 from selene.data.account import Account, AccountRepository
 from selene.util.auth import AuthenticationError, AuthenticationToken
-from selene.util.db import get_db_connection
+from selene.util.db import get_db_connection_from_pool
 
 ACCESS_TOKEN_COOKIE_NAME = 'seleneAccess'
 FIFTEEN_MINUTES = 900
@@ -34,11 +34,19 @@ class SeleneEndpoint(MethodView):
         self.config: dict = current_app.config
         self.request = request
         self.response: tuple = None
-        self.db = global_context.db
         global_context.url = request.url
         self.account: Account = None
         self.access_token = self._init_access_token()
         self.refresh_token = self._init_refresh_token()
+
+    @property
+    def db(self):
+        if 'db' not in global_context:
+            global_context.db = get_db_connection_from_pool(
+                current_app.config['DB_CONNECTION_POOL']
+            )
+
+        return global_context.db
 
     def _init_access_token(self):
         return AuthenticationToken(
@@ -114,9 +122,8 @@ class SeleneEndpoint(MethodView):
 
     def _get_account(self, account_id):
         """Use account ID from decoded authentication token to get account."""
-        with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
-            account_repository = AccountRepository(db)
-            self.account = account_repository.get_account_by_id(account_id)
+        account_repository = AccountRepository(self.db)
+        self.account = account_repository.get_account_by_id(account_id)
 
     def _validate_account(self, account_id: str):
         """Account must exist and contain have a refresh token matching request.
