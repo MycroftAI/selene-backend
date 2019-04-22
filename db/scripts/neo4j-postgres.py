@@ -26,6 +26,7 @@ timezones = {}
 cities = {}
 regions = {}
 countries = {}
+coordinates = {}
 device_location = {}
 hey_mycroft = str(uuid.uuid4())
 christopher = str(uuid.uuid4())
@@ -164,6 +165,70 @@ def load_csv():
             else:
                 device_to_field[device_uuid] = {field_uuid}
 
+    with open('location.csv') as location_csv:
+        location_reader = csv.reader(location_csv)
+        next(location_reader, None)
+        for row in location_reader:
+            location_uuid = row[0]
+            locations[location_uuid] = {}
+            locations[location_uuid]['timezone'] = row[1]
+            locations[location_uuid]['city'] = row[2]
+            locations[location_uuid]['coordinate'] = row[3]
+
+    with open('timezone.csv') as timezone_csv:
+        timezone_reader = csv.reader(timezone_csv)
+        next(timezone_reader, None)
+        for row in timezone_reader:
+            timezone_uuid = row[0]
+            timezones[timezone_uuid] = {}
+            timezones[timezone_uuid]['code'] = row[1]
+            timezones[timezone_uuid]['name'] = row[2]
+
+    with open('city.csv') as city_csv:
+        city_reader = csv.reader(city_csv)
+        next(city_reader, None)
+        for row in city_reader:
+            city_uuid = row[0]
+            cities[city_uuid] = {}
+            cities[city_uuid]['region'] = row[1]
+            cities[city_uuid]['name'] = row[2]
+
+    with open('region.csv') as region_csv:
+        region_reader = csv.reader(region_csv)
+        next(region_reader, None)
+        for row in region_reader:
+            region_uuid = row[0]
+            regions[region_uuid] = {}
+            regions[region_uuid]['country'] = row[1]
+            regions[region_uuid]['name'] = row[2]
+            regions[region_uuid]['code'] = row[3]
+
+    with open('country.csv') as country_csv:
+        country_reader = csv.reader(country_csv)
+        next(country_reader, None)
+        for row in country_reader:
+            country_uuid = row[0]
+            countries[country_uuid] = {}
+            countries[country_uuid]['name'] = row[1]
+            countries[country_uuid]['code'] = row[2]
+
+    with open('coordinate.csv') as coordinate_csv:
+        coordinate_reader = csv.reader(coordinate_csv)
+        next(coordinate_reader, None)
+        for row in coordinate_reader:
+            coordinate_uuid = row[0]
+            coordinates[coordinate_uuid] = {}
+            coordinates[coordinate_uuid]['latitude'] = row[1]
+            coordinates[coordinate_uuid]['longitude'] = row[2]
+
+    with open('device_location.csv') as device_location_csv:
+        device_location_reader = csv.reader(device_location_csv, None)
+        next(device_location_reader, None)
+        for row in device_location_reader:
+            device_uuid = row[0]
+            if device_uuid in devices:
+                devices[device_uuid]['location'] = row[1]
+
 
 def format_date(value):
     value = int(value)
@@ -178,6 +243,7 @@ def format_timestamp(value):
 
 
 db = connect(dbname='mycroft', user='postgres', host='127.0.0.1')
+
 
 
 db.autocommit = True
@@ -449,11 +515,42 @@ def fill_device_table():
             city.name = %s and region.name = %s and timezone.name = %s;
         """
         cur.execute(query_geography, ('Lawrence', 'Kansas', 'America/Chicago'))
-        city, region, country, timezone = cur.fetchone()
+        city_default, region_default, country_default, timezone_default = cur.fetchone()
 
-    def map_geography(account_id):
+    def map_geography(account_id, device_id):
         geography_id = str(uuid.uuid4())
-        return geography_id, account_id, country, region, city, timezone
+        with db.cursor() as cur:
+            query = """
+            SELECT
+                city.id, region.id, country.id, timezone.id
+            FROM 
+                geography.city city
+            INNER JOIN
+                geography.region region ON city.region_id = region.id
+            INNER JOIN
+                geography.country country ON region.country_id = country.id
+            INNER JOIN
+                geography.timezone timezone ON country.id = timezone.country_id
+            WHERE
+                city.name = %s and region.name = %s and timezone.name = %s and country.name = %s;
+            """
+            location_uuid = devices[device_id].get('location')
+            if location_uuid is not None:
+                location = locations[location_uuid]
+                timezone_entity = timezones[location['timezone']]
+                timezone = timezone_entity['code']
+                city_entity = cities[location['city']]
+                city = city_entity['name']
+                region_entity = regions[city_entity['region']]
+                region = region_entity['name']
+                country_entity = countries[region_entity['country']]
+                country = country_entity['name']
+                cur.execute(query, (city, region, timezone, country))
+                result = cur.fetchone()
+                if result is not None:
+                    city, region, country, timezone = result
+                    return geography_id, account_id, country, region, city, timezone
+        return geography_id, account_id, country_default, region_default, city_default, timezone_default
 
     def map_device(device_id):
         device = devices[device_id]
@@ -489,9 +586,11 @@ def fill_device_table():
         geography_batch = []
         for user in user_devices:
             if user in users and user in user_settings:
-                geography = map_geography(user)
+                aux = user_devices[user]
+                device_id, _ = aux[0]
+                geography = map_geography(user, device_id)
                 geography_batch.append(geography)
-                for device_id, name in user_devices[user]:
+                for device_id, name in aux:
                     devices[device_id]['geography_id'] = geography[0]
         execute_batch(cur, query2, geography_batch, page_size=1000)
         devices_batch = (map_device(device_id) for user in user_devices if user in users and user in user_settings for device_id, name in user_devices[user])
@@ -541,6 +640,51 @@ def fill_skills_table():
         query = 'insert into device.device_skill(device_id, skill_id, skill_settings_display_id, settings) ' \
                 'values (%s, %s, %s, %s)'
         execute_batch(curr, query, device_skill_batch, page_size=1000)
+
+
+def analyze_locations():
+    matches = 0
+    mismatches = 0
+    g_mismatches = defaultdict(lambda: defaultdict(list))
+    for city in cities.values():
+        region = regions[city['region']]
+        country = countries[region['country']]
+        city_name = city['name']
+        region_name = region['name']
+        country_name = country['name']
+        remove = ['District', 'Region', 'Development', 'Prefecture', 'Community', 'County', 'Province', 'Division', 'Voivodeship', 'State', 'of', 'Governorate']
+        with db.cursor() as curr:
+            original_region_name = region_name
+            region_name = ' '.join(i for i in region_name.split() if i not in remove)
+            query = 'select city.name ' \
+                    'from geography.city city ' \
+                    'inner join geography.region region on city.region_id = region.id ' \
+                    'inner join geography.country country on region.country_id = country.id ' \
+                    'where ' \
+                    'city.name = \'{}\' and ' \
+                    '(region.name = \'{}\' or region.name = \'{}\') and ' \
+                    'country.name = \'{}\''\
+                    .format(
+                        city_name.replace('\'', '\'\''),
+                        original_region_name.replace('\'', '\'\''),
+                        region_name.replace('\'', '\'\''),
+                        country_name.replace('\'', '\'\'')
+                    )
+            curr.execute(query)
+            result = curr.fetchone()
+            if result is None:
+                mismatches += 1
+                g_mismatches[country_name][region_name].append(city_name)
+            else:
+                matches += 1
+
+    for country2, regions2 in g_mismatches.items():
+        for region2, cities2 in regions2.items():
+            for city2 in cities2:
+                print('{} - {} - {}'.format(country2, region2, city2))
+
+    print('Number os mismatches: {}'.format(mismatches))
+
 
 start = time.time()
 load_csv()

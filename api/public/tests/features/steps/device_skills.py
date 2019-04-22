@@ -39,6 +39,11 @@ skill = {
     }
 }
 
+skill_empty_settings = {
+    'skill_gid': 'mycroft-alarm|19.02',
+    'identifier': 'mycroft-alarm|19.02'
+}
+
 new_settings = {
     'user': 'this name is a test',
     'password': 'this is a new password'
@@ -191,3 +196,34 @@ def validate_expired_etag(context):
     new_etag = response.headers.get('ETag')
     assert_that(new_etag, not_none())
     assert_that(context.old_skill_etag, is_not(new_etag))
+
+
+@when('a skill with empty settings is uploaded')
+def upload_empty_skill(context):
+    login = context.device_login
+    device_id = login['uuid']
+    access_token = login['accessToken']
+    headers = dict(Authorization='Bearer {token}'.format(token=access_token))
+    context.upload_device_response = context.client.put(
+        '/v1/device/{uuid}/skill'.format(uuid=device_id),
+        data=json.dumps(skill_empty_settings),
+        content_type='application_json',
+        headers=headers
+    )
+    context.get_skill_response = context.client.get(
+        '/v1/device/{uuid}/skill'.format(uuid=device_id),
+        headers=headers
+    )
+
+
+@then('the endpoint to retrieve the skill should return 200')
+def validate_empty_skill_uploading(context):
+    response = context.upload_device_response
+    assert_that(response.status_code, equal_to(HTTPStatus.OK))
+
+    response = context.get_skill_response
+    assert_that(response.status_code, equal_to(HTTPStatus.OK))
+    new_etag = response.headers.get('ETag')
+    assert_that(new_etag, not_none())
+    retrieved_skill = json.loads(context.get_skill_response.data)
+    assert_that([skill_empty_settings], equal_to(retrieved_skill))

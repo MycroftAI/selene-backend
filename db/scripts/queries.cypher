@@ -35,10 +35,10 @@ skill_fields_values.csv
 match (device:Device)-[:SKILL_MAPPING]->(map:SkillMetadataMapping)-[r:SKILL_FIELD_VALUE]->(field:SkillMetadataField), (map)-[:SKILL]->(skill:Skill) return field.uuid, skill.uuid, device.uuid, r.value
 
 location.csv
-match (l:Location)-[:TIMEZONE]->(t:Timezone), (l)-[:IN]->(c:City) return l.uuid, t.uuid, c.uuid
+match (l:Location)-[:TIMEZONE]->(t:Timezone), (l)-[:IN]->(c:City), (l)-[:COORDINATE]->(c2:Coordinate) return l.uuid, t.uuid, c.uuid, c2.uuid
 
 timezone.csv
-match (n:Timezone) return n.uuid, n.name
+match (n:Timezone) return n.uuid, n.code, n.name
 
 city.csv
 match (country)-[:STATE]->(state:State)-[:CITY]->(city:City) return city.uuid, state.uuid, city.name
@@ -47,7 +47,10 @@ region.csv
 match (country)-[:STATE]->(state:State)-[:CITY]->(city:City) return state.uuid, country.uuid, state.name
 
 country.csv
-match (country)-[:STATE]->(state:State)-[:CITY]->(city:City) return country.uuid, state.code, state.name
+match (country)-[:STATE]->(state:State)-[:CITY]->(city:City) return country.uuid, country.name
 
 device_location.csv
 match (d:Device)-[:PLACED_AT]->(l:Location) return d.uuid, l.uuid
+
+coordinate.csv
+call apoc.export.csv.query("match (l:Location)-[:COORDINATE]->(c:Coordinate) return l.uuid, c.latitude, c.longitude", "/dump/selene/coordinate.csv", {});
