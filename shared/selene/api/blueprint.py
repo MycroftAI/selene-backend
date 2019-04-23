@@ -68,7 +68,7 @@ def add_api_metric(http_status):
             api=api,
             duration=(datetime.utcnow() - global_context.start_ts).microseconds,
             account_id=account_id,
-            http_status=http_status
+            http_status=int(http_status)
         )
         metric_repository = ApiMetricsRepository(global_context.db)
         metric_repository.add(api_metric)

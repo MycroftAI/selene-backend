@@ -8,6 +8,6 @@ class ApiMetric(object):
     access_ts: datetime
     api: str
     duration: int
-    http_status: str
+    http_status: int
     id: str = None
     account_id: str = None
