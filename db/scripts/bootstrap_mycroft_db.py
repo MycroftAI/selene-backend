@@ -4,7 +4,7 @@ from os import path
 from psycopg2 import connect
 
 MYCROFT_DB_DIR = path.join(path.abspath('..'), 'mycroft')
-SCHEMAS = ('account', 'skill', 'device', 'geography')
+SCHEMAS = ('account', 'skill', 'device', 'geography', 'metrics')
 DB_DESTROY_FILES = (
     'drop_mycroft_db.sql',
     'drop_template_db.sql',
@@ -46,6 +46,10 @@ GEOGRAPHY_TABLE_ORDER = (
     'city'
 )
 
+METRICS_TABLE_ORDER = (
+    'api',
+)
+
 schema_directory = '{}_schema'
 
 
@@ -58,15 +62,15 @@ def get_sql_from_file(file_path: str) -> str:
 
 class PostgresDB(object):
     def __init__(self, dbname, user, password=None):
-        # self.db = connect(dbname=dbname, user=user, host='127.0.0.1')
-        self.db = connect(
-            dbname=dbname,
-            user=user,
-            password=password,
-            host='selene-test-db-do-user-1412453-0.db.ondigitalocean.com',
-            port=25060,
-            sslmode='require'
-        )
+        self.db = connect(dbname=dbname, user=user, host='127.0.0.1')
+        # self.db = connect(
+        #     dbname=dbname,
+        #     user=user,
+        #     password=password,
+        #     host='selene-test-db-do-user-1412453-0.db.ondigitalocean.com',
+        #     port=25060,
+        #     sslmode='require'
+        # )
         self.db.autocommit = True
 
     def close_db(self):
@@ -77,12 +81,12 @@ class PostgresDB(object):
         cursor.execute(sql)
 
 
-# postgres_db = PostgresDB(dbname='postgres', user='chrisveilleux')
-postgres_db = PostgresDB(
-    dbname='defaultdb',
-    user='doadmin',
-    password='l06tn0qi2bjhgcki'
-)
+postgres_db = PostgresDB(dbname='postgres', user='chrisveilleux')
+# postgres_db = PostgresDB(
+#     dbname='defaultdb',
+#     user='doadmin',
+#     password='l06tn0qi2bjhgcki'
+# )
 
 print('Destroying any objects we will be creating later.')
 for db_destroy_file in DB_DESTROY_FILES:
@@ -98,12 +102,12 @@ for db_setup_file in DB_CREATE_FILES:
 
 postgres_db.close_db()
 
-# template_db = PostgresDB(dbname='mycroft_template', user='mycroft')
-template_db = PostgresDB(
-    dbname='mycroft_template',
-    user='selene',
-    password='ubhemhx1dikmqc5f'
-)
+template_db = PostgresDB(dbname='mycroft_template', user='mycroft')
+# template_db = PostgresDB(
+#     dbname='mycroft_template',
+#     user='selene',
+#     password='ubhemhx1dikmqc5f'
+# )
 
 template_db.execute_sql(
     get_sql_from_file(path.join('create_extensions.sql'))
@@ -170,6 +174,17 @@ for table in DEVICE_TABLE_ORDER:
         get_sql_from_file(create_table_file)
     )
 
+print('Creating the metrics schema tables')
+for table in METRICS_TABLE_ORDER:
+    create_table_file = path.join(
+        'metrics_schema',
+        'tables',
+        table + '.sql'
+    )
+    template_db.execute_sql(
+        get_sql_from_file(create_table_file)
+    )
+
 print('Granting access to schemas and tables')
 for schema in SCHEMAS:
     template_db.execute_sql(
@@ -179,21 +194,21 @@ for schema in SCHEMAS:
 template_db.close_db()
 
 print('Copying template to new database.')
-# postgres_db = PostgresDB(dbname='postgres', user='mycroft')
-postgres_db = PostgresDB(
-    dbname='defaultdb',
-    user='doadmin',
-    password='l06tn0qi2bjhgcki'
-)
+postgres_db = PostgresDB(dbname='postgres', user='mycroft')
+# postgres_db = PostgresDB(
+#     dbname='defaultdb',
+#     user='doadmin',
+#     password='l06tn0qi2bjhgcki'
+# )
 postgres_db.execute_sql(get_sql_from_file('create_mycroft_db.sql'))
 postgres_db.close_db()
 
-# mycroft_db = PostgresDB(dbname='mycroft', user='mycroft')
-mycroft_db = PostgresDB(
-    dbname='mycroft_template',
-    user='selene',
-    password='ubhemhx1dikmqc5f'
-)
+mycroft_db = PostgresDB(dbname='mycroft', user='mycroft')
+# mycroft_db = PostgresDB(
+#     dbname='mycroft_template',
+#     user='selene',
+#     password='ubhemhx1dikmqc5f'
+# )
 insert_files = [
     dict(schema_dir='account_schema', file_name='membership.sql'),
     dict(schema_dir='device_schema', file_name='text_to_speech.sql'),
