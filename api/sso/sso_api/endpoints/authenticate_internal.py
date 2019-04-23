@@ -36,8 +36,8 @@ class AuthenticateInternalEndpoint(SeleneEndpoint):
         """
 
         basic_credentials = self.request.headers['authorization']
-        binary_credentials = a2b_base64(basic_credentials.strip('Basic '))
-        email_address, password = binary_credentials.decode().split(':')
+        binary_credentials = a2b_base64(basic_credentials[6:])
+        email_address, password = binary_credentials.decode().split(':||:')
         acct_repository = AccountRepository(self.db)
         self.account = acct_repository.get_account_from_credentials(
                 email_address,
