@@ -4,7 +4,6 @@ from flask import Flask
 
 from selene.api import SeleneResponse, selene_api
 from selene.api.base_config import get_base_config
-from selene.api.endpoints import OauthServiceEndpoint
 from selene.api.public_endpoint import check_oauth_token
 from selene.util.cache import SeleneCache
 from selene.util.log import configure_logger
@@ -14,6 +13,7 @@ from .endpoints.device_code import DeviceCodeEndpoint
 from .endpoints.device_email import DeviceEmailEndpoint
 from .endpoints.device_location import DeviceLocationEndpoint
 from .endpoints.device_metrics import DeviceMetricsEndpoint, MetricsService
+from .endpoints.device_oauth import OauthServiceEndpoint
 from .endpoints.device_refresh_token import DeviceRefreshTokenEndpoint
 from .endpoints.device_setting import DeviceSettingEndpoint
 from .endpoints.device_skill import DeviceSkillEndpoint
