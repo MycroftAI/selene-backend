@@ -1,10 +1,6 @@
 from hamcrest import assert_that, equal_to, has_item
 
-from selene.data.account import (
-    Account,
-    AccountRepository,
-    RefreshTokenRepository
-)
+from selene.data.account import Account, AccountRepository
 from selene.util.auth import AuthenticationToken
 from selene.util.db import get_db_connection
 
@@ -32,7 +28,6 @@ def generate_access_token(context, expire=False):
 
 
 def generate_refresh_token(context, expire=False):
-    account_id = context.account.id
     refresh_token = AuthenticationToken(
         context.client_config['REFRESH_SECRET'],
         TWO_MINUTES
@@ -47,10 +42,6 @@ def generate_refresh_token(context, expire=False):
         refresh_token.jwt,
         max_age=0 if expire else TWO_MINUTES
     )
-
-    with get_db_connection(context.client_config['DB_CONNECTION_POOL']) as db:
-        token_repository = RefreshTokenRepository(db, account_id)
-        token_repository.add_refresh_token(refresh_token.jwt)
 
 
 def validate_token_cookies(context, expired=False):

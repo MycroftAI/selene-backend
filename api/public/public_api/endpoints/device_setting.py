@@ -2,7 +2,6 @@ from http import HTTPStatus
 
 from selene.api import PublicEndpoint, device_setting_etag_key
 from selene.data.device import SettingRepository
-from selene.util.db import get_db_connection
 
 
 class DeviceSettingEndpoint(PublicEndpoint):
@@ -13,8 +12,7 @@ class DeviceSettingEndpoint(PublicEndpoint):
     def get(self, device_id):
         self._authenticate(device_id)
         self._validate_etag(device_setting_etag_key(device_id))
-        with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
-            setting = SettingRepository(db).get_device_settings(device_id)
+        setting = SettingRepository(self.db).get_device_settings(device_id)
         if setting is not None:
             response = (setting, HTTPStatus.OK)
             self._add_etag(device_setting_etag_key(device_id))

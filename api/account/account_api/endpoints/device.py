@@ -11,7 +11,6 @@ from selene.api import SeleneEndpoint
 from selene.api.etag import ETagManager
 from selene.data.device import DeviceRepository, Geography, GeographyRepository
 from selene.util.cache import SeleneCache
-from selene.util.db import get_db_connection
 
 ONE_DAY = 86400
 
@@ -59,11 +58,10 @@ class DeviceEndpoint(SeleneEndpoint):
         return response_data, HTTPStatus.OK
 
     def _get_devices(self):
-        with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
-            device_repository = DeviceRepository(db)
-            devices = device_repository.get_devices_by_account_id(
-                self.account.id
-            )
+        device_repository = DeviceRepository(self.db)
+        devices = device_repository.get_devices_by_account_id(
+            self.account.id
+        )
         response_data = []
         for device in devices:
             device_dict = asdict(device)
@@ -73,11 +71,10 @@ class DeviceEndpoint(SeleneEndpoint):
         return response_data
 
     def _get_device(self, device_id):
-        with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
-            device_repository = DeviceRepository(db)
-            device = device_repository.get_device_by_id(
-                device_id
-            )
+        device_repository = DeviceRepository(self.db)
+        device = device_repository.get_device_by_id(
+            device_id
+        )
         response_data = asdict(device)
         response_data['voice'] = response_data.pop('text_to_speech')
 
@@ -115,19 +112,18 @@ class DeviceEndpoint(SeleneEndpoint):
         return device
 
     def _pair_device(self, device):
-        with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
-            db.autocommit = False
-            try:
-                pairing_data = self._get_pairing_data(device.pairing_code)
-                device_id = self._add_device(device)
-                pairing_data['uuid'] = device_id
-                self.cache.delete('pairing.code:{}'.format(device.pairing_code))
-                self._build_pairing_token(pairing_data)
-            except Exception:
-                db.rollback()
-                raise
-            else:
-                db.commit()
+        self.db.autocommit = False
+        try:
+            pairing_data = self._get_pairing_data(device.pairing_code)
+            device_id = self._add_device(device)
+            pairing_data['uuid'] = device_id
+            self.cache.delete('pairing.code:{}'.format(device.pairing_code))
+            self._build_pairing_token(pairing_data)
+        except Exception:
+            self.db.rollback()
+            raise
+        else:
+            self.db.commit()
 
         return device_id
 
@@ -141,12 +137,11 @@ class DeviceEndpoint(SeleneEndpoint):
 
     def _add_device(self, device: NewDeviceRequest):
         """Creates a device and associate it to a pairing session"""
-        with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
-            device_dict = device.to_native()
-            geography_id = self._ensure_geography_exists(db, device_dict)
-            device_dict.update(geography_id=geography_id)
-            device_repository = DeviceRepository(db)
-            device_id = device_repository.add(self.account.id, device_dict)
+        device_dict = device.to_native()
+        geography_id = self._ensure_geography_exists(self.db, device_dict)
+        device_dict.update(geography_id=geography_id)
+        device_repository = DeviceRepository(self.db)
+        device_id = device_repository.add(self.account.id, device_dict)
 
         return device_id
 
@@ -178,9 +173,8 @@ class DeviceEndpoint(SeleneEndpoint):
         return '', HTTPStatus.NO_CONTENT
 
     def _delete_device(self, device_id):
-        with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
-            device_repository = DeviceRepository(db)
-            device_repository.remove(device_id)
+        device_repository = DeviceRepository(self.db)
+        device_repository.remove(device_id)
 
     def patch(self, device_id):
         self._authenticate()
@@ -194,12 +188,11 @@ class DeviceEndpoint(SeleneEndpoint):
 
     def _update_device(self, device_id, updates):
         device_updates = updates.to_native()
-        with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
-            geography_id = self._ensure_geography_exists(db, device_updates)
-            device_updates.update(geography_id=geography_id)
-            device_repository = DeviceRepository(db)
-            device_repository.update_device_from_account(
-                self.account.id,
-                device_id,
-                device_updates
-            )
+        geography_id = self._ensure_geography_exists(self.db, device_updates)
+        device_updates.update(geography_id=geography_id)
+        device_repository = DeviceRepository(self.db)
+        device_repository.update_device_from_account(
+            self.account.id,
+            device_id,
+            device_updates
+        )

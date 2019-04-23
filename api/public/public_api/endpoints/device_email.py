@@ -8,7 +8,6 @@ from schematics.types import StringType
 
 from selene.api import PublicEndpoint
 from selene.data.account import AccountRepository
-from selene.util.db import get_db_connection
 
 
 class SendEmail(Model):
@@ -30,8 +29,7 @@ class DeviceEmailEndpoint(PublicEndpoint):
         send_email = SendEmail(payload)
         send_email.validate()
 
-        with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
-            account = AccountRepository(db).get_account_by_device_id(device_id)
+        account = AccountRepository(self.db).get_account_by_device_id(device_id)
 
         if account:
             message = EmailMessage()

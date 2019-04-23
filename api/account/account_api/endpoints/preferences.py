@@ -1,13 +1,11 @@
 from dataclasses import asdict
 from http import HTTPStatus
 
-from flask import json
 from schematics import Model
 from schematics.types import StringType
 
 from selene.api import SeleneEndpoint
 from selene.data.device import PreferenceRepository
-from selene.util.db import get_db_connection
 
 
 class PreferencesRequest(Model):
@@ -40,9 +38,8 @@ class PreferencesEndpoint(SeleneEndpoint):
         return response_data, response_code
 
     def _get_preferences(self):
-        with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
-            preference_repository = PreferenceRepository(db, self.account.id)
-            self.preferences = preference_repository.get_account_preferences()
+        preference_repository = PreferenceRepository(self.db, self.account.id)
+        self.preferences = preference_repository.get_account_preferences()
 
     def _build_response(self):
         response_data = asdict(self.preferences)
@@ -83,6 +80,5 @@ class PreferencesEndpoint(SeleneEndpoint):
         self.preferences.validate()
 
     def _upsert_preferences(self):
-        with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
-            preferences_repository = PreferenceRepository(db, self.account.id)
-            preferences_repository.upsert(self.preferences.to_native())
+        preferences_repository = PreferenceRepository(self.db, self.account.id)
+        preferences_repository.upsert(self.preferences.to_native())

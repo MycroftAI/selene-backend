@@ -6,7 +6,6 @@ import requests
 
 from selene.api import PublicEndpoint
 from selene.data.account import AccountRepository
-from selene.util.db import get_db_connection
 
 
 class MetricsService(object):
@@ -33,8 +32,7 @@ class DeviceMetricsEndpoint(PublicEndpoint):
     def post(self, device_id, metric):
         self._authenticate(device_id)
         payload = json.loads(self.request.data)
-        with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
-            account = AccountRepository(db).get_account_by_device_id(device_id)
+        account = AccountRepository(self.db).get_account_by_device_id(device_id)
         if account:
             self.metrics_service.send_metric(metric, account.id, device_id, payload)
             response = '', HTTPStatus.OK

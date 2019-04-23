@@ -8,7 +8,7 @@ from .geography import GeographyEndpoint
 from .membership import MembershipEndpoint
 from .region import RegionEndpoint
 from .skills import SkillsEndpoint
-# from .skill_oauth import SkillOauthEndpoint
+from .skill_oauth import SkillOauthEndpoint
 from .skill_settings import SkillSettingsEndpoint
 from .timezone import TimezoneEndpoint
 from .voice_endpoint import VoiceEndpoint

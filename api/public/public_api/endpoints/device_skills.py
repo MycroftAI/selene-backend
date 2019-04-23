@@ -9,7 +9,6 @@ from schematics.types import StringType, BooleanType, ListType, ModelType
 from selene.api import PublicEndpoint
 from selene.api.etag import device_skill_etag_key
 from selene.data.skill import SkillRepository
-from selene.util.db import get_db_connection
 
 global_id_pattern = '^([^\|@]+)\|([^\|]+$)'             # matches <submodule_name>|<branch>
 global_id_dirt_pattern = '^@(.*)\|(.*)\|(.*)$'          # matches @<device_id>|<submodule_name>|<branch>
@@ -71,14 +70,21 @@ class DeviceSkillsEndpoint(PublicEndpoint):
     def get(self, device_id):
         self._authenticate(device_id)
         self._validate_etag(device_skill_etag_key(device_id))
-        with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
-            skills = SkillRepository(db).get_skill_settings_by_device_id(device_id)
+        skills = SkillRepository(self.db).get_skill_settings_by_device_id(device_id)
 
         if skills is not None:
-            response = Response(json.dumps(skills), status=HTTPStatus.OK, content_type='application_json')
+            response = Response(
+                json.dumps(skills),
+                status=HTTPStatus.OK,
+                content_type='application_json'
+            )
             self._add_etag(device_skill_etag_key(device_id))
         else:
-            response = Response('', status=HTTPStatus.NO_CONTENT, content_type='application_json')
+            response = Response(
+                '',
+                status=HTTPStatus.NO_CONTENT,
+                content_type='application_json'
+            )
         return response
 
     def put(self, device_id):
@@ -86,6 +92,5 @@ class DeviceSkillsEndpoint(PublicEndpoint):
         payload = json.loads(self.request.data)
         skill = Skill(payload)
         skill.validate()
-        with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
-            skill_id = SkillRepository(db).add(device_id, payload)
+        skill_id = SkillRepository(self.db).add(device_id, payload)
         return {'uuid': skill_id}, HTTPStatus.OK

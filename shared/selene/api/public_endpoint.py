@@ -2,11 +2,18 @@ import hashlib
 import json
 import uuid
 
-from flask import current_app, request, Response, after_this_request
+from flask import (
+    current_app,
+    request,
+    Response,
+    after_this_request,
+    g as global_context
+)
 from flask.views import MethodView
 
 from selene.api.etag import ETagManager
 from selene.util.auth import AuthenticationError
+from selene.util.db import get_db_connection_from_pool
 from selene.util.not_modified import NotModifiedError
 from ..util.cache import SeleneCache
 
@@ -63,8 +70,18 @@ class PublicEndpoint(MethodView):
     def __init__(self):
         self.config: dict = current_app.config
         self.request = request
+        global_context.url = request.url
         self.cache: SeleneCache = self.config['SELENE_CACHE']
         self.etag_manager: ETagManager = ETagManager(self.cache, self.config)
+
+    @property
+    def db(self):
+        if 'db' not in global_context:
+            global_context.db = get_db_connection_from_pool(
+                current_app.config['DB_CONNECTION_POOL']
+            )
+
+        return global_context.db
 
     def _authenticate(self, device_id: str = None):
         headers = self.request.headers

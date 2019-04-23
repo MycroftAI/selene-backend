@@ -5,7 +5,6 @@ from markdown import markdown
 
 from selene.api import SeleneEndpoint
 from selene.data.skill import SkillDisplay, SkillDisplayRepository
-from selene.util.db import get_db_connection
 
 
 class SkillDetailEndpoint(SeleneEndpoint):
@@ -29,11 +28,10 @@ class SkillDetailEndpoint(SeleneEndpoint):
 
     def _get_skill_details(self) -> SkillDisplay:
         """Build the data to include in the response."""
-        with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
-            display_repository = SkillDisplayRepository(db)
-            skill_display = display_repository.get_display_data_for_skill(
-                self.skill_display_id
-            )
+        display_repository = SkillDisplayRepository(self.db)
+        skill_display = display_repository.get_display_data_for_skill(
+            self.skill_display_id
+        )
 
         return skill_display
 

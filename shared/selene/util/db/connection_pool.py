@@ -66,3 +66,20 @@ def get_db_connection(connection_pool, autocommit=True):
         # manager's scope
         if db_connection is not None:
             connection_pool.putconn(db_connection)
+
+
+def get_db_connection_from_pool(connection_pool, autocommit=True):
+    """Obtain a database connection from a pool and release it when finished
+
+    :param connection_pool: pool of connections used by the applications
+    :param autocommit: indicates if transactions should commit automatically
+    :return: context object containing a database connection from the pool
+    """
+    db_connection = connection_pool.getconn()
+    db_connection.autocommit = autocommit
+
+    return db_connection
+
+
+def return_db_connection_to_pool(connection_pool, connection):
+    connection_pool.putconn(connection)
