@@ -2,6 +2,8 @@ import os
 
 from flask import Flask
 
+from public_api.endpoints.device_oauth_token import DeviceOauthTokenEndpoint
+from public_api.endpoints.device_oauth_url import DeviceOauthUrlEndpoint
 from selene.api import SeleneResponse, selene_api
 from selene.api.base_config import get_base_config
 from selene.api.public_endpoint import check_oauth_token
@@ -132,6 +134,17 @@ public.add_url_rule(
     methods=['GET', 'PUT']
 )
 
+public.add_url_rule(
+    '/v1/device/<string:device_id>/token/<string:credentials>',
+    view_func=DeviceOauthTokenEndpoint.as_view('oauth_token'),
+    methods=['GET']
+)
+
+public.add_url_rule(
+    '/v1/device/<string:device_id>/auth_url/<string:credentials>',
+    view_func=DeviceOauthUrlEndpoint.as_view('oauth_url'),
+    methods=['GET']
+)
 
 """
 This is a workaround to allow the API return 401 when we call a non existent path. Use case:
