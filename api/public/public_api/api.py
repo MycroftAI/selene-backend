@@ -134,7 +134,7 @@ public.add_url_rule(
 )
 
 public.add_url_rule(
-    '/v1/device/<string:device_id>/token/<string:credentials>/<string:oauth_path>',
+    '/v1/device/<string:device_id>/<string:oauth_path>/<string:credentials>',
     view_func=OauthServiceEndpoint.as_view('oauth_api'),
     methods=['GET']
 )
