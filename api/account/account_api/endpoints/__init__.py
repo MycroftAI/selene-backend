@@ -6,6 +6,7 @@ from .device import DeviceEndpoint
 from .device_count import DeviceCountEndpoint
 from .geography import GeographyEndpoint
 from .membership import MembershipEndpoint
+from .pairing_code import PairingCodeEndpoint
 from .region import RegionEndpoint
 from .skills import SkillsEndpoint
 from .skill_oauth import SkillOauthEndpoint
