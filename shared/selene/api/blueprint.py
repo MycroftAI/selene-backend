@@ -48,11 +48,11 @@ def add_api_metric(http_status):
     api = None
     # We are not logging metrics for the public API until after the socket
     # implementation to avoid putting millions of rows a day on the table
-    for api_name in ('account', 'sso', 'market'):
+    for api_name in ('account', 'sso', 'market', 'public'):
         if api_name in current_app.name:
             api = api_name
 
-    if api is not None:
+    if api is not None and int(http_status) != 304:
         if 'db' not in global_context:
             global_context.db = get_db_connection_from_pool(
                 current_app.config['DB_CONNECTION_POOL']
