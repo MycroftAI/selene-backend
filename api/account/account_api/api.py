@@ -15,6 +15,7 @@ from .endpoints import (
     GeographyEndpoint,
     MembershipEndpoint,
     RegionEndpoint,
+    PairingCodeEndpoint,
     SkillsEndpoint,
     # SkillOauthEndpoint,
     SkillSettingsEndpoint,
@@ -104,6 +105,13 @@ membership_endpoint = MembershipEndpoint.as_view('membership_endpoint')
 acct.add_url_rule(
     '/api/memberships',
     view_func=membership_endpoint,
+    methods=['GET']
+)
+
+pairing_code_endpoint = PairingCodeEndpoint.as_view('pairing_code_endpoint')
+acct.add_url_rule(
+    '/api/pairing-code/<string:pairing_code>',
+    view_func=pairing_code_endpoint,
     methods=['GET']
 )
 
