@@ -21,13 +21,13 @@ ONE_DAY = 86400
 
 
 def check_oauth_token():
-    global_context.url = request.url
     exclude_paths = ['/v1/device/code', '/v1/device/activate', '/api/account', '/v1/auth/token']
     exclude = any(request.path.startswith(path) for path in exclude_paths)
 
     if not exclude:
         headers = request.headers
         if 'Authorization' not in headers:
+            global_context.url = request.url
             raise AuthenticationError('Oauth token not found')
         token_header = headers['Authorization']
         device_authenticated = False
@@ -37,6 +37,7 @@ def check_oauth_token():
             if session:
                 device_authenticated = True
         if not device_authenticated:
+            global_context.url = request.url
             raise AuthenticationError('device not authorized')
 
 
