@@ -1,4 +1,5 @@
 from .authenticate_internal import AuthenticateInternalEndpoint
+from .github_token import GithubTokenEndpoint
 from .logout import LogoutEndpoint
 from .password_change import PasswordChangeEndpoint
 from .password_reset import PasswordResetEndpoint

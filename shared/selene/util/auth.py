@@ -2,6 +2,7 @@
 from datetime import datetime
 from http import HTTPStatus
 import json
+import os
 from time import time
 
 from facebook import GraphAPI
@@ -57,7 +58,7 @@ class AuthenticationToken(object):
                 self.is_valid = False
 
 
-def get_google_account_email(token):
+def get_google_account_email(token: str) -> str:
     google_response = requests.get(
         'https://oauth2.googleapis.com/tokeninfo?id_token=' + token
     )
@@ -70,8 +71,35 @@ def get_google_account_email(token):
     return email_address
 
 
-def get_facebook_account_email(token):
+def get_facebook_account_email(token: str) -> str:
     facebook_api = GraphAPI(token)
     facebook_account = facebook_api.get_object(id='me?fields=email')
 
     return facebook_account['email']
+
+
+def get_github_account_email(token: str) -> str:
+    github_user = requests.get(
+        'https://api.github.com/user',
+        headers=dict(Authorization='token ' + token, Accept='application/json')
+    )
+    response_content = json.loads(github_user.content)
+
+    return response_content['email']
+
+
+def get_github_authentication_token(access_code: str, state: str) -> str:
+    params = [
+        'client_id=' + os.environ['GITHUB_CLIENT_ID'],
+        'client_secret=' + os.environ['GITHUB_CLIENT_SECRET'],
+        'code=' + access_code,
+        'state=' + state
+    ]
+    github_response = requests.post(
+        'https://github.com/login/oauth/access_token?' + '&'.join(params),
+        headers=dict(Accept='application/json')
+    )
+    response_content = json.loads(github_response.content)
+    print(response_content)
+
+    return response_content.get('access_token')

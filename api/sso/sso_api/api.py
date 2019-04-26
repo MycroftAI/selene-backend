@@ -8,6 +8,7 @@ from selene.util.log import configure_logger
 
 from .endpoints import (
     AuthenticateInternalEndpoint,
+    GithubTokenEndpoint,
     LogoutEndpoint,
     PasswordChangeEndpoint,
     PasswordResetEndpoint,
@@ -28,6 +29,11 @@ sso.register_blueprint(selene_api)
 sso.add_url_rule(
     '/api/internal-login',
     view_func=AuthenticateInternalEndpoint.as_view('internal_login'),
+    methods=['GET']
+)
+sso.add_url_rule(
+    '/api/github-token',
+    view_func=GithubTokenEndpoint.as_view('github_token_endpoint'),
     methods=['GET']
 )
 sso.add_url_rule(
