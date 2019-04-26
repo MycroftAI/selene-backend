@@ -100,6 +100,5 @@ def get_github_authentication_token(access_code: str, state: str) -> str:
         headers=dict(Accept='application/json')
     )
     response_content = json.loads(github_response.content)
-    print(response_content)
 
     return response_content.get('access_token')
