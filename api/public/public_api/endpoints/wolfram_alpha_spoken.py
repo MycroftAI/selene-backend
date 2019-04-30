@@ -3,10 +3,10 @@ from http import HTTPStatus
 
 import requests
 
-from selene.api import SeleneEndpoint
+from selene.api import PublicEndpoint
 
 
-class WolframAlphaSpokenEndpoint(SeleneEndpoint):
+class WolframAlphaSpokenEndpoint(PublicEndpoint):
     """Endpoint to communicate with the Wolfram Alpha Spoken API"""
 
     def __init__(self):
