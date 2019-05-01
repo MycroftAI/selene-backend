@@ -13,8 +13,10 @@ SELECT
         'name', city.name,
         'state', json_build_object(
             'name', region.name,
+            'code', region.region_code,
             'country', json_build_object(
-                'name', country.name
+                'name', country.name,
+                'code', country.iso_code
             )
         )
     ) as city

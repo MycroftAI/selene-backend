@@ -45,9 +45,11 @@ def validate_location(context):
     state = city['state']
     assert_that(state, has_key('name'))
     assert_that(state, has_key('country'))
+    assert_that(state, has_key('code'))
 
     country = state['country']
     assert_that(country, has_key('name'))
+    assert_that(country, has_key('code'))
 
 
 @given('an expired etag from a location entity')
