@@ -1,4 +1,5 @@
 """API endpoint to return the a logged-in user's profile"""
+from binascii import a2b_base64
 import os
 from dataclasses import asdict
 from datetime import date, datetime, timedelta
@@ -15,9 +16,11 @@ from selene.data.account import (
     AccountAgreement,
     AccountRepository,
     AccountMembership,
+    OPEN_DATASET,
     PRIVACY_POLICY,
     TERMS_OF_USE,
-    MembershipRepository)
+    MembershipRepository
+)
 from selene.util.auth import (
     get_facebook_account_email,
     get_google_account_email
@@ -42,10 +45,10 @@ def agreement_accepted(value):
 class Login(Model):
     federated_platform = StringType(choices=['Facebook', 'Google'])
     federated_token = StringType()
-    user_entered_email = EmailType()
+    email = EmailType()
     password = StringType()
 
-    def validate_user_entered_email(self, data, value):
+    def validate_email(self, data, value):
         if data['federated_token'] is None:
             if value is None:
                 raise ValidationError(
@@ -53,7 +56,7 @@ class Login(Model):
                 )
 
     def validate_password(self, data, value):
-        if data['user_entered_email'] is not None:
+        if data['email'] is not None:
             if value is None:
                 raise ValidationError(
                     'email address must be accompanied by a password'
@@ -91,19 +94,25 @@ class UpdateMembershipRequest(Model):
 
 
 class AddAccountRequest(Model):
-    username = StringType(required=True)
     privacy_policy = BooleanType(required=True, validators=[agreement_accepted])
     terms_of_use = BooleanType(required=True, validators=[agreement_accepted])
     login = ModelType(Login)
-    support = ModelType(Support)
 
 
 class AccountEndpoint(SeleneEndpoint):
     """Retrieve information about the user based on their UUID"""
+    _account_repository = None
+
     def __init__(self):
         super(AccountEndpoint, self).__init__()
         self.request_data = None
-        stripe.api_key = os.environ['STRIPE_PRIVATE_KEY']
+
+    @property
+    def account_repository(self):
+        if self._account_repository is None:
+            self._account_repository = AccountRepository(self.db)
+
+        return self._account_repository
 
     def get(self):
         """Process HTTP GET request for an account."""
@@ -162,121 +171,86 @@ class AccountEndpoint(SeleneEndpoint):
 
     def _validate_post_request(self):
         add_request = AddAccountRequest(dict(
-            username=self.request_data.get('username'),
-            privacy_policy=self.request_data.get('privacyPolicy'),
-            terms_of_use=self.request_data.get('termsOfUse'),
+            privacy_policy=self.request.json.get('privacyPolicy'),
+            terms_of_use=self.request.json.get('termsOfUse'),
             login=self._build_login_schematic(),
-            support=self._build_support_schematic()
         ))
         add_request.validate()
 
+        self.request_data = add_request.to_native()
+
     def _build_login_schematic(self) -> Login:
         login = None
-        login_data = self.request_data['login']
+        login_data = self.request.json.get('login')
         if login_data is not None:
+            email = login_data.get('email')
+            if email is not None:
+                email = a2b_base64(email).decode()
+            password = login_data.get('password')
+            if password is not None:
+                password = a2b_base64(password).decode()
             login = Login(dict(
                 federated_platform=login_data.get('federatedPlatform'),
                 federated_token=login_data.get('federatedToken'),
-                user_entered_email=login_data.get('userEnteredEmail'),
-                password=login_data.get('password')
+                email=email,
+                password=password
             ))
 
         return login
 
-    def _build_support_schematic(self):
-        support = None
-        support_data = self.request_data.get('support')
-        if support_data is not None:
-            support = Support(dict(
-                open_dataset=support_data.get('openDataset'),
-                membership=support_data.get('membership'),
-                payment_method=support_data.get('paymentMethod'),
-                payment_token=support_data.get('paymentToken')
-            ))
-
-        return support
-
     def _determine_login_method(self):
         login_data = self.request_data['login']
         password = None
-        if login_data['federatedPlatform'] == 'Facebook':
+        if login_data['federated_platform'] == 'Facebook':
             email_address = get_facebook_account_email(
-                login_data['federatedToken']
+                login_data['federated_token']
             )
-        elif login_data['federatedPlatform'] == 'Google':
+        elif login_data['federated_platform'] == 'Google':
             email_address = get_google_account_email(
-                login_data['federatedToken']
+                login_data['federated_token']
             )
         else:
-            email_address = login_data['userEnteredEmail']
+            email_address = login_data['email']
             password = login_data['password']
 
         return email_address, password
 
     def _add_account(self, email_address, password):
-        account_membership = self._build_account_membership()
         account = Account(
             email_address=email_address,
-            username=self.request_data['username'],
             agreements=[
                 AccountAgreement(type=PRIVACY_POLICY, accept_date=date.today()),
                 AccountAgreement(type=TERMS_OF_USE, accept_date=date.today())
             ],
-            membership=account_membership
         )
-        acct_repository = AccountRepository(self.db)
-        acct_repository.add(account, password=password)
-
-    def _build_account_membership(self):
-        membership_type = self.request_data['support']['membership']
-        membership = None
-        if membership_type is not None:
-            payment_account_id = create_stripe_account(
-                self.request_data['support']['paymentToken'],
-                self.request_data['login']['userEnteredEmail']
-
-            )
-            stripe_plan = self._get_stripe_plan(membership_type)
-            subscription_id = create_stripe_subscription(
-                payment_account_id,
-                stripe_plan
-            )
-
-            membership = AccountMembership(
-                type=membership_type,
-                start_date=date.today(),
-                payment_method=self.request_data['support']['paymentMethod'],
-                payment_account_id=payment_account_id,
-                payment_id=subscription_id
-            )
-
-        return membership
+        self.account_repository.add(account, password=password)
 
     def patch(self):
         self._authenticate()
-        self.request_data = json.loads(self.request.data)
-        requested_updates, errors = self._validate_patch_request()
+        errors = self._update_account()
         if errors:
             response_data = dict(errors=errors)
             response_status = HTTPStatus.BAD_REQUEST
         else:
-            self._apply_updates(requested_updates)
             response_data = ''
             response_status = HTTPStatus.NO_CONTENT
 
         return response_data, response_status
 
-    def _validate_patch_request(self):
+    def _update_account(self):
         errors = []
-        requested_updates = []
-        for key, value in self.request_data.items():
+        for key, value in self.request.json.items():
             if key == 'membership':
                 valid_values = self._validate_membership_update_request(value)
-                requested_updates.append(valid_values)
+                self._update_membership(valid_values.to_native())
+            elif key == 'username':
+                self._update_username(value)
+            elif key == 'openDataset':
+                self._update_open_dataset_agreement(value)
             else:
                 errors.append('update of {} not supported'.format(key))
 
-        return requested_updates, errors
+        return errors
 
     def _validate_membership_update_request(self, value):
         validator = UpdateMembershipRequest()
@@ -288,18 +262,8 @@ class AccountEndpoint(SeleneEndpoint):
 
         return validator
 
-    def _apply_updates(self, requested_updates):
-        for requested_update in requested_updates:
-            if isinstance(requested_update, UpdateMembershipRequest):
-                self._update_membership(requested_update.to_native())
-
-    def _get_stripe_plan(self, plan):
-        membership_repository = MembershipRepository(self.db)
-        membership = membership_repository.get_membership_by_type(plan)
-
-        return membership.stripe_plan
-
     def _update_membership(self, membership_change):
+        stripe.api_key = os.environ['STRIPE_PRIVATE_KEY']
         active_membership = self._get_active_membership()
         if membership_change['membership_type'] is None:
             self._cancel_membership(active_membership)
@@ -350,8 +314,13 @@ class AccountEndpoint(SeleneEndpoint):
             type=membership_change['membership_type']
         )
 
-        account_repository = AccountRepository(self.db)
-        account_repository.add_membership(self.account.id, new_membership)
+        self.account_repository.add_membership(self.account.id, new_membership)
+
+    def _get_stripe_plan(self, plan):
+        membership_repository = MembershipRepository(self.db)
+        membership = membership_repository.get_membership_by_type(plan)
+
+        return membership.stripe_plan
 
     def _cancel_membership(self, active_membership):
         cancel_stripe_subscription(active_membership.payment_id)
@@ -359,9 +328,23 @@ class AccountEndpoint(SeleneEndpoint):
         membership_repository = MembershipRepository(self.db)
         membership_repository.finish_membership(active_membership)
 
+    def _update_username(self, username):
+        self.account_repository.update_username(self.account.id, username)
+
+    def _update_open_dataset_agreement(self, opt_in: bool):
+        if opt_in:
+            agreement = AccountAgreement(
+                type=OPEN_DATASET,
+                accept_date=date.today()
+            )
+            self.account_repository.add_agreement(self.account.id, agreement)
+        else:
+            self.account_repository.expire_open_dataset_agreement(
+                self.account.id
+            )
+
     def delete(self):
         self._authenticate()
-        account_repository = AccountRepository(self.db)
-        account_repository.remove(self.account)
+        self.account_repository.remove(self.account)
 
         return '', HTTPStatus.NO_CONTENT

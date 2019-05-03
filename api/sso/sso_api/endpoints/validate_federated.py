@@ -41,9 +41,8 @@ class ValidateFederatedEndpoint(SeleneEndpoint):
         self._get_account_by_email()
         self._generate_tokens()
         self._set_token_cookies()
-        self.response = dict(result='account validated'), HTTPStatus.OK
 
-        return self.response
+        return '', HTTPStatus.NO_CONTENT
 
     def _validate_request(self):
         validator = ValidateFederatedRequest(**self.request.json)

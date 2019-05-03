@@ -1,11 +1,11 @@
 from logging import getLogger
 from os import environ
-from typing import List
 
 from passlib.hash import sha512_crypt
 
 from selene.util.db import use_transaction
 from ..entity.account import Account, AccountAgreement, AccountMembership
+from ..entity.agreement import OPEN_DATASET
 from ...repository_base import RepositoryBase
 
 _log = getLogger('selene.data.account')
@@ -27,9 +27,8 @@ class AccountRepository(RepositoryBase):
     @use_transaction
     def add(self, account: Account, password: str) -> str:
         account_id = self._add_account(account, password)
-        self._add_agreements(account_id, account.agreements)
-        if account.membership is not None:
-            self.add_membership(account_id, account.membership)
+        for agreement in account.agreements:
+            self.add_agreement(account_id, agreement)
 
         _log.info('Added account {}'.format(account.email_address))
 
@@ -53,17 +52,16 @@ class AccountRepository(RepositoryBase):
 
         return result['id']
 
-    def _add_agreements(self, acct_id: str, agreements: List[AccountAgreement]):
+    def add_agreement(self, account_id: str, agreement: AccountAgreement):
         """Accounts cannot be added without agreeing to terms and privacy"""
-        for agreement in agreements:
-            request = self._build_db_request(
-                sql_file_name='add_account_agreement.sql',
-                args=dict(
-                    account_id=acct_id,
-                    agreement_name=agreement.type
-                )
+        request = self._build_db_request(
+            sql_file_name='add_account_agreement.sql',
+            args=dict(
+                account_id=account_id,
+                agreement_name=agreement.type
             )
-            self.cursor.insert(request)
+        )
+        self.cursor.insert(request)
 
     def add_membership(self, acct_id: str, membership: AccountMembership):
         """A membership is optional, add it if one was selected"""
@@ -180,3 +178,17 @@ class AccountRepository(RepositoryBase):
             args=dict(account_id=account_id, password=encrypted_password)
         )
         self.cursor.update(db_request)
+
+    def update_username(self, account_id: str, username: str):
+        db_request = self._build_db_request(
+            sql_file_name='update_username.sql',
+            args=dict(account_id=account_id, username=username)
+        )
+        self.cursor.update(db_request)
+
+    def expire_open_dataset_agreement(self, account_id: str):
+        db_request = self._build_db_request(
+            sql_file_name='expire_account_agreement.sql',
+            args=dict(account_id=account_id, agreement_type=OPEN_DATASET)
+        )
+        self.cursor.delete(db_request)

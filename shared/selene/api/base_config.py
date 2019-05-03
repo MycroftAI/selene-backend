@@ -80,8 +80,10 @@ def get_base_config():
         error_msg = 'no configuration defined for the "{}" environment'
         raise APIConfigError(error_msg.format(environment_name))
 
+    max_db_connections = os.environ.get('MAX_DB_CONNECTIONS', 20)
     app_config.DB_CONNECTION_POOL = allocate_db_connection_pool(
-        db_connection_config
+        db_connection_config,
+        max_db_connections
     )
 
     return app_config

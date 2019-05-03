@@ -3,5 +3,6 @@ from .github_token import GithubTokenEndpoint
 from .logout import LogoutEndpoint
 from .password_change import PasswordChangeEndpoint
 from .password_reset import PasswordResetEndpoint
+from .validate_email import ValidateEmailEndpoint
 from .validate_federated import ValidateFederatedEndpoint
 from .validate_token import ValidateTokenEndpoint
