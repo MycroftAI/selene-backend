@@ -5,6 +5,7 @@ import uuid
 from collections import defaultdict
 
 import time
+from geopy.distance import distance
 from psycopg2 import connect
 from psycopg2.extras import execute_batch
 
@@ -686,6 +687,56 @@ def analyze_locations():
     print('Number os mismatches: {}'.format(mismatches))
 
 
+def analyze_location_2():
+    aux = defaultdict(lambda: defaultdict(lambda: defaultdict(str)))
+
+    locations_from_db = defaultdict(list)
+    with db.cursor() as cur:
+        cur.execute('select '
+                    'c1.id, '
+                    'c1.name, '
+                    'c1.latitude, '
+                    'c1.longitude, '
+                    'r.name, '
+                    'c2.name, '
+                    'c2.iso_code '
+                    'from geography.city c1 '
+                    'inner join geography.region r on c1.region_id = r.id '
+                    'inner join geography.country c2 on r.country_id = c2.id')
+        for c1_id, c1, latitude, longitude, r, c2_name, c2_code in cur:
+            aux[c2_name][r][c1] = c1_id
+            locations_from_db[c2_code].append((c1, latitude, longitude))
+
+    for location_uuid, location in locations.items():
+        coordinate = coordinates[location_uuid]
+        city = cities[location['city']]
+        city_name = city['name']
+        region = regions[city['region']]
+        region_name = region['name']
+        country = countries[region['country']]
+        country_code = country['code']
+        country_name = country['name']
+
+        res = aux.get(country_name)
+        if res is not None:
+            res = res.get(region_name)
+            if res is not None:
+                res = res.get(city_name)
+                if res is not None:
+                    print('Match: {}'.format(city_name))
+                    continue
+        min_dist = None
+        result_name = None
+        for c1_name, latitude, longitude in locations_from_db[country_code]:
+            point1 = (float(latitude), float(longitude))
+            point2 = (float(coordinate['latitude']), float(coordinate['longitude']))
+            dist = distance(point1, point2).km
+            if min_dist is None or dist < min_dist:
+                min_dist = dist
+                result_name = c1_name
+        print('Actual: {}, calculated: {}'.format(city_name, result_name))
+
+
 start = time.time()
 load_csv()
 end = time.time()
@@ -702,14 +753,15 @@ print('Importing account preferences table')
 print('Importing subscription table')
 #fill_subscription_table()
 print('Importing wake word table')
-fill_default_wake_word()
-fill_wake_word_table()
+#fill_default_wake_word()
+#fill_wake_word_table()
 print('Importing wake word settings table')
-fill_wake_word_settings_table()
+#fill_wake_word_settings_table()
 print('Importing device table')
-change_device_name()
-fill_device_table()
+#change_device_name()
+#fill_device_table()
 print('Importing skills table')
 #fill_skills_table()
+analyze_location_2()
 end = time.time()
 print('Time to import: {}'.format(end-start))
