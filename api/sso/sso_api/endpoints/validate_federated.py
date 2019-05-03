@@ -8,15 +8,26 @@ on our database and build JWTs for access and refresh.
 from http import HTTPStatus
 from logging import getLogger
 
+from schematics import Model
+from schematics.types import StringType
+
 from selene.api import SeleneEndpoint
 from selene.data.account import AccountRepository
 from selene.util.auth import (
     AuthenticationError,
     get_facebook_account_email,
-    get_google_account_email
+    get_google_account_email,
+    get_github_account_email
 )
 
+FEDERATED_PLATFORMS = ('Facebook', 'Google', 'GitHub')
+
 _log = getLogger()
+
+
+class ValidateFederatedRequest(Model):
+    platform = StringType(required=True, choices=FEDERATED_PLATFORMS)
+    token = StringType(required=True)
 
 
 class ValidateFederatedEndpoint(SeleneEndpoint):
@@ -30,9 +41,12 @@ class ValidateFederatedEndpoint(SeleneEndpoint):
         self._get_account_by_email()
         self._generate_tokens()
         self._set_token_cookies()
-        self.response = dict(result='account validated'), HTTPStatus.OK
 
-        return self.response
+        return '', HTTPStatus.NO_CONTENT
+
+    def _validate_request(self):
+        validator = ValidateFederatedRequest(**self.request.json)
+        validator.validate()
 
     def _get_email_address(self):
         if self.request.json['platform'] == 'Google':
@@ -41,6 +55,10 @@ class ValidateFederatedEndpoint(SeleneEndpoint):
             )
         elif self.request.json['platform'] == 'Facebook':
             self.email_address = get_facebook_account_email(
+                self.request.json['token']
+            )
+        elif self.request.json['platform'] == 'GitHub':
+            self.email_address = get_github_account_email(
                 self.request.json['token']
             )
 

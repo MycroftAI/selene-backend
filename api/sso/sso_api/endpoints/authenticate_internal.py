@@ -25,16 +25,13 @@ class AuthenticateInternalEndpoint(SeleneEndpoint):
         self._generate_tokens()
         self._set_token_cookies()
 
-        self.response = dict(result='user authenticated'), HTTPStatus.OK
-
-        return self.response
+        return '', HTTPStatus.NO_CONTENT
 
     def _authenticate_credentials(self):
         """Compare credentials in request to credentials in database.
 
         :raises AuthenticationError when no match found on database
         """
-
         basic_credentials = self.request.headers['authorization']
         binary_credentials = a2b_base64(basic_credentials[6:])
         email_address, password = binary_credentials.decode().split(':||:')
