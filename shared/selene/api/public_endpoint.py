@@ -6,9 +6,9 @@ from flask import (
     current_app,
     request,
     Response,
-    after_this_request,
-    g as global_context
+    after_this_request
 )
+from flask import g as global_context
 from flask.views import MethodView
 
 from selene.api.etag import ETagManager
@@ -21,9 +21,9 @@ ONE_DAY = 86400
 
 
 def check_oauth_token():
+    global_context.url = request.url
     exclude_paths = ['/v1/device/code', '/v1/device/activate', '/api/account', '/v1/auth/token']
     exclude = any(request.path.startswith(path) for path in exclude_paths)
-
     if not exclude:
         headers = request.headers
         if 'Authorization' not in headers:

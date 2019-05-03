@@ -81,7 +81,7 @@ class PostgresDB(object):
         cursor.execute(sql)
 
 
-postgres_db = PostgresDB(dbname='postgres', user='chrisveilleux')
+postgres_db = PostgresDB(dbname='postgres', user='postgres')
 # postgres_db = PostgresDB(
 #     dbname='defaultdb',
 #     user='doadmin',

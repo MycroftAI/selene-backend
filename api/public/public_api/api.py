@@ -13,6 +13,7 @@ from .endpoints.device_code import DeviceCodeEndpoint
 from .endpoints.device_email import DeviceEmailEndpoint
 from .endpoints.device_location import DeviceLocationEndpoint
 from .endpoints.device_metrics import DeviceMetricsEndpoint, MetricsService
+from .endpoints.device_oauth import OauthServiceEndpoint
 from .endpoints.device_refresh_token import DeviceRefreshTokenEndpoint
 from .endpoints.device_setting import DeviceSettingEndpoint
 from .endpoints.device_skill import DeviceSkillEndpoint
@@ -130,6 +131,12 @@ public.add_url_rule(
     '/v1/device/<string:device_id>/skillJson',
     view_func=DeviceSkillManifestEndpoint.as_view('skill_manifest_api'),
     methods=['GET', 'PUT']
+)
+
+public.add_url_rule(
+    '/v1/device/<string:device_id>/<string:oauth_path>/<string:credentials>',
+    view_func=OauthServiceEndpoint.as_view('oauth_api'),
+    methods=['GET']
 )
 
 
