@@ -4,12 +4,12 @@ pipeline {
     stages {
 
         // Create the virtual environments and install the packages
-        stage('Build dev branch') {
+        stage('Dev PR') {
             when {
-                branch 'dev'
+                changeRequest target: 'dev'
             }
             steps {
-                echo 'Building code in the "dev" branch...'
+                echo 'running account API tests...'
                 sh '''
                     cd api/account
                     pipenv install
@@ -17,6 +17,5 @@ pipeline {
                 '''
             }
         }
-
     }
 }
