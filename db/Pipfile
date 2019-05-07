@@ -8,8 +8,6 @@ verify_ssl = true
 [packages]
 psycopg2-binary = "*"
 markdown = "*"
-ipython = "==5"
-jupyter = "*"
 
 [requires]
 python_version = "3.7"
