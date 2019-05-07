@@ -9,9 +9,14 @@ pipeline {
                 changeRequest target: 'dev'
             }
             steps {
+                echo 'setting up the mycroft db'
+                sh '''
+                    cd db
+                    pipenv install
+                '''
                 echo 'running account API tests...'
                 sh '''
-                    cd api/account
+                    cd ../api/account
                     pipenv install
                     pipenv install --dev
                 '''
