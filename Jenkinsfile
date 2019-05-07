@@ -13,6 +13,7 @@ pipeline {
                 sh '''
                     cd db
                     pipenv install
+                    pipenv run python scripts/bootstrap_mycroft_db.py
                 '''
                 echo 'running account API tests...'
                 sh '''
