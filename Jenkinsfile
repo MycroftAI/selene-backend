@@ -16,7 +16,7 @@ pipeline {
                 '''
                 echo 'running account API tests...'
                 sh '''
-                    cd ../api/account
+                    cd api/account
                     pipenv install
                     pipenv install --dev
                 '''
