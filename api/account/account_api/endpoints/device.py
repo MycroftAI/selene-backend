@@ -9,6 +9,7 @@ from schematics.types import StringType
 
 from selene.api import SeleneEndpoint
 from selene.api.etag import ETagManager
+from selene.api.public_endpoint import delete_device_login
 from selene.data.device import DeviceRepository, Geography, GeographyRepository
 from selene.util.cache import SeleneCache
 
@@ -169,12 +170,12 @@ class DeviceEndpoint(SeleneEndpoint):
     def delete(self, device_id):
         self._authenticate()
         self._delete_device(device_id)
-
         return '', HTTPStatus.NO_CONTENT
 
     def _delete_device(self, device_id):
         device_repository = DeviceRepository(self.db)
         device_repository.remove(device_id)
+        delete_device_login(device_id, self.cache)
 
     def patch(self, device_id):
         self._authenticate()
