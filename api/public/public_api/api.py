@@ -21,6 +21,7 @@ from .endpoints.device_skill_manifest import DeviceSkillManifestEndpoint
 from .endpoints.device_skills import DeviceSkillsEndpoint
 from .endpoints.device_subscription import DeviceSubscriptionEndpoint
 from .endpoints.google_stt import GoogleSTTEndpoint
+from .endpoints.oauth_callback import OauthCallbackEndpoint
 from .endpoints.open_weather_map import OpenWeatherMapEndpoint
 from .endpoints.wolfram_alpha import WolframAlphaEndpoint
 from .endpoints.wolfram_alpha_spoken import WolframAlphaSpokenEndpoint
@@ -131,6 +132,12 @@ public.add_url_rule(
     '/v1/device/<string:device_id>/skillJson',
     view_func=DeviceSkillManifestEndpoint.as_view('skill_manifest_api'),
     methods=['GET', 'PUT']
+)
+
+public.add_url_rule(
+    '/v1/auth/callback',
+    view_func=OauthCallbackEndpoint.as_view('oauth_callback_api'),
+    methods=['GET']
 )
 
 public.add_url_rule(

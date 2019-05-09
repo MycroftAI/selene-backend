@@ -1,13 +1,14 @@
 import requests
-from flask.views import MethodView
 
+from selene.api import PublicEndpoint
 from selene.data.account import AccountRepository
 from selene.util.db import get_db_connection
 
 
-class OauthServiceEndpoint(MethodView):
+class OauthServiceEndpoint(PublicEndpoint):
 
     def __init__(self):
+        super(OauthServiceEndpoint, self).__init__()
         self.oauth_service_host = self.config['OAUTH_BASE_URL']
 
     def get(self, device_id, credentials, oauth_path):
