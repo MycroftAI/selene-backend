@@ -20,3 +20,10 @@ Feature: Add a new account
     When the new account request is submitted
     Then the request will fail with a bad request error
 
+  Scenario: Successful account deletion with membership
+    Given a user completes on-boarding
+      And user opts into a membership
+     When the new account request is submitted
+      And the account is deleted
+     Then the request will be successful
+      And the membership is removed from stripe
