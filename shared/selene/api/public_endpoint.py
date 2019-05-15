@@ -61,7 +61,21 @@ def generate_device_login(device_id: str, cache: SeleneCache) -> dict:
     )
     # Storing device refresh token for ever:
     cache.set('device.token.refresh:{refresh}'.format(refresh=refresh), login_json)
+
+    # Storing the login session by uuid (that allows us to delete session using the uuid)
+    cache.set('device.session:{uuid}'.format(uuid=device_id), login_json)
     return login
+
+
+def delete_device_login(device_id: str, cache: SeleneCache):
+    session = cache.get('device.session:{uuid}'.format(uuid=device_id))
+    if session is not None:
+        session = json.loads(session)
+        access_token = session['accessToken']
+        cache.delete('device.token.access:{access}'.format(access=access_token))
+        refresh_token = session['refreshToken']
+        cache.delete('device.refresh.token:{refresh}'.format(refresh=refresh_token))
+        cache.delete('device.session:{uuid}'.format(uuid=device_id))
 
 
 class PublicEndpoint(MethodView):
