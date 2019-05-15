@@ -11,3 +11,4 @@ class ApiMetric(object):
     http_status: int
     id: str = None
     account_id: str = None
+    device_id: str = None
