@@ -64,11 +64,15 @@ def before_scenario(context, _):
     cache = context.client_config['SELENE_CACHE']
     context.etag_manager = ETagManager(cache, context.client_config)
     with get_db_connection(context.client_config['DB_CONNECTION_POOL']) as db:
-        _add_agreements(context, db)
-        _add_account(context, db)
-        _add_account_preference(context, db)
-        _add_geography(context, db)
-        _add_device(context, db)
+        try:
+            _add_agreements(context, db)
+            _add_account(context, db)
+            _add_account_preference(context, db)
+            _add_geography(context, db)
+            _add_device(context, db)
+        except Exception as e:
+            import traceback
+            print(traceback.print_exc())
 
 
 def after_scenario(context, _):
