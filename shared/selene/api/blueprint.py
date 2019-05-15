@@ -62,13 +62,19 @@ def add_api_metric(http_status):
         else:
             account_id = None
 
+        if 'device_id' in global_context:
+            device_id = global_context.device_id
+        else:
+            device_id = None
+
         api_metric = ApiMetric(
-            url=global_context.url,
             access_ts=datetime.utcnow(),
-            api=api,
-            duration=(datetime.utcnow() - global_context.start_ts).microseconds,
             account_id=account_id,
-            http_status=int(http_status)
+            api=api,
+            device_id=device_id,
+            duration=(datetime.utcnow() - global_context.start_ts).microseconds,
+            http_status=int(http_status),
+            url=global_context.url
         )
         metric_repository = ApiMetricsRepository(global_context.db)
         metric_repository.add(api_metric)
