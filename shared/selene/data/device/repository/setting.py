@@ -54,7 +54,7 @@ class SettingRepository(object):
                 del response['listener_setting']
             tts_setting = response['tts_settings']
             tts_setting = self.convert_text_to_speech_setting(tts_setting['setting_name'], tts_setting['engine'])
-            tts_setting = [{'@type': tts_setting[0], 'voice': tts_setting[1]}]
+            tts_setting = [{'module': tts_setting[0], 'voice': tts_setting[1]}]
             response['tts_settings'] = tts_setting
             response['date_format'] = self._format_date_v1(response['date_format'])
             response['time_format'] = self._format_time_v1(response['time_format'])
