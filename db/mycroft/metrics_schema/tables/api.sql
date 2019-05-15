@@ -8,5 +8,6 @@ CREATE TABLE metrics.api (
     duration    INTEGER     NOT NULL,
     http_status CHAR(3)     NOT NULL,
     account_id  uuid,
+    device_id   uuid,
     UNIQUE (url, access_ts)
 )

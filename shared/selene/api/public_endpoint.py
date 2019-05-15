@@ -109,8 +109,9 @@ class PublicEndpoint(MethodView):
             if session is not None:
                 if device_id is not None:
                     session = json.loads(session)
-                    uuid = session['uuid']
-                    device_authenticated = (device_id == uuid)
+                    device_uuid = session['uuid']
+                    global_context.device_id = device_uuid
+                    device_authenticated = (device_id == device_uuid)
                 else:
                     device_authenticated = True
         if not device_authenticated:
