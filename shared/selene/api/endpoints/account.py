@@ -1,6 +1,6 @@
 """API endpoint to return the a logged-in user's profile"""
-from binascii import a2b_base64
 import os
+from binascii import a2b_base64
 from dataclasses import asdict
 from datetime import date, datetime, timedelta
 from http import HTTPStatus
@@ -171,8 +171,8 @@ class AccountEndpoint(SeleneEndpoint):
 
     def _validate_post_request(self):
         add_request = AddAccountRequest(dict(
-            privacy_policy=self.request.json.get('privacyPolicy'),
-            terms_of_use=self.request.json.get('termsOfUse'),
+            privacy_policy=self.request_data.get('privacyPolicy'),
+            terms_of_use=self.request_data.get('termsOfUse'),
             login=self._build_login_schematic(),
         ))
         add_request.validate()
@@ -346,5 +346,7 @@ class AccountEndpoint(SeleneEndpoint):
     def delete(self):
         self._authenticate()
         self.account_repository.remove(self.account)
-
+        membership = self.account.membership
+        if membership is not None:
+            cancel_stripe_subscription(membership.payment_id)
         return '', HTTPStatus.NO_CONTENT

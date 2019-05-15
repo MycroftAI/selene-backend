@@ -1,8 +1,11 @@
+import os
 from datetime import date
 
+import stripe
 from behave import given, then, when
 from flask import json
 from hamcrest import assert_that, equal_to, is_in, none, not_none, starts_with
+from stripe.error import InvalidRequestError
 
 from selene.data.account import AccountRepository, PRIVACY_POLICY, TERMS_OF_USE
 from selene.util.db import get_db_connection
@@ -82,3 +85,25 @@ def check_db_for_account(context, membership_option):
         for agreement in account.agreements:
             assert_that(agreement.type, is_in((PRIVACY_POLICY, TERMS_OF_USE)))
             assert_that(agreement.accept_date, equal_to(str(date.today())))
+
+
+@when('the account is deleted')
+def account_deleted(context):
+    with get_db_connection(context.client_config['DB_CONNECTION_POOL']) as db:
+        acct_repository = AccountRepository(db)
+        account = acct_repository.get_account_by_email('bar@mycroft.ai')
+        context.stripe_id = account.membership.payment_id
+    context.response = context.client.delete('/api/account')
+
+
+@then('he membership is removed from stripe')
+def check_stripe(context):
+    stripe_id = context.stripe_id
+    assert_that(stripe_id, not_none())
+    stripe.api_key = os.environ['STRIPE_PRIVATE_KEY']
+    subscription_not_found = False
+    try:
+        stripe.Subscription.retrieve(stripe_id)
+    except InvalidRequestError:
+        subscription_not_found = True
+    assert_that(subscription_not_found, equal_to(True))
