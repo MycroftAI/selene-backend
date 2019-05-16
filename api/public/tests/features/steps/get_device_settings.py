@@ -31,6 +31,8 @@ def validate_response_setting(context):
     assert_that(setting, has_key('timeFormat'))
     assert_that(setting, has_key('dateFormat'))
     assert_that(setting, has_key('ttsSettings'))
+    tts = setting['ttsSettings']
+    assert_that(tts, has_key('module'))
 
 
 @when('the settings endpoint is a called to a not allowed device')
