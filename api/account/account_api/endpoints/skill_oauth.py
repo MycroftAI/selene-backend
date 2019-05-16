@@ -1,5 +1,4 @@
 import os
-from http import HTTPStatus
 
 import requests
 
@@ -13,9 +12,7 @@ class SkillOauthEndpoint(SeleneEndpoint):
 
     def get(self, oauth_id):
         self._authenticate()
-        self._get_oauth_url(oauth_id)
-
-        return '', HTTPStatus.NO_CONTENT
+        return self._get_oauth_url(oauth_id)
 
     def _get_oauth_url(self, oauth_id):
         url = '{base_url}/auth/{oauth_id}/auth_url?uuid={account_id}'.format(
