@@ -17,7 +17,7 @@ from .endpoints import (
     RegionEndpoint,
     PairingCodeEndpoint,
     SkillsEndpoint,
-    # SkillOauthEndpoint,
+    SkillOauthEndpoint,
     SkillSettingsEndpoint,
     TimezoneEndpoint,
     VoiceEndpoint,
@@ -143,12 +143,12 @@ acct.add_url_rule(
     methods=['GET']
 )
 
-# skill_oauth_endpoint = SkillOauthEndpoint.as_view('skill_oauth_endpoint')
-# acct.add_url_rule(
-#     '/api/skills/oauth/<int:oauth_id>',
-#     view_func=skill_oauth_endpoint,
-#     methods=['GET']
-# )
+skill_oauth_endpoint = SkillOauthEndpoint.as_view('skill_oauth_endpoint')
+acct.add_url_rule(
+    '/api/skills/oauth/<int:oauth_id>',
+    view_func=skill_oauth_endpoint,
+    methods=['GET']
+)
 
 timezone_endpoint = TimezoneEndpoint.as_view('timezone_endpoint')
 acct.add_url_rule(
