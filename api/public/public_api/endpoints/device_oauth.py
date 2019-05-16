@@ -1,3 +1,5 @@
+import os
+
 import requests
 
 from selene.api import PublicEndpoint
@@ -9,7 +11,7 @@ class OauthServiceEndpoint(PublicEndpoint):
 
     def __init__(self):
         super(OauthServiceEndpoint, self).__init__()
-        self.oauth_service_host = self.config['OAUTH_BASE_URL']
+        self.oauth_service_host = os.environ['OAUTH_BASE_URL']
 
     def get(self, device_id, credentials, oauth_path):
         with get_db_connection(self.config['DB_CONNECTION_POOL']) as db:
