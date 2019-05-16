@@ -23,4 +23,5 @@ class SkillOauthEndpoint(SeleneEndpoint):
             oauth_id=oauth_id,
             account_id=self.account.id
         )
-        return requests.get(url)
+        response = requests.get(url)
+        return response.text, response.status_code

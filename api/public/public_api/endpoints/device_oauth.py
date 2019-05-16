@@ -23,4 +23,5 @@ class OauthServiceEndpoint(PublicEndpoint):
             oauth_path=oauth_path
         )
         params = dict(uuid=uuid)
-        return requests.get(url, params=params)
+        response = requests.get(url, params=params)
+        return response.text, response.status_code
