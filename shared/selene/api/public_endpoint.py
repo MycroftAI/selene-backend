@@ -107,10 +107,10 @@ class PublicEndpoint(MethodView):
             token = token_header[len('Bearer '):]
             session = self.cache.get('device.token.access:{access}'.format(access=token))
             if session is not None:
+                session = json.loads(session)
+                device_uuid = session['uuid']
+                global_context.device_id = device_uuid
                 if device_id is not None:
-                    session = json.loads(session)
-                    device_uuid = session['uuid']
-                    global_context.device_id = device_uuid
                     device_authenticated = (device_id == device_uuid)
                 else:
                     device_authenticated = True
