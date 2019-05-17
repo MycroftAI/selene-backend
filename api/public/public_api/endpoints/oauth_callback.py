@@ -1,14 +1,12 @@
 import os
 
 import requests
+from flask.views import MethodView
 
-from selene.api import PublicEndpoint
 
-
-class OauthCallbackEndpoint(PublicEndpoint):
+class OauthCallbackEndpoint(MethodView):
 
     def __init__(self):
-        super(OauthCallbackEndpoint, self).__init__()
         self.oauth_service_host = os.environ['OAUTH_BASE_URL']
 
     def get(self):
