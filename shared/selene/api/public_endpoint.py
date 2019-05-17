@@ -22,7 +22,7 @@ ONE_DAY = 86400
 
 def check_oauth_token():
     global_context.url = request.url
-    exclude_paths = ['/v1/device/code', '/v1/device/activate', '/api/account', '/v1/auth/token']
+    exclude_paths = ['/v1/device/code', '/v1/device/activate', '/api/account', '/v1/auth/token', '/v1/auth/callback']
     exclude = any(request.path.startswith(path) for path in exclude_paths)
     if not exclude:
         headers = request.headers
