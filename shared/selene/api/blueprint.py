@@ -1,5 +1,5 @@
-from datetime import datetime
 import json
+from datetime import datetime
 from http import HTTPStatus
 
 from flask import current_app, Blueprint, g as global_context
@@ -29,6 +29,11 @@ def handle_data_error(error):
 @selene_api.app_errorhandler(NotModifiedError)
 def handle_not_modified(error):
     return '', HTTPStatus.NOT_MODIFIED
+
+
+@selene_api.app_errorhandler(Exception)
+def release_connection_after_error(error):
+    release_db_connection()
 
 
 @selene_api.before_app_request
