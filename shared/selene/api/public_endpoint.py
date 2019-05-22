@@ -13,7 +13,7 @@ from flask.views import MethodView
 
 from selene.api.etag import ETagManager
 from selene.util.auth import AuthenticationError
-from selene.util.db import get_db_connection_from_pool
+from selene.util.db import connect_to_db
 from selene.util.not_modified import NotModifiedError
 from ..util.cache import SeleneCache
 
@@ -91,8 +91,8 @@ class PublicEndpoint(MethodView):
     @property
     def db(self):
         if 'db' not in global_context:
-            global_context.db = get_db_connection_from_pool(
-                current_app.config['DB_CONNECTION_POOL']
+            global_context.db = connect_to_db(
+                current_app.config['DB_CONNECTION_CONFIG']
             )
 
         return global_context.db

@@ -43,6 +43,14 @@ class BaseConfig(object):
     DEBUG = False
     ENV = os.environ['SELENE_ENVIRONMENT']
     REFRESH_SECRET = os.environ['JWT_REFRESH_SECRET']
+    DB_CONNECTION_CONFIG = DatabaseConnectionConfig(
+        host=os.environ['DB_HOST'],
+        db_name=os.environ['DB_NAME'],
+        password=os.environ['DB_PASSWORD'],
+        port=os.environ.get('DB_PORT', 5432),
+        user=os.environ['DB_USER'],
+        sslmode=os.environ.get('DB_SSLMODE')
+    )
 
 
 class DevelopmentConfig(BaseConfig):

@@ -6,12 +6,12 @@ Example Usage:
     query_result = mycroft_db_ro.execute_sql(sql)
 """
 
-from contextlib import contextmanager
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, InitVar
 from logging import getLogger
 
 from psycopg2 import connect
-from psycopg2.extras import RealDictCursor
+from psycopg2.extras import RealDictCursor, NamedTupleCursor
+from psycopg2.extensions import cursor
 
 _log = getLogger(__package__)
 
@@ -29,10 +29,16 @@ class DatabaseConnectionConfig(object):
     password: str
     port: int = field(default=5432)
     sslmode: str = None
+    autocommit: str = True
+    cursor_factory = RealDictCursor
+    use_namedtuple_cursor: InitVar[bool] = False
+
+    def __post_init__(self, use_namedtuple_cursor: bool):
+        if use_namedtuple_cursor:
+            self.cursor_factory = NamedTupleCursor
 
 
-@contextmanager
-def connect_to_db(connection_config: DatabaseConnectionConfig, autocommit=True):
+def connect_to_db(connection_config: DatabaseConnectionConfig):
     """
     Return a connection to the mycroft database for the specified user.
 
@@ -41,33 +47,19 @@ def connect_to_db(connection_config: DatabaseConnectionConfig, autocommit=True):
     python notebook)
 
     :param connection_config: data needed to establish a connection
-    :param autocommit: indicated if transactions should commit automatically
     :return: database connection
     """
-    db = None
     log_msg = 'establishing connection to the {db_name} database'
     _log.info(log_msg.format(db_name=connection_config.db_name))
-    try:
-        if connection_config.sslmode is None:
-            db = connect(
-                host=connection_config.host,
-                dbname=connection_config.db_name,
-                user=connection_config.user,
-                port=connection_config.port,
-                cursor_factory=RealDictCursor,
-            )
-        else:
-            db = connect(
-                host=connection_config.host,
-                dbname=connection_config.db_name,
-                user=connection_config.user,
-                password=connection_config.password,
-                port=connection_config.port,
-                cursor_factory=RealDictCursor,
-                sslmode=connection_config.sslmode
-            )
-        db.autocommit = autocommit
-        yield db
-    finally:
-        if db is not None:
-            db.close()
+    db = connect(
+        host=connection_config.host,
+        dbname=connection_config.db_name,
+        user=connection_config.user,
+        password=connection_config.password,
+        port=connection_config.port,
+        cursor_factory=connection_config.cursor_factory,
+        sslmode=connection_config.sslmode
+    )
+    db.autocommit = connection_config.autocommit
+
+    return db
