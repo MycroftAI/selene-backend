@@ -45,7 +45,7 @@ class SkillInstallEndpoint(SeleneEndpoint):
     def _validate_request(self):
         install_request = InstallRequest()
         install_request.setting_section = self.request.json['section']
-        install_request.skill_name = self.request.json['skillName']
+        install_request.skill_name = self.request.json['skill_name']
         install_request.validate()
 
     def _get_installer_settings(self):
