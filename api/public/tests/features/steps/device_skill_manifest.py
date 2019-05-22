@@ -17,7 +17,8 @@ skill_manifest = {
           "installed": datetime.now().timestamp(),
           "updated": datetime.now().timestamp(),
           "installation": "installed",
-          "update": 0
+          "update": 0,
+          "skill_gid": "fallback-wolfram-alpha|19.02",
         }
     ]
 }
