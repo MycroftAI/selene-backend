@@ -22,15 +22,6 @@ import os
 
 from selene.util.db import allocate_db_connection_pool, DatabaseConnectionConfig
 
-db_connection_config = DatabaseConnectionConfig(
-    host=os.environ['DB_HOST'],
-    db_name=os.environ['DB_NAME'],
-    password=os.environ['DB_PASSWORD'],
-    port=os.environ.get('DB_PORT', 5432),
-    user=os.environ['DB_USER'],
-    sslmode=os.environ.get('DB_SSLMODE')
-)
-
 
 class APIConfigError(Exception):
     pass

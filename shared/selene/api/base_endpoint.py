@@ -6,7 +6,7 @@ from flask.views import MethodView
 
 from selene.data.account import Account, AccountRepository
 from selene.util.auth import AuthenticationError, AuthenticationToken
-from selene.util.db import get_db_connection_from_pool
+from selene.util.db import connect_to_db
 
 ACCESS_TOKEN_COOKIE_NAME = 'seleneAccess'
 FIFTEEN_MINUTES = 900
@@ -42,8 +42,8 @@ class SeleneEndpoint(MethodView):
     @property
     def db(self):
         if 'db' not in global_context:
-            global_context.db = get_db_connection_from_pool(
-                current_app.config['DB_CONNECTION_POOL']
+            global_context.db = connect_to_db(
+                current_app.config['DB_CONNECTION_CONFIG']
             )
 
         return global_context.db
