@@ -18,7 +18,7 @@ class MetricsService(object):
             deviceUuid=device_id,
             data=data
         )
-        url = '{host}/{metric}'.format(host=self.metrics_service_host, metric=metric)
+        url = '{host}/metrics/{metric}'.format(host=self.metrics_service_host, metric=metric)
         requests.post(url, body)
 
 
