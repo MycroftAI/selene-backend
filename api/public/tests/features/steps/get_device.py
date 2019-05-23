@@ -31,6 +31,7 @@ def validate_response(context):
     response = context.get_device_response
     assert_that(response.status_code, equal_to(HTTPStatus.OK))
     device = json.loads(response.data)
+    assert_that(device, has_key('uuid'))
     assert_that(device, has_key('name'))
     assert_that(device, has_key('description'))
     assert_that(device, has_key('coreVersion'))

@@ -1,5 +1,6 @@
-import os
+from binascii import b2a_base64
 from datetime import date
+import os
 
 import stripe
 from behave import given, then, when
@@ -8,7 +9,7 @@ from hamcrest import assert_that, equal_to, is_in, none, not_none, starts_with
 from stripe.error import InvalidRequestError
 
 from selene.data.account import AccountRepository, PRIVACY_POLICY, TERMS_OF_USE
-from selene.util.db import get_db_connection
+from selene.util.db import connect_to_db
 
 new_account_request = dict(
     username='barfoo',
@@ -17,8 +18,8 @@ new_account_request = dict(
     login=dict(
         federatedPlatform=None,
         federatedToken=None,
-        userEnteredEmail='bar@mycroft.ai',
-        password='bar'
+        userEnteredEmail=b2a_base64(b'bar@mycroft.ai').decode(),
+        password=b2a_base64(b'bar').decode()
     ),
     support=dict(openDataset=True)
 )
@@ -58,41 +59,41 @@ def call_add_account_endpoint(context):
     context.response = context.client.post(
         '/api/account',
         data=json.dumps(context.new_account_request),
-        content_type='application_json'
+        content_type='application/json'
     )
 
 
 @then('the account will be added to the system {membership_option}')
 def check_db_for_account(context, membership_option):
-    with get_db_connection(context.client_config['DB_CONNECTION_POOL']) as db:
-        acct_repository = AccountRepository(db)
-        account = acct_repository.get_account_by_email('bar@mycroft.ai')
-        assert_that(account, not_none())
+    db = connect_to_db(context.client_config['DB_CONNECTION_CONFIG'])
+    acct_repository = AccountRepository(db)
+    account = acct_repository.get_account_by_email('bar@mycroft.ai')
+    assert_that(account, not_none())
+    assert_that(
+        account.email_address, equal_to('bar@mycroft.ai')
+    )
+    assert_that(account.username, equal_to('barfoo'))
+    if membership_option == 'with a membership':
+        assert_that(account.membership.type, equal_to('Monthly Membership'))
         assert_that(
-            account.email_address, equal_to('bar@mycroft.ai')
+            account.membership.payment_account_id,
+            starts_with('cus')
         )
-        assert_that(account.username, equal_to('barfoo'))
-        if membership_option == 'with a membership':
-            assert_that(account.membership.type, equal_to('Monthly Membership'))
-            assert_that(
-                account.membership.payment_account_id,
-                starts_with('cus')
-            )
-        elif membership_option == 'without a membership':
-            assert_that(account.membership, none())
+    elif membership_option == 'without a membership':
+        assert_that(account.membership, none())
 
-        assert_that(len(account.agreements), equal_to(2))
-        for agreement in account.agreements:
-            assert_that(agreement.type, is_in((PRIVACY_POLICY, TERMS_OF_USE)))
-            assert_that(agreement.accept_date, equal_to(str(date.today())))
+    assert_that(len(account.agreements), equal_to(2))
+    for agreement in account.agreements:
+        assert_that(agreement.type, is_in((PRIVACY_POLICY, TERMS_OF_USE)))
+        assert_that(agreement.accept_date, equal_to(str(date.today())))
 
 
 @when('the account is deleted')
 def account_deleted(context):
-    with get_db_connection(context.client_config['DB_CONNECTION_POOL']) as db:
-        acct_repository = AccountRepository(db)
-        account = acct_repository.get_account_by_email('bar@mycroft.ai')
-        context.stripe_id = account.membership.payment_id
+    db = connect_to_db(context.client_config['DB_CONNECTION_CONFIG'])
+    acct_repository = AccountRepository(db)
+    account = acct_repository.get_account_by_email('bar@mycroft.ai')
+    context.stripe_id = account.membership.payment_id
     context.response = context.client.delete('/api/account')
 
 

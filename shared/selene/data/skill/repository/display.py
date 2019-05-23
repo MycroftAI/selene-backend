@@ -12,7 +12,7 @@ class SkillDisplayRepository(RepositoryBase):
             sql_file_name='get_display_data_for_skills.sql'
         )
 
-    def get_display_data_for_skill(self, skill_display_id):
+    def get_display_data_for_skill(self, skill_display_id) -> SkillDisplay:
         return self._select_one_into_dataclass(
             dataclass=SkillDisplay,
             sql_file_name='get_display_data_for_skill.sql',

@@ -13,7 +13,7 @@ from selene.data.account import (
     AgreementRepository,
     PRIVACY_POLICY
 )
-from selene.util.db import get_db_connection
+from selene.util.db import connect_to_db
 
 
 @fixture
@@ -32,9 +32,9 @@ def before_feature(context, _):
 
 
 def before_scenario(context, _):
-    with get_db_connection(context.client_config['DB_CONNECTION_POOL']) as db:
-        _add_agreement(context, db)
-        _add_account(context, db)
+    db = connect_to_db(context.client_config['DB_CONNECTION_CONFIG'])
+    _add_agreement(context, db)
+    _add_account(context, db)
 
 
 def _add_agreement(context, db):
@@ -72,8 +72,8 @@ def _add_account(context, db):
 
 
 def after_scenario(context, _):
-    with get_db_connection(context.db_pool) as db:
-        acct_repository = AccountRepository(db)
-        acct_repository.remove(context.account)
-        agreement_repository = AgreementRepository(db)
-        agreement_repository.remove(context.agreement, testing=True)
+    db = connect_to_db(context.client_config['DB_CONNECTION_CONFIG'])
+    acct_repository = AccountRepository(db)
+    acct_repository.remove(context.account)
+    agreement_repository = AgreementRepository(db)
+    agreement_repository.remove(context.agreement, testing=True)

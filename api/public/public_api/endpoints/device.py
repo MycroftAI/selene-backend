@@ -28,6 +28,7 @@ class DeviceEndpoint(PublicEndpoint):
 
         if device is not None:
             response_data = dict(
+                uuid=device.id,
                 name=device.name,
                 description=device.placement,
                 coreVersion=device.core_version,

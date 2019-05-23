@@ -6,7 +6,7 @@ from hamcrest import assert_that, equal_to, not_none, is_not
 
 from selene.api.etag import ETagManager, device_skill_etag_key
 from selene.data.skill import SkillSettingRepository
-from selene.util.db import get_db_connection
+from selene.util.db import connect_to_db
 
 skill = {
     'skill_gid': 'wolfram-alpha|19.02',
@@ -106,8 +106,8 @@ def update_skill(context):
     }]
     response = json.loads(context.upload_device_response.data)
     skill_id = response['uuid']
-    with get_db_connection(context.client_config['DB_CONNECTION_POOL']) as db:
-        SkillSettingRepository(db).update_device_skill_settings(skill_id, update_settings)
+    db = connect_to_db(context.client_config['DB_CONNECTION_CONFIG'])
+    SkillSettingRepository(db).update_device_skill_settings(skill_id, update_settings)
 
 
 @when('the skill settings is fetched')

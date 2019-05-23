@@ -21,7 +21,7 @@ from selene.data.device import (
     Geography)
 from selene.data.device.entity.text_to_speech import TextToSpeech
 from selene.data.device.entity.wake_word import WakeWord
-from selene.util.db import get_db_connection
+from selene.util.db import connect_to_db
 
 account = Account(
     email_address='test@test.com',
@@ -63,22 +63,22 @@ def before_feature(context, _):
 def before_scenario(context, _):
     cache = context.client_config['SELENE_CACHE']
     context.etag_manager = ETagManager(cache, context.client_config)
-    with get_db_connection(context.client_config['DB_CONNECTION_POOL']) as db:
-        try:
-            _add_agreements(context, db)
-            _add_account(context, db)
-            _add_account_preference(context, db)
-            _add_geography(context, db)
-            _add_device(context, db)
-        except Exception as e:
-            import traceback
-            print(traceback.print_exc())
+    db = connect_to_db(context.client_config['DB_CONNECTION_CONFIG'])
+    try:
+        _add_agreements(context, db)
+        _add_account(context, db)
+        _add_account_preference(context, db)
+        _add_geography(context, db)
+        _add_device(context, db)
+    except Exception as e:
+        import traceback
+        print(traceback.print_exc())
 
 
 def after_scenario(context, _):
-    with get_db_connection(context.client_config['DB_CONNECTION_POOL']) as db:
-        _remove_account(context, db)
-        _remove_agreements(context, db)
+    db = connect_to_db(context.client_config['DB_CONNECTION_CONFIG'])
+    _remove_account(context, db)
+    _remove_agreements(context, db)
 
 
 def _add_agreements(context, db):

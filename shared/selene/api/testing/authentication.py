@@ -2,7 +2,7 @@ from hamcrest import assert_that, equal_to, has_item
 
 from selene.data.account import Account, AccountRepository
 from selene.util.auth import AuthenticationToken
-from selene.util.db import get_db_connection
+from selene.util.db import connect_to_db
 
 ACCESS_TOKEN_COOKIE_KEY = 'seleneAccess'
 ONE_MINUTE = 60
@@ -77,8 +77,8 @@ def _parse_cookie(cookie: str) -> dict:
 
 
 def get_account(context) -> Account:
-    with get_db_connection(context.db_pool) as db:
-        acct_repository = AccountRepository(db)
-        account = acct_repository.get_account_by_id(context.account.id)
+    db = connect_to_db(context.client['DB_CONNECTION_CONFIG'])
+    acct_repository = AccountRepository(db)
+    account = acct_repository.get_account_by_id(context.account.id)
 
     return account

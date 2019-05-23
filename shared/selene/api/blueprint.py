@@ -1,5 +1,5 @@
-from datetime import datetime
 import json
+from datetime import datetime
 from http import HTTPStatus
 
 from flask import current_app, Blueprint, g as global_context
@@ -7,10 +7,7 @@ from schematics.exceptions import DataError
 
 from selene.data.metrics import ApiMetric, ApiMetricsRepository
 from selene.util.auth import AuthenticationError
-from selene.util.db import (
-    get_db_connection_from_pool,
-    return_db_connection_to_pool
-)
+from selene.util.db import connect_to_db
 from selene.util.not_modified import NotModifiedError
 
 selene_api = Blueprint('selene_api', __name__)
@@ -39,7 +36,6 @@ def setup_request():
 @selene_api.after_app_request
 def teardown_request(response):
     add_api_metric(response.status_code)
-    release_db_connection()
 
     return response
 
@@ -54,8 +50,8 @@ def add_api_metric(http_status):
 
     if api is not None and int(http_status) != 304:
         if 'db' not in global_context:
-            global_context.db = get_db_connection_from_pool(
-                current_app.config['DB_CONNECTION_POOL']
+            global_context.db = connect_to_db(
+                current_app.config['DB_CONNECTION_CONFIG']
             )
         if 'account_id' in global_context:
             account_id = global_context.account_id
@@ -78,12 +74,3 @@ def add_api_metric(http_status):
         )
         metric_repository = ApiMetricsRepository(global_context.db)
         metric_repository.add(api_metric)
-
-
-def release_db_connection():
-    db = global_context.pop('db', None)
-    if db is not None:
-        return_db_connection_to_pool(
-            current_app.config['DB_CONNECTION_POOL'],
-            db
-        )
