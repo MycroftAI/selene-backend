@@ -90,10 +90,10 @@ def check_db_for_account(context, membership_option):
 
 @when('the account is deleted')
 def account_deleted(context):
-    with get_db_connection(context.client_config['DB_CONNECTION_POOL']) as db:
-        acct_repository = AccountRepository(db)
-        account = acct_repository.get_account_by_email('bar@mycroft.ai')
-        context.stripe_id = account.membership.payment_id
+    db = connect_to_db(context.client_config['DB_CONNECTION_CONFIG'])
+    acct_repository = AccountRepository(db)
+    account = acct_repository.get_account_by_email('bar@mycroft.ai')
+    context.stripe_id = account.membership.payment_id
     context.response = context.client.delete('/api/account')
 
 
