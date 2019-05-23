@@ -28,6 +28,7 @@ def validate_response_setting(context):
     assert_that(response.status_code, equal_to(HTTPStatus.OK))
     assert_that(setting, has_key('uuid'))
     assert_that(setting, has_key('systemUnit'))
+    assert_that(setting['systemUnit'], equal_to('imperial'))
     assert_that(setting, has_key('timeFormat'))
     assert_that(setting, has_key('dateFormat'))
     assert_that(setting, has_key('ttsSettings'))
