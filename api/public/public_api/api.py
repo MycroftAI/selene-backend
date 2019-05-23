@@ -33,16 +33,6 @@ public.config.from_object(get_base_config())
 public.config['GOOGLE_STT_KEY'] = os.environ['GOOGLE_STT_KEY']
 public.config['SELENE_CACHE'] = SeleneCache()
 
-# Initializing email client
-host = os.environ['EMAIL_SERVICE_HOST']
-port = os.environ['EMAIL_SERVICE_PORT']
-user = os.environ['EMAIL_SERVICE_USER']
-password = os.environ['EMAIL_SERVICE_PASSWORD']
-# TODO: test with another email service and move this logic to the email endpoint
-#email_client = smtplib.SMTP(host, port)
-#email_client.login(user, password)
-#public.config['EMAIL_CLIENT'] = email_client
-
 public.config['METRICS_SERVICE'] = MetricsService()
 
 public.response_class = SeleneResponse
