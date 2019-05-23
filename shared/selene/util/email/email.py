@@ -26,7 +26,7 @@ class SeleneMailer(object):
     template_directory = os.path.join(os.path.dirname(__file__), 'templates')
 
     def __init__(self, message: EmailMessage):
-        self.mailer = SendGridAPIClient(apikey=os.environ['SENDGRID_API_KEY'])
+        self.mailer = SendGridAPIClient(api_key=os.environ['SENDGRID_API_KEY'])
         self.message = message
 
     @property
