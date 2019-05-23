@@ -34,12 +34,12 @@ class SkillSettingRepository(RepositoryBase):
 
         return skill_settings
 
-    def get_installer_settings(self, account_id: str):
+    def get_installer_settings(self, account_id: str) -> List[AccountSkillSetting]:
         skill_repo = SkillRepository(self.db)
         skills = skill_repo.get_skills_for_account(account_id)
         installer_skill_id = None
         for skill in skills:
-            if skill.name == 'mycroft_installer':
+            if skill.display_name == 'Installer':
                 installer_skill_id = skill.id
 
         skill_settings = None
