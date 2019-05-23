@@ -12,7 +12,7 @@ from typing import List
 from schematics import Model
 from schematics.types import StringType
 
-from selene.api import SeleneEndpoint
+from selene.api import ETagManager, SeleneEndpoint
 from selene.data.skill import (
     AccountSkillSetting,
     SkillDisplayRepository,
@@ -41,6 +41,10 @@ class SkillInstallEndpoint(SeleneEndpoint):
         self.installer_settings: List[AccountSkillSetting] = []
         self.installer_update_response = None
         self.skill_name = None
+        self.etag_manager = ETagManager(
+            self.config['SELENE_CACHE'],
+            self.config
+        )
 
     def put(self):
         """Handle an HTTP PUT request"""
@@ -49,6 +53,9 @@ class SkillInstallEndpoint(SeleneEndpoint):
         self._get_skill_name()
         self._get_installer_settings()
         self._apply_update()
+        self.etag_manager.expire_device_setting_etag_by_account_id(
+            self.account.id
+        )
         self.response = (self.installer_update_response, HTTPStatus.OK)
 
         return self.response
