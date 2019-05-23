@@ -5,7 +5,7 @@ from hamcrest import assert_that, equal_to, has_key, none, not_none
 
 from selene.data.device import DeviceRepository
 from selene.util.cache import SeleneCache
-from selene.util.db import get_db_connection
+from selene.util.db import connect_to_db
 
 
 @given('a device pairing code')
@@ -57,9 +57,9 @@ def validate_pairing_code_removal(context):
 @then('the device is added to the database')
 def validate_response(context):
     device_id = context.response.data.decode()
-    with get_db_connection(context.client_config['DB_CONNECTION_POOL']) as db:
-        device_repository = DeviceRepository(db)
-        device = device_repository.get_device_by_id(device_id)
+    db = connect_to_db(context.client_config['DB_CONNECTION_CONFIG'])
+    device_repository = DeviceRepository(db)
+    device = device_repository.get_device_by_id(device_id)
 
     assert_that(device, not_none())
     assert_that(device.name, equal_to('home'))

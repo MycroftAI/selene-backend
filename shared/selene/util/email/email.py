@@ -3,7 +3,7 @@ from logging import getLogger
 import os
 
 from sendgrid import SendGridAPIClient
-from sendgrid.helpers.mail import Email, Content, Mail
+from sendgrid.helpers.mail import Content, Mail
 
 _log = getLogger(__package__)
 
@@ -17,16 +17,12 @@ class EmailMessage(object):
     template_variables: dict = None
     content_type: str = 'text/html'
 
-    def __post_init__(self):
-        self.recipient = Email(self.recipient)
-        self.sender = Email(self.sender)
-
 
 class SeleneMailer(object):
     template_directory = os.path.join(os.path.dirname(__file__), 'templates')
 
     def __init__(self, message: EmailMessage):
-        self.mailer = SendGridAPIClient(apikey=os.environ['SENDGRID_API_KEY'])
+        self.mailer = SendGridAPIClient(api_key=os.environ['SENDGRID_API_KEY'])
         self.message = message
 
     @property
@@ -38,10 +34,10 @@ class SeleneMailer(object):
 
     def send(self):
         message = Mail(
-            self.message.sender,
-            self.message.subject,
-            self.message.recipient,
-            self._build_content()
+            from_email=self.message.sender,
+            to_emails=[self.message.recipient],
+            subject=self.message.subject,
+            html_content=self._build_content()
         )
         response = self.mailer.client.mail.send.post(request_body=message.get())
 

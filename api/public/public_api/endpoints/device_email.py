@@ -1,4 +1,5 @@
 import json
+import os
 import smtplib
 from email.message import EmailMessage
 from http import HTTPStatus
@@ -21,7 +22,6 @@ class DeviceEmailEndpoint(PublicEndpoint):
 
     def __init__(self):
         super(DeviceEmailEndpoint, self).__init__()
-        self.email_client: smtplib.SMTP = self.config['EMAIL_CLIENT']
 
     def post(self, device_id):
         self._authenticate(device_id)
@@ -37,9 +37,20 @@ class DeviceEmailEndpoint(PublicEndpoint):
             message['From'] = str(send_email.sender)
             message.set_content(str(send_email.body))
             message['To'] = account.email_address
-            self.email_client.send_message(message)
-            self.email_client.quit()
+            self._send_email(message)
             response = '', HTTPStatus.OK
         else:
             response = '', HTTPStatus.NO_CONTENT
         return response
+
+    def _send_email(self, message: EmailMessage):
+        email_client = self.config.get('EMAIL_CLIENT')
+        if email_client is None:
+            host = os.environ['EMAIL_SERVICE_HOST']
+            port = os.environ['EMAIL_SERVICE_PORT']
+            user = os.environ['EMAIL_SERVICE_USER']
+            password = os.environ['EMAIL_SERVICE_PASSWORD']
+            email_client = smtplib.SMTP(host, port)
+            email_client.login(user, password)
+        email_client.send_message(message)
+        email_client.quit()

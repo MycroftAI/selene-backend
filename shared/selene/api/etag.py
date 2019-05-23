@@ -3,7 +3,7 @@ import string
 
 from selene.data.device import DeviceRepository
 from selene.util.cache import SeleneCache
-from selene.util.db import get_db_connection
+from selene.util.db import connect_to_db
 
 
 def device_etag_key(device_id: str):
@@ -29,7 +29,7 @@ class ETagManager(object):
 
     def __init__(self, cache: SeleneCache, config: dict):
         self.cache: SeleneCache = cache
-        self.db_connection_pool = config['DB_CONNECTION_POOL']
+        self.db_connection_config = config['DB_CONNECTION_CONFIG']
 
     def get(self, key: str) -> str:
         """Generate a etag with 32 random chars and store it into a given key
@@ -60,10 +60,10 @@ class ETagManager(object):
     def expire_device_setting_etag_by_account_id(self, account_id: str):
         """Expire the settings' etags for all devices from a given account. Used when the settings are updated
         at account level"""
-        with get_db_connection(self.db_connection_pool) as db:
-            devices = DeviceRepository(db).get_devices_by_account_id(account_id)
-            for device in devices:
-                self.expire_device_setting_etag_by_device_id(device.id)
+        db = connect_to_db(self.db_connection_config)
+        devices = DeviceRepository(db).get_devices_by_account_id(account_id)
+        for device in devices:
+            self.expire_device_setting_etag_by_device_id(device.id)
 
     def expire_device_location_etag_by_device_id(self, device_id: str):
         """Expire the etag associate with the device's location entity
@@ -73,10 +73,10 @@ class ETagManager(object):
     def expire_device_location_etag_by_account_id(self, account_id: str):
         """Expire the locations' etag fpr açç device for a given acccount
         :param account_id: account uuid"""
-        with get_db_connection(self.db_connection_pool) as db:
-            devices = DeviceRepository(db).get_devices_by_account_id(account_id)
-            for device in devices:
-                self.expire_device_location_etag_by_device_id(device.id)
+        db = connect_to_db(self.db_connection_config)
+        devices = DeviceRepository(db).get_devices_by_account_id(account_id)
+        for device in devices:
+            self.expire_device_location_etag_by_device_id(device.id)
 
     def expire_skill_etag_by_device_id(self, device_id):
         """Expire the locations' etag for a given device
@@ -84,7 +84,7 @@ class ETagManager(object):
         self._expire(device_skill_etag_key(device_id))
 
     def expire_skill_etag_by_account_id(self, account_id):
-        with get_db_connection(self.db_connection_pool) as db:
-            devices = DeviceRepository(db).get_devices_by_account_id(account_id)
-            for device in devices:
-                self.expire_skill_etag_by_device_id(device.id)
+        db = connect_to_db(self.db_connection_config)
+        devices = DeviceRepository(db).get_devices_by_account_id(account_id)
+        for device in devices:
+            self.expire_skill_etag_by_device_id(device.id)

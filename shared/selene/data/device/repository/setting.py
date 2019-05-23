@@ -58,4 +58,5 @@ class SettingRepository(object):
             response['tts_settings'] = tts_setting
             response['date_format'] = self._format_date_v1(response['date_format'])
             response['time_format'] = self._format_time_v1(response['time_format'])
+            response['system_unit'] = response['system_unit'].lower()
             return response
