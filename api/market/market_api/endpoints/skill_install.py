@@ -4,6 +4,7 @@ Marketplace endpoint to add or remove a skill
 This endpoint configures the install skill on a user's device(s) to add or
 remove the skill.
 """
+import ast
 from http import HTTPStatus
 from logging import getLogger
 from typing import List
@@ -37,18 +38,17 @@ class SkillInstallEndpoint(SeleneEndpoint):
     """Install a skill on user device(s)."""
     def __init__(self):
         super(SkillInstallEndpoint, self).__init__()
-        self.device_uuid: str = None
         self.installer_settings: List[AccountSkillSetting] = []
-        self.installer_skill_settings: dict = {}
         self.installer_update_response = None
+        self.skill_name = None
 
     def put(self):
         """Handle an HTTP PUT request"""
         self._authenticate()
         self._validate_request()
-        skill_install_name = self._get_install_name()
+        self._get_skill_name()
         self._get_installer_settings()
-        self._apply_update(skill_install_name)
+        self._apply_update()
         self.response = (self.installer_update_response, HTTPStatus.OK)
 
         return self.response
@@ -63,8 +63,8 @@ class SkillInstallEndpoint(SeleneEndpoint):
         install_request.skill_display_id = self.request.json['skillDisplayId']
         install_request.validate()
 
-    def _get_install_name(self) -> str:
-        """Get the skill name used by the installer skill from the DB
+    def _get_skill_name(self):
+        """Get the name of the skill being installed/removed from the DB
 
         The installer skill expects the skill name found in the "name" field
         of the skill display JSON.
@@ -73,8 +73,7 @@ class SkillInstallEndpoint(SeleneEndpoint):
         skill_display = display_repo.get_display_data_for_skill(
             self.request.json['skillDisplayId']
         )
-
-        return skill_display.display_data['name']
+        self.skill_name = skill_display.display_data['name']
 
     def _get_installer_settings(self):
         """Get the current value of the installer skill's settings"""
@@ -83,26 +82,20 @@ class SkillInstallEndpoint(SeleneEndpoint):
             self.account.id
         )
 
-    def _apply_update(self, skill_install_name: str):
+    def _apply_update(self):
         """Add the skill in the request to the installer skill settings.
 
         This is designed to change the installer skill settings for all
         devices associated with an account.  It will be updated in the
         future to target specific devices.
         """
+        section = self.request.json['section']
         for settings in self.installer_settings:
-            if self.request.json['section'] == INSTALL_SECTION:
-                to_install = settings.settings_values.get(INSTALL_SECTION, [])
-                to_install.append(
-                    dict(name=skill_install_name)
-                )
-                settings.settings_values[INSTALL_SECTION] = to_install
-            else:
-                to_remove = settings.settings_values.get(UNINSTALL_SECTION, [])
-                to_remove.append(
-                    dict(name=skill_install_name)
-                )
-                settings.settings_values[UNINSTALL_SECTION] = to_remove
+            setting_value = settings.settings_values.get(section, [])
+            if isinstance(setting_value, str):
+                setting_value = ast.literal_eval(setting_value)
+            setting_value.append(dict(name=self.skill_name))
+            settings.settings_values[section] = setting_value
             self._update_skill_settings(settings)
 
     def _update_skill_settings(self, settings):
