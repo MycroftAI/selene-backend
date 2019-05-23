@@ -25,6 +25,7 @@ class PreferencesEndpoint(SeleneEndpoint):
     def __init__(self):
         super(PreferencesEndpoint, self).__init__()
         self.preferences = None
+        self.cache = self.config['SELENE_CACHE']
         self.etag_manager: ETagManager = ETagManager(self.cache, self.config)
 
     def get(self):
