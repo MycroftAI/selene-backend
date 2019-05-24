@@ -101,12 +101,12 @@ def create_skill_settings(context):
 @when('the skill settings are updated')
 def update_skill(context):
     response = json.loads(context.upload_device_response.data)
-    update_settings = [AccountSkillSetting(
+    update_settings = AccountSkillSetting(
         skill_id=response['uuid'],
         settings_display={},
         settings_values=new_settings,
         devices=[context.device_name]
-    )]
+    )
     db = connect_to_db(context.client_config['DB_CONNECTION_CONFIG'])
     skill_setting_repo = SkillSettingRepository(db, context.account.id)
     skill_setting_repo.update_skill_settings(update_settings)
