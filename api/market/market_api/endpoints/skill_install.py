@@ -41,7 +41,6 @@ class SkillInstallEndpoint(SeleneEndpoint):
     def __init__(self):
         super(SkillInstallEndpoint, self).__init__()
         self.installer_settings: List[AccountSkillSetting] = []
-        self.installer_update_response = None
         self.skill_name = None
         self.etag_manager = ETagManager(
             self.config['SELENE_CACHE'],
@@ -66,9 +65,8 @@ class SkillInstallEndpoint(SeleneEndpoint):
         self.installer_settings = self.settings_repo.get_installer_settings()
         self._apply_update()
         self.etag_manager.expire_skill_etag_by_account_id(self.account.id)
-        self.response = (self.installer_update_response, HTTPStatus.OK)
 
-        return self.response
+        return '', HTTPStatus.NO_CONTENT
 
     def _validate_request(self):
         """Ensure the data passed in the request is as expected.
