@@ -108,9 +108,6 @@ class SkillInstallEndpoint(SeleneEndpoint):
             settings.settings_values[section] = setting_value
             self._update_skill_settings(settings)
 
-    def _update_skill_settings(self, settings):
+    def _update_skill_settings(self, new_skill_settings):
         """Update the DB with the new installer skill settings."""
-        self.settings_repo.update_skill_settings(
-            settings.devices,
-            settings.settings_values
-        )
+        self.settings_repo.update_skill_settings(new_skill_settings)
