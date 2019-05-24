@@ -36,6 +36,8 @@ class InstallRequest(Model):
 
 class SkillInstallEndpoint(SeleneEndpoint):
     """Install a skill on user device(s)."""
+    _settings_repo = None
+
     def __init__(self):
         super(SkillInstallEndpoint, self).__init__()
         self.installer_settings: List[AccountSkillSetting] = []
@@ -46,16 +48,24 @@ class SkillInstallEndpoint(SeleneEndpoint):
             self.config
         )
 
+    @property
+    def settings_repo(self):
+        if self._settings_repo is None:
+            self._settings_repo = SkillSettingRepository(
+                self.db,
+                self.account.id
+            )
+
+        return self._settings_repo
+
     def put(self):
         """Handle an HTTP PUT request"""
         self._authenticate()
         self._validate_request()
         self._get_skill_name()
-        self._get_installer_settings()
+        self.installer_settings = self.settings_repo.get_installer_settings()
         self._apply_update()
-        self.etag_manager.expire_device_setting_etag_by_account_id(
-            self.account.id
-        )
+        self.etag_manager.expire_skill_etag_by_account_id(self.account.id)
         self.response = (self.installer_update_response, HTTPStatus.OK)
 
         return self.response
@@ -82,13 +92,6 @@ class SkillInstallEndpoint(SeleneEndpoint):
         )
         self.skill_name = skill_display.display_data['name']
 
-    def _get_installer_settings(self):
-        """Get the current value of the installer skill's settings"""
-        settings_repo = SkillSettingRepository(self.db)
-        self.installer_settings = settings_repo.get_installer_settings(
-            self.account.id
-        )
-
     def _apply_update(self):
         """Add the skill in the request to the installer skill settings.
 
@@ -107,9 +110,7 @@ class SkillInstallEndpoint(SeleneEndpoint):
 
     def _update_skill_settings(self, settings):
         """Update the DB with the new installer skill settings."""
-        settings_repo = SkillSettingRepository(self.db)
-        settings_repo.update_device_skill_settings(
-            self.account.id,
+        self.settings_repo.update_skill_settings(
             settings.devices,
             settings.settings_values
         )
