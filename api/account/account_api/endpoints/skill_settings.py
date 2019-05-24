@@ -25,6 +25,8 @@ def _parse_selection_options(skill_settings):
 
 
 class SkillSettingsEndpoint(SeleneEndpoint):
+    _setting_repository = None
+
     def __init__(self):
         super(SkillSettingsEndpoint, self).__init__()
         self.account_skills = None
@@ -39,12 +41,18 @@ class SkillSettingsEndpoint(SeleneEndpoint):
 
         return skill_settings, HTTPStatus.OK
 
-    def _get_skill_settings(self, skill_id: str):
-        setting_repository = SkillSettingRepository(self.db)
-        skill_settings = setting_repository.get_account_skill_settings(
-            skill_id, self.account.id
-        )
+    @property
+    def setting_repository(self):
+        if self._setting_repository is None:
+            self._setting_repository = SkillSettingRepository(
+                self.db,
+                self.account.id
+            )
 
+        return self._setting_repository
+
+    def _get_skill_settings(self, skill_id: str):
+        skill_settings = self.setting_repository.get_skill_settings(skill_id)
         _parse_selection_options(skill_settings)
 
         return skill_settings
@@ -57,8 +65,7 @@ class SkillSettingsEndpoint(SeleneEndpoint):
         return '', HTTPStatus.OK
 
     def _update_settings_values(self, skill_id, new_skill_settings):
-        skill_settings_repository = SkillSettingRepository(self.db)
-        skill_settings_repository.update_device_skill_settings(
+        self.skill_settings_repository.update_skill_settings(
             skill_id,
             new_skill_settings
         )
