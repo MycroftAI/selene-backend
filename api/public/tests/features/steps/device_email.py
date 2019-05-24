@@ -21,7 +21,7 @@ def send_email(context, email_client):
     device_id = login['uuid']
     access_token = login['accessToken']
     context.email_response = context.client.post(
-        '/v1/device/{uuid}/email'.format(uuid=device_id),
+        '/v1/device/{uuid}/message'.format(uuid=device_id),
         data=json.dumps(email_request),
         content_type='application_json',
         headers=dict(Authorization='Bearer {token}'.format(token=access_token))
