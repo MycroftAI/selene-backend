@@ -20,7 +20,7 @@ def send_email(context, email_client):
     login = context.device_login
     device_id = login['uuid']
     access_token = login['accessToken']
-    context.email_response = context.client.post(
+    context.email_response = context.client.put(
         '/v1/device/{uuid}/message'.format(uuid=device_id),
         data=json.dumps(email_request),
         content_type='application_json',
@@ -40,7 +40,7 @@ def validate_response(context):
 @patch('smtplib.SMTP')
 def send_email_invalid_device(context, email_client):
     context.client_config['EMAIL_CLIENT'] = email_client
-    context.email_invalid_response = context.client.post(
+    context.email_invalid_response = context.client.put(
         '/v1/device/{uuid}/email'.format(uuid=str(uuid.uuid4())),
         data=json.dumps(email_request),
         content_type='application_json'

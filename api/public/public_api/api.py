@@ -96,7 +96,7 @@ public.add_url_rule(
 public.add_url_rule(
     '/v1/device/<string:device_id>/message',
     view_func=DeviceEmailEndpoint.as_view('device_email_api'),
-    methods=['POST']
+    methods=['PUT']
 )
 public.add_url_rule(
     '/v1/device/<string:device_id>/metric/<path:metric>',

@@ -23,7 +23,7 @@ class DeviceEmailEndpoint(PublicEndpoint):
     def __init__(self):
         super(DeviceEmailEndpoint, self).__init__()
 
-    def post(self, device_id):
+    def put(self, device_id):
         self._authenticate(device_id)
         payload = json.loads(self.request.data)
         send_email = SendEmail(payload)
