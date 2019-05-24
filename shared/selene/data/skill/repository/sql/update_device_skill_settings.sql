@@ -5,5 +5,11 @@ SET
 WHERE
     skill_id = %(skill_id)s
     AND device_id IN (
-        SELECT id FROM device.device WHERE name IN %(device_names)s
+        SELECT
+            id
+        FROM
+            device.device
+        WHERE
+            account_id = %(account_id)s
+            AND name IN %(device_names)s
     )
