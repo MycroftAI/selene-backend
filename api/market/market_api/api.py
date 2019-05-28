@@ -3,6 +3,7 @@ from flask import Flask
 
 from selene.api import get_base_config, selene_api, SeleneResponse
 from selene.api.endpoints import AccountEndpoint
+from selene.util.cache import SeleneCache
 from selene.util.log import configure_logger
 from .endpoints import (
     AvailableSkillsEndpoint,
@@ -18,6 +19,7 @@ market = Flask(__name__)
 market.config.from_object(get_base_config())
 market.response_class = SeleneResponse
 market.register_blueprint(selene_api)
+market.config['SELENE_CACHE'] = SeleneCache()
 
 # Define the API and its endpoints.
 account_endpoint = AccountEndpoint.as_view('account_endpoint')

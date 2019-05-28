@@ -25,6 +25,7 @@ class SkillSettingRepository(RepositoryBase):
             settings_display = row['settings_display']['skillMetadata']
             skill_settings.append(
                 AccountSkillSetting(
+                    skill_id=skill_id,
                     settings_display=settings_display,
                     settings_values=row['settings_values'],
                     devices=row['devices']
@@ -48,19 +49,14 @@ class SkillSettingRepository(RepositoryBase):
         return skill_settings
 
     @use_transaction
-    def update_skill_settings(
-            self,
-            skill_id: str,
-            skill_settings: List[AccountSkillSetting]
-    ):
-        for settings_group in skill_settings:
-            db_request = self._build_db_request(
-                'update_device_skill_settings.sql',
-                args=dict(
-                    account_id=self.account_id,
-                    settings_values=json.dumps(settings_group.settings_values),
-                    skill_id=skill_id,
-                    device_names=tuple(settings_group.devices)
-                )
+    def update_skill_settings(self, new_skill_settings: AccountSkillSetting):
+        db_request = self._build_db_request(
+            'update_device_skill_settings.sql',
+            args=dict(
+                account_id=self.account_id,
+                settings_values=json.dumps(new_skill_settings.settings_values),
+                skill_id=new_skill_settings.skill_id,
+                device_names=tuple(new_skill_settings.devices)
             )
-            self.cursor.update(db_request)
+        )
+        self.cursor.update(db_request)
