@@ -4,7 +4,7 @@ from flask import json, Response
 
 from selene.api import SeleneEndpoint, snake_to_camel
 from selene.api.etag import ETagManager
-from selene.data.skill import SkillSettingRepository
+from selene.data.skill import SkillSettingRepository, AccountSkillSetting
 
 
 def _parse_selection_options(skill_settings):
@@ -71,8 +71,12 @@ class SkillSettingsEndpoint(SeleneEndpoint):
         return '', HTTPStatus.OK
 
     def _update_settings_values(self, skill_id, new_skill_settings):
+        account_skill_settings = AccountSkillSetting(
+            skill_id=skill_id,
+            settings_display=new_skill_settings['settingsDisplay'],
+            settings_values=new_skill_settings['settingsValue']
+        )
         self.setting_repository.update_skill_settings(
-            skill_id,
-            new_skill_settings
+            account_skill_settings
         )
         self.etag_manager.expire_skill_etag_by_account_id(self.account.id)
