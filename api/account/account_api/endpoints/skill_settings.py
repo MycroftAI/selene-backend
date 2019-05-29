@@ -53,12 +53,15 @@ class SkillSettingsEndpoint(SeleneEndpoint):
 
     def _get_skill_settings(self, skill_id: str):
         skill_settings = self.setting_repository.get_skill_settings(skill_id)
-        skill_settings = list(map(lambda setting: {
-            'settingsDisplay': setting['settings_display'],
-            'settingsValues': setting['settings_values'],
-            'devices': setting['devices']}, skill_settings))
-        _parse_selection_options(skill_settings)
-        return skill_settings
+        skill_settings_converted = []
+        for setting in skill_settings:
+            skill_settings_converted.append({
+                'settingsDisplay': setting.settings_display,
+                'settingsValues': setting.settings_values,
+                'devices': setting.devices
+            })
+        _parse_selection_options(skill_settings_converted)
+        return skill_settings_converted
 
     def put(self, skill_id):
         self._authenticate()
