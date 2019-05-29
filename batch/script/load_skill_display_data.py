@@ -44,7 +44,7 @@ with connect_to_db(mycroft_db) as db:
         # add the skill display row
         display_data = SkillDisplay(
             skill_id=skill_id,
-            core_version='18.08',
+            core_version='19.02',
             display_data=json.dumps(skill_metadata)
         )
         display_repository.upsert(display_data)
