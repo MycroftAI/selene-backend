@@ -9,7 +9,7 @@ from selene.data.skill import SkillSettingRepository
 
 def _parse_selection_options(skill_settings):
     for skill_setting in skill_settings:
-        for section in skill_setting.settings_display['sections']:
+        for section in skill_setting['settingsDisplay']['sections']:
             for field in section['fields']:
                 field_name = field.get('name')
                 if field_name is not None:
