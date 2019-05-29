@@ -71,7 +71,7 @@ class SkillSettingsEndpoint(SeleneEndpoint):
         return '', HTTPStatus.OK
 
     def _update_settings_values(self, skill_id, new_skill_settings):
-        self.skill_settings_repository.update_skill_settings(
+        self.setting_repository.update_skill_settings(
             skill_id,
             new_skill_settings
         )
