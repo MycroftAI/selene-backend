@@ -38,6 +38,7 @@ class SkillSettingsEndpoint(SeleneEndpoint):
     def get(self, skill_id):
         self._authenticate()
         skill_settings = self._get_skill_settings(skill_id)
+        # The response object is manually built here to bypass the camel case conversion
         return Response(response=json.dumps(skill_settings), status=HTTPStatus.OK, content_type='application_json')
 
     @property
@@ -52,8 +53,11 @@ class SkillSettingsEndpoint(SeleneEndpoint):
 
     def _get_skill_settings(self, skill_id: str):
         skill_settings = self.setting_repository.get_skill_settings(skill_id)
+        skill_settings = list(map(lambda setting: {
+            'settingsDisplay': setting['settings_display'],
+            'settingsValues': setting['settings_values'],
+            'devices': setting['devices']}, skill_settings))
         _parse_selection_options(skill_settings)
-
         return skill_settings
 
     def put(self, skill_id):

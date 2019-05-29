@@ -25,8 +25,9 @@ class SkillSettingRepository(RepositoryBase):
             settings_display = row['settings_display']['skillMetadata']
             skill_settings.append(
                 dict(
-                    settingsDisplay=settings_display,
-                    settingsValues=row['settings_values'],
+                    skill_id=skill_id,
+                    settings_display=settings_display,
+                    settings_values=row['settings_values'],
                     devices=row['devices']
                 )
             )
