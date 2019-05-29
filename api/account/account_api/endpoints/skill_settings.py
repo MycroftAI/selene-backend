@@ -1,6 +1,6 @@
 from http import HTTPStatus
 
-from flask import json
+from flask import json, Response
 
 from selene.api import SeleneEndpoint, snake_to_camel
 from selene.api.etag import ETagManager
@@ -38,8 +38,7 @@ class SkillSettingsEndpoint(SeleneEndpoint):
     def get(self, skill_id):
         self._authenticate()
         skill_settings = self._get_skill_settings(skill_id)
-
-        return skill_settings, HTTPStatus.OK
+        return Response(response=json.dumps(skill_settings), status=HTTPStatus.OK, content_type='application_json')
 
     @property
     def setting_repository(self):

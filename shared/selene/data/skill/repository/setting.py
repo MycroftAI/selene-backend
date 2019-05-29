@@ -13,7 +13,7 @@ class SkillSettingRepository(RepositoryBase):
         self.db = db
         self.account_id = account_id
 
-    def get_skill_settings(self, skill_id: str) -> List[AccountSkillSetting]:
+    def get_skill_settings(self, skill_id: str) -> List[dict]:
         db_request = self._build_db_request(
             'get_settings_for_skill.sql',
             args=dict(skill_id=skill_id, account_id=self.account_id)
@@ -24,10 +24,9 @@ class SkillSettingRepository(RepositoryBase):
         for row in db_result:
             settings_display = row['settings_display']['skillMetadata']
             skill_settings.append(
-                AccountSkillSetting(
-                    skill_id=skill_id,
-                    settings_display=settings_display,
-                    settings_values=row['settings_values'],
+                dict(
+                    settingsDisplay=settings_display,
+                    settingsValues=row['settings_values'],
                     devices=row['devices']
                 )
             )
