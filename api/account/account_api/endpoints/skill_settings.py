@@ -2,7 +2,7 @@ from http import HTTPStatus
 
 from flask import json, Response
 
-from selene.api import SeleneEndpoint, snake_to_camel
+from selene.api import SeleneEndpoint
 from selene.api.etag import ETagManager
 from selene.data.skill import SkillSettingRepository, AccountSkillSetting
 
@@ -11,9 +11,6 @@ def _parse_selection_options(skill_settings):
     for skill_setting in skill_settings:
         for section in skill_setting['settingsDisplay']['sections']:
             for field in section['fields']:
-                field_name = field.get('name')
-                if field_name is not None:
-                    field['name'] = snake_to_camel(field_name)
                 if field['type'] == 'select':
                     parsed_options = []
                     for option in field['options'].split(';'):
@@ -38,8 +35,13 @@ class SkillSettingsEndpoint(SeleneEndpoint):
     def get(self, skill_id):
         self._authenticate()
         skill_settings = self._get_skill_settings(skill_id)
-        # The response object is manually built here to bypass the camel case conversion
-        return Response(response=json.dumps(skill_settings), status=HTTPStatus.OK, content_type='application_json')
+        # The response object is manually built here to bypass the
+        # camel case conversion so settings are displayed correctly
+        return Response(
+            response=json.dumps(skill_settings),
+            status=HTTPStatus.OK,
+            content_type='application_json'
+        )
 
     @property
     def setting_repository(self):
