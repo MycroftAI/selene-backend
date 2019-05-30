@@ -192,3 +192,10 @@ class AccountRepository(RepositoryBase):
             args=dict(account_id=account_id, agreement_type=OPEN_DATASET)
         )
         self.cursor.delete(db_request)
+
+    def daily_report(self):
+        db_request = self._build_db_request(
+            sql_file_name='daily_report.sql',
+            args=dict(start='1 DAY')
+        )
+        self.cursor.select_all(db_request)
