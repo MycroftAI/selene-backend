@@ -15,13 +15,12 @@ class ValidateEmailEndpoint(SeleneEndpoint):
         return_data = dict(accountExists=False, noFederatedEmail=False)
         if self.request.args['token']:
             email_address = self._get_email_address()
+            if self.request.args['platform'] != 'Internal' and not email_address:
+                return_data.update(noFederatedEmail=True)
             account_repository = AccountRepository(self.db)
             account = account_repository.get_account_by_email(email_address)
             if account is None:
-                if self.request.args['platform'] != 'Internal':
-                    return_data.update(noFederatedEmail=True)
-            else:
-                return_data.update(accountExists=True)
+                return_data.update(accountExists=False)
 
         return return_data, HTTPStatus.OK
 
