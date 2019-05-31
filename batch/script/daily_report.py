@@ -1,3 +1,4 @@
+import os
 from os import environ
 
 from selene.data.account import AccountRepository
@@ -18,7 +19,7 @@ with connect_to_db(mycroft_db) as db:
 
 email = EmailMessage(
     sender='reports@mycroft.ai',
-    recipient='dev@mycroft.ai',
+    recipient=os.environ['REPORT_RECIPIENT'],
     subject='Mycroft Daily Report',
     template_file_name='metrics.html',
     template_variables=dict(user_metrics=user_metrics)

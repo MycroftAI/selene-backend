@@ -1,0 +1,58 @@
+<html>
+<head>
+    <meta http-equiv="Content-Language" content="en">
+</head>
+<body>
+<div class="main"
+     style="display:table;margin-top:0;margin-bottom:0;margin-right:auto;margin-left:auto;font-family:'Verdana';">
+    <h2 style="font-weigth:normal;display:table;margin-top:20px;margin-right:auto;margin-left:auto;color:#2b3344;margin-bottom:40px;">
+        Mycroft Daily Report</h2>
+    <table style="display:table;margin-top:0;margin-bottom:0;margin-right:auto;margin-left:auto;border-width:1px;border-style:solid;border-color:#EEE;border-collapse:collapse;width:100%;min-width:300px;max-width:10000px;font-size:11px;">
+        <thead style="background-color:#2b3344;background-image:none;background-repeat:repeat;background-position:top left;background-attachment:scroll;border-style:none;color:#FFF;font-size:12px;">
+        <tr>
+            <th style="padding-top:10px;padding-bottom:10px;padding-right:10px;padding-left:10px;text-align:left;border-width:1px;border-color:#DDD;margin-top:0;margin-bottom:0;margin-right:0;margin-left:0;border-style:none;">
+                Type
+            </th>
+            <th style="padding-top:10px;padding-bottom:10px;padding-right:10px;padding-left:10px;text-align:left;border-width:1px;border-color:#DDD;margin-top:0;margin-bottom:0;margin-right:0;margin-left:0;border-style:none;">
+                Current
+            </th>
+            <th style="padding-top:10px;padding-bottom:10px;padding-right:10px;padding-left:10px;text-align:left;border-width:1px;border-color:#DDD;margin-top:0;margin-bottom:0;margin-right:0;margin-left:0;border-style:none;">
+                1 day
+            </th>
+            <th style="padding-top:10px;padding-bottom:10px;padding-right:10px;padding-left:10px;text-align:left;border-width:1px;border-color:#DDD;margin-top:0;margin-bottom:0;margin-right:0;margin-left:0;border-style:none;">
+                15 day
+            </th>
+            <th style="padding-top:10px;padding-bottom:10px;padding-right:10px;padding-left:10px;text-align:left;border-width:1px;border-color:#DDD;margin-top:0;margin-bottom:0;margin-right:0;margin-left:0;border-style:none;">
+                30 day
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for user_metric in user_metrics %}
+        <tr>
+            <td style="padding-top:10px;padding-bottom:10px;padding-right:10px;padding-left:10px;text-align:left;border-width:1px;border-style:solid;border-color:#DDD;">
+                {{ user_metric.type }}
+            </td>
+            <td style="padding-top:10px;padding-bottom:10px;padding-right:10px;padding-left:10px;text-align:left;border-width:1px;border-style:solid;border-color:#DDD;">
+                {{ user_metric.current }}
+            </td>
+            <td style="padding-top:10px;padding-bottom:10px;padding-right:10px;padding-left:10px;text-align:left;border-width:1px;border-style:solid;border-color:#DDD;">
+                {{ user_metric.oneDay }} (<span style="color: green;">{{ user_metric.oneDayDelta }} </span><span
+                    style="color: red;">{{ user_metric.oneDayMinus }}</span>)
+            </td>
+            <td style="padding-top:10px;padding-bottom:10px;padding-right:10px;padding-left:10px;text-align:left;border-width:1px;border-style:solid;border-color:#DDD;">
+                {{ user_metric.fifteenDays }} (<span style="color: green;">{{ user_metric.fifteenDaysDelta }} </span><span
+                    style="color: red;">{{ user_metric.fifteenDaysMinus }}</span>)
+            </td>
+            <td style="padding-top:10px;padding-bottom:10px;padding-right:10px;padding-left:10px;text-align:left;border-width:1px;border-style:solid;border-color:#DDD;">
+                {{ user_metric.thirtyDays }} (<span style="color: green;">{{ user_metric.thirtyDaysDelta }} </span><span
+                    style="color: red;">{{ user_metric.thirtyDaysMinus }}</span>)
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+</body>
+</html>
+  

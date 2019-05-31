@@ -220,8 +220,8 @@ class AccountRepository(RepositoryBase):
             'fifteenDaysDelta': report_15_days['total_new'],
             'fifteenDaysMinus': 0,
             'thirtyDays': report_30_days['total'] - report_30_days['total_new'],
-            'thirtyDaysDelta': report_30_days['total'] - report_30_days['total_new']
-
+            'thirtyDaysDelta': report_30_days['total_new'],
+            'thirtyDaysMinus': 0
         }, {
             'type': 'Free Account',
             'current': report_1_day['free_total'],
@@ -232,7 +232,8 @@ class AccountRepository(RepositoryBase):
             'fifteenDaysDelta': report_15_days['free_new'],
             'fifteenDaysMinus': 0,
             'thirtyDays': report_30_days['free_total'] - report_30_days['free_new'],
-            'thirtyDaysDelta': report_30_days['free_total'] - report_30_days['free_new']
+            'thirtyDaysDelta': report_30_days['free_new'],
+            'thirtyDaysMinus': 0
         }, {
             'type': 'Monthly Account',
             'current': report_1_day['monthly_total'],
