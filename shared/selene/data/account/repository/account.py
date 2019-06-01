@@ -225,14 +225,14 @@ class AccountRepository(RepositoryBase):
         }, {
             'type': 'Free Account',
             'current': report_1_day['free_total'],
-            'oneDay': report_1_day['free_total'] - report_1_day['free_new'],
-            'oneDayDelta': report_1_day['free_new'],
+            'oneDay': report_1_day['free_total'] - report_1_day['total_new'] + report_1_day['paid_new'],
+            'oneDayDelta': report_1_day['total_new'] - report_1_day['paid_new'],
             'oneDayMinus': 0,
-            'fifteenDays': report_15_days['free_total'] - report_15_days['free_new'],
-            'fifteenDaysDelta': report_15_days['free_new'],
+            'fifteenDays': report_15_days['free_total'] - report_15_days['total_new'] + report_15_days['paid_new'],
+            'fifteenDaysDelta': report_15_days['total_new'] - report_15_days['paid_new'],
             'fifteenDaysMinus': 0,
-            'thirtyDays': report_30_days['free_total'] - report_30_days['free_new'],
-            'thirtyDaysDelta': report_30_days['free_new'],
+            'thirtyDays': report_30_days['free_total'] - report_30_days['total_new'] + report_30_days['paid_new'],
+            'thirtyDaysDelta': report_30_days['total_new'] - report_30_days['paid_new'],
             'thirtyDaysMinus': 0
         }, {
             'type': 'Monthly Account',
