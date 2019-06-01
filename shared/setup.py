@@ -20,6 +20,7 @@ setup(
         'redis',
         'sendgrid',
         'schematics',
-        'stripe'
+        'stripe',
+        'schedule'
     ]
 )
