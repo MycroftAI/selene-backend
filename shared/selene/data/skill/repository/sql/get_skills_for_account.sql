@@ -10,6 +10,7 @@ WITH
             LEFT JOIN skill.settings_display sd ON s.id = sd.skill_id
         GROUP BY
             s.id,
+            sd.id,
             settings_display
     )
 SELECT DISTINCT
