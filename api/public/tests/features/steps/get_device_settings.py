@@ -31,6 +31,8 @@ def validate_response_setting(context):
     assert_that(setting['systemUnit'], equal_to('imperial'))
     assert_that(setting, has_key('timeFormat'))
     assert_that(setting, has_key('dateFormat'))
+    assert_that(setting, has_key('optIn'))
+    assert_that(setting['optIn'], equal_to(True))
     assert_that(setting, has_key('ttsSettings'))
     tts = setting['ttsSettings']
     assert_that(tts, has_key('module'))
