@@ -10,7 +10,7 @@ Mycroft core containing the skills available in that release.
 import json
 from os import environ
 
-from base import SeleneScript
+from selene.batch import SeleneScript
 from selene.data.skill import (
     SkillDisplay,
     SkillDisplayRepository,
