@@ -1,3 +1,12 @@
+"""Update skill.display table with skill information from repositories.
+
+Download skill-metadata.json from the mycroft-skills-data GitHub repository.
+Use the contents of the file to update the skill.display table which is
+primarily for displaying skills in the marketplace.
+
+The mycroft-skills-data repository has a branch for each major release of
+Mycroft core containing the skills available in that release.
+"""
 import json
 from os import environ
 
@@ -30,6 +39,7 @@ class SkillDisplayUpdater(SeleneScript):
         )
 
     def _run(self):
+        """Make it so."""
         self.log.info(
             "Updating skill display data for core version " +
             self.args.core_version
@@ -38,6 +48,7 @@ class SkillDisplayUpdater(SeleneScript):
         self._update_skill_display_table()
 
     def _get_skill_display_data(self):
+        """Use the GitHub API to retrieve the JSON file."""
         github_api = log_into_github(GITHUB_USER, GITHUB_PASSWORD)
         file_contents = download_repository_file(
             github_api,
