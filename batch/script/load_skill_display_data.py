@@ -1,12 +1,21 @@
+"""Update skill.display table with skill information from repositories.
+
+Download skill-metadata.json from the mycroft-skills-data GitHub repository.
+Use the contents of the file to update the skill.display table which is
+primarily for displaying skills in the marketplace.
+
+The mycroft-skills-data repository has a branch for each major release of
+Mycroft core containing the skills available in that release.
+"""
 import json
 from os import environ
 
+from base import SeleneScript
 from selene.data.skill import (
     SkillDisplay,
     SkillDisplayRepository,
     SkillRepository
 )
-from selene.util.db import connect_to_db, DatabaseConnectionConfig
 from selene.util.github import download_repository_file, log_into_github
 
 GITHUB_USER = environ['GITHUB_USER']
@@ -14,37 +23,60 @@ GITHUB_PASSWORD = environ['GITHUB_PASSWORD']
 SKILL_DATA_GITHUB_REPO = 'mycroft-skills-data'
 SKILL_DATA_FILE_NAME = 'skill-metadata.json'
 
-mycroft_db = DatabaseConnectionConfig(
-    host=environ['DB_HOST'],
-    db_name=environ['DB_NAME'],
-    user=environ['DB_USER'],
-    password=environ['DB_PASSWORD'],
-    port=environ['DB_PORT'],
-    sslmode=environ['DB_SSL_MODE']
 
-)
-# TODO figure out a way to paramaterize these
-github = log_into_github(GITHUB_USER, GITHUB_PASSWORD)
-file_contents = download_repository_file(
-    github,
-    SKILL_DATA_GITHUB_REPO,
-    '19.02',
-    SKILL_DATA_FILE_NAME
-)
-skills_metadata = json.loads(file_contents)
-with connect_to_db(mycroft_db) as db:
-    skill_repository = SkillRepository(db)
-    display_repository = SkillDisplayRepository(db)
-    for skill_name, skill_metadata in skills_metadata.items():
-        # Ensure the skill exists on the skill table
-        skill_id = skill_repository.ensure_skill_exists(
-            skill_metadata['skill_gid']
+class SkillDisplayUpdater(SeleneScript):
+    def __init__(self):
+        super(SkillDisplayUpdater, self).__init__(__file__)
+        self.skill_display_data = None
+
+    def _define_args(self):
+        super(SkillDisplayUpdater, self)._define_args()
+        self._arg_parser.add_argument(
+            "--core-version",
+            help='Version of Mycroft Core related to skill display data',
+            required=True,
+            type=str
         )
 
-        # add the skill display row
-        display_data = SkillDisplay(
-            skill_id=skill_id,
-            core_version='19.02',
-            display_data=json.dumps(skill_metadata)
+    def _run(self):
+        """Make it so."""
+        self.log.info(
+            "Updating skill display data for core version " +
+            self.args.core_version
         )
-        display_repository.upsert(display_data)
+        self._get_skill_display_data()
+        self._update_skill_display_table()
+
+    def _get_skill_display_data(self):
+        """Use the GitHub API to retrieve the JSON file."""
+        github_api = log_into_github(GITHUB_USER, GITHUB_PASSWORD)
+        file_contents = download_repository_file(
+            github_api,
+            SKILL_DATA_GITHUB_REPO,
+            self.args.core_version,
+            SKILL_DATA_FILE_NAME
+        )
+        self.skill_display_data = json.loads(file_contents)
+
+    def _update_skill_display_table(self):
+        skill_count = 0
+        skill_repository = SkillRepository(self.db)
+        display_repository = SkillDisplayRepository(self.db)
+        for skill_name, skill_metadata in self.skill_display_data.items():
+            skill_count += 1
+            skill_id = skill_repository.ensure_skill_exists(
+                skill_metadata['skill_gid']
+            )
+
+            # add the skill display row
+            display_data = SkillDisplay(
+                skill_id=skill_id,
+                core_version=self.args.core_version,
+                display_data=json.dumps(skill_metadata)
+            )
+            display_repository.upsert(display_data)
+
+        self.log.info("updated {} skills".format(skill_count))
+
+
+SkillDisplayUpdater().run()

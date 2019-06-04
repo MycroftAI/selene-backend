@@ -1,3 +1,8 @@
+"""Base class that all data repository classes should inherit from
+
+This class contains boilerplate code that is necessary for all repository
+classes such as building a database request and a cursor object.
+"""
 from os import path
 from typing import List
 
@@ -9,35 +14,55 @@ from selene.util.db import (
 )
 
 
+def _instantiate_dataclass(dataclass, db_result):
+    """Build a dataclass instance using a row of a query result.
+
+    Depending on the cursor factory assigned to the database connection, the
+    keyword arguments used to instantiate a dataclass may need to be converted
+    to a dictionary first.
+    """
+    try:
+        dataclass_instance = dataclass(**db_result)
+    except TypeError:
+        dataclass_instance = dataclass(**db_result._asdict())
+
+    return dataclass_instance
+
+
 class RepositoryBase(object):
     def __init__(self, db, repository_path):
+        self.db = db
         self.cursor = Cursor(db)
         self.sql_dir = path.join(path.dirname(repository_path), 'sql')
 
     def _build_db_request(self, sql_file_name: str, args: dict = None):
+        """Build a DatabaseRequest object containing a query and args"""
         return DatabaseRequest(
             sql=get_sql_from_file(path.join(self.sql_dir, sql_file_name)),
             args=args
         )
 
     def _build_db_batch_request(self, sql_file_name: str, args: List[dict]):
+        """Build a DatabaseBatchRequest object containing a query and args"""
         return DatabaseBatchRequest(
             sql=get_sql_from_file(path.join(self.sql_dir, sql_file_name)),
             args=args
         )
 
     def _select_one_into_dataclass(self, dataclass, sql_file_name, args=None):
+        """Execute a query and instantiate the dataclass with its results."""
         db_request = self._build_db_request(sql_file_name, args)
         db_result = self.cursor.select_one(db_request)
         if db_result is None:
-            return_value = None
+            dataclass_instance = None
         else:
-            return_value = dataclass(**db_result)
+            dataclass_instance = _instantiate_dataclass(dataclass, db_result)
 
-        return return_value
+        return dataclass_instance
 
     def _select_all_into_dataclass(self, dataclass, sql_file_name, args=None):
+        """Execute a query and instantiate the dataclass with its results."""
         db_request = self._build_db_request(sql_file_name, args)
         db_result = self.cursor.select_all(db_request)
 
-        return [dataclass(**row) for row in db_result]
+        return [_instantiate_dataclass(dataclass, row) for row in db_result]

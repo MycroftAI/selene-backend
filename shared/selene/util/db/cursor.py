@@ -96,7 +96,7 @@ class Cursor(object):
         with self.db.cursor() as cursor:
             _log.debug(cursor.mogrify(db_request.sql, db_request.args).decode())
             cursor.execute(db_request.sql, db_request.args)
-            _log.debug(str(cursor.rowcount) + 'rows affected')
+            _log.debug(str(cursor.rowcount) + ' rows affected')
             return cursor.rowcount
 
     def _execute_batch(self, db_request: DatabaseBatchRequest):
