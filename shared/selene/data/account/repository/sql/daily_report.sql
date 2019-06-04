@@ -1,7 +1,7 @@
 SELECT
 	COUNT(acc) AS total,
 	COUNT(acc) FILTER(WHERE acc.insert_ts::DATE >= (CURRENT_DATE - INTERVAL %(start)s)) AS total_new,
-	COUNT(acc) FILTER(WHERE acc_mem.account_id IS NULL) as free_total,
+	COUNT(acc) FILTER(WHERE acc_mem.account_id IS NULL OR UPPER(acc_mem.membership_ts_range) IS NOT NULL) as free_total,
 	COUNT(mem) FILTER(WHERE mem.rate_period = 'month' AND UPPER(acc_mem.membership_ts_range) IS NULL) AS monthly_total,
 	COUNT(mem) FILTER(WHERE mem.rate_period = 'month' AND UPPER(acc_mem.membership_ts_range) IS NULL AND LOWER(acc_mem.membership_ts_range) >= (CURRENT_DATE - INTERVAL %(start)s)) AS monthly_new,
 	COUNT(mem) FILTER(WHERE mem.rate_period = 'month' AND UPPER(acc_mem.membership_ts_range) IS NOT NULL AND UPPER(acc_mem.membership_ts_range) >= (CURRENT_DATE - INTERVAL %(start)s)) AS monthly_minus,
