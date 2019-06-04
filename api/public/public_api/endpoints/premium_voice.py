@@ -23,7 +23,7 @@ class PremiumVoiceEndpoint(SeleneEndpoint):
     def _get_premium_voice_link(self, arch):
         if arch == 'arm':
             response = os.environ['URL_VOICE_ARM']
-        elif arch == 'x86_86':
+        elif arch == 'x86_64':
             response = os.environ['URL_VOICE_X86_64']
         else:
             response = ''
