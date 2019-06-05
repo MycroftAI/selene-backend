@@ -1,16 +1,15 @@
 SELECT
-	COUNT(acc) AS total,
-	COUNT(acc) FILTER(WHERE acc.insert_ts::DATE >= (CURRENT_DATE - INTERVAL %(start)s)) AS total_new,
-	COUNT(acc) FILTER(WHERE acc_mem.account_id IS NULL OR UPPER(acc_mem.membership_ts_range) IS NOT NULL) as free_total,
-	COUNT(mem) FILTER(WHERE mem.rate_period = 'month' AND UPPER(acc_mem.membership_ts_range) IS NULL) AS monthly_total,
-	COUNT(mem) FILTER(WHERE mem.rate_period = 'month' AND UPPER(acc_mem.membership_ts_range) IS NULL AND LOWER(acc_mem.membership_ts_range) >= (CURRENT_DATE - INTERVAL %(start)s)) AS monthly_new,
-	COUNT(mem) FILTER(WHERE mem.rate_period = 'month' AND UPPER(acc_mem.membership_ts_range) IS NOT NULL AND UPPER(acc_mem.membership_ts_range) >= (CURRENT_DATE - INTERVAL %(start)s)) AS monthly_minus,
-	COUNT(mem) FILTER(WHERE mem.rate_period = 'year' AND UPPER(acc_mem.membership_ts_range) IS NULL) AS yearly_total,
-	COUNT(mem) FILTER(WHERE mem.rate_period = 'year' AND UPPER(acc_mem.membership_ts_range) IS NULL AND LOWER(acc_mem.membership_ts_range) >= (CURRENT_DATE - INTERVAL %(start)s)) AS yearly_new,
-	COUNT(mem) FILTER(WHERE mem.rate_period = 'year' AND UPPER(acc_mem.membership_ts_range) IS NOT NULL AND UPPER(acc_mem.membership_ts_range) >= (CURRENT_DATE - INTERVAL %(start)s)) as yearly_minus,
-	COUNT(acc_mem) FILTER(WHERE UPPER(acc_mem.membership_ts_range) IS NULL) AS paid_total,
-	COUNT(acc_mem) FILTER(WHERE UPPER(acc_mem.membership_ts_range) IS NULL AND LOWER(acc_mem.membership_ts_range) >= (CURRENT_DATE - INTERVAL %(start)s)) AS paid_new,
-	COUNT(acc_mem) FILTER(WHERE UPPER(acc_mem.membership_ts_range) IS NOT NULL AND UPPER(acc_mem.membership_ts_range) >= (CURRENT_DATE - INTERVAL %(start)s)) AS paid_minus
+	COUNT(acc) FILTER(WHERE acc.insert_ts::DATE <= %(end_date)s) AS total,
+	COUNT(acc) FILTER(WHERE acc.insert_ts > %(start_date)s AND acc.insert_ts <= %(end_date)s) AS total_new,
+	COUNT(mem) FILTER(WHERE mem.rate_period = 'month' AND UPPER(acc_mem.membership_ts_range) IS NULL AND LOWER(acc_mem.membership_ts_range) <= %(end_date)s) AS monthly_total,
+	COUNT(mem) FILTER(WHERE mem.rate_period = 'month' AND UPPER(acc_mem.membership_ts_range) IS NULL AND LOWER(acc_mem.membership_ts_range) > %(start_date)s AND LOWER(acc_mem.membership_ts_range) <= %(end_date)s) AS monthly_new,
+	COUNT(mem) FILTER(WHERE mem.rate_period = 'month' AND UPPER(acc_mem.membership_ts_range) IS NOT NULL AND UPPER(acc_mem.membership_ts_range) > %(start_date)s AND UPPER(acc_mem.membership_ts_range) <= %(end_date)s) AS monthly_minus,
+	COUNT(mem) FILTER(WHERE mem.rate_period = 'year' AND UPPER(acc_mem.membership_ts_range) IS NULL AND LOWER(acc_mem.membership_ts_range) <= %(end_date)s) AS yearly_total,
+	COUNT(mem) FILTER(WHERE mem.rate_period = 'year' AND UPPER(acc_mem.membership_ts_range) IS NULL AND LOWER(acc_mem.membership_ts_range) > %(start_date)s AND LOWER(acc_mem.membership_ts_range) <= %(end_date)s) AS yearly_new,
+	COUNT(mem) FILTER(WHERE mem.rate_period = 'year' AND UPPER(acc_mem.membership_ts_range) IS NOT NULL AND UPPER(acc_mem.membership_ts_range) > %(start_date)s AND UPPER(acc_mem.membership_ts_range) <= %(end_date)s) as yearly_minus,
+	COUNT(acc_mem) FILTER(WHERE UPPER(acc_mem.membership_ts_range) IS NULL AND LOWER(acc_mem.membership_ts_range) <= %(end_date)s) AS paid_total,
+	COUNT(acc_mem) FILTER(WHERE UPPER(acc_mem.membership_ts_range) IS NULL AND LOWER(acc_mem.membership_ts_range) > %(start_date)s AND LOWER(acc_mem.membership_ts_range) <= %(end_date)s) AS paid_new,
+	COUNT(acc_mem) FILTER(WHERE UPPER(acc_mem.membership_ts_range) IS NOT NULL AND UPPER(acc_mem.membership_ts_range) > %(start_date)s AND UPPER(acc_mem.membership_ts_range) <= %(end_date)s) AS paid_minus
 FROM
 	account.account acc
 LEFT JOIN
