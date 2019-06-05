@@ -20,8 +20,8 @@ class SettingRepository(object):
         """Convert the selene representation of TTS into the tartarus representation, for backward compatibility
         with the API v1"""
         if engine == 'mimic':
-            if setting_name == 'amy':
-                return 'mimic', 'amy'
+            if setting_name == 'trinity':
+                return 'mimic', 'trinity'
             elif setting_name == 'kusal':
                 return 'mimic2', 'kusal'
             else:
