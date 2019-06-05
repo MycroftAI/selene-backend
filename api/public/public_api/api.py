@@ -23,6 +23,7 @@ from .endpoints.device_subscription import DeviceSubscriptionEndpoint
 from .endpoints.google_stt import GoogleSTTEndpoint
 from .endpoints.oauth_callback import OauthCallbackEndpoint
 from .endpoints.open_weather_map import OpenWeatherMapEndpoint
+from .endpoints.premium_voice import PremiumVoiceEndpoint
 from .endpoints.wolfram_alpha import WolframAlphaEndpoint
 from .endpoints.wolfram_alpha_spoken import WolframAlphaSpokenEndpoint
 
@@ -131,11 +132,16 @@ public.add_url_rule(
 )
 
 public.add_url_rule(
+    '/v1/device/<string:device_id>/voice',
+    view_func=PremiumVoiceEndpoint.as_view('premium_voice_api'),
+    methods=['GET']
+)
+
+public.add_url_rule(
     '/v1/device/<string:device_id>/<string:oauth_path>/<string:credentials>',
     view_func=OauthServiceEndpoint.as_view('oauth_api'),
     methods=['GET']
 )
-
 
 """
 This is a workaround to allow the API return 401 when we call a non existent path. Use case:
