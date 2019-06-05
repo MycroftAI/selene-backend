@@ -1,11 +1,11 @@
 import os
 from http import HTTPStatus
 
-from selene.api import SeleneEndpoint
+from selene.api import PublicEndpoint
 from selene.data.account import AccountRepository
 
 
-class PremiumVoiceEndpoint(SeleneEndpoint):
+class PremiumVoiceEndpoint(PublicEndpoint):
     def __init__(self):
         super(PremiumVoiceEndpoint, self).__init__()
 
