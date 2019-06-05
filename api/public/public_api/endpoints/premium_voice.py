@@ -10,7 +10,7 @@ class PremiumVoiceEndpoint(SeleneEndpoint):
         super(PremiumVoiceEndpoint, self).__init__()
 
     def get(self, device_id):
-        self._authenticate()
+        self._authenticate(device_id)
         arch = self.request.args.get('arch')
         account = AccountRepository(self.db).get_account_by_device_id(device_id)
         if account and account.membership:
