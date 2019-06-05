@@ -137,5 +137,9 @@ class AgreementRepository(object):
         return agreement
 
     def _get_agreement_content(self, content_id):
-        large_object = self.db.lobject(content_id, 'r')
-        return large_object.read()
+        content = None
+        if content_id is not None:
+            large_object = self.db.lobject(content_id, 'r')
+            content = large_object.read()
+
+        return content

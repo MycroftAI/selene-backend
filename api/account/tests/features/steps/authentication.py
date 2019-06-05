@@ -8,7 +8,7 @@ from selene.api.testing import (
 )
 from selene.data.account import AccountRepository
 from selene.util.auth import AuthenticationToken
-from selene.util.db import get_db_connection
+from selene.util.db import connect_to_db
 
 
 @given('an authenticated user with an expired access token')
@@ -37,9 +37,9 @@ def check_for_new_cookies(context):
         context.refresh_token,
         is_not(equal_to(context.old_refresh_token))
     )
-    with get_db_connection(context.client_config['DB_CONNECTION_POOL']) as db:
-        acct_repository = AccountRepository(db)
-        account = acct_repository.get_account_by_id(context.account.id)
+    db = connect_to_db(context.client_config['DB_CONNECTION_CONFIG'])
+    acct_repository = AccountRepository(db)
+    account = acct_repository.get_account_by_id(context.account.id)
 
     refresh_token = AuthenticationToken(
         context.client_config['REFRESH_SECRET'],

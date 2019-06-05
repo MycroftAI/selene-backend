@@ -27,6 +27,7 @@ class SkillManifest(Model):
     installed = DateTimeType()
     updated = DateTimeType()
     update = DateTimeType()
+    skill_gid = StringType()
 
 
 class SkillJson(Model):

@@ -112,15 +112,6 @@ class SkillRepository(RepositoryBase):
         DeviceSkillRepository(self.db).add(device_id, skill_id, skill_settings_display_id, settings_value)
         return skill_id
 
-    def _add_skill(self, skill_gid: str, name: str) -> str:
-        db_request = self._build_db_request(
-            sql_file_name='add_skill.sql',
-            args=dict(skill_gid=skill_gid, family_name=name)
-        )
-        db_result = self.cursor.insert_returning(db_request)
-
-        return db_result['id']
-
     @staticmethod
     def _extract_settings(skill):
         settings = {}
@@ -189,5 +180,20 @@ class SkillRepository(RepositoryBase):
             skill_id = self._add_skill(skill_gid, family_name)
         else:
             skill_id = skill.id
+
+        return skill_id
+
+    def _add_skill(self, skill_gid: str, name: str) -> str:
+        db_request = self._build_db_request(
+            sql_file_name='add_skill.sql',
+            args=dict(skill_gid=skill_gid, family_name=name)
+        )
+        db_result = self.cursor.insert_returning(db_request)
+
+        # handle both dictionary cursors and namedtuple cursors
+        try:
+            skill_id = db_result['id']
+        except TypeError:
+            skill_id = db_result.id
 
         return skill_id

@@ -7,7 +7,7 @@ from behave import when, then
 from hamcrest import assert_that, has_entry, equal_to
 
 from selene.data.account import AccountRepository, AccountMembership
-from selene.util.db import get_db_connection
+from selene.util.db import connect_to_db
 
 
 @when('the subscription endpoint is called')
@@ -42,9 +42,9 @@ def get_device_subscription(context):
     login = context.device_login
     device_id = login['uuid']
     access_token = login['accessToken']
-    headers=dict(Authorization='Bearer {token}'.format(token=access_token))
-    with get_db_connection(context.client_config['DB_CONNECTION_POOL']) as db:
-        AccountRepository(db).add_membership(context.account.id, membership)
+    headers = dict(Authorization='Bearer {token}'.format(token=access_token))
+    db = connect_to_db(context.client_config['DB_CONNECTION_CONFIG'])
+    AccountRepository(db).add_membership(context.account.id, membership)
     context.subscription_response = context.client.get(
         '/v1/device/{uuid}/subscription'.format(uuid=device_id),
         headers=headers

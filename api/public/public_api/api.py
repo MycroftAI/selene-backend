@@ -23,6 +23,7 @@ from .endpoints.device_subscription import DeviceSubscriptionEndpoint
 from .endpoints.google_stt import GoogleSTTEndpoint
 from .endpoints.oauth_callback import OauthCallbackEndpoint
 from .endpoints.open_weather_map import OpenWeatherMapEndpoint
+from .endpoints.premium_voice import PremiumVoiceEndpoint
 from .endpoints.wolfram_alpha import WolframAlphaEndpoint
 from .endpoints.wolfram_alpha_spoken import WolframAlphaSpokenEndpoint
 
@@ -32,16 +33,6 @@ public = Flask(__name__)
 public.config.from_object(get_base_config())
 public.config['GOOGLE_STT_KEY'] = os.environ['GOOGLE_STT_KEY']
 public.config['SELENE_CACHE'] = SeleneCache()
-
-# Initializing email client
-host = os.environ['EMAIL_SERVICE_HOST']
-port = os.environ['EMAIL_SERVICE_PORT']
-user = os.environ['EMAIL_SERVICE_USER']
-password = os.environ['EMAIL_SERVICE_PASSWORD']
-# TODO: test with another email service and move this logic to the email endpoint
-#email_client = smtplib.SMTP(host, port)
-#email_client.login(user, password)
-#public.config['EMAIL_CLIENT'] = email_client
 
 public.config['METRICS_SERVICE'] = MetricsService()
 
@@ -104,9 +95,9 @@ public.add_url_rule(
     methods=['POST']
 )
 public.add_url_rule(
-    '/v1/device/<string:device_id>/email',
+    '/v1/device/<string:device_id>/message',
     view_func=DeviceEmailEndpoint.as_view('device_email_api'),
-    methods=['POST']
+    methods=['PUT']
 )
 public.add_url_rule(
     '/v1/device/<string:device_id>/metric/<path:metric>',
@@ -141,11 +132,16 @@ public.add_url_rule(
 )
 
 public.add_url_rule(
+    '/v1/device/<string:device_id>/voice',
+    view_func=PremiumVoiceEndpoint.as_view('premium_voice_api'),
+    methods=['GET']
+)
+
+public.add_url_rule(
     '/v1/device/<string:device_id>/<string:oauth_path>/<string:credentials>',
     view_func=OauthServiceEndpoint.as_view('oauth_api'),
     methods=['GET']
 )
-
 
 """
 This is a workaround to allow the API return 401 when we call a non existent path. Use case:

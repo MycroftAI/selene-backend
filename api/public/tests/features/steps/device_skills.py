@@ -5,8 +5,8 @@ from behave import when, then, given
 from hamcrest import assert_that, equal_to, not_none, is_not
 
 from selene.api.etag import ETagManager, device_skill_etag_key
-from selene.data.skill import SkillSettingRepository
-from selene.util.db import get_db_connection
+from selene.data.skill import AccountSkillSetting, SkillSettingRepository
+from selene.util.db import connect_to_db
 
 skill = {
     'skill_gid': 'wolfram-alpha|19.02',
@@ -100,14 +100,16 @@ def create_skill_settings(context):
 
 @when('the skill settings are updated')
 def update_skill(context):
-    update_settings = [{
-        'settingsValues': new_settings,
-        'devices': [context.device_name]
-    }]
     response = json.loads(context.upload_device_response.data)
-    skill_id = response['uuid']
-    with get_db_connection(context.client_config['DB_CONNECTION_POOL']) as db:
-        SkillSettingRepository(db).update_device_skill_settings(skill_id, update_settings)
+    update_settings = AccountSkillSetting(
+        skill_id=response['uuid'],
+        settings_display={},
+        settings_values=new_settings,
+        devices=[context.device_name]
+    )
+    db = connect_to_db(context.client_config['DB_CONNECTION_CONFIG'])
+    skill_setting_repo = SkillSettingRepository(db, context.account.id)
+    skill_setting_repo.update_skill_settings(update_settings)
 
 
 @when('the skill settings is fetched')

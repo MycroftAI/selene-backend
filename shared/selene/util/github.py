@@ -1,12 +1,16 @@
 """
 Logic that uses the Github REST API to extract repository-related metadata
 """
+from logging import getLogger
 from urllib.request import urlopen
 
 from github import Github
 
+_log = getLogger(__package__)
+
 
 def log_into_github(user_name: str, user_password: str) -> Github:
+    _log.info('logging into GitHub as "{}"'.format(user_name))
     return Github(user_name, user_password)
 
 

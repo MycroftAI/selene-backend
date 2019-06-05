@@ -1,5 +1,6 @@
-import json
+from binascii import b2a_base64
 from datetime import date
+import json
 
 from behave import given, when, then
 from hamcrest import assert_that, equal_to, starts_with, none
@@ -11,7 +12,9 @@ from selene.data.account import (
     AccountAgreement,
     PRIVACY_POLICY
 )
-from selene.util.db import get_db_connection
+from selene.util.db import connect_to_db
+
+TEST_EMAIL_ADDRESS = 'test@mycroft.ai'
 
 new_account_request = dict(
     username='test',
@@ -20,8 +23,8 @@ new_account_request = dict(
     login=dict(
         federatedPlatform=None,
         federatedToken=None,
-        userEnteredEmail='test@mycroft.ai',
-        password='12345678'
+        email=b2a_base64(b'test@mycroft.ai').decode(),
+        password=b2a_base64(b'12345678').decode()
     ),
     support=dict(
         openDataset=True,
@@ -47,12 +50,12 @@ def create_account(context):
             AccountAgreement(type=PRIVACY_POLICY, accept_date=date.today())
         ]
     )
-    with get_db_connection(context.client_config['DB_CONNECTION_POOL']) as db:
-        acct_repository = AccountRepository(db)
-        account_id = acct_repository.add(context.account, 'foo')
-        context.account.id = account_id
-        generate_access_token(context)
-        generate_refresh_token(context)
+    db = connect_to_db(context.client_config['DB_CONNECTION_CONFIG'])
+    acct_repository = AccountRepository(db)
+    account_id = acct_repository.add(context.account, 'foo')
+    context.account.id = account_id
+    generate_access_token(context)
+    generate_refresh_token(context)
 
 
 @when('a monthly membership is added')
@@ -66,16 +69,16 @@ def update_membership(context):
     context.response = context.client.patch(
         '/api/account',
         data=json.dumps(dict(membership=membership_data)),
-        content_type='application_json'
+        content_type='application/json'
     )
 
 
 @when('the account is requested')
 def request_account(context):
-    with get_db_connection(context.client_config['DB_CONNECTION_POOL']) as db:
-        context.response_account = AccountRepository(db).get_account_by_email(
-            'test@mycroft.ai'
-        )
+    db = connect_to_db(context.client_config['DB_CONNECTION_CONFIG'])
+    context.response_account = AccountRepository(db).get_account_by_email(
+        TEST_EMAIL_ADDRESS
+    )
 
 
 @then('the account should have a monthly membership')
@@ -98,16 +101,14 @@ def create_monthly_account(context):
     context.client.post(
         '/api/account',
         data=json.dumps(new_account_request),
-        content_type='application_json'
+        content_type='application/json'
     )
-    with get_db_connection(context.client_config['DB_CONNECTION_POOL']) as db:
-        account_repository = AccountRepository(db)
-        account = account_repository.get_account_by_email(
-            new_account_request['login']['userEnteredEmail']
-        )
-        context.account = account
-        generate_access_token(context)
-        generate_refresh_token(context)
+    db = connect_to_db(context.client_config['DB_CONNECTION_CONFIG'])
+    account_repository = AccountRepository(db)
+    account = account_repository.get_account_by_email(TEST_EMAIL_ADDRESS)
+    context.account = account
+    generate_access_token(context)
+    generate_refresh_token(context)
 
 
 @when('the membership is cancelled')
@@ -119,7 +120,7 @@ def cancel_membership(context):
     context.client.patch(
         '/api/account',
         data=json.dumps(dict(membership=membership_data)),
-        content_type='application_json'
+        content_type='application/json'
     )
 
 
@@ -138,7 +139,7 @@ def change_to_yearly_account(context):
     context.client.patch(
         '/api/account',
         data=json.dumps(dict(membership=membership_data)),
-        content_type='application_json'
+        content_type='application/json'
     )
 
 

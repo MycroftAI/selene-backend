@@ -22,15 +22,6 @@ import os
 
 from selene.util.db import allocate_db_connection_pool, DatabaseConnectionConfig
 
-db_connection_config = DatabaseConnectionConfig(
-    host=os.environ['DB_HOST'],
-    db_name=os.environ['DB_NAME'],
-    password=os.environ['DB_PASSWORD'],
-    port=os.environ.get('DB_PORT', 5432),
-    user=os.environ['DB_USER'],
-    sslmode=os.environ.get('DB_SSLMODE')
-)
-
 
 class APIConfigError(Exception):
     pass
@@ -43,6 +34,14 @@ class BaseConfig(object):
     DEBUG = False
     ENV = os.environ['SELENE_ENVIRONMENT']
     REFRESH_SECRET = os.environ['JWT_REFRESH_SECRET']
+    DB_CONNECTION_CONFIG = DatabaseConnectionConfig(
+        host=os.environ['DB_HOST'],
+        db_name=os.environ['DB_NAME'],
+        password=os.environ['DB_PASSWORD'],
+        port=os.environ.get('DB_PORT', 5432),
+        user=os.environ['DB_USER'],
+        sslmode=os.environ.get('DB_SSLMODE')
+    )
 
 
 class DevelopmentConfig(BaseConfig):
@@ -79,11 +78,5 @@ def get_base_config():
     except KeyError:
         error_msg = 'no configuration defined for the "{}" environment'
         raise APIConfigError(error_msg.format(environment_name))
-
-    max_db_connections = os.environ.get('MAX_DB_CONNECTIONS', 20)
-    app_config.DB_CONNECTION_POOL = allocate_db_connection_pool(
-        db_connection_config,
-        max_db_connections
-    )
 
     return app_config

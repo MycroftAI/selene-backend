@@ -20,8 +20,8 @@ class SettingRepository(object):
         """Convert the selene representation of TTS into the tartarus representation, for backward compatibility
         with the API v1"""
         if engine == 'mimic':
-            if setting_name == 'amy':
-                return 'mimic', 'amy'
+            if setting_name == 'trinity':
+                return 'mimic', 'trinity'
             elif setting_name == 'kusal':
                 return 'mimic2', 'kusal'
             else:
@@ -54,8 +54,18 @@ class SettingRepository(object):
                 del response['listener_setting']
             tts_setting = response['tts_settings']
             tts_setting = self.convert_text_to_speech_setting(tts_setting['setting_name'], tts_setting['engine'])
-            tts_setting = [{'@type': tts_setting[0], 'voice': tts_setting[1]}]
+            tts_setting = {'module': tts_setting[0], tts_setting[0]: {'voice': tts_setting[1]}}
             response['tts_settings'] = tts_setting
             response['date_format'] = self._format_date_v1(response['date_format'])
             response['time_format'] = self._format_time_v1(response['time_format'])
+            response['system_unit'] = response['system_unit'].lower()
+            open_dataset = self._get_open_dataset_agreement_by_device_id(device_id)
+            response['optIn'] = open_dataset is not None
             return response
+
+    def _get_open_dataset_agreement_by_device_id(self, device_id: str):
+        query = DatabaseRequest(
+            sql=get_sql_from_file(path.join(SQL_DIR, 'get_open_dataset_agreement_by_device_id.sql')),
+            args=dict(device_id=device_id)
+        )
+        return self.cursor.select_one(query)

@@ -13,7 +13,7 @@ from flask.views import MethodView
 
 from selene.api.etag import ETagManager
 from selene.util.auth import AuthenticationError
-from selene.util.db import get_db_connection_from_pool
+from selene.util.db import connect_to_db
 from selene.util.not_modified import NotModifiedError
 from ..util.cache import SeleneCache
 
@@ -22,7 +22,7 @@ ONE_DAY = 86400
 
 def check_oauth_token():
     global_context.url = request.url
-    exclude_paths = ['/v1/device/code', '/v1/device/activate', '/api/account', '/v1/auth/token']
+    exclude_paths = ['/v1/device/code', '/v1/device/activate', '/api/account', '/v1/auth/token', '/v1/auth/callback']
     exclude = any(request.path.startswith(path) for path in exclude_paths)
     if not exclude:
         headers = request.headers
@@ -91,8 +91,8 @@ class PublicEndpoint(MethodView):
     @property
     def db(self):
         if 'db' not in global_context:
-            global_context.db = get_db_connection_from_pool(
-                current_app.config['DB_CONNECTION_POOL']
+            global_context.db = connect_to_db(
+                current_app.config['DB_CONNECTION_CONFIG']
             )
 
         return global_context.db
@@ -107,10 +107,11 @@ class PublicEndpoint(MethodView):
             token = token_header[len('Bearer '):]
             session = self.cache.get('device.token.access:{access}'.format(access=token))
             if session is not None:
+                session = json.loads(session)
+                device_uuid = session['uuid']
+                global_context.device_id = device_uuid
                 if device_id is not None:
-                    session = json.loads(session)
-                    uuid = session['uuid']
-                    device_authenticated = (device_id == uuid)
+                    device_authenticated = (device_id == device_uuid)
                 else:
                     device_authenticated = True
         if not device_authenticated:

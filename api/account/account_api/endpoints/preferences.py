@@ -5,6 +5,7 @@ from schematics import Model
 from schematics.types import StringType
 
 from selene.api import SeleneEndpoint
+from selene.api.etag import ETagManager
 from selene.data.device import PreferenceRepository
 
 
@@ -24,6 +25,8 @@ class PreferencesEndpoint(SeleneEndpoint):
     def __init__(self):
         super(PreferencesEndpoint, self).__init__()
         self.preferences = None
+        self.cache = self.config['SELENE_CACHE']
+        self.etag_manager: ETagManager = ETagManager(self.cache, self.config)
 
     def get(self):
         self._authenticate()
@@ -60,14 +63,14 @@ class PreferencesEndpoint(SeleneEndpoint):
         self._authenticate()
         self._validate_request()
         self._upsert_preferences()
-
+        self.etag_manager.expire_device_setting_etag_by_account_id(self.account.id)
         return '', HTTPStatus.NO_CONTENT
 
     def patch(self):
         self._authenticate()
         self._validate_request()
         self._upsert_preferences()
-
+        self.etag_manager.expire_device_setting_etag_by_account_id(self.account.id)
         return '', HTTPStatus.NO_CONTENT
 
     def _validate_request(self):

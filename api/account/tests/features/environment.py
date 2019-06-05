@@ -15,7 +15,7 @@ from selene.data.account import (
 )
 from selene.data.device import Geography, GeographyRepository
 from selene.util.cache import SeleneCache
-from selene.util.db import get_db_connection
+from selene.util.db import connect_to_db
 
 
 @fixture
@@ -32,10 +32,10 @@ def before_feature(context, _):
 
 
 def before_scenario(context, _):
-    with get_db_connection(context.client_config['DB_CONNECTION_POOL']) as db:
-        _add_agreements(context, db)
-        _add_account(context, db)
-        _add_geography(context, db)
+    db = connect_to_db(context.client_config['DB_CONNECTION_CONFIG'])
+    _add_agreements(context, db)
+    _add_account(context, db)
+    _add_geography(context, db)
 
 
 def _add_agreements(context, db):
@@ -91,9 +91,9 @@ def _add_geography(context, db):
 
 
 def after_scenario(context, _):
-    with get_db_connection(context.client_config['DB_CONNECTION_POOL']) as db:
-        _delete_account(context, db)
-        _delete_agreements(context, db)
+    db = connect_to_db(context.client_config['DB_CONNECTION_CONFIG'])
+    _delete_account(context, db)
+    _delete_agreements(context, db)
     _clean_cache()
 
 

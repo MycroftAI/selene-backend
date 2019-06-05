@@ -12,6 +12,7 @@ from selene.data.account import (
     AccountAgreement,
     PRIVACY_POLICY,
     TERMS_OF_USE,
+    OPEN_DATASET,
     Agreement,
     AgreementRepository)
 from selene.data.device import (
@@ -21,14 +22,15 @@ from selene.data.device import (
     Geography)
 from selene.data.device.entity.text_to_speech import TextToSpeech
 from selene.data.device.entity.wake_word import WakeWord
-from selene.util.db import get_db_connection
+from selene.util.db import connect_to_db
 
 account = Account(
     email_address='test@test.com',
     username='test',
     agreements=[
                 AccountAgreement(type=PRIVACY_POLICY, accept_date=date.today()),
-                AccountAgreement(type=TERMS_OF_USE, accept_date=date.today())
+                AccountAgreement(type=TERMS_OF_USE, accept_date=date.today()),
+                AccountAgreement(type=OPEN_DATASET, accept_date=date.today())
             ],
     membership=None
 )
@@ -63,18 +65,22 @@ def before_feature(context, _):
 def before_scenario(context, _):
     cache = context.client_config['SELENE_CACHE']
     context.etag_manager = ETagManager(cache, context.client_config)
-    with get_db_connection(context.client_config['DB_CONNECTION_POOL']) as db:
+    db = connect_to_db(context.client_config['DB_CONNECTION_CONFIG'])
+    try:
         _add_agreements(context, db)
         _add_account(context, db)
         _add_account_preference(context, db)
         _add_geography(context, db)
         _add_device(context, db)
+    except Exception as e:
+        import traceback
+        print(traceback.print_exc())
 
 
 def after_scenario(context, _):
-    with get_db_connection(context.client_config['DB_CONNECTION_POOL']) as db:
-        _remove_account(context, db)
-        _remove_agreements(context, db)
+    db = connect_to_db(context.client_config['DB_CONNECTION_CONFIG'])
+    _remove_account(context, db)
+    _remove_agreements(context, db)
 
 
 def _add_agreements(context, db):
@@ -90,9 +96,16 @@ def _add_agreements(context, db):
         content='this is Terms of Use version 999',
         effective_date=date.today() - timedelta(days=5)
     )
+    context.open_dataset = Agreement(
+        type=OPEN_DATASET,
+        version='999',
+        content='this is Open Dataset version 999',
+        effective_date=date.today() - timedelta(days=5)
+    )
     agreement_repository = AgreementRepository(db)
     context.privacy_policy.id = agreement_repository.add(context.privacy_policy)
     context.terms_of_use.id = agreement_repository.add(context.terms_of_use)
+    context.open_dataset.id = agreement_repository.add(context.open_dataset)
 
 
 def _add_account(context, db):
@@ -159,3 +172,4 @@ def _remove_agreements(context, db):
     agreements_repository = AgreementRepository(db)
     agreements_repository.remove(context.privacy_policy, testing=True)
     agreements_repository.remove(context.terms_of_use, testing=True)
+    agreements_repository.remove(context.open_dataset, testing=True)

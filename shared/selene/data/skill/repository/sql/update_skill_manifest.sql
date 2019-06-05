@@ -7,7 +7,7 @@ SET
     install_ts = %(installed)s,
     update_ts = %(updated)s
 WHERE
-    id = (
+    id IN (
         SELECT
             dev_skill.id
         FROM
