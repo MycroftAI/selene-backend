@@ -1,4 +1,5 @@
 import os
+from datetime import datetime
 from os import environ
 
 import schedule
@@ -20,7 +21,7 @@ mycroft_db = DatabaseConnectionConfig(
 
 def build_report():
     with connect_to_db(mycroft_db) as db:
-        user_metrics = AccountRepository(db).daily_report()
+        user_metrics = AccountRepository(db).daily_report(datetime.now())
 
     email = EmailMessage(
         sender='reports@mycroft.ai',
