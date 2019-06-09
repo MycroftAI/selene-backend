@@ -66,6 +66,7 @@ def before_scenario(context, _):
     cache = context.client_config['SELENE_CACHE']
     context.etag_manager = ETagManager(cache, context.client_config)
     db = connect_to_db(context.client_config['DB_CONNECTION_CONFIG'])
+    context.db = db
     try:
         _add_agreements(context, db)
         _add_account(context, db)

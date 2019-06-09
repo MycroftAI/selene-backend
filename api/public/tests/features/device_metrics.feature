@@ -1,9 +1,12 @@
-Feature: Send a metric to the metric service
+Feature: Save metrics sent to selene from mycroft core
 
-  Scenario: a metric is sent to the metric endpoint by a valid device
-    When the metric is sent
-    Then 200 status code should be returned
+  Scenario: Metric sent by device saved to database
+    Given an authorized device
+     When the metrics endpoint is called
+     Then the metric is saved to the database
+      And the request will be successful
 
-  Scenario: a metric is sent by a not allowed device
-    When the metric is sent by a not allowed device
-    Then metrics endpoint should return 401
+  Scenario: Metric endpoint fails for unauthorized device
+    Given an unauthorized device
+     When the metrics endpoint is called
+     Then the request will fail with an unauthorized error

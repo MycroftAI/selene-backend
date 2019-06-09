@@ -12,7 +12,7 @@ from .endpoints.device_activate import DeviceActivateEndpoint
 from .endpoints.device_code import DeviceCodeEndpoint
 from .endpoints.device_email import DeviceEmailEndpoint
 from .endpoints.device_location import DeviceLocationEndpoint
-from .endpoints.device_metrics import DeviceMetricsEndpoint, MetricsService
+from .endpoints.device_metrics import DeviceMetricsEndpoint
 from .endpoints.device_oauth import OauthServiceEndpoint
 from .endpoints.device_refresh_token import DeviceRefreshTokenEndpoint
 from .endpoints.device_setting import DeviceSettingEndpoint
@@ -34,12 +34,8 @@ public.config.from_object(get_base_config())
 public.config['GOOGLE_STT_KEY'] = os.environ['GOOGLE_STT_KEY']
 public.config['SELENE_CACHE'] = SeleneCache()
 
-public.config['METRICS_SERVICE'] = MetricsService()
-
 public.response_class = SeleneResponse
 public.register_blueprint(selene_api)
-
-_log = configure_logger('public_api')
 
 public.add_url_rule(
     '/v1/device/<string:device_id>/skill',
