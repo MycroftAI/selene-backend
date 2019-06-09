@@ -1,7 +1,7 @@
 import json
 
 from behave import given, when, then
-from hamcrest import assert_that, equal_to, has_key, none, not_none
+from hamcrest import assert_that, equal_to, none, not_none
 
 from selene.data.device import DeviceRepository
 from selene.util.cache import SeleneCache

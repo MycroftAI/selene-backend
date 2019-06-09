@@ -1,7 +1,7 @@
 from behave import given, then
-from hamcrest import assert_that, equal_to, has_item, is_not
+from hamcrest import assert_that, equal_to, is_not
 
-from selene.api.testing import (
+from selene.testing.api import (
     generate_access_token,
     generate_refresh_token,
     validate_token_cookies

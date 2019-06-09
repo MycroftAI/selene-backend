@@ -20,7 +20,9 @@ _agree_to_privacy = AccountAgreement(
 _membership = AccountMembership(
     type='Monthly Supporter',
     start_date=date.today(),
-    stripe_customer_id='killer_rabbit'
+    payment_account_id='killer_rabbit',
+    payment_method='Stripe',
+    payment_id='abc123'
 )
 
 arthur = dict(

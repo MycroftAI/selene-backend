@@ -5,7 +5,7 @@ import json
 from behave import given, when, then
 from hamcrest import assert_that, equal_to, starts_with, none
 
-from selene.api.testing import generate_access_token, generate_refresh_token
+from selene.testing.api import generate_access_token, generate_refresh_token
 from selene.data.account import (
     AccountRepository,
     Account,

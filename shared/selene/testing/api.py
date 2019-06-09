@@ -1,3 +1,6 @@
+from http import HTTPStatus
+
+from behave import given, then
 from hamcrest import assert_that, equal_to, has_item
 
 from selene.data.account import Account, AccountRepository
@@ -8,6 +11,12 @@ ACCESS_TOKEN_COOKIE_KEY = 'seleneAccess'
 ONE_MINUTE = 60
 TWO_MINUTES = 120
 REFRESH_TOKEN_COOKIE_KEY = 'seleneRefresh'
+
+
+@given('an authenticated user')
+def setup_authenticated_user(context):
+    generate_access_token(context)
+    generate_refresh_token(context)
 
 
 def generate_access_token(context, expire=False):
