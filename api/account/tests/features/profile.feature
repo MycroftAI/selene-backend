@@ -5,4 +5,5 @@ Feature: Manage account profiles
   Scenario: Retrieve authenticated user's account
     Given an authenticated user
      When a user requests their profile
-     Then user profile is returned
+     Then the request will be successful
+      And user profile is returned

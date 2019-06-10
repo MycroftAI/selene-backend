@@ -1,5 +1,4 @@
 from datetime import date
-from http import HTTPStatus
 import json
 
 from behave import then, when
@@ -15,7 +14,6 @@ def call_account_endpoint(context):
 
 @then('user profile is returned')
 def validate_response(context):
-    assert_that(context.response.status_code, equal_to(HTTPStatus.OK))
     response_data = json.loads(context.response.data)
     assert_that(
         response_data['emailAddress'],
