@@ -170,3 +170,10 @@ class DeviceRepository(RepositoryBase):
         )
 
         self.cursor.update(db_request)
+
+    def update_last_contact_ts(self, device_id):
+        db_request = self._build_db_request(
+            sql_file_name='update_last_contact_ts.sql',
+            args=dict(device_id=device_id)
+        )
+        self.cursor.update(db_request)
