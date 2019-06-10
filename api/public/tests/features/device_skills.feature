@@ -24,3 +24,10 @@ Feature: Upload and fetch skills
     When a skill with empty settings is uploaded
     Then the endpoint to retrieve the skill should return 200
     And device last contact timestamp is updated
+
+  Scenario: A skill setting is successfully deleted
+    Given a device with skill settings
+    When the skill settings is deleted
+    And the skill settings is fetched
+    Then the endpoint to delete the skills settings should return 200
+    And device last contact timestamp is updated

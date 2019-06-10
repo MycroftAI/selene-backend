@@ -38,7 +38,7 @@ class SkillRepository(RepositoryBase):
             skills = []
             for result in sql_results:
                 sections = self._fill_setting_with_values(result['settings'], result['settings_display'])
-                skill = {}
+                skill = {'uuid': result['id']}
                 if sections:
                     skill['skillMetadata'] = {'sections': sections}
                 display = result['settings_display']
