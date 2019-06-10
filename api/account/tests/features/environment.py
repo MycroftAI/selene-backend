@@ -1,20 +1,12 @@
-from datetime import date, timedelta
-
 from behave import fixture, use_fixture
 
 from account_api.api import acct
 from selene.data.account import (
-    AccountAgreement,
     AccountRepository,
-    AccountMembership,
-    Agreement,
-    AgreementRepository,
-    PRIVACY_POLICY,
-    TERMS_OF_USE
 )
-from selene.data.device import Geography, GeographyRepository
 from selene.testing import (
     add_account,
+    add_account_geography,
     add_agreements,
     remove_account,
     remove_agreements
@@ -32,32 +24,27 @@ def acct_api_client(context):
     yield context.client
 
 
-def before_feature(context, _):
+def before_all(context):
     use_fixture(acct_api_client, context)
+    context.db = connect_to_db(context.client_config['DB_CONNECTION_CONFIG'])
+    context.terms_of_use, context.privacy_policy = add_agreements(context.db)
+
+
+def after_all(context):
+    remove_agreements(
+        context.db,
+        [context.privacy_policy, context.terms_of_use]
+    )
 
 
 def before_scenario(context, _):
-    db = connect_to_db(context.client_config['DB_CONNECTION_CONFIG'])
-    context.terms_of_use, context.privacy_policy = add_agreements(db)
-    context.account = context.foo_account = add_account(db)
-    _add_geography(context, db)
-
-
-def _add_geography(context, db):
-    geography = Geography(
-        country='United States',
-        region='Missouri',
-        city='Kansas City',
-        time_zone='America/Chicago'
-    )
-    geo_repository = GeographyRepository(db, context.account.id)
-    context.geography_id = geo_repository.add(geography)
+    context.account = context.foo_account = add_account(context.db)
+    context.geography_id = add_account_geography(context.db, context.account)
 
 
 def after_scenario(context, _):
     db = connect_to_db(context.client_config['DB_CONNECTION_CONFIG'])
     _delete_account(context, db)
-    remove_agreements(db, [context.privacy_policy, context.terms_of_use])
     _clean_cache()
 
 
@@ -70,12 +57,6 @@ def _delete_account(context, db):
     test_acct = acct_repository.get_account_by_email('test@mycroft.ai')
     if test_acct is not None:
         remove_account(db, test_acct)
-
-
-def _delete_agreements(context, db):
-    agreement_repository = AgreementRepository(db)
-    agreement_repository.remove(context.privacy_policy, testing=True)
-    agreement_repository.remove(context.terms_of_use, testing=True)
 
 
 def _clean_cache():
