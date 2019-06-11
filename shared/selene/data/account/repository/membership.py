@@ -2,6 +2,9 @@ from selene.data.account import AccountMembership
 from ..entity.membership import Membership
 from ...repository_base import RepositoryBase
 
+MONTHLY_MEMBERSHIP = 'Monthly Membership'
+YEARLY_MEMBERSHIP = 'Yearly Membership'
+
 
 class MembershipRepository(RepositoryBase):
     def __init__(self, db):
