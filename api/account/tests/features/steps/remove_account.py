@@ -1,4 +1,5 @@
 import os
+from unittest.mock import call, patch
 
 import stripe
 from behave import then, when
@@ -8,7 +9,12 @@ from stripe.error import InvalidRequestError
 
 @when('the user\'s account is deleted')
 def account_deleted(context):
-    context.response = context.client.delete('/api/account')
+    with patch('stripe.Subscription') as stripe_patch:
+        context.response = context.client.delete('/api/account')
+        assert_that(
+            stripe_patch.mock_calls,
+            equal_to([call.retrieve('bar'), call.retrieve().delete()])
+        )
 
 
 @then('the membership is removed from stripe')
