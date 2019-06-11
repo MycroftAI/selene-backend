@@ -4,7 +4,8 @@ from selene.data.account import (
     AccountAgreement,
     AccountMembership,
     AccountRepository,
-    PRIVACY_POLICY
+    PRIVACY_POLICY,
+    TERMS_OF_USE
 )
 
 
@@ -20,7 +21,8 @@ def build_test_membership(**overrides):
 
 def build_test_account(**overrides):
     test_agreements = [
-        AccountAgreement(type=PRIVACY_POLICY, accept_date=date.today())
+        AccountAgreement(type=PRIVACY_POLICY, accept_date=date.today()),
+        AccountAgreement(type=TERMS_OF_USE, accept_date=date.today())
     ]
     return Account(
         email_address=overrides.get('email_address') or 'foo@mycroft.ai',
@@ -38,6 +40,6 @@ def add_account(db, **overrides):
     return account
 
 
-def remove_account(db, account: Account):
+def remove_account(db, account):
     account_repository = AccountRepository(db)
     account_repository.remove(account)
