@@ -49,6 +49,12 @@ def after_scenario(context, _):
 
 
 def _delete_account(context, db):
+    """Delete the account and all its related data.
+
+    The database is setup with cascading deletes that take care of cleaning up[
+    referential integrity for us.  All we have to do here is delete the account
+    and all rows on all tables related to that account will also be deleted.
+    """
     acct_repository = AccountRepository(db)
     remove_account(db, context.foo_account)
     bar_acct = acct_repository.get_account_by_email('bar@mycroft.ai')
