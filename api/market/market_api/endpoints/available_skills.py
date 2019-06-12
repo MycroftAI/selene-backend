@@ -57,10 +57,10 @@ class AvailableSkillsEndpoint(SeleneEndpoint):
                 search_term is None or
                 search_term in display_data['title'].lower() or
                 search_term in display_data['description'].lower() or
-                search_term in display_data['summary'].lower() or
+                search_term in display_data['short_desc'].lower() or
                 search_term in [c.lower() for c in display_data['categories']] or
                 search_term in [t.lower() for t in display_data['tags']] or
-                search_term in [t.lower() for t in display_data['triggers']]
+                search_term in [t.lower() for t in display_data['examples']]
             )
             if search_term_match:
                 skills_to_include.append(skill)

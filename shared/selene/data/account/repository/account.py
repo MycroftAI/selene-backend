@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 from logging import getLogger
 from os import environ
 
@@ -179,20 +180,25 @@ class AccountRepository(RepositoryBase):
         )
         self.cursor.delete(db_request)
 
-    def daily_report(self):
+    def daily_report(self, date: datetime):
+        base = date - timedelta(days=1)
+        end_date = base.strftime('%Y-%m-%d')
+        start_date_1_day = (base - timedelta(days=1)).strftime('%Y-%m-%d')
+        start_date_15_days = (base - timedelta(days=15)).strftime('%Y-%m-%d')
+        start_date_30_days = (base - timedelta(days=30)).strftime('%Y-%m-%d')
         db_request = self._build_db_request(
             sql_file_name='daily_report.sql',
-            args=dict(start='1 DAY')
+            args=dict(start_date=start_date_1_day, end_date=end_date)
         )
         report_1_day = self.cursor.select_one(db_request)
         db_request = self._build_db_request(
             sql_file_name='daily_report.sql',
-            args=dict(start='15 DAY')
+            args=dict(start_date=start_date_15_days, end_date=end_date)
         )
         report_15_days = self.cursor.select_one(db_request)
         db_request = self._build_db_request(
             sql_file_name='daily_report.sql',
-            args=dict(start='30 DAY')
+            args=dict(start_date=start_date_30_days, end_date=end_date)
         )
         report_30_days = self.cursor.select_one(db_request)
 
@@ -210,14 +216,17 @@ class AccountRepository(RepositoryBase):
             'thirtyDaysMinus': 0
         }, {
             'type': 'Free Account',
-            'current': report_1_day['free_total'],
-            'oneDay': report_1_day['free_total'] - report_1_day['total_new'] + report_1_day['paid_new'],
+            'current': report_1_day['total'] - report_1_day['paid_total'],
+            'oneDay': report_1_day['total'] - report_1_day['paid_total'] - report_1_day['total_new'] + report_1_day[
+                'paid_new'],
             'oneDayDelta': report_1_day['total_new'] - report_1_day['paid_new'],
             'oneDayMinus': 0,
-            'fifteenDays': report_15_days['free_total'] - report_15_days['total_new'] + report_15_days['paid_new'],
+            'fifteenDays': report_15_days['total'] - report_15_days['paid_total'] - report_15_days['total_new'] +
+                           report_15_days['paid_new'],
             'fifteenDaysDelta': report_15_days['total_new'] - report_15_days['paid_new'],
             'fifteenDaysMinus': 0,
-            'thirtyDays': report_30_days['free_total'] - report_30_days['total_new'] + report_30_days['paid_new'],
+            'thirtyDays': report_30_days['total'] - report_30_days['paid_total'] - report_30_days['total_new'] +
+                          report_30_days['paid_new'],
             'thirtyDaysDelta': report_30_days['total_new'] - report_30_days['paid_new'],
             'thirtyDaysMinus': 0
         }, {
