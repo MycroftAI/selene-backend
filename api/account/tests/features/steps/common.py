@@ -6,10 +6,10 @@ from hamcrest import assert_that, equal_to, is_in
 from selene.api.testing import generate_access_token, generate_refresh_token
 
 
-@given('an authenticated user')
-def setup_authenticated_user(context):
-    generate_access_token(context)
-    generate_refresh_token(context)
+@given('user with username {username} is authenticated')
+def setup_authenticated_user(context, username):
+    generate_access_token(context, username)
+    generate_refresh_token(context, username)
 
 
 @then('the request will be successful')

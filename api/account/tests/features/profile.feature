@@ -3,7 +3,7 @@ Feature: Manage account profiles
   settings.
 
   Scenario: Retrieve authenticated user's account
-    Given an authenticated user
+    Given user with username foo is authenticated
      When a user requests their profile
      Then the request will be successful
       And user profile is returned

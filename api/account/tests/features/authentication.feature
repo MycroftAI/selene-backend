@@ -9,7 +9,7 @@ Feature: Authentication with JWTs
   be the only place authentication logic needs to be tested.
 
   Scenario: Request for user data includes valid access token
-    Given an authenticated user
+    Given user with username foo is authenticated
     When a user requests their profile
     Then the request will be successful
      And the authentication tokens will remain unchanged
