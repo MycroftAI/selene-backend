@@ -1,16 +1,9 @@
 from behave import fixture, use_fixture
 
 from account_api.api import acct
-from selene.data.account import (
-    AccountRepository,
-)
-from selene.testing import (
-    add_account,
-    add_account_geography,
-    add_agreements,
-    remove_account,
-    remove_agreements
-)
+from selene.testing.account import add_account, remove_account
+from selene.testing.account_geography import add_account_geography
+from selene.testing.agreement import add_agreements, remove_agreements
 from selene.util.cache import SeleneCache
 from selene.util.db import connect_to_db
 
@@ -38,31 +31,22 @@ def after_all(context):
 
 
 def before_scenario(context, _):
-    context.account = context.foo_account = add_account(context.db)
-    context.geography_id = add_account_geography(context.db, context.account)
+    account = add_account(context.db)
+    context.accounts = dict(foo=account)
+    context.geography_id = add_account_geography(context.db, account)
 
 
 def after_scenario(context, _):
-    db = connect_to_db(context.client_config['DB_CONNECTION_CONFIG'])
-    _delete_account(context, db)
-    _clean_cache()
-
-
-def _delete_account(context, db):
-    """Delete the account and all its related data.
+    """Scenario-level cleanup.
 
     The database is setup with cascading deletes that take care of cleaning up[
     referential integrity for us.  All we have to do here is delete the account
     and all rows on all tables related to that account will also be deleted.
     """
-    acct_repository = AccountRepository(db)
-    remove_account(db, context.foo_account)
-    bar_acct = acct_repository.get_account_by_email('bar@mycroft.ai')
-    if bar_acct is not None:
-        remove_account(db, bar_acct)
-    test_acct = acct_repository.get_account_by_email('test@mycroft.ai')
-    if test_acct is not None:
-        remove_account(db, test_acct)
+
+    for account in context.accounts.values():
+        remove_account(context.db, account)
+    _clean_cache()
 
 
 def _clean_cache():

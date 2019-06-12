@@ -12,11 +12,3 @@ Feature: Add a new account
     And user does not specify an email address
     When the new account request is submitted
     Then the request will fail with a bad request error
-
-  Scenario: Successful on-boarding with membership
-    Given a new account without a membership
-     And user with username bar is authenticated
-    When a user opts into a membership during on-boarding
-    Then the request will be successful
-    And the account will be updated with the membership
-
