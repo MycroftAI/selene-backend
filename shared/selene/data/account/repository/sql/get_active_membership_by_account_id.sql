@@ -1,7 +1,7 @@
 SELECT
     acc_mem.id,
     mem.type,
-    LOWER(acc_mem.membership_ts_range) start_date,
+    LOWER(acc_mem.membership_ts_range)::date start_date,
     acc_mem.payment_method,
     payment_account_id,
     payment_id

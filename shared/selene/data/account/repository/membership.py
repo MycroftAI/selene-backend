@@ -26,18 +26,6 @@ class MembershipRepository(RepositoryBase):
         db_result = self.cursor.select_one(db_request)
         return Membership(**db_result)
 
-    def get_active_account_membership(self, account_id) -> AccountMembership:
-        account_membership = None
-        db_request = self._build_db_request(
-            sql_file_name='get_active_membership_by_account_id.sql',
-            args=dict(account_id=account_id)
-        )
-        db_result = self.cursor.select_one(db_request)
-        if db_result:
-            account_membership = AccountMembership(**db_result)
-
-        return account_membership
-
     def add(self, membership: Membership):
         db_request = self._build_db_request(
             'add_membership.sql',
@@ -57,16 +45,3 @@ class MembershipRepository(RepositoryBase):
             args=dict(membership_id=membership.id)
         )
         self.cursor.delete(db_request)
-
-    def finish_membership(self, membership: AccountMembership):
-        db_request = self._build_db_request(
-            sql_file_name='finish_membership.sql',
-            args=dict(
-                id=membership.id,
-                membership_ts_range='[{start},{end}]'.format(
-                    start=membership.start_date,
-                    end=membership.end_date
-                )
-            )
-        )
-        self.cursor.update(db_request)

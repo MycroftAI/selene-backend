@@ -63,20 +63,6 @@ class AccountRepository(RepositoryBase):
         )
         self.cursor.insert(request)
 
-    def add_membership(self, acct_id: str, membership: AccountMembership):
-        """A membership is optional, add it if one was selected"""
-        request = self._build_db_request(
-            sql_file_name='add_account_membership.sql',
-            args=dict(
-                account_id=acct_id,
-                membership_type=membership.type,
-                payment_method=membership.payment_method,
-                payment_account_id=membership.payment_account_id,
-                payment_id=membership.payment_id
-            )
-        )
-        self.cursor.insert(request)
-
     def remove(self, account: Account):
         """Delete and account and all of its children"""
         request = self._build_db_request(
@@ -278,3 +264,42 @@ class AccountRepository(RepositoryBase):
             'thirtyDaysMinus': report_30_days['paid_minus']
         }]
         return report_table
+
+    def add_membership(self, acct_id: str, membership: AccountMembership):
+        """A membership is optional, add it if one was selected"""
+        request = self._build_db_request(
+            sql_file_name='add_account_membership.sql',
+            args=dict(
+                account_id=acct_id,
+                membership_type=membership.type,
+                payment_method=membership.payment_method,
+                payment_account_id=membership.payment_account_id,
+                payment_id=membership.payment_id
+            )
+        )
+        self.cursor.insert(request)
+
+    def end_membership(self, membership: AccountMembership):
+        db_request = self._build_db_request(
+            sql_file_name='end_membership.sql',
+            args=dict(
+                id=membership.id,
+                membership_ts_range='[{start},{end}]'.format(
+                    start=membership.start_date,
+                    end=membership.end_date
+                )
+            )
+        )
+        self.cursor.update(db_request)
+
+    def get_active_account_membership(self, account_id) -> AccountMembership:
+        account_membership = None
+        db_request = self._build_db_request(
+            sql_file_name='get_active_membership_by_account_id.sql',
+            args=dict(account_id=account_id)
+        )
+        db_result = self.cursor.select_one(db_request)
+        if db_result:
+            account_membership = AccountMembership(**db_result)
+
+        return account_membership
