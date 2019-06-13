@@ -286,8 +286,8 @@ class AccountEndpoint(SeleneEndpoint):
                 self._add_membership(membership_change, active_membership)
 
     def _get_active_membership(self):
-        membership_repo = MembershipRepository(self.db)
-        active_membership = membership_repo.get_active_account_membership(
+        acct_repository = AccountRepository(self.db)
+        active_membership = acct_repository.get_active_account_membership(
             self.account.id
         )
 
@@ -325,8 +325,8 @@ class AccountEndpoint(SeleneEndpoint):
     def _cancel_membership(self, active_membership):
         cancel_stripe_subscription(active_membership.payment_id)
         active_membership.end_date = datetime.utcnow()
-        membership_repository = MembershipRepository(self.db)
-        membership_repository.finish_membership(active_membership)
+        account_repository = AccountRepository(self.db)
+        account_repository.end_membership(active_membership)
 
     def _update_username(self, username):
         self.account_repository.update_username(self.account.id, username)

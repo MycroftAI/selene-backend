@@ -10,37 +10,43 @@ TWO_MINUTES = 120
 REFRESH_TOKEN_COOKIE_KEY = 'seleneRefresh'
 
 
-def generate_access_token(context, expire=False):
+def generate_access_token(context, duration=ONE_MINUTE):
     access_token = AuthenticationToken(
         context.client_config['ACCESS_SECRET'],
-        ONE_MINUTE
+        duration
     )
-    if not expire:
-        access_token.generate(context.account.id)
-    context.access_token = access_token
+    account = context.accounts[context.username]
+    access_token.generate(account.id)
 
+    return access_token
+
+
+def set_access_token_cookie(context, duration=ONE_MINUTE):
     context.client.set_cookie(
         context.client_config['DOMAIN'],
         ACCESS_TOKEN_COOKIE_KEY,
-        access_token.jwt,
-        max_age=0 if expire else ONE_MINUTE
+        context.access_token.jwt,
+        max_age=duration
     )
 
 
-def generate_refresh_token(context, expire=False):
+def generate_refresh_token(context, duration=TWO_MINUTES):
     refresh_token = AuthenticationToken(
         context.client_config['REFRESH_SECRET'],
-        TWO_MINUTES
+        duration
     )
-    if not expire:
-        refresh_token.generate(context.account.id)
-    context.refresh_token = refresh_token
+    account = context.accounts[context.username]
+    refresh_token.generate(account.id)
 
+    return refresh_token
+
+
+def set_refresh_token_cookie(context, duration=TWO_MINUTES):
     context.client.set_cookie(
         context.client_config['DOMAIN'],
         REFRESH_TOKEN_COOKIE_KEY,
-        refresh_token.jwt,
-        max_age=0 if expire else TWO_MINUTES
+        context.refresh_token.jwt,
+        max_age=duration
     )
 
 
