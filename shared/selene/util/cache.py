@@ -2,6 +2,8 @@ import os
 
 from redis import Redis
 
+DEVICE_LAST_CONTACT_KEY = 'device:last_contact:{device_id}'
+
 
 class SeleneCache(object):
 

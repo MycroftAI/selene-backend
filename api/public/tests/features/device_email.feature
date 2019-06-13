@@ -4,6 +4,7 @@ Feature: Send email to a to the account that owns a device
   Scenario: an email payload is passed to the email endpoint
     When an email message is sent to the email endpoint
     Then an email should be sent to the user's account that owns the device
+    And device last contact timestamp is updated
 
   Scenario: an email payload is passed to the the email endpoint using a not allowed device
     When the email endpoint is called by a not allowed device

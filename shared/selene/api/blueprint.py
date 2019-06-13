@@ -8,6 +8,7 @@ from schematics.exceptions import DataError
 from selene.data.device import DeviceRepository
 from selene.data.metrics import ApiMetric, ApiMetricsRepository
 from selene.util.auth import AuthenticationError
+from selene.util.cache import DEVICE_LAST_CONTACT_KEY
 from selene.util.db import connect_to_db
 from selene.util.not_modified import NotModifiedError
 
@@ -86,9 +87,5 @@ def update_device_last_contact():
     device activity only.
     """
     if 'public' in current_app.name and 'device_id' in global_context:
-        if 'db' not in global_context:
-            global_context.db = connect_to_db(
-                current_app.config['DB_CONNECTION_CONFIG']
-            )
-        device_repository = DeviceRepository(global_context.db)
-        device_repository.update_last_contact_ts(global_context.device_id)
+        key = DEVICE_LAST_CONTACT_KEY.format(device_id=global_context.device_id)
+        global_context.cache.set(key, str(datetime.utcnow()))
