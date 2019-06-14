@@ -5,8 +5,10 @@ from http import HTTPStatus
 from flask import current_app, Blueprint, g as global_context
 from schematics.exceptions import DataError
 
+from selene.data.device import DeviceRepository
 from selene.data.metrics import ApiMetric, ApiMetricsRepository
 from selene.util.auth import AuthenticationError
+from selene.util.cache import DEVICE_LAST_CONTACT_KEY
 from selene.util.db import connect_to_db
 from selene.util.not_modified import NotModifiedError
 
@@ -36,11 +38,13 @@ def setup_request():
 @selene_api.after_app_request
 def teardown_request(response):
     add_api_metric(response.status_code)
+    update_device_last_contact()
 
     return response
 
 
 def add_api_metric(http_status):
+    """Add a row to the table tracking metrics for API calls"""
     api = None
     # We are not logging metrics for the public API until after the socket
     # implementation to avoid putting millions of rows a day on the table
@@ -74,3 +78,14 @@ def add_api_metric(http_status):
         )
         metric_repository = ApiMetricsRepository(global_context.db)
         metric_repository.add(api_metric)
+
+
+def update_device_last_contact():
+    """Update the timestamp on the device table indicating last contact.
+
+    This should only be done on public API calls because we are tracking
+    device activity only.
+    """
+    if 'public' in current_app.name and 'device_id' in global_context:
+        key = DEVICE_LAST_CONTACT_KEY.format(device_id=global_context.device_id)
+        global_context.cache.set(key, str(datetime.utcnow()))

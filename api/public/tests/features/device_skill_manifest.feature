@@ -5,3 +5,4 @@ Feature: Upload and fetch skills manifest
     When a skill manifest is uploaded
     Then the skill manifest endpoint should return 200 status code
     And the skill manifest should be added
+    And device last contact timestamp is updated

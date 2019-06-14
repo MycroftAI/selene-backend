@@ -86,6 +86,7 @@ class PublicEndpoint(MethodView):
         self.request = request
         global_context.url = request.url
         self.cache: SeleneCache = self.config['SELENE_CACHE']
+        global_context.cache = self.cache
         self.etag_manager: ETagManager = ETagManager(self.cache, self.config)
 
     @property
