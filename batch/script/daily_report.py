@@ -46,7 +46,7 @@ class DailyReport(SeleneScript):
         email = EmailMessage(
             sender='reports@mycroft.ai',
             recipient=os.environ['REPORT_RECIPIENT'],
-            subject='Mycroft Daily Report',
+            subject='Mycroft Daily Report - {}'.format(self.args.date),
             template_file_name='metrics.html',
             template_variables=dict(user_metrics=user_metrics)
         )
