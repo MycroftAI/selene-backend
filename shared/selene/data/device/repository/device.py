@@ -63,6 +63,13 @@ class DeviceRepository(RepositoryBase):
 
         return db_results['device_count']
 
+    def get_all_device_ids(self):
+        db_request = self._build_db_request(
+            sql_file_name='get_all_device_ids.sql'
+        )
+
+        return self.cursor.select_all(db_request)
+
     def get_subscription_type_by_device_id(self, device_id):
         """Return the type of subscription of device's owner
         :param device_id: device uuid
@@ -171,9 +178,9 @@ class DeviceRepository(RepositoryBase):
 
         self.cursor.update(db_request)
 
-    def update_last_contact_ts(self, device_id):
+    def update_last_contact_ts(self, device_id, last_contact_ts):
         db_request = self._build_db_request(
             sql_file_name='update_last_contact_ts.sql',
-            args=dict(device_id=device_id)
+            args=dict(device_id=device_id, last_contact_ts=last_contact_ts)
         )
         self.cursor.update(db_request)
