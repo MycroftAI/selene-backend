@@ -5,7 +5,7 @@ from typing import List
 from selene.util.db import use_transaction
 from .device_skill import DeviceSkillRepository
 from .settings_display import SettingsDisplayRepository
-from ..entity.skill import Skill
+from ..entity.skill import Skill, SkillFamily
 from ...repository_base import RepositoryBase
 
 
@@ -87,7 +87,7 @@ class SkillRepository(RepositoryBase):
                                 field['value'] = settings[field['name']]
             return sections
 
-    def get_skills_for_account(self, account_id) -> List[Skill]:
+    def get_skills_for_account(self, account_id) -> List[SkillFamily]:
         skills = []
         db_request = self._build_db_request(
             'get_skills_for_account.sql',
@@ -96,7 +96,7 @@ class SkillRepository(RepositoryBase):
         db_result = self.cursor.select_all(db_request)
         if db_result is not None:
             for row in db_result:
-                skills.append(Skill(**row['skill']))
+                skills.append(SkillFamily(**row))
 
         return skills
 
@@ -162,12 +162,6 @@ class SkillRepository(RepositoryBase):
             args=dict(device_id=device_id)
         )
         return self.cursor.select_all(db_request)
-
-    def get_installer_skill(self):
-        return self._select_one_into_dataclass(
-            dataclass=Skill,
-            sql_file_name='get_installer_skill_settings.sql'
-        )
 
     def ensure_skill_exists(self, skill_gid: str) -> str:
         skill = self._select_one_into_dataclass(
