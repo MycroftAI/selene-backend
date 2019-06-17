@@ -40,7 +40,9 @@ class DailyReport(SeleneScript):
         else:
             self._build_report(self.args.date)
 
-    def _build_report(self, date: datetime = datetime.now()):
+    def _build_report(self, date: datetime = None):
+        if date is None:
+            date = datetime.now()
         user_metrics = AccountRepository(self.db).daily_report(date)
 
         email = EmailMessage(
