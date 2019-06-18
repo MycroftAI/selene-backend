@@ -96,7 +96,7 @@ class DeviceSkillsEndpoint(PublicEndpoint):
         skill_id = SkillRepository(self.db).add(device_id, payload)
         return {'uuid': skill_id}, HTTPStatus.OK
 
-    def delete(self, device_id, skill_id):
+    def delete(self, device_id, skill_gid):
         self._authenticate(device_id)
-        DeviceSkillRepository(self.db).delete(device_id, skill_id)
+        DeviceSkillRepository(self.db).delete(device_id, skill_gid)
         return '', HTTPStatus.OK

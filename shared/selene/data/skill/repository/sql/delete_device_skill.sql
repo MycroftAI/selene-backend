@@ -1,4 +1,13 @@
 DELETE  FROM
     device.device_skill
 WHERE
-    device_id = %(device_id)s AND skill_id = %(skill_id)s
+    id = (
+        SELECT
+            ds.id
+        FROM
+            device.device_skill ds
+        INNER JOIN
+            skill.skill s ON ds.skill_id = s.id
+        WHERE
+            ds.device_id = %(device_id)s AND s.skill_gid = %(skill_gid)s
+    )
