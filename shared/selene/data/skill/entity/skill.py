@@ -39,7 +39,13 @@ class SkillVersion(object):
 @dataclass
 class Skill(object):
     skill_gid: str
-    display_name: str = None
-    family_name: str = None
-    has_settings: bool = None
     id: str = None
+
+
+@dataclass
+class SkillFamily(object):
+    display_name: str
+    family_name: str
+    has_settings: bool
+    market_id: str
+    skill_ids: List[str]

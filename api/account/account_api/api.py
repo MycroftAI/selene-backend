@@ -131,7 +131,7 @@ acct.add_url_rule(
 
 setting_endpoint = SkillSettingsEndpoint.as_view('setting_endpoint')
 acct.add_url_rule(
-    '/api/skills/<string:skill_id>/settings',
+    '/api/skills/<string:skill_family_name>/settings',
     view_func=setting_endpoint,
     methods=['GET', 'PUT']
 )

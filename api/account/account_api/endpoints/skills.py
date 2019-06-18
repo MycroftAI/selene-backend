@@ -18,9 +18,11 @@ class SkillsEndpoint(SeleneEndpoint):
         response_data = []
         for skill in skills:
             response_data.append(dict(
-                id=skill.id,
+                family_name=skill.family_name,
+                market_id=skill.market_id,
                 name=skill.display_name or skill.family_name,
-                has_settings=skill.has_settings
+                has_settings=skill.has_settings,
+                skill_ids=skill.skill_ids
             ))
 
         return sorted(response_data, key=lambda x: x['name'])

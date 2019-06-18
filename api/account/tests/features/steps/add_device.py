@@ -26,6 +26,11 @@ def set_device_pairing_code(context):
     context.pairing_code = 'ABC123'
 
 
+@given('an account')
+def define_account(context):
+    context.username = 'foo'
+
+
 @when('an API request is sent to add a device')
 def add_device(context):
     device = dict(
@@ -57,6 +62,7 @@ def validate_pairing_code_removal(context):
 @then('the device is added to the database')
 def validate_response(context):
     device_id = context.response.data.decode()
+    account = context.accounts['foo']
     db = connect_to_db(context.client_config['DB_CONNECTION_CONFIG'])
     device_repository = DeviceRepository(db)
     device = device_repository.get_device_by_id(device_id)
@@ -64,7 +70,7 @@ def validate_response(context):
     assert_that(device, not_none())
     assert_that(device.name, equal_to('home'))
     assert_that(device.placement, equal_to('kitchen'))
-    assert_that(device.account_id, equal_to(context.account.id))
+    assert_that(device.account_id, equal_to(account.id))
 
 
 @then('the pairing token is added to cache')

@@ -64,20 +64,6 @@ class AccountRepository(RepositoryBase):
         )
         self.cursor.insert(request)
 
-    def add_membership(self, acct_id: str, membership: AccountMembership):
-        """A membership is optional, add it if one was selected"""
-        request = self._build_db_request(
-            sql_file_name='add_account_membership.sql',
-            args=dict(
-                account_id=acct_id,
-                membership_type=membership.type,
-                payment_method=membership.payment_method,
-                payment_account_id=membership.payment_account_id,
-                payment_id=membership.payment_id
-            )
-        )
-        self.cursor.insert(request)
-
     def remove(self, account: Account):
         """Delete and account and all of its children"""
         request = self._build_db_request(
@@ -218,72 +204,110 @@ class AccountRepository(RepositoryBase):
 
         report_table = [{
             'type': 'User',
-            'current': report_1_day['total'],
-            'oneDay': report_1_day['total'] - report_1_day['total_new'],
-            'oneDayDelta': report_1_day['total_new'],
+            'current': report_1_day.total,
+            'oneDay': report_1_day.total - report_1_day.total_new,
+            'oneDayDelta': report_1_day.total_new,
             'oneDayMinus': 0,
-            'fifteenDays': report_15_days['total'] - report_15_days['total_new'],
-            'fifteenDaysDelta': report_15_days['total_new'],
+            'fifteenDays': report_15_days.total - report_15_days.total_new,
+            'fifteenDaysDelta': report_15_days.total_new,
             'fifteenDaysMinus': 0,
-            'thirtyDays': report_30_days['total'] - report_30_days['total_new'],
-            'thirtyDaysDelta': report_30_days['total_new'],
+            'thirtyDays': report_30_days.total - report_30_days.total_new,
+            'thirtyDaysDelta': report_30_days.total_new,
             'thirtyDaysMinus': 0
         }, {
             'type': 'Free Account',
-            'current': report_1_day['total'] - report_1_day['paid_total'],
-            'oneDay': report_1_day['total'] - report_1_day['paid_total'] - report_1_day['total_new'] + report_1_day[
-                'paid_new'],
-            'oneDayDelta': report_1_day['total_new'] - report_1_day['paid_new'],
+            'current': report_1_day.total - report_1_day.paid_total,
+            'oneDay': report_1_day.total - report_1_day.paid_total - report_1_day.total_new + report_1_day.paid_new,
+            'oneDayDelta': report_1_day.total_new - report_1_day.paid_new,
             'oneDayMinus': 0,
-            'fifteenDays': report_15_days['total'] - report_15_days['paid_total'] - report_15_days['total_new'] +
-                           report_15_days['paid_new'],
-            'fifteenDaysDelta': report_15_days['total_new'] - report_15_days['paid_new'],
+            'fifteenDays': report_15_days.total - report_15_days.paid_total - report_15_days.total_new +
+                           report_15_days.paid_new,
+            'fifteenDaysDelta': report_15_days.total_new - report_15_days.paid_new,
             'fifteenDaysMinus': 0,
-            'thirtyDays': report_30_days['total'] - report_30_days['paid_total'] - report_30_days['total_new'] +
-                          report_30_days['paid_new'],
-            'thirtyDaysDelta': report_30_days['total_new'] - report_30_days['paid_new'],
+            'thirtyDays': report_30_days.total - report_30_days.paid_total - report_30_days.total_new +
+                          report_30_days.paid_new,
+            'thirtyDaysDelta': report_30_days.total_new - report_30_days.paid_new,
             'thirtyDaysMinus': 0
         }, {
             'type': 'Monthly Account',
-            'current': report_1_day['monthly_total'],
-            'oneDay': report_1_day['monthly_total'] - report_1_day['monthly_new'] + report_1_day['monthly_minus'],
-            'oneDayDelta': report_1_day['monthly_new'],
-            'oneDayMinus': report_1_day['monthly_minus'],
-            'fifteenDays': report_15_days['monthly_total'] - report_15_days['monthly_new'] +
-                           report_15_days['monthly_minus'],
-            'fifteenDaysDelta': report_15_days['monthly_new'],
-            'fifteenDaysMinus': report_15_days['monthly_minus'],
-            'thirtyDays': report_30_days['monthly_total'] - report_30_days['monthly_new'] +
-                          report_30_days['monthly_minus'],
-            'thirtyDaysDelta': report_30_days['monthly_new'],
-            'thirtyDaysMinus': report_30_days['monthly_minus']
+            'current': report_1_day.monthly_total,
+            'oneDay': report_1_day.monthly_total - report_1_day.monthly_new + report_1_day.monthly_minus,
+            'oneDayDelta': report_1_day.monthly_new,
+            'oneDayMinus': report_1_day.monthly_minus,
+            'fifteenDays': report_15_days.monthly_total - report_15_days.monthly_new +
+                           report_15_days.monthly_minus,
+            'fifteenDaysDelta': report_15_days.monthly_new,
+            'fifteenDaysMinus': report_15_days.monthly_minus,
+            'thirtyDays': report_30_days.monthly_total - report_30_days.monthly_new +
+                          report_30_days.monthly_minus,
+            'thirtyDaysDelta': report_30_days.monthly_new,
+            'thirtyDaysMinus': report_30_days.monthly_minus
         }, {
             'type': 'Yearly Account',
-            'current': report_1_day['yearly_total'],
-            'oneDay': report_1_day['yearly_total'] - report_1_day['yearly_new'] + report_1_day['yearly_minus'],
-            'oneDayDelta': report_1_day['yearly_new'],
-            'oneDayMinus': report_1_day['yearly_minus'],
-            'fifteenDays': report_15_days['yearly_total'] - report_15_days['yearly_new'] +
-                           report_15_days['yearly_minus'],
-            'fifteenDaysDelta': report_15_days['yearly_new'],
-            'fifteenDaysMinus': report_15_days['yearly_minus'],
-            'thirtyDays': report_30_days['yearly_total'] - report_30_days['yearly_new'] +
-                          report_30_days['yearly_minus'],
-            'thirtyDaysDelta': report_30_days['yearly_new'],
-            'thirtyDaysMinus': report_30_days['yearly_minus']
+            'current': report_1_day.yearly_total,
+            'oneDay': report_1_day.yearly_total - report_1_day.yearly_new + report_1_day.yearly_minus,
+            'oneDayDelta': report_1_day.yearly_new,
+            'oneDayMinus': report_1_day.yearly_minus,
+            'fifteenDays': report_15_days.yearly_total - report_15_days.yearly_new +
+                           report_15_days.yearly_minus,
+            'fifteenDaysDelta': report_15_days.yearly_new,
+            'fifteenDaysMinus': report_15_days.yearly_minus,
+            'thirtyDays': report_30_days.yearly_total - report_30_days.yearly_new +
+                          report_30_days.yearly_minus,
+            'thirtyDaysDelta': report_30_days.yearly_new,
+            'thirtyDaysMinus': report_30_days.yearly_minus
         }, {
             'type': 'Paid Account',
-            'current': report_1_day['paid_total'],
-            'oneDay': report_1_day['paid_total'] - report_1_day['paid_new'] + report_1_day['paid_minus'],
-            'oneDayDelta': report_1_day['paid_new'],
-            'oneDayMinus': report_1_day['paid_minus'],
-            'fifteenDays': report_15_days['paid_total'] - report_15_days['paid_new'] +
-                           report_15_days['paid_minus'],
-            'fifteenDaysDelta': report_15_days['paid_new'],
-            'fifteenDaysMinus': report_15_days['paid_minus'],
-            'thirtyDays': report_30_days['paid_total'] - report_30_days['paid_new'] +
-                          report_30_days['paid_minus'],
-            'thirtyDaysDelta': report_30_days['paid_new'],
-            'thirtyDaysMinus': report_30_days['paid_minus']
+            'current': report_1_day.paid_total,
+            'oneDay': report_1_day.paid_total - report_1_day.paid_new + report_1_day.paid_minus,
+            'oneDayDelta': report_1_day.paid_new,
+            'oneDayMinus': report_1_day.paid_minus,
+            'fifteenDays': report_15_days.paid_total - report_15_days.paid_new +
+                           report_15_days.paid_minus,
+            'fifteenDaysDelta': report_15_days.paid_new,
+            'fifteenDaysMinus': report_15_days.paid_minus,
+            'thirtyDays': report_30_days.paid_total - report_30_days.paid_new +
+                          report_30_days.paid_minus,
+            'thirtyDaysDelta': report_30_days.paid_new,
+            'thirtyDaysMinus': report_30_days.paid_minus
         }]
         return report_table
+
+    def add_membership(self, acct_id: str, membership: AccountMembership):
+        """A membership is optional, add it if one was selected"""
+        request = self._build_db_request(
+            sql_file_name='add_account_membership.sql',
+            args=dict(
+                account_id=acct_id,
+                membership_type=membership.type,
+                payment_method=membership.payment_method,
+                payment_account_id=membership.payment_account_id,
+                payment_id=membership.payment_id
+            )
+        )
+        self.cursor.insert(request)
+
+    def end_membership(self, membership: AccountMembership):
+        db_request = self._build_db_request(
+            sql_file_name='end_membership.sql',
+            args=dict(
+                id=membership.id,
+                membership_ts_range='[{start},{end}]'.format(
+                    start=membership.start_date,
+                    end=membership.end_date
+                )
+            )
+        )
+        self.cursor.update(db_request)
+
+    def get_active_account_membership(self, account_id) -> AccountMembership:
+        account_membership = None
+        db_request = self._build_db_request(
+            sql_file_name='get_active_membership_by_account_id.sql',
+            args=dict(account_id=account_id)
+        )
+        db_result = self.cursor.select_one(db_request)
+        if db_result:
+            account_membership = AccountMembership(**db_result)
+
+        return account_membership

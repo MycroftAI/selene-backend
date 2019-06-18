@@ -5,8 +5,9 @@ from os import environ
 import schedule
 import time
 
+from selene.batch import SeleneScript
 from selene.data.account import AccountRepository
-from selene.util.db import DatabaseConnectionConfig, connect_to_db
+from selene.util.db import DatabaseConnectionConfig
 from selene.util.email import EmailMessage, SeleneMailer
 
 mycroft_db = DatabaseConnectionConfig(
@@ -19,24 +20,41 @@ mycroft_db = DatabaseConnectionConfig(
 )
 
 
-def build_report():
-    with connect_to_db(mycroft_db) as db:
-        user_metrics = AccountRepository(db).daily_report(datetime.now())
+class DailyReport(SeleneScript):
+    def __init__(self):
+        super(DailyReport, self).__init__(__file__)
+        self._arg_parser.add_argument(
+            '--run-mode',
+            help='If the script should run as a job or just once',
+            choices=['job', 'once'],
+            type=str,
+            default='job'
+        )
 
-    email = EmailMessage(
-        sender='reports@mycroft.ai',
-        recipient=os.environ['REPORT_RECIPIENT'],
-        subject='Mycroft Daily Report',
-        template_file_name='metrics.html',
-        template_variables=dict(user_metrics=user_metrics)
-    )
+    def _run(self):
+        if self.args.run_mode == 'job':
+            schedule.every().day.at('00:00').do(self._build_report)
+            while True:
+                schedule.run_pending()
+                time.sleep(1)
+        else:
+            self._build_report(self.args.date)
 
-    mailer = SeleneMailer(email)
-    mailer.send(True)
+    def _build_report(self, date: datetime = None):
+        if date is None:
+            date = datetime.now()
+        user_metrics = AccountRepository(self.db).daily_report(date)
+
+        email = EmailMessage(
+            sender='reports@mycroft.ai',
+            recipient=os.environ['REPORT_RECIPIENT'],
+            subject='Mycroft Daily Report - {}'.format(self.args.date),
+            template_file_name='metrics.html',
+            template_variables=dict(user_metrics=user_metrics)
+        )
+
+        mailer = SeleneMailer(email)
+        mailer.send(True)
 
 
-schedule.every().day.at('00:00').do(build_report)
-
-while True:
-    schedule.run_pending()
-    time.sleep(1)
+DailyReport().run()

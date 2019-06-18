@@ -1,20 +1,30 @@
 from http import HTTPStatus
 
 from behave import given, then
-from hamcrest import assert_that, equal_to
+from hamcrest import assert_that, equal_to, is_in
 
-from selene.api.testing import generate_access_token, generate_refresh_token
+from selene.testing.api import (
+    generate_access_token,
+    generate_refresh_token,
+    set_access_token_cookie,
+    set_refresh_token_cookie
+)
 
 
-@given('an authenticated user')
-def setup_authenticated_user(context):
-    generate_access_token(context)
-    generate_refresh_token(context)
+@given('the account is authenticated')
+def use_account_with_valid_access_token(context):
+    context.access_token = generate_access_token(context)
+    set_access_token_cookie(context)
+    context.refresh_token = generate_refresh_token(context)
+    set_refresh_token_cookie(context)
 
 
 @then('the request will be successful')
 def check_request_success(context):
-    assert_that(context.response.status_code, equal_to(HTTPStatus.OK))
+    assert_that(
+        context.response.status_code,
+        is_in([HTTPStatus.OK, HTTPStatus.NO_CONTENT])
+    )
 
 
 @then('the request will fail with {error_type} error')

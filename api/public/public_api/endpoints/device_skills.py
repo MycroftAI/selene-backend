@@ -9,6 +9,7 @@ from schematics.types import StringType, BooleanType, ListType, ModelType
 from selene.api import PublicEndpoint
 from selene.api.etag import device_skill_etag_key
 from selene.data.skill import SkillRepository
+from selene.data.skill.repository.device_skill import DeviceSkillRepository
 
 global_id_pattern = '^([^\|@]+)\|([^\|]+$)'             # matches <submodule_name>|<branch>
 global_id_dirt_pattern = '^@(.*)\|(.*)\|(.*)$'          # matches @<device_id>|<submodule_name>|<branch>
@@ -94,3 +95,8 @@ class DeviceSkillsEndpoint(PublicEndpoint):
         skill.validate()
         skill_id = SkillRepository(self.db).add(device_id, payload)
         return {'uuid': skill_id}, HTTPStatus.OK
+
+    def delete(self, device_id, skill_id):
+        self._authenticate(device_id)
+        DeviceSkillRepository(self.db).delete(device_id, skill_id)
+        return '', HTTPStatus.OK

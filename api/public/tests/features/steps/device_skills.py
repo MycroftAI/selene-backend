@@ -2,7 +2,7 @@ import json
 from http import HTTPStatus
 
 from behave import when, then, given
-from hamcrest import assert_that, equal_to, not_none, is_not
+from hamcrest import assert_that, equal_to, not_none, is_not, has_key
 
 from selene.api.etag import ETagManager, device_skill_etag_key
 from selene.data.skill import AccountSkillSetting, SkillSettingRepository
@@ -102,14 +102,14 @@ def create_skill_settings(context):
 def update_skill(context):
     response = json.loads(context.upload_device_response.data)
     update_settings = AccountSkillSetting(
-        skill_id=response['uuid'],
         settings_display={},
         settings_values=new_settings,
-        devices=[context.device_name]
+        device_names=[context.device_name]
     )
+    skill_ids = [response['uuid']]
     db = connect_to_db(context.client_config['DB_CONNECTION_CONFIG'])
     skill_setting_repo = SkillSettingRepository(db, context.account.id)
-    skill_setting_repo.update_skill_settings(update_settings)
+    skill_setting_repo.update_skill_settings(update_settings, skill_ids)
 
 
 @when('the skill settings is fetched')
@@ -136,6 +136,7 @@ def validate_get_skill_updated_response(context):
     skills_response = json.loads(response.data)
     assert_that(len(skills_response), equal_to(1))
     response = skills_response[0]
+    assert_that(response, has_key('uuid'))
     assert_that(response['skill_gid'], equal_to(skill['skill_gid']))
     assert_that(response['identifier'], equal_to(skill['identifier']))
     assert_that(response['skillMetadata'], equal_to(skill['skillMetadata']))
@@ -227,5 +228,36 @@ def validate_empty_skill_uploading(context):
     assert_that(response.status_code, equal_to(HTTPStatus.OK))
     new_etag = response.headers.get('ETag')
     assert_that(new_etag, not_none())
-    retrieved_skill = json.loads(context.get_skill_response.data)
-    assert_that([skill_empty_settings], equal_to(retrieved_skill))
+    retrieved_skill = json.loads(context.get_skill_response.data)[0]
+    assert_that(skill_empty_settings['skill_gid'], retrieved_skill['skill_gid'])
+    assert_that(skill_empty_settings['identifier'], retrieved_skill['identifier'])
+
+
+@when('the skill settings is deleted')
+def delete_skill(context):
+    skills = json.loads(context.get_skill_response.data)
+    skill_fetched = skills[0]
+    skill_uuid = skill_fetched['uuid']
+    login = context.device_login
+    device_id = login['uuid']
+    access_token = login['accessToken']
+    headers = dict(Authorization='Bearer {token}'.format(token=access_token))
+    context.delete_skill_response = context.client.delete(
+        '/v1/device/{device_uuid}/skill/{skill_uuid}'.format(device_uuid=device_id, skill_uuid=skill_uuid),
+        headers=headers
+    )
+    context.get_skill_after_delete_response = context.client.get(
+        '/v1/device/{uuid}/skill'.format(uuid=device_id),
+        headers=headers
+    )
+
+
+@then('the endpoint to delete the skills settings should return 200')
+def validate_delete_skill(context):
+    # Validating that the deletion happened successfully
+    response = context.delete_skill_response
+    assert_that(response.status_code, HTTPStatus.OK)
+
+    # Validating that the skill is not listed after we fetch the device's skills
+    response = context.get_skill_after_delete_response
+    assert_that(response.status_code, equal_to(HTTPStatus.NO_CONTENT))

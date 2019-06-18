@@ -1,52 +1,55 @@
 from datetime import date
-
 from selene.data.account import (
     Account,
     AccountAgreement,
     AccountMembership,
     AccountRepository,
-)
-
-_agree_to_terms = AccountAgreement(
-    type='Terms of Use',
-    accept_date=date(1975, 3, 14)
-)
-
-_agree_to_privacy = AccountAgreement(
-    type='Privacy Policy',
-    accept_date=date.today()
-)
-
-_membership = AccountMembership(
-    type='Monthly Supporter',
-    start_date=date.today(),
-    payment_account_id='killer_rabbit',
-    payment_method='Stripe',
-    payment_id='abc123'
-)
-
-arthur = dict(
-    email_address='arthur@holy.grail',
-    username='kingofthebritons',
-    agreements=[_agree_to_terms, _agree_to_privacy],
-    membership=_membership
-)
-
-black_knight = dict(
-    email_address='blackknight@holy.grail',
-    username='fleshwound',
-    agreements=[_agree_to_terms, _agree_to_privacy]
+    PRIVACY_POLICY,
+    TERMS_OF_USE
 )
 
 
-def insert_account(db, account_attrs: dict) -> Account:
-    account = Account(**account_attrs)
-    account_repository = AccountRepository(db)
-    account.id = account_repository.add(account, password='holygrail')
+def build_test_account(**overrides):
+    test_agreements = [
+        AccountAgreement(type=PRIVACY_POLICY, accept_date=date.today()),
+        AccountAgreement(type=TERMS_OF_USE, accept_date=date.today())
+    ]
+    return Account(
+        email_address=overrides.get('email_address') or 'foo@mycroft.ai',
+        username=overrides.get('username') or 'foobar',
+        agreements=overrides.get('agreements') or test_agreements
+    )
+
+
+def add_account(db, **overrides):
+    acct_repository = AccountRepository(db)
+    account = build_test_account(**overrides)
+    account.id = acct_repository.add(account, 'test_password')
+    if account.membership is not None:
+        acct_repository.add_membership(account.id, account.membership)
 
     return account
 
 
-def delete_account(db, account: Account):
+def remove_account(db, account):
     account_repository = AccountRepository(db)
     account_repository.remove(account)
+
+
+def build_test_membership(**overrides):
+    stripe_acct = 'test_stripe_acct_id'
+    return AccountMembership(
+        type=overrides.get('type') or 'Monthly Membership',
+        start_date=overrides.get('start_date') or date.today(),
+        payment_method=overrides.get('payment_method') or 'Stripe',
+        payment_account_id=overrides.get('payment_account_id') or stripe_acct,
+        payment_id=overrides.get('payment_id') or 'test_stripe_payment_id'
+    )
+
+
+def add_account_membership(db, account_id, **overrides):
+    membership = build_test_membership(**overrides)
+    acct_repository = AccountRepository(db)
+    acct_repository.add_membership(account_id, membership)
+
+    return membership

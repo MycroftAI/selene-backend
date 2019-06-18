@@ -13,22 +13,23 @@ class SkillSettingRepository(RepositoryBase):
         self.db = db
         self.account_id = account_id
 
-    def get_skill_settings(self, skill_id: str) -> List[AccountSkillSetting]:
+    def get_family_settings(self, family_name: str) -> List[AccountSkillSetting]:
         db_request = self._build_db_request(
             'get_settings_for_skill.sql',
-            args=dict(skill_id=skill_id, account_id=self.account_id)
+            args=dict(family_name=family_name, account_id=self.account_id)
         )
         db_result = self.cursor.select_all(db_request)
 
         skill_settings = []
         for row in db_result:
-            settings_display = row['settings_display']['skillMetadata']
+            settings_display = row['settings_display']
+            if settings_display is not None:
+                settings_display = settings_display.get('skillMetadata')
             skill_settings.append(
                 AccountSkillSetting(
-                    skill_id=skill_id,
                     settings_display=settings_display,
                     settings_values=row['settings_values'],
-                    devices=row['devices']
+                    device_names=row['device_names'],
                 )
             )
 
@@ -44,19 +45,23 @@ class SkillSettingRepository(RepositoryBase):
 
         skill_settings = None
         if installer_skill_id is not None:
-            skill_settings = self.get_skill_settings(installer_skill_id)
+            skill_settings = self.get_family_settings(installer_skill_id)
 
         return skill_settings
 
     @use_transaction
-    def update_skill_settings(self, new_skill_settings: AccountSkillSetting):
+    def update_skill_settings(
+            self,
+            new_skill_settings: AccountSkillSetting,
+            skill_ids: List[str]
+    ):
         db_request = self._build_db_request(
             'update_device_skill_settings.sql',
             args=dict(
                 account_id=self.account_id,
                 settings_values=json.dumps(new_skill_settings.settings_values),
-                skill_id=new_skill_settings.skill_id,
-                device_names=tuple(new_skill_settings.devices)
+                skill_id=tuple(skill_ids),
+                device_names=tuple(new_skill_settings.device_names)
             )
         )
         self.cursor.update(db_request)

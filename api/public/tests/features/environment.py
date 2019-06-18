@@ -22,6 +22,7 @@ from selene.data.device import (
     Geography)
 from selene.data.device.entity.text_to_speech import TextToSpeech
 from selene.data.device.entity.wake_word import WakeWord
+from selene.util.cache import SeleneCache
 from selene.util.db import connect_to_db
 
 account = Account(
@@ -60,6 +61,7 @@ def public_api_client(context):
 
 def before_feature(context, _):
     use_fixture(public_api_client, context)
+    context.cache = SeleneCache()
 
 
 def before_scenario(context, _):
@@ -149,6 +151,7 @@ def _add_device(context, db):
     cache = context.client_config['SELENE_CACHE']
     context.device_name = 'test'
     device_id = device_repository.add(context.account.id, device)
+    context.device_id = device_id
     context.device_login = generate_device_login(device_id, cache)
 
 
