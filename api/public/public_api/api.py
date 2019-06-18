@@ -42,7 +42,7 @@ public.register_blueprint(selene_api)
 _log = configure_logger('public_api')
 
 public.add_url_rule(
-    '/v1/device/<string:device_id>/skill/<string:skill_gid>',
+    '/v1/device/<string:device_id>/skill/<string:skill_id>',
     view_func=DeviceSkillsEndpoint.as_view('device_skill_delete_api'),
     methods=['DELETE']
 )

@@ -18,12 +18,12 @@ class DeviceSkillRepository(RepositoryBase):
         )
         self.cursor.insert(db_request)
 
-    def delete(self, device_id, skill_gid):
+    def delete(self, device_id, skill_id):
         db_request = self._build_db_request(
             sql_file_name='delete_device_skill.sql',
             args=dict(
                 device_id=device_id,
-                skill_gid=skill_gid
+                skill_id=skill_id
             )
         )
         self.cursor.delete(db_request)
