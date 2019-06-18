@@ -9,8 +9,8 @@ from selene.data.skill import AccountSkillSetting, SkillSettingRepository
 from selene.util.db import connect_to_db
 
 skill = {
-    'skill_gid': 'wolfram-alpha|19.02',
-    'identifier': 'wolfram-alpha-123456',
+    'skill_gid': '@6e1533c1-0040-41e7-a29f-4832320a2360|wolfram-alpha|19.02',
+    'identifier': '@6e1533c1-0040-41e7-a29f-4832320a2360|wolfram-alpha-123456',
     "skillMetadata": {
         "sections": [
             {
@@ -50,7 +50,7 @@ new_settings = {
 }
 
 skill_updated = {
-    'skill_gid': 'wolfram-alpha|19.02',
+    'skill_gid': '@6e1533c1-0040-41e7-a29f-4832320a2360|wolfram-alpha|19.02',
     "skillMetadata": {
         "sections": [
             {
@@ -235,15 +235,12 @@ def validate_empty_skill_uploading(context):
 
 @when('the skill settings is deleted')
 def delete_skill(context):
-    skills = json.loads(context.get_skill_response.data)
-    skill_fetched = skills[0]
-    skill_uuid = skill_fetched['uuid']
     login = context.device_login
     device_id = login['uuid']
     access_token = login['accessToken']
     headers = dict(Authorization='Bearer {token}'.format(token=access_token))
     context.delete_skill_response = context.client.delete(
-        '/v1/device/{device_uuid}/skill/{skill_uuid}'.format(device_uuid=device_id, skill_uuid=skill_uuid),
+        '/v1/device/{device_uuid}/skill/{skill_gid}'.format(device_uuid=device_id, skill_gid=skill['skill_gid']),
         headers=headers
     )
     context.get_skill_after_delete_response = context.client.get(
