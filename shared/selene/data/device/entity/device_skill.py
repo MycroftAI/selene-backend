@@ -9,5 +9,7 @@ class DeviceSkill(object):
     install_method: str
     install_status: str
     skill_id: str
+    skill_gid: str
     install_failure_reason: str = None
     install_ts: datetime = None
+    update_ts: datetime = None

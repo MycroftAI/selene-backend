@@ -13,4 +13,4 @@ FROM
     INNER JOIN device.device_skill ds ON d.id = ds.device_id
     INNER JOIN skill.skill s ON ds.skill_id = s.id
 WHERE
-    d.account_id = %(account_id)s
+    d.id = %(device_id)s

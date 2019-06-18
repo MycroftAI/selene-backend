@@ -14,6 +14,7 @@ from schematics.types import (
 )
 
 from selene.api import PublicEndpoint
+from selene.data.device import DeviceSkillRepository
 from selene.data.skill import SkillRepository
 
 
@@ -40,17 +41,23 @@ _log = getLogger(__package__)
 
 
 class DeviceSkillManifestEndpoint(PublicEndpoint):
+    _device_skill_repo = None
+
     def __init__(self):
         super(DeviceSkillManifestEndpoint, self).__init__()
 
+    @property
+    def device_skill_repo(self):
+        if self._device_skill_repo is None:
+            self._device_skill_repo = DeviceSkillRepository(self.db)
+
+        return self._device_skill_repo
+
     def get(self, device_id):
         self._authenticate()
-        skills_manifest = SkillRepository(self.db).get_skills_manifest(device_id)
+        skills_manifest = self._build_skill_manifest(device_id)
+
         if skills_manifest:
-            for skill in skills_manifest:
-                self._convert_to_timestamp(skill)
-            skills_manifest = {'skills': skills_manifest}
-            skills_manifest = json.dumps(skills_manifest)
             response = Response(
                 skills_manifest,
                 status=HTTPStatus.OK,
@@ -58,17 +65,30 @@ class DeviceSkillManifestEndpoint(PublicEndpoint):
             )
         else:
             response = '', HTTPStatus.NOT_MODIFIED
+
         return response
 
-    def _convert_to_timestamp(self, skill):
-        installed = skill.get('installed')
-        if installed and installed != 0:
-            installed = installed.timestamp()
-            skill['installed'] = installed
-        updated = skill.get('updated')
-        if updated and updated != 0:
-            updated = updated.timestamp()
-            skill['updated'] = updated
+    def _build_skill_manifest(self, device_id):
+        device_skills = self.device_skill_repo.get_skills_for_device(device_id)
+        skills_manifest = []
+        for skill in device_skills:
+            response_skill = dict(
+                origin=skill.install_method,
+                installation=skill.install_status,
+                failure_message=skill.install_failure_reason,
+                installed=None,
+                updated=None,
+                skill_gid=skill.skill_gid
+            )
+            if skill.install_ts is not None:
+                response_skill['installed'] = skill.install_ts.timestamp()
+            if skill.update_ts is not None:
+                response_skill['updated'] = skill.update_ts.timestamp()
+
+            skills_manifest.append(response_skill)
+        skills_manifest = {'skills': skills_manifest}
+
+        return json.dumps(skills_manifest)
 
     def put(self, device_id):
         self._authenticate(device_id)

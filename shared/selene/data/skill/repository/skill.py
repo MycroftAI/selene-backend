@@ -156,13 +156,6 @@ class SkillRepository(RepositoryBase):
         if failure_message is None:
             skill['failure_message'] = ''
 
-    def get_skills_manifest(self, device_id: str):
-        db_request = self._build_db_request(
-            sql_file_name='get_skills_manifest_by_device_id.sql',
-            args=dict(device_id=device_id)
-        )
-        return self.cursor.select_all(db_request)
-
     def ensure_skill_exists(self, skill_gid: str) -> str:
         skill = self._select_one_into_dataclass(
             dataclass=Skill,
