@@ -25,12 +25,14 @@ from selene.util.auth import (
     get_facebook_account_email,
     get_google_account_email
 )
+from selene.util.cache import SeleneCache
 from selene.util.payment import (
     cancel_stripe_subscription,
     create_stripe_account,
     create_stripe_subscription
 )
 from ..base_endpoint import SeleneEndpoint
+from ..etag import ETagManager
 
 MONTHLY_MEMBERSHIP = 'Monthly Membership'
 YEARLY_MEMBERSHIP = 'Yearly Membership'
@@ -232,10 +234,16 @@ class AccountEndpoint(SeleneEndpoint):
             response_data = dict(errors=errors)
             response_status = HTTPStatus.BAD_REQUEST
         else:
+            self._expire_device_setting_cache()
             response_data = ''
             response_status = HTTPStatus.NO_CONTENT
 
         return response_data, response_status
+
+    def _expire_device_setting_cache(self):
+        cache = SeleneCache()
+        etag_manager = ETagManager(cache, self.config)
+        etag_manager.expire_device_setting_etag_by_account_id(self.account.id)
 
     def _update_account(self):
         errors = []
