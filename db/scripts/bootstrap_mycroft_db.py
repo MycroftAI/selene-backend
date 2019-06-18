@@ -47,7 +47,8 @@ GEOGRAPHY_TABLE_ORDER = (
 
 METRICS_TABLE_ORDER = (
     'api',
-    'job'
+    'job',
+    'core'
 )
 
 schema_directory = '{}_schema'
