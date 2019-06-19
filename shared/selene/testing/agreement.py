@@ -62,4 +62,4 @@ def add_agreements(db) -> Tuple[Agreement, Agreement, Agreement]:
 def remove_agreements(db, agreements: List[Agreement]):
     for agreement in agreements:
         agreement_repository = AgreementRepository(db)
-        agreement_repository.remove(agreement, testing=True)
+        agreement_repository.remove(agreement)
