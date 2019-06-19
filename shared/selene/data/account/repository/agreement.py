@@ -34,10 +34,14 @@ class AgreementRepository(object):
         return agreement_id
 
     def _add_agreement_content(self, content):
-        large_object = self.db.lobject(0, 'b')
-        large_object.write(content)
+        if content is None:
+            agreement_oid = None
+        else:
+            large_object = self.db.lobject(0, 'b')
+            large_object.write(content)
+            agreement_oid = large_object.oid
 
-        return large_object.oid
+        return agreement_oid
 
     def _add_agreement(self, agreement: Agreement, content_id: int) -> str:
         date_range = DateRange(agreement.effective_date, None)

@@ -20,13 +20,16 @@ def acct_api_client(context):
 def before_all(context):
     use_fixture(acct_api_client, context)
     context.db = connect_to_db(context.client_config['DB_CONNECTION_CONFIG'])
-    context.terms_of_use, context.privacy_policy = add_agreements(context.db)
+    agreements = add_agreements(context.db)
+    context.terms_of_use = agreements[0]
+    context.privacy_policy = agreements[1]
+    context.open_dataset = agreements[2]
 
 
 def after_all(context):
     remove_agreements(
         context.db,
-        [context.privacy_policy, context.terms_of_use]
+        [context.privacy_policy, context.terms_of_use, context.open_dataset]
     )
 
 
