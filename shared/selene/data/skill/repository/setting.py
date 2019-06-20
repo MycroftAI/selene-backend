@@ -15,7 +15,7 @@ class SkillSettingRepository(RepositoryBase):
 
     def get_family_settings(self, family_name: str) -> List[AccountSkillSetting]:
         db_request = self._build_db_request(
-            'get_settings_for_skill.sql',
+            'get_settings_for_skill_family.sql',
             args=dict(family_name=family_name, account_id=self.account_id)
         )
         db_result = self.cursor.select_all(db_request)
