@@ -46,3 +46,10 @@ def build_request_header(context):
     context.request_header = dict(
         Authorization='Bearer {token}'.format(token=context.access_token)
     )
+
+
+@given('an unauthorized device')
+def build_unauthorized_request_header(context):
+    context.request_header = dict(
+        Authorization='Bearer {token}'.format(token='bogus_token')
+    )

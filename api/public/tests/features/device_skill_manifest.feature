@@ -39,3 +39,13 @@ Feature: Device can upload and fetch skills manifest
     And the skill is added to the manifest on the database
     And device last contact timestamp is updated
 
+  Scenario: Unauthorized device attempts manifest upload
+    Given an unauthorized device
+    When a device uploads a skill manifest without changes
+    Then the request will fail with an unauthorized error
+
+  Scenario: Device sends a malformed request for manifest
+    Given an authorized device
+    When a device uploads a malformed skill manifest
+    Then the request will fail with a bad request error
+

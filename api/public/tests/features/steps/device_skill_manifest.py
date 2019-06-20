@@ -74,6 +74,13 @@ def upload_unchanged_skill_manifest(context):
     _upload_skill_manifest(context, skill_manifest)
 
 
+@when('a device uploads a malformed skill manifest')
+def upload_unchanged_skill_manifest(context):
+    skill_manifest = _build_manifest_upload([context.manifest_skill])
+    del(skill_manifest['skills'][0]['name'])
+    _upload_skill_manifest(context, skill_manifest)
+
+
 def _upload_skill_manifest(context, skill_manifest):
     context.response = context.client.put(
         '/v1/device/{device_id}/skillJson'.format(device_id=context.device_id),
