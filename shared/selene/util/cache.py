@@ -3,6 +3,7 @@ import os
 from redis import Redis
 
 DEVICE_LAST_CONTACT_KEY = 'device:last_contact:{device_id}'
+DEVICE_SKILL_ETAG_KEY = 'device.skill.etag:{device_id}'
 
 
 class SeleneCache(object):

@@ -4,8 +4,9 @@ from http import HTTPStatus
 from behave import when, then, given
 from hamcrest import assert_that, equal_to, not_none, is_not, has_key
 
-from selene.api.etag import ETagManager, device_skill_etag_key
+from selene.api.etag import ETagManager
 from selene.data.skill import AccountSkillSetting, SkillSettingRepository
+from selene.util.cache import DEVICE_SKILL_ETAG_KEY
 from selene.util.db import connect_to_db
 
 skill = {
@@ -156,14 +157,16 @@ def get_skills_etag(context):
     etag_manager: ETagManager = context.etag_manager
     login = context.device_login
     device_id = login['uuid']
-    skill_etag = etag_manager.get(device_skill_etag_key(device_id))
+    skill_etag = etag_manager.get(
+        DEVICE_SKILL_ETAG_KEY.format(device_id=device_id)
+    )
     access_token = login['accessToken']
     headers = {
         'Authorization': 'Bearer {token}'.format(token=access_token),
         'If-None-Match': skill_etag
     }
     context.get_skill_response = context.client.get(
-        '/v1/device/{uuid}/skill'.format(uuid=device_id),
+        '/v1/device/{device_id}/skill'.format(device_id=device_id),
         headers=headers
     )
 
@@ -179,7 +182,9 @@ def get_skills_expired_etag(context):
     etag_manager: ETagManager = context.etag_manager
     login = context.device_login
     device_id = login['uuid']
-    context.old_skill_etag = etag_manager.get(device_skill_etag_key(device_id))
+    context.old_skill_etag = etag_manager.get(
+        DEVICE_SKILL_ETAG_KEY.format(device_id=device_id)
+    )
     etag_manager.expire_skill_etag_by_device_id(device_id)
     access_token = login['accessToken']
     headers = {
@@ -187,7 +192,7 @@ def get_skills_expired_etag(context):
         'If-None-Match': context.old_skill_etag
     }
     context.get_skill_response = context.client.get(
-        '/v1/device/{uuid}/skill'.format(uuid=device_id),
+        '/v1/device/{device_id}/skill'.format(device_id=device_id),
         headers=headers
     )
 

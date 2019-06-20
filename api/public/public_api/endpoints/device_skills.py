@@ -7,9 +7,9 @@ from schematics.exceptions import ValidationError
 from schematics.types import StringType, BooleanType, ListType, ModelType
 
 from selene.api import PublicEndpoint
-from selene.api.etag import device_skill_etag_key
 from selene.data.skill import SkillRepository
 from selene.data.skill.repository.device_skill import DeviceSkillRepository
+from selene.util.cache import DEVICE_SKILL_ETAG_KEY
 
 global_id_pattern = '^([^\|@]+)\|([^\|]+$)'             # matches <submodule_name>|<branch>
 global_id_dirt_pattern = '^@(.*)\|(.*)\|(.*)$'          # matches @<device_id>|<submodule_name>|<branch>
@@ -58,20 +58,27 @@ class Skill(Model):
 
     def validate_skill_gid(self, data, value):
         if data['skill_gid'] is None and data['identifier'] is None:
-            raise ValidationError('skill should have either skill_gid or identifier define')
+            raise ValidationError(
+                'skill should have either skill_gid or identifier define'
+            )
         return value
 
 
 class DeviceSkillsEndpoint(PublicEndpoint):
-    """Fetch all skills associated with a given device using the API v1 format"""
+    """Fetch all skills associated with a device using the API v1 format"""
+    _skill_repo = None
 
-    def __init__(self):
-        super(DeviceSkillsEndpoint, self).__init__()
+    @property
+    def skill_repo(self):
+        if self._skill_repo is None:
+            self._skill_repo = SkillRepository(self.db)
+
+        return self._skill_repo
 
     def get(self, device_id):
         self._authenticate(device_id)
-        self._validate_etag(device_skill_etag_key(device_id))
-        skills = SkillRepository(self.db).get_skill_settings_by_device_id(device_id)
+        self._validate_etag(DEVICE_SKILL_ETAG_KEY.format(device_id=device_id))
+        skills = self.skill_repo.get_skill_settings_by_device_id(device_id)
 
         if skills is not None:
             response = Response(
@@ -79,7 +86,7 @@ class DeviceSkillsEndpoint(PublicEndpoint):
                 status=HTTPStatus.OK,
                 content_type='application_json'
             )
-            self._add_etag(device_skill_etag_key(device_id))
+            self._add_etag(DEVICE_SKILL_ETAG_KEY.format(device_id=device_id))
         else:
             response = Response(
                 '',
