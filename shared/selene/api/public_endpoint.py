@@ -14,7 +14,7 @@ from flask.views import MethodView
 from selene.api.etag import ETagManager
 from selene.util.auth import AuthenticationError
 from selene.util.db import connect_to_db
-from selene.util.not_modified import NotModifiedError
+from selene.util.exceptions import NotModifiedException
 from ..util.cache import SeleneCache
 
 ONE_DAY = 86400
@@ -137,4 +137,4 @@ class PublicEndpoint(MethodView):
                     etag_from_request == etag_from_cache.decode('utf-8')
             )
             if not_modified:
-                raise NotModifiedError()
+                raise NotModifiedException()
