@@ -132,5 +132,9 @@ class PublicEndpoint(MethodView):
         etag_from_request = self.request.headers.get('If-None-Match')
         if etag_from_request is not None:
             etag_from_cache = self.cache.get(key)
-            if etag_from_cache is not None and etag_from_request == etag_from_cache.decode('utf-8'):
+            not_modified = (
+                    etag_from_cache is not None and
+                    etag_from_request == etag_from_cache.decode('utf-8')
+            )
+            if not_modified:
                 raise NotModifiedError()
