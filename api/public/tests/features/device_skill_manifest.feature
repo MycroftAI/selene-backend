@@ -1,11 +1,5 @@
 Feature: Device can upload and fetch skills manifest
 
-  Scenario: Device retrieves its manifest from the API
-    Given an authorized device
-    When a device requests its skill manifest
-    Then the request will be successful
-    And the response will contain the manifest
-
   Scenario: Device uploads an unchanged manifest
     Given an authorized device
     When a device uploads a skill manifest without changes

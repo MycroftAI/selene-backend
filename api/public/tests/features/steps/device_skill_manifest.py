@@ -2,17 +2,7 @@ import json
 from datetime import datetime
 
 from behave import when, then
-from hamcrest import (
-    assert_that,
-    equal_to,
-    has_entry,
-    has_key,
-    is_in,
-    is_,
-    none,
-    not_none,
-    not_
-)
+from hamcrest import assert_that, equal_to, is_in, is_, none, not_none, not_
 
 from selene.data.device import DeviceSkillRepository, ManifestSkill
 from selene.data.skill import SkillRepository, Skill
@@ -38,15 +28,6 @@ def _build_manifest_upload(manifest_skills):
         "version": 1,
         "skills": upload_skills
     }
-
-
-@when('a device requests its skill manifest')
-def get_skill_manifest(context):
-    context.response = context.client.get(
-        '/v1/device/{device_id}/skillJson'.format(device_id=context.device_id),
-        content_type='application/json',
-        headers=context.request_header
-    )
 
 
 @when('a device uploads a skill manifest without changes')
@@ -99,40 +80,6 @@ def _upload_skill_manifest(context, skill_manifest):
         data=json.dumps(skill_manifest),
         content_type='application/json',
         headers=context.request_header
-    )
-
-
-@then('the response will contain the manifest')
-def check_skill_manifest_response(context):
-    response = context.response.json
-    assert_that(response, has_key('skills'))
-    assert_that(len(response['skills']), equal_to(1))
-    manifest_skill = response['skills'][0]
-    assert_that(
-        manifest_skill,
-        has_entry('origin', context.manifest_skill.install_method)
-    )
-    assert_that(
-        manifest_skill,
-        has_entry('installation', context.manifest_skill.install_status))
-    assert_that(
-        manifest_skill,
-        has_entry(
-            'failure_message',
-            context.manifest_skill.install_failure_reason
-        )
-    )
-    assert_that(
-        manifest_skill,
-        has_entry('installed', context.manifest_skill.install_ts.timestamp())
-    )
-    assert_that(
-        manifest_skill,
-        has_entry('updated', context.manifest_skill.update_ts.timestamp())
-    )
-    assert_that(
-        manifest_skill,
-        has_entry('skill_gid', context.manifest_skill.skill_gid)
     )
 
 

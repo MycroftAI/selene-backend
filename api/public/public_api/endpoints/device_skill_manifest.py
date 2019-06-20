@@ -103,45 +103,6 @@ class DeviceSkillManifestEndpoint(PublicEndpoint):
 
         return self._device_skill_repo
 
-    def get(self, device_id):
-        self._authenticate()
-        skills_manifest = self._build_skill_manifest(device_id)
-
-        if skills_manifest:
-            response = Response(
-                skills_manifest,
-                status=HTTPStatus.OK,
-                content_type='application/json'
-            )
-        else:
-            response = '', HTTPStatus.NOT_MODIFIED
-
-        return response
-
-    def _build_skill_manifest(self, device_id):
-        """Convert the DeviceSkill dataclass into the format for the response"""
-        skill_manifest = self.device_skill_repo.get_skill_manifest_for_device(
-            device_id
-        )
-        response_skills = []
-        for skill in skill_manifest:
-            response_skill = dict(
-                origin=skill.install_method,
-                installation=skill.install_status,
-                failure_message=skill.install_failure_reason,
-                installed=None,
-                updated=None,
-                skill_gid=skill.skill_gid
-            )
-            if skill.install_ts is not None:
-                response_skill['installed'] = skill.install_ts.timestamp()
-            if skill.update_ts is not None:
-                response_skill['updated'] = skill.update_ts.timestamp()
-
-            response_skills.append(response_skill)
-
-        return json.dumps({'skills': response_skills})
-
     def put(self, device_id):
         self._authenticate(device_id)
         self._validate_put_request()
