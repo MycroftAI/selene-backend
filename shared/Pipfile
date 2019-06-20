@@ -9,7 +9,6 @@ pyjwt = "*"
 pygithub = "*"
 psycopg2-binary = "*"
 passlib = "*"
-pyhamcrest = "*"
 schematics = "*"
 redis = "*"
 sendgrid = "*"
@@ -17,6 +16,7 @@ stripe = "*"
 schedule = "*"
 
 [dev-packages]
+pyhamcrest = "*"
 
 [requires]
 python_version = "3.7"
