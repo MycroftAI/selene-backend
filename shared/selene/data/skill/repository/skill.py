@@ -1,5 +1,4 @@
 import json
-from datetime import datetime
 from typing import List
 
 from selene.util.db import use_transaction
@@ -100,6 +99,13 @@ class SkillRepository(RepositoryBase):
 
         return skills
 
+    def get_skill_by_global_id(self, skill_global_id):
+        return self._select_one_into_dataclass(
+            dataclass=Skill,
+            sql_file_name='get_skill_by_global_id.sql',
+            args=dict(skill_global_id=skill_global_id)
+        )
+
     @use_transaction
     def add(self, device_id: str, skill: dict) -> str:
         skill['skill_gid'] = skill.get('skill_gid') or skill.get('identifier')
@@ -127,44 +133,11 @@ class SkillRepository(RepositoryBase):
             result = '', ''
         return result
 
-    def update_skills_manifest(self, device_id: str, skill_manifest):
-        for skill in skill_manifest:
-            skill['device_id'] = device_id
-            self._convert_to_datetime(skill)
-
-        db_batch_request = self._build_db_batch_request(
-            'update_skill_manifest.sql',
-            args=skill_manifest
-        )
-        self.cursor.batch_update(db_batch_request)
-
-    def _convert_to_datetime(self, skill):
-
-        installed = skill.get('installed')
-        if installed and installed != 0:
-            installed = datetime.fromtimestamp(installed)
-            skill['installed'] = installed
-        else:
-            skill['installed'] = datetime.now()
-        updated = skill.get('updated')
-        if updated and updated != 0:
-            updated = datetime.fromtimestamp(updated)
-            skill['updated'] = updated
-        else:
-            skill['updated'] = datetime.now()
-        failure_message = skill.get('failure_message')
-        if failure_message is None:
-            skill['failure_message'] = ''
-
-    def ensure_skill_exists(self, skill_gid: str) -> str:
-        skill = self._select_one_into_dataclass(
-            dataclass=Skill,
-            sql_file_name='get_skill_by_global_id.sql',
-            args=dict(skill_gid=skill_gid)
-        )
+    def ensure_skill_exists(self, skill_global_id: str) -> str:
+        skill = self.get_skill_by_global_id(skill_global_id)
         if skill is None:
-            family_name = _parse_skill_gid(skill_gid)
-            skill_id = self._add_skill(skill_gid, family_name)
+            family_name = _parse_skill_gid(skill_global_id)
+            skill_id = self._add_skill(skill_global_id, family_name)
         else:
             skill_id = skill.id
 
@@ -184,3 +157,10 @@ class SkillRepository(RepositoryBase):
             skill_id = db_result.id
 
         return skill_id
+
+    def remove_by_gid(self, skill_gid):
+        db_request = self._build_db_request(
+            sql_file_name='remove_skill_by_gid.sql',
+            args=dict(skill_gid=skill_gid)
+        )
+        self.cursor.delete(db_request)

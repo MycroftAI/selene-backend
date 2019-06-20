@@ -106,7 +106,7 @@ class DeviceRepository(RepositoryBase):
         )
         self.cursor.update(db_request)
 
-    def add_wake_word(self, account_id: str, wake_word: WakeWord) -> str:
+    def add_wake_word(self, wake_word: WakeWord, account_id: str = None) -> str:
         """Adds a row to the wake word table
 
         :param account_id: the account that we are linking to the wake word
