@@ -32,6 +32,7 @@ class SkillSettingsEndpoint(SeleneEndpoint):
     def get(self, skill_family_name):
         self._authenticate()
         self.family_settings = self.setting_repository.get_family_settings(
+            self.account.id,
             skill_family_name
         )
         self._parse_selection_options()

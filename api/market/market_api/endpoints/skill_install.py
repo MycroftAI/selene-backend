@@ -50,10 +50,7 @@ class SkillInstallEndpoint(SeleneEndpoint):
     @property
     def settings_repo(self):
         if self._settings_repo is None:
-            self._settings_repo = SkillSettingRepository(
-                self.db,
-                self.account.id
-            )
+            self._settings_repo = SkillSettingRepository(self.db)
 
         return self._settings_repo
 
@@ -62,7 +59,9 @@ class SkillInstallEndpoint(SeleneEndpoint):
         self._authenticate()
         self._validate_request()
         self._get_skill_name()
-        self.installer_settings = self.settings_repo.get_installer_settings()
+        self.installer_settings = self.settings_repo.get_installer_settings(
+            self.account.id
+        )
         self._apply_update()
         self.etag_manager.expire_skill_etag_by_account_id(self.account.id)
 
@@ -108,4 +107,7 @@ class SkillInstallEndpoint(SeleneEndpoint):
 
     def _update_skill_settings(self, new_skill_settings):
         """Update the DB with the new installer skill settings."""
-        self.settings_repo.update_skill_settings(new_skill_settings)
+        self.settings_repo.update_skill_settings(
+            self.account.id,
+            new_skill_settings
+        )

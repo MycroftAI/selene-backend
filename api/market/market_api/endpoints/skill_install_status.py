@@ -36,7 +36,7 @@ class SkillInstallStatusEndpoint(SeleneEndpoint):
 
     def _get_installed_skills(self):
         skill_repo = DeviceSkillRepository(self.db)
-        installed_skills = skill_repo.get_installed_skills_for_account(
+        installed_skills = skill_repo.get_device_skills_for_account(
             self.account.id
         )
         for skill in installed_skills:
