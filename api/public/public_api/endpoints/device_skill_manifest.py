@@ -1,9 +1,7 @@
-import json
 from datetime import datetime
 from http import HTTPStatus
 from logging import getLogger
 
-from flask import Response
 from schematics import Model
 from schematics.types import (
     StringType,
@@ -107,6 +105,7 @@ class DeviceSkillManifestEndpoint(PublicEndpoint):
         self._authenticate(device_id)
         self._validate_put_request()
         self._update_skill_manifest(device_id)
+
         return '', HTTPStatus.OK
 
     def _validate_put_request(self):
