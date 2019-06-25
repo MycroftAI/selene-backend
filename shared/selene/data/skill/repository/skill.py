@@ -1,9 +1,5 @@
-import json
 from typing import List
 
-from selene.util.db import use_transaction
-from .device_skill import DeviceSkillRepository
-from .settings_display import SettingsDisplayRepository
 from ..entity.skill import Skill, SkillFamily
 from ...repository_base import RepositoryBase
 
@@ -42,18 +38,6 @@ class SkillRepository(RepositoryBase):
             sql_file_name='get_skill_by_global_id.sql',
             args=dict(skill_global_id=skill_global_id)
         )
-
-    @use_transaction
-    def add(self, device_id: str, skill: dict) -> str:
-        skill['skill_gid'] = skill.get('skill_gid') or skill.get('identifier')
-        skill_id = self.ensure_skill_exists(skill['skill_gid'])
-        settings_value, settings_display = self._extract_settings(skill)
-        settings_display = json.dumps(skill)
-        skill_settings_display_id = SettingsDisplayRepository(self.db).add(skill_id, settings_display)
-        settings_value = json.dumps(settings_value)
-        DeviceSkillRepository(self.db).delete(device_id, skill_id)
-        DeviceSkillRepository(self.db).add(device_id, skill_id, skill_settings_display_id, settings_value)
-        return skill_id
 
     @staticmethod
     def _extract_settings(skill):
