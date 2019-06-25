@@ -62,8 +62,8 @@ class SkillManifestReconciler(object):
 
         for gid in skills_to_add:
             skill_id = self.skill_repo.ensure_skill_exists(gid)
+            self.device_manifest[gid].skill_id = skill_id
             self.skill_manifest_repo.add_manifest_skill(
-                skill_id,
                 self.device_manifest[gid]
             )
 
