@@ -22,10 +22,7 @@ class SkillSettingsEndpoint(SeleneEndpoint):
     @property
     def setting_repository(self):
         if self._setting_repository is None:
-            self._setting_repository = SkillSettingRepository(
-                self.db,
-                self.account.id
-            )
+            self._setting_repository = SkillSettingRepository(self.db)
 
         return self._setting_repository
 
