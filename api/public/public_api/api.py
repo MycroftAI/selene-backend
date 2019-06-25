@@ -2,6 +2,7 @@ import os
 
 from flask import Flask
 
+from public_api.endpoints.stripe_webhook import StripeWebHookEndpoint
 from selene.api import SeleneResponse, selene_api
 from selene.api.base_config import get_base_config
 from selene.api.public_endpoint import check_oauth_token
@@ -144,6 +145,12 @@ public.add_url_rule(
     '/v1/device/<string:device_id>/<string:oauth_path>/<string:credentials>',
     view_func=OauthServiceEndpoint.as_view('oauth_api'),
     methods=['GET']
+)
+
+public.add_url_rule(
+    '/v1/user/stripe/webhook',
+    view_func=StripeWebHookEndpoint.as_view('stripe_webhook_api'),
+    methods=['POST']
 )
 
 """

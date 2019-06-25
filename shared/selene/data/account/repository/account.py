@@ -300,6 +300,17 @@ class AccountRepository(RepositoryBase):
         )
         self.cursor.update(db_request)
 
+    def end_active_membership(self, customer_id):
+        db_request = self._build_db_request(
+            sql_file_name='get_active_membership_by_payment_account_id.sql',
+            args=dict(payment_account_id=customer_id)
+        )
+        db_result = self.cursor.select_one(db_request)
+        if db_result is not None:
+            account_membership = AccountMembership(**db_result)
+            account_membership.end_date = datetime.utcnow()
+            self.end_membership(account_membership)
+
     def get_active_account_membership(self, account_id) -> AccountMembership:
         account_membership = None
         db_request = self._build_db_request(
