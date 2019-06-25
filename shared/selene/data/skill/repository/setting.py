@@ -77,6 +77,6 @@ class SkillSettingRepository(RepositoryBase):
         """Return all skills and their settings for a given device id"""
         return self._select_all_into_dataclass(
             DeviceSkillSetting,
-            sql_file_name='get_skill_setting_by_device_id.sql',
+            sql_file_name='get_skill_setting_by_device.sql',
             args=dict(device_id=device_id)
         )

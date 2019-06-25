@@ -9,10 +9,16 @@ from selene.testing.account_geography import add_account_geography
 from selene.testing.account_preference import add_account_preference
 from selene.testing.device import add_device
 from selene.testing.device_skill import (
-    add_skill_to_manifest,
-    remove_manifest_skill
+    add_device_skill,
+    add_device_skill_settings,
+    remove_device_skill
 )
-from selene.testing.skill import add_skill, remove_skill
+from selene.testing.skill import (
+    add_skill,
+    build_label_field,
+    build_text_field,
+    remove_skill
+)
 from selene.testing.text_to_speech import (
     add_text_to_speech,
     remove_text_to_speech
@@ -50,24 +56,10 @@ def after_all(context):
 def before_scenario(context, _):
     context.etag_manager = ETagManager(context.cache, context.client_config)
     try:
-        context.account = add_account(context.db)
-        add_account_preference(context.db, context.account.id)
-        context.geography_id = add_account_geography(
-            context.db,
-            context.account
-        )
-        context.wake_word = add_wake_word(context.db)
-        context.voice = add_text_to_speech(context.db)
+        _add_account(context)
+        _add_skills(context)
         _add_device(context)
-        context.skill = add_skill(
-            context.db,
-            skill_global_id='selene-test-skill|19.02'
-        )
-        context.manifest_skill = add_skill_to_manifest(
-            context.db,
-            context.device_id,
-            context.skill
-        )
+        _add_device_skills(context)
     except:
         import traceback
         print(traceback.print_exc())
@@ -77,10 +69,22 @@ def after_scenario(context, _):
     remove_account(context.db, context.account)
     remove_wake_word(context.db, context.wake_word)
     remove_text_to_speech(context.db, context.voice)
-    remove_skill(context.db, skill_global_id=context.skill.skill_gid)
+    for skill in context.skills.values():
+        remove_skill(context.db, skill[0])
+
+
+def _add_account(context):
+    context.account = add_account(context.db)
+    add_account_preference(context.db, context.account.id)
+    context.geography_id = add_account_geography(
+        context.db,
+        context.account
+    )
 
 
 def _add_device(context):
+    context.wake_word = add_wake_word(context.db)
+    context.voice = add_text_to_speech(context.db)
     device_id = add_device(context.db, context.account.id, context.geography_id)
     context.device_id = device_id
     context.device_name = 'Selene Test Device'
@@ -88,26 +92,66 @@ def _add_device(context):
     context.access_token = context.device_login['accessToken']
 
 
+def _add_skills(context):
+    foo_skill, foo_settings_display = add_skill(
+        context.db,
+        skill_global_id='foo-skill|19.02',
+    )
+    bar_skill, bar_settings_display = add_skill(
+        context.db,
+        skill_global_id='bar-skill|19.02',
+        settings_fields=[build_label_field(), build_text_field()]
+    )
+    context.skills = dict(
+        foo=(foo_skill, foo_settings_display),
+        bar=(bar_skill, bar_settings_display)
+    )
+
+
+def _add_device_skills(context):
+    for value in context.skills.values():
+        skill, settings_display = value
+        context.manifest_skill = add_device_skill(
+            context.db,
+            context.device_id,
+            skill
+        )
+        settings_values = None
+        if skill.skill_gid.startswith('bar'):
+            settings_values = dict(textfield='Device text value')
+        add_device_skill_settings(
+            context.db,
+            context.device_id,
+            settings_display,
+            settings_values=settings_values
+        )
+
+
 def before_tag(context, tag):
     if tag == 'device_specific_skill':
-        _add_device_specific_skil(context)
+        _add_device_specific_skill(context)
 
 
-def _add_device_specific_skil(context):
-    context.device_specific_skill = add_skill(
+def _add_device_specific_skill(context):
+    dirty_skill, dirty_skill_settings = add_skill(
         context.db,
         skill_global_id='@{device_id}|device-specific-skill|19.02'.format(
             device_id=context.device_id
         )
     )
-    context.device_specific_manifest = add_skill_to_manifest(
+    context.skills.update(dirty=(dirty_skill, dirty_skill_settings))
+    context.device_specific_manifest = add_device_skill(
         context.db,
         context.device_id,
-        context.skill
+        dirty_skill
     )
 
 
 def after_tag(context, tag):
     if tag == 'new_skill':
-        remove_manifest_skill(context.db, context.new_manifest_skill)
-        remove_skill(context.db, context.new_skill.skill_gid)
+        _delete_new_skill(context)
+
+
+def _delete_new_skill(context):
+    remove_device_skill(context.db, context.new_manifest_skill)
+    remove_skill(context.db, context.new_skill)

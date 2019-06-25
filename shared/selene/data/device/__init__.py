@@ -1,4 +1,4 @@
-from .entity.device_skill import DeviceSkill, ManifestSkill
+from .entity.device_skill import ManifestSkill, DeviceSkillSettings
 from .entity.geography import Geography
 from .entity.preference import AccountPreferences
 from .entity.text_to_speech import TextToSpeech

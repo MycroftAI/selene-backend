@@ -5,6 +5,7 @@ SELECT
     ds.install_method,
     ds.install_status,
     ds.install_ts,
+    ds.skill_id,
     ds.update_ts,
     s.skill_gid
 FROM

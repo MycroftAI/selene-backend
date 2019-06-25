@@ -23,69 +23,6 @@ class SkillRepository(RepositoryBase):
         self.db = db
         super(SkillRepository, self).__init__(db, __file__)
 
-    def get_skill_settings_by_device_id(self, device_id):
-        """Return all skill settings from a given device id
-
-        :param device_id: device uuid
-        :return list of skills using the format from the API v1"""
-        query = self._build_db_request(
-            'get_skill_setting_by_device_id.sql',
-            args=dict(device_id=device_id)
-        )
-        sql_results = self.cursor.select_all(query)
-        if sql_results:
-            skills = []
-            for result in sql_results:
-                sections = self._fill_setting_with_values(result['settings'], result['settings_display'])
-                skill = {'uuid': result['id']}
-                if sections:
-                    skill['skillMetadata'] = {'sections': sections}
-                display = result['settings_display']
-                skill_gid = display.get('skill_gid')
-                if skill_gid:
-                    skill['skill_gid'] = skill_gid
-                identifier = display.get('identifier')
-                if identifier:
-                    skill['identifier'] = identifier
-                skills.append(skill)
-            return skills
-
-    def get_skill_settings_by_device_id_and_version_hash(self, device_id, version_hash):
-        """Return a skill setting for a given device id and skill version hash
-
-        :param device_id: device uuid
-        :param version_hash: skill setting version hash
-        :return skill setting using the format from the API v1
-        """
-        query = self._build_db_request(
-            'get_skill_setting_by_device_id_and_version_hash.sql',
-            args=dict(device_id=device_id, version_hash=version_hash)
-        )
-        sql_results = self.cursor.select_one(query)
-        if sql_results:
-            sections = self._fill_setting_with_values(sql_results['settings'], sql_results['settings_display'])
-            skill = {
-                'skill_gid': sql_results['settings_display']['skill_gid'],
-                'skillMetadata': {
-                    'sections': sections
-                }
-            }
-            return skill
-
-    def _fill_setting_with_values(self, settings: dict, setting_meta: dict):
-        skill_metadata = setting_meta.get('skillMetadata')
-        if skill_metadata:
-            sections = skill_metadata['sections']
-            if settings:
-                for section in sections:
-                    section_fields = section['fields']
-                    for field in section_fields:
-                        if 'name' in field:
-                            name = field['name']
-                            if name in settings:
-                                field['value'] = settings[field['name']]
-            return sections
-
     def get_skills_for_account(self, account_id) -> List[SkillFamily]:
         skills = []
         db_request = self._build_db_request(

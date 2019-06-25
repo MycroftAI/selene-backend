@@ -5,6 +5,8 @@ from selene.data.device import DeviceRepository
 from selene.util.cache import SeleneCache, DEVICE_SKILL_ETAG_KEY
 from selene.util.db import connect_to_db
 
+ETAG_REQUEST_HEADER_KEY = 'If-None-Match'
+
 
 def device_etag_key(device_id: str):
     return 'device.etag:{uuid}'.format(uuid=device_id)
@@ -37,7 +39,7 @@ class ETagManager(object):
             self.cache.set(key, etag)
         return etag
 
-    def _expire(self, key):
+    def expire(self, key):
         """Expires an existent etag
         :param key: key where the etag is stored"""
         etag = ''.join(random.choice(self.etag_chars) for _ in range(32))
@@ -46,12 +48,12 @@ class ETagManager(object):
     def expire_device_etag_by_device_id(self, device_id: str):
         """Expire the etag associated with a device entity
         :param device_id: device uuid"""
-        self._expire(device_etag_key(device_id))
+        self.expire(device_etag_key(device_id))
 
     def expire_device_setting_etag_by_device_id(self, device_id: str):
         """Expire the etag associated with a device's settings entity
         :param device_id: device uuid"""
-        self._expire(device_setting_etag_key(device_id))
+        self.expire(device_setting_etag_key(device_id))
 
     def expire_device_setting_etag_by_account_id(self, account_id: str):
         """Expire the settings' etags for all devices from a given account. Used when the settings are updated
@@ -64,7 +66,7 @@ class ETagManager(object):
     def expire_device_location_etag_by_device_id(self, device_id: str):
         """Expire the etag associate with the device's location entity
         :param device_id: device uuid"""
-        self._expire(device_location_etag_key(device_id))
+        self.expire(device_location_etag_key(device_id))
 
     def expire_device_location_etag_by_account_id(self, account_id: str):
         """Expire the locations' etag fpr açç device for a given acccount
@@ -79,7 +81,7 @@ class ETagManager(object):
 
         :param device_id: device uuid
         """
-        self._expire(DEVICE_SKILL_ETAG_KEY.format(device_id=device_id))
+        self.expire(DEVICE_SKILL_ETAG_KEY.format(device_id=device_id))
 
     def expire_skill_etag_by_account_id(self, account_id):
         db = connect_to_db(self.db_connection_config)
