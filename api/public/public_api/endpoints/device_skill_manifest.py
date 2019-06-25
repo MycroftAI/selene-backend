@@ -18,18 +18,19 @@ from selene.data.skill import SkillRepository
 
 
 class SkillManifestReconciler(object):
-    def __init__(self, db, skill_manifest, device_skills):
+    def __init__(self, db, device_manifest, db_manifest):
         self.db = db
         self.skill_manifest_repo = DeviceSkillRepository(db)
         self.skill_repo = SkillRepository(self.db)
-        self.device_manifest = {sm.skill_gid: sm for sm in skill_manifest}
-        self.db_manifest = {ds.skill_gid: ds for ds in device_skills}
+        self.device_manifest = {sm.skill_gid: sm for sm in device_manifest}
+        self.db_manifest = {ds.skill_gid: ds for ds in db_manifest}
         self.device_manifest_global_ids = {
             gid for gid in self.device_manifest.keys()
         }
         self.db_manifest_global_ids = {gid for gid in self.db_manifest}
 
     def reconcile(self):
+        """Compare the manifest sent by the device to that on the database."""
         self._update_skills()
         self._remove_skills()
         self._add_skills()
