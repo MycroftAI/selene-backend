@@ -159,6 +159,7 @@ def get_skill_manifest_new_skill(context):
     for manifest_skill in skill_manifest:
         if manifest_skill.skill_gid == context.new_skill.skill_gid:
             manifest_skill.id = None
+            manifest_skill.skill_id = None
     assert_that(context.new_manifest_skill, is_in(skill_manifest))
 
 
