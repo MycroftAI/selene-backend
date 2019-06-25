@@ -25,6 +25,14 @@ def check_request_success(context):
     )
 
 
+@then('the request will succeed with a "not modified" return code')
+def check_request_success(context):
+    assert_that(
+        context.response.status_code,
+        equal_to(HTTPStatus.NOT_MODIFIED)
+    )
+
+
 @then('the request will fail with {error_type} error')
 def check_for_bad_request(context, error_type):
     if error_type == 'a bad request':
