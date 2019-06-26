@@ -86,6 +86,7 @@ class SkillSettingsEndpoint(SeleneEndpoint):
                 device_names=new_skill_settings['deviceNames']
             )
             self.setting_repository.update_skill_settings(
+                self.account.id,
                 account_skill_settings,
                 self.request.json['skillIds']
             )
