@@ -4,6 +4,11 @@ from account_api.api import acct
 from selene.testing.account import add_account, remove_account
 from selene.testing.account_geography import add_account_geography
 from selene.testing.agreement import add_agreements, remove_agreements
+from selene.testing.text_to_speech import (
+    add_text_to_speech,
+    remove_text_to_speech
+)
+from selene.testing.wake_word import add_wake_word, remove_wake_word
 from selene.util.cache import SeleneCache
 from selene.util.db import connect_to_db
 
@@ -20,13 +25,16 @@ def acct_api_client(context):
 def before_all(context):
     use_fixture(acct_api_client, context)
     context.db = connect_to_db(context.client_config['DB_CONNECTION_CONFIG'])
-    context.terms_of_use, context.privacy_policy = add_agreements(context.db)
+    agreements = add_agreements(context.db)
+    context.terms_of_use = agreements[0]
+    context.privacy_policy = agreements[1]
+    context.open_dataset = agreements[2]
 
 
 def after_all(context):
     remove_agreements(
         context.db,
-        [context.privacy_policy, context.terms_of_use]
+        [context.privacy_policy, context.terms_of_use, context.open_dataset]
     )
 
 
@@ -34,6 +42,8 @@ def before_scenario(context, _):
     account = add_account(context.db)
     context.accounts = dict(foo=account)
     context.geography_id = add_account_geography(context.db, account)
+    context.wake_word = add_wake_word(context.db)
+    context.voice = add_text_to_speech(context.db)
 
 
 def after_scenario(context, _):
@@ -43,9 +53,10 @@ def after_scenario(context, _):
     referential integrity for us.  All we have to do here is delete the account
     and all rows on all tables related to that account will also be deleted.
     """
-
     for account in context.accounts.values():
         remove_account(context.db, account)
+    remove_wake_word(context.db, context.wake_word)
+    remove_text_to_speech(context.db, context.voice)
     _clean_cache()
 
 

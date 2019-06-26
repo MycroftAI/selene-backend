@@ -22,16 +22,14 @@ class SkillSettingsEndpoint(SeleneEndpoint):
     @property
     def setting_repository(self):
         if self._setting_repository is None:
-            self._setting_repository = SkillSettingRepository(
-                self.db,
-                self.account.id
-            )
+            self._setting_repository = SkillSettingRepository(self.db)
 
         return self._setting_repository
 
     def get(self, skill_family_name):
         self._authenticate()
         self.family_settings = self.setting_repository.get_family_settings(
+            self.account.id,
             skill_family_name
         )
         self._parse_selection_options()
@@ -88,6 +86,7 @@ class SkillSettingsEndpoint(SeleneEndpoint):
                 device_names=new_skill_settings['deviceNames']
             )
             self.setting_repository.update_skill_settings(
+                self.account.id,
                 account_skill_settings,
                 self.request.json['skillIds']
             )

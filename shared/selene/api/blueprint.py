@@ -5,12 +5,11 @@ from http import HTTPStatus
 from flask import current_app, Blueprint, g as global_context
 from schematics.exceptions import DataError
 
-from selene.data.device import DeviceRepository
 from selene.data.metrics import ApiMetric, ApiMetricsRepository
 from selene.util.auth import AuthenticationError
 from selene.util.cache import DEVICE_LAST_CONTACT_KEY
 from selene.util.db import connect_to_db
-from selene.util.not_modified import NotModifiedError
+from selene.util.exceptions import NotModifiedException
 
 selene_api = Blueprint('selene_api', __name__)
 
@@ -25,8 +24,8 @@ def handle_data_error(error):
     return dict(error=str(error)), HTTPStatus.UNAUTHORIZED
 
 
-@selene_api.app_errorhandler(NotModifiedError)
-def handle_not_modified(error):
+@selene_api.app_errorhandler(NotModifiedException)
+def handle_not_modified(_):
     return '', HTTPStatus.NOT_MODIFIED
 
 

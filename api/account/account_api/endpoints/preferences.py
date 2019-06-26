@@ -6,7 +6,7 @@ from schematics.types import StringType
 
 from selene.api import SeleneEndpoint
 from selene.api.etag import ETagManager
-from selene.data.device import PreferenceRepository
+from selene.data.device import AccountPreferences, PreferenceRepository
 
 
 class PreferencesRequest(Model):
@@ -84,4 +84,5 @@ class PreferencesEndpoint(SeleneEndpoint):
 
     def _upsert_preferences(self):
         preferences_repository = PreferenceRepository(self.db, self.account.id)
-        preferences_repository.upsert(self.preferences.to_native())
+        preferences = AccountPreferences(**self.preferences.to_native())
+        preferences_repository.upsert(preferences)

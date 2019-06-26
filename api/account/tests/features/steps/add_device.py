@@ -36,13 +36,13 @@ def add_device(context):
     device = dict(
         city='Kansas City',
         country='United States',
-        name='home',
+        name='Selene Test Device',
         pairingCode=context.pairing_code,
-        placement='kitchen',
+        placement='Mycroft Offices',
         region='Missouri',
         timezone='America/Chicago',
-        wakeWord='Hey Mycroft',
-        voice='American Male'
+        wakeWord='Selene Test Wake Word',
+        voice='Selene Test Voice'
     )
     response = context.client.post(
         '/api/devices',
@@ -68,8 +68,8 @@ def validate_response(context):
     device = device_repository.get_device_by_id(device_id)
 
     assert_that(device, not_none())
-    assert_that(device.name, equal_to('home'))
-    assert_that(device.placement, equal_to('kitchen'))
+    assert_that(device.name, equal_to('Selene Test Device'))
+    assert_that(device.placement, equal_to('Mycroft Offices'))
     assert_that(device.account_id, equal_to(account.id))
 
 

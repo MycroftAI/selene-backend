@@ -1,9 +1,9 @@
 SELECT
-    ap.id,
-    ap.measurement_system,
-    ap.date_format,
-    ap.time_format
+    id,
+    measurement_system,
+    date_format,
+    time_format
 FROM
-    device.account_preferences ap
+    device.account_preferences
 WHERE
-    ap.account_id = %(account_id)s
+    account_id = %(account_id)s

@@ -13,12 +13,12 @@ metric_value = dict(
 )
 
 
-@given('an authorized device')
+@given('an existing device')
 def define_authorized_device(context):
     context.metric_device_id = context.device_login['uuid']
 
 
-@given('an unauthorized device')
+@given('a non-existent device')
 def define_unauthorized_device(context):
     context.metric_device_id = str(uuid.uuid4())
 

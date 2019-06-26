@@ -1,3 +1,5 @@
+from  dataclasses import asdict
+
 from ..entity.preference import AccountPreferences
 from ...repository_base import RepositoryBase
 
@@ -21,14 +23,11 @@ class PreferenceRepository(RepositoryBase):
 
         return preferences
 
-    def upsert(self, preferences):
+    def upsert(self, preferences: AccountPreferences):
+        db_request_args = dict(account_id=self.account_id)
+        db_request_args.update(asdict(preferences))
         db_request = self._build_db_request(
             sql_file_name='upsert_preferences.sql',
-            args=dict(
-                account_id=self.account_id,
-                date_format=preferences['date_format'],
-                measurement_system=preferences['measurement_system'],
-                time_format=preferences['time_format']
-            )
+            args=db_request_args
         )
         self.cursor.insert(db_request)

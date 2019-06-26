@@ -1,7 +1,7 @@
 from http import HTTPStatus
 from datetime import datetime
 
-from behave import then
+from behave import given, then
 from hamcrest import assert_that, equal_to, is_in, not_none
 
 from selene.util.cache import DEVICE_LAST_CONTACT_KEY
@@ -25,6 +25,14 @@ def check_request_success(context):
     )
 
 
+@then('the request will succeed with a "not modified" return code')
+def check_request_success(context):
+    assert_that(
+        context.response.status_code,
+        equal_to(HTTPStatus.NOT_MODIFIED)
+    )
+
+
 @then('the request will fail with {error_type} error')
 def check_for_bad_request(context, error_type):
     if error_type == 'a bad request':
@@ -39,3 +47,17 @@ def check_for_bad_request(context, error_type):
         )
     else:
         raise ValueError('unsupported error_type')
+
+
+@given('an authorized device')
+def build_request_header(context):
+    context.request_header = dict(
+        Authorization='Bearer {token}'.format(token=context.access_token)
+    )
+
+
+@given('an unauthorized device')
+def build_unauthorized_request_header(context):
+    context.request_header = dict(
+        Authorization='Bearer {token}'.format(token='bogus_token')
+    )

@@ -19,7 +19,7 @@ from .endpoints.device_refresh_token import DeviceRefreshTokenEndpoint
 from .endpoints.device_setting import DeviceSettingEndpoint
 from .endpoints.device_skill import DeviceSkillEndpoint
 from .endpoints.device_skill_manifest import DeviceSkillManifestEndpoint
-from .endpoints.device_skills import DeviceSkillsEndpoint
+from .endpoints.device_skill_settings import DeviceSkillsEndpoint
 from .endpoints.device_subscription import DeviceSubscriptionEndpoint
 from .endpoints.google_stt import GoogleSTTEndpoint
 from .endpoints.oauth_callback import OauthCallbackEndpoint

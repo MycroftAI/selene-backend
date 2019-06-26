@@ -4,7 +4,7 @@ from http import HTTPStatus
 from typing import List
 
 from selene.api import SeleneEndpoint
-from selene.data.device import DeviceSkill, DeviceSkillRepository
+from selene.data.device import DeviceSkillRepository, ManifestSkill
 from selene.util.auth import AuthenticationError
 
 VALID_STATUS_VALUES = (
@@ -36,7 +36,7 @@ class SkillInstallStatusEndpoint(SeleneEndpoint):
 
     def _get_installed_skills(self):
         skill_repo = DeviceSkillRepository(self.db)
-        installed_skills = skill_repo.get_installed_skills_for_account(
+        installed_skills = skill_repo.get_skill_manifest_for_account(
             self.account.id
         )
         for skill in installed_skills:
@@ -65,9 +65,9 @@ class SkillInstallStatusEndpoint(SeleneEndpoint):
 class SkillManifestAggregator(object):
     """Base class containing functionality shared by summary and detail"""
 
-    def __init__(self, installed_skills: List[DeviceSkill]):
+    def __init__(self, installed_skills: List[ManifestSkill]):
         self.installed_skills = installed_skills
-        self.aggregate_skill = DeviceSkill(**asdict(installed_skills[0]))
+        self.aggregate_skill = ManifestSkill(**asdict(installed_skills[0]))
 
     def aggregate_skill_status(self):
         """Aggregate skill data on all devices into a single skill.

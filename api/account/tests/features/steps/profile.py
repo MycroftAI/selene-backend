@@ -107,7 +107,7 @@ def validate_response(context):
         response_data['membership'], has_item('id')
     )
 
-    assert_that(len(response_data['agreements']), equal_to(2))
+    assert_that(len(response_data['agreements']), equal_to(3))
     agreement = response_data['agreements'][0]
     assert_that(agreement['type'], equal_to(PRIVACY_POLICY))
     assert_that(

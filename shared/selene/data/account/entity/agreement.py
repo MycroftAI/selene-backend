@@ -10,6 +10,6 @@ OPEN_DATASET = 'Open Dataset'
 class Agreement(object):
     type: str
     version: str
-    content: str
     effective_date: date
     id: str = None
+    content: str = None

@@ -112,7 +112,7 @@ for db_setup_file in DB_CREATE_FILES:
 postgres_db.close_db()
 
 
-template_db = PostgresDB(db_name='mycroft_template')
+template_db = PostgresDB(db_name='mycroft_template', user='mycroft')
 
 print('Creating the extensions')
 template_db.execute_sql(

@@ -1,5 +1,5 @@
 from datetime import date, timedelta
-from os import path
+from os import environ, path
 from logging import getLogger
 
 from psycopg2.extras import DateRange
@@ -34,10 +34,14 @@ class AgreementRepository(object):
         return agreement_id
 
     def _add_agreement_content(self, content):
-        large_object = self.db.lobject(0, 'b')
-        large_object.write(content)
+        if content is None:
+            agreement_oid = None
+        else:
+            large_object = self.db.lobject(0, 'b')
+            large_object.write(content)
+            agreement_oid = large_object.oid
 
-        return large_object.oid
+        return agreement_oid
 
     def _add_agreement(self, agreement: Agreement, content_id: int) -> str:
         date_range = DateRange(agreement.effective_date, None)
@@ -76,12 +80,13 @@ class AgreementRepository(object):
             _log.info('no active {} agreement to expire'.format(agreement.type))
 
     @use_transaction
-    def remove(self, agreement: Agreement, testing=False):
+    def remove(self, agreement: Agreement):
         """AGREEMENTS SHOULD NEVER BE REMOVED!  ONLY USE IN TEST CODE!"""
-        if testing:
+        if environ['SELENE_ENVIRONMENT'] == 'dev':
             content_id = self._get_agreement_content_id(agreement.id)
-            large_object = self.db.lobject(content_id)
-            large_object.unlink()
+            if content_id is not None:
+                large_object = self.db.lobject(content_id)
+                large_object.unlink()
             request = DatabaseRequest(
                 sql=get_sql_from_file(
                     path.join(SQL_DIR, 'delete_agreement.sql')
