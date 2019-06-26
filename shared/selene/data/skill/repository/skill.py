@@ -108,7 +108,6 @@ class SkillRepository(RepositoryBase):
         settings_display = json.dumps(skill)
         skill_settings_display_id = SettingsDisplayRepository(self.db).add(skill_id, settings_display)
         settings_value = json.dumps(settings_value)
-        DeviceSkillRepository(self.db).delete(device_id, skill_id)
         DeviceSkillRepository(self.db).add(device_id, skill_id, skill_settings_display_id, settings_value)
         return skill_id
 

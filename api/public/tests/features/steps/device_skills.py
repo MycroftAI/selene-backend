@@ -86,6 +86,13 @@ def create_skill_settings(context):
     device_id = login['uuid']
     access_token = login['accessToken']
     headers = dict(Authorization='Bearer {token}'.format(token=access_token))
+    # Same request being done twice to simulate a bug related to uniqueness violation
+    context.client.put(
+        '/v1/device/{uuid}/skill'.format(uuid=device_id),
+        data=json.dumps(skill),
+        content_type='application_json',
+        headers=headers
+    )
     context.upload_device_response = context.client.put(
         '/v1/device/{uuid}/skill'.format(uuid=device_id),
         data=json.dumps(skill),
