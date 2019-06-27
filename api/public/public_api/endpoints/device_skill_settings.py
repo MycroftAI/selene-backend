@@ -311,16 +311,14 @@ class DeviceSkillsEndpoint(PublicEndpoint):
 
         return skill_setting_updater.skill.id
 
-    def delete(self, device_id, skill_id):
+    def delete(self, device_id, skill_gid):
         self._authenticate(device_id)
-        settings_display_id = self._delete_skill_from_device(
-            device_id,
-            skill_id
-        )
+        skill = self.skill_repo.get_skill_by_global_id(skill_gid)
+        settings_display_id = self._delete_skill_from_device(device_id, skill)
         self._delete_orphaned_settings_display(settings_display_id)
         return '', HTTPStatus.OK
 
-    def _delete_skill_from_device(self, device_id, skill_id):
+    def _delete_skill_from_device(self, device_id, skill):
         settings_display_id = None
         device_skills = (
             self.device_skill_repo.get_device_skill_settings_for_device(
@@ -328,8 +326,8 @@ class DeviceSkillsEndpoint(PublicEndpoint):
             )
         )
         for device_skill in device_skills:
-            if device_skill.skill_id == skill_id:
-                self.device_skill_repo.remove(device_id, skill_id)
+            if device_skill.skill_id == skill.id:
+                self.device_skill_repo.remove(device_id, skill.id)
                 settings_display_id = device_skill.settings_display_id
 
         return settings_display_id

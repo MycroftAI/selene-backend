@@ -69,9 +69,9 @@ def update_skill_settings(context):
 def delete_skill(context):
     foo_skill, _ = context.skills['foo']
     context.response = context.client.delete(
-        '/v1/device/{device_id}/skill/{skill_id}'.format(
+        '/v1/device/{device_id}/skill/{skill_gid}'.format(
             device_id=context.device_id,
-            skill_id=foo_skill.id
+            skill_gid=foo_skill.skill_gid
         ),
         headers=context.request_header
     )

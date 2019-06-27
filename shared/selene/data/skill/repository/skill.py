@@ -32,7 +32,7 @@ class SkillRepository(RepositoryBase):
 
         return skills
 
-    def get_skill_by_global_id(self, skill_global_id):
+    def get_skill_by_global_id(self, skill_global_id) -> Skill:
         return self._select_one_into_dataclass(
             dataclass=Skill,
             sql_file_name='get_skill_by_global_id.sql',
