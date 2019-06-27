@@ -6,8 +6,7 @@ CREATE TABLE metrics.api_history (
     duration    INTEGER     NOT NULL,
     http_status CHAR(3)     NOT NULL,
     account_id  uuid,
-    device_id   uuid,
-    UNIQUE (url, access_ts)
+    device_id   uuid
 )
 PARTITION BY RANGE
     (access_ts)
