@@ -6,7 +6,6 @@ jobs, such as argument parsing, logging setup and database connectivity.
 """
 from argparse import ArgumentParser
 from datetime import date, datetime
-from logging import getLogger
 from os import environ, path
 import sys
 
@@ -21,8 +20,7 @@ class SeleneScript(object):
 
     def __init__(self, job_file_path):
         self._job_file_path = job_file_path
-        configure_logger(self.job_name)
-        self.log = getLogger(self.job_name)
+        self.log = configure_logger(self.job_name)
         self._arg_parser = ArgumentParser()
         self.args = None
         self.start_ts = datetime.now()

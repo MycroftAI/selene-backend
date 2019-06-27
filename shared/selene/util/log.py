@@ -34,12 +34,12 @@ from logging import (
 
 class LoggingConfig(object):
     """Configure a logger with a daily log file and a console log"""
-    def __init__(self, log_file_name):
-        self.logger = getLogger()
+    def __init__(self, logger_name):
+        self.logger = getLogger(logger_name)
         self.logger.level = DEBUG
         self.file_log_level = DEBUG
         self.console_log_level = INFO
-        self.log_file_path = path.join('/var/log/mycroft', log_file_name)
+        self.log_file_path = path.join('/var/log/mycroft', logger_name + '.log')
         self.log_msg_formatter = Formatter(
             '{asctime} | {levelname:8} | {process:5} | {name} | {message}',
             style='{'
@@ -75,7 +75,7 @@ class LoggingConfig(object):
 
 def configure_logger(logger_name: str):
     """helper function that returns a logger using the base config"""
-    logging_config = LoggingConfig(logger_name + '.log')
+    logging_config = LoggingConfig(logger_name)
     logging_config.configure()
 
     return logging_config.logger
