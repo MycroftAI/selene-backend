@@ -44,4 +44,5 @@ class UpdateDeviceLastContact(SeleneScript):
         return last_contact_ts
 
 
-UpdateDeviceLastContact().run()
+if __name__ == '__main__':
+    UpdateDeviceLastContact().run()

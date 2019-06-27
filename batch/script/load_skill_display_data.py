@@ -79,4 +79,5 @@ class SkillDisplayUpdater(SeleneScript):
         self.log.info("updated {} skills".format(skill_count))
 
 
-SkillDisplayUpdater().run()
+if __name__ == '__main__':
+    SkillDisplayUpdater().run()
