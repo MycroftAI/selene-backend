@@ -1,4 +1,9 @@
+"""Copy api metrics from a transient table to a partitioned table.
 
+Millions of rows per day are added to the metrics.api table.  To help with
+query performance, copy the rows from this table to a partitioned table on a
+daily basis.
+"""
 from selene.batch.base import SeleneScript
 from selene.data.metrics import ApiMetricsRepository
 from selene.util.db import use_transaction
