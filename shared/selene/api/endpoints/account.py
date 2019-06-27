@@ -23,6 +23,7 @@ from selene.data.account import (
 )
 from selene.util.auth import (
     get_facebook_account_email,
+    get_github_account_email,
     get_google_account_email
 )
 from selene.util.cache import SeleneCache
@@ -45,7 +46,7 @@ def agreement_accepted(value):
 
 
 class Login(Model):
-    federated_platform = StringType(choices=['Facebook', 'Google'])
+    federated_platform = StringType(choices=['Facebook', 'Google', 'GitHub'])
     federated_token = StringType()
     email = EmailType()
     password = StringType()
@@ -210,6 +211,10 @@ class AccountEndpoint(SeleneEndpoint):
         elif login_data['federated_platform'] == 'Google':
             email_address = get_google_account_email(
                 login_data['federated_token']
+            )
+        elif self.request.args['platform'] == 'GitHub':
+            email_address = get_github_account_email(
+                self.request.args['federated_token']
             )
         else:
             email_address = login_data['email']

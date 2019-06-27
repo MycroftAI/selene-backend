@@ -35,12 +35,15 @@ class RepositoryBase(object):
         self.cursor = Cursor(db)
         self.sql_dir = path.join(path.dirname(repository_path), 'sql')
 
-    def _build_db_request(self, sql_file_name: str, args: dict = None):
+    def _build_db_request(
+            self, sql_file_name: str, args: dict = None, sql_vars: dict = None
+    ):
         """Build a DatabaseRequest object containing a query and args"""
-        return DatabaseRequest(
-            sql=get_sql_from_file(path.join(self.sql_dir, sql_file_name)),
-            args=args
-        )
+        sql = get_sql_from_file(path.join(self.sql_dir, sql_file_name))
+        if sql_vars is not None:
+            sql = sql.format(**sql_vars)
+
+        return DatabaseRequest(sql, args)
 
     def _build_db_batch_request(self, sql_file_name: str, args: List[dict]):
         """Build a DatabaseBatchRequest object containing a query and args"""

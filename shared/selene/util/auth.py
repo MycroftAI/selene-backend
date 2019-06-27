@@ -79,13 +79,17 @@ def get_facebook_account_email(token: str) -> str:
 
 
 def get_github_account_email(token: str) -> str:
+    github_email = None
     github_user = requests.get(
-        'https://api.github.com/user',
+        'https://api.github.com/user/emails',
         headers=dict(Authorization='token ' + token, Accept='application/json')
     )
-    response_content = json.loads(github_user.content)
+    if github_user.status_code == HTTPStatus.OK:
+        for email in json.loads(github_user.content):
+            if email['primary']:
+                github_email = email['email']
 
-    return response_content['email']
+    return github_email
 
 
 def get_github_authentication_token(access_code: str, state: str) -> str:
