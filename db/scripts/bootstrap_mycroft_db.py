@@ -47,6 +47,7 @@ GEOGRAPHY_TABLE_ORDER = (
 
 METRICS_TABLE_ORDER = (
     'api',
+    'api_history,'
     'job',
     'core'
 )
