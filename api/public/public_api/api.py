@@ -39,7 +39,7 @@ public.response_class = SeleneResponse
 public.register_blueprint(selene_api)
 
 public.add_url_rule(
-    '/v1/device/<string:device_id>/skill/<string:skill_id>',
+    '/v1/device/<string:device_id>/skill/<string:skill_gid>',
     view_func=DeviceSkillsEndpoint.as_view('device_skill_delete_api'),
     methods=['DELETE']
 )
