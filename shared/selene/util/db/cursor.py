@@ -86,7 +86,7 @@ class Cursor(object):
         """
         return self._fetch(db_request)
 
-    def _execute(self, db_request: DatabaseRequest):
+    def execute(self, db_request: DatabaseRequest):
         """Fetch all or one row from the database.
 
         :param db_request: parameters used to determine how to fetch the data
@@ -106,12 +106,12 @@ class Cursor(object):
 
     def delete(self, db_request: DatabaseRequest):
         """Helper function for SQL delete statements"""
-        deleted_rows = self._execute(db_request)
+        deleted_rows = self.execute(db_request)
         return deleted_rows
 
     def insert(self, db_request: DatabaseRequest):
         """Helper functions for SQL insert statements"""
-        self._execute(db_request)
+        self.execute(db_request)
 
     def insert_returning(self, db_request: DatabaseRequest):
         """Helper function for SQL inserts returning values."""
@@ -119,8 +119,36 @@ class Cursor(object):
 
     def update(self, db_request: DatabaseRequest):
         """Helper function for SQL update statements."""
-        updated_rows = self._execute(db_request)
+        updated_rows = self.execute(db_request)
         return updated_rows
 
     def batch_update(self, db_request: DatabaseBatchRequest):
         self._execute_batch(db_request)
+
+    def dump_query_result_to_file(
+            self, db_request: DatabaseRequest, dump_file_path: str
+    ) -> int:
+        with self.db.cursor() as cursor:
+            query = cursor.mogrify(db_request.sql, db_request.args).decode()
+            copy_command = "COPY ({query}) TO STDOUT".format(query=query)
+            _log.debug('dumping results of "{query}" to {file_path}'.format(
+                query=query,
+                file_path=dump_file_path
+            ))
+            with open(dump_file_path, 'w') as dump_file:
+                cursor.copy_expert(copy_command, dump_file)
+            _log.debug(str(cursor.rowcount) + ' rows copied to dump file')
+
+            return cursor.rowcount
+
+    def load_dump_file_to_table(self, table_name: str, dump_file_path: str):
+        with self.db.cursor() as cursor:
+            _log.debug('loading {file_path} into the {table} table'.format(
+                file_path=dump_file_path,
+                table=table_name
+            ))
+            with open(dump_file_path) as dump_file:
+                cursor.copy_from(dump_file, table_name)
+            _log.debug(str(cursor.rowcount) + ' rows copied to table')
+
+            return cursor.rowcount
