@@ -92,8 +92,8 @@ class SkillSettingUpdater(object):
     def _get_skill_id(self):
         """Get the id of the skill in the request"""
         skill_global_id = (
-                self.display_data['skill_gid'] or
-                self.display_data['identifier']
+                self.display_data.get('skill_gid') or
+                self.display_data.get('identifier')
         )
         skill_repo = SkillRepository(self.db)
         self.skill = skill_repo.get_skill_by_global_id(skill_global_id)
