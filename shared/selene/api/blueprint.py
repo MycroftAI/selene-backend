@@ -73,7 +73,7 @@ def add_api_metric(http_status):
             account_id=account_id,
             api=api,
             device_id=device_id,
-            duration=Decimal(duration.total_seconds()),
+            duration=Decimal(str(duration.total_seconds())),
             http_status=int(http_status),
             url=global_context.url
         )
