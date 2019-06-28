@@ -1,5 +1,6 @@
 import json
 from datetime import datetime
+from decimal import Decimal
 from http import HTTPStatus
 
 from flask import current_app, Blueprint, g as global_context
@@ -66,12 +67,13 @@ def add_api_metric(http_status):
         else:
             device_id = None
 
+        duration = (datetime.utcnow() - global_context.start_ts)
         api_metric = ApiMetric(
             access_ts=datetime.utcnow(),
             account_id=account_id,
             api=api,
             device_id=device_id,
-            duration=(datetime.utcnow() - global_context.start_ts).microseconds,
+            duration=Decimal(duration.total_seconds()),
             http_status=int(http_status),
             url=global_context.url
         )
