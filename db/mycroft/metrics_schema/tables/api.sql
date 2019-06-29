@@ -5,7 +5,7 @@ CREATE TABLE metrics.api (
     access_ts   timestamp   NOT NULL
             DEFAULT now(),
     api         text        NOT NULL,
-    duration    INTEGER     NOT NULL,
+    duration    NUMERIC     NOT NULL,
     http_status CHAR(3)     NOT NULL,
     account_id  uuid,
     device_id   uuid

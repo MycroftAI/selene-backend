@@ -3,7 +3,7 @@ CREATE TABLE metrics.api_history (
     url         text        NOT NULL,
     access_ts   timestamp   NOT NULL,
     api         text        NOT NULL,
-    duration    INTEGER     NOT NULL,
+    duration    NUMERIC     NOT NULL,
     http_status CHAR(3)     NOT NULL,
     account_id  uuid,
     device_id   uuid
