@@ -5,7 +5,7 @@ from markdown import markdown
 from psycopg2 import connect
 
 MYCROFT_DB_DIR = path.join(path.abspath('..'), 'mycroft')
-SCHEMAS = ('account', 'skill', 'device', 'geography', 'metrics')
+SCHEMAS = ('account', 'skill', 'device', 'geography', 'metric')
 DB_DESTROY_FILES = (
     'drop_mycroft_db.sql',
     'drop_template_db.sql',
@@ -45,7 +45,7 @@ GEOGRAPHY_TABLE_ORDER = (
     'city'
 )
 
-METRICS_TABLE_ORDER = (
+METRIC_TABLE_ORDER = (
     'api',
     'api_history,'
     'job',
@@ -184,7 +184,7 @@ for table in DEVICE_TABLE_ORDER:
 print('Creating the metrics schema tables')
 for table in METRICS_TABLE_ORDER:
     create_table_file = path.join(
-        'metrics_schema',
+        'metric_schema',
         'tables',
         table + '.sql'
     )

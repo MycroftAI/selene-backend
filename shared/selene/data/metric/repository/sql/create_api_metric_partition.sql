@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS
-    metrics.api_history_{partition}
+    metric.api_history_{partition}
 PARTITION OF
     metrics.api_history
 FOR VALUES FROM

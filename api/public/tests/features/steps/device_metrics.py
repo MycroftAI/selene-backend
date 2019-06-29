@@ -4,7 +4,7 @@ import uuid
 from behave import given, then, when
 from hamcrest import assert_that, equal_to
 
-from selene.data.metrics import CoreMetricRepository
+from selene.data.metric import CoreMetricRepository
 
 METRIC_TYPE_TIMING = 'timing'
 metric_value = dict(
@@ -23,7 +23,7 @@ def define_unauthorized_device(context):
     context.metric_device_id = str(uuid.uuid4())
 
 
-@when('the metrics endpoint is called')
+@when('the metric endpoint is called')
 def call_metrics_endpoint(context):
     headers = dict(Authorization='Bearer {token}'.format(
         token=context.device_login['accessToken'])

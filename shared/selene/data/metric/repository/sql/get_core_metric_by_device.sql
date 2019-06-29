@@ -5,6 +5,6 @@ SELECT
     insert_ts,
     metric_value
 FROM
-    metrics.core
+    metric.core
 WHERE
     device_id = %(device_id)s

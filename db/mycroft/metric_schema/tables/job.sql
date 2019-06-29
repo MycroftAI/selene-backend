@@ -1,4 +1,4 @@
-CREATE TABLE metrics.job (
+CREATE TABLE metric.job (
     id          uuid        PRIMARY KEY
             DEFAULT gen_random_uuid(),
     job_name    text        NOT NULL,

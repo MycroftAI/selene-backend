@@ -1,5 +1,5 @@
 INSERT INTO
-    metrics.job
+    metric.job
 VALUES (
     DEFAULT,
     %(job_name)s,

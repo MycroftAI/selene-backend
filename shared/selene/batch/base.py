@@ -9,7 +9,7 @@ from datetime import date, datetime
 from os import environ, path
 import sys
 
-from selene.data.metrics import JobMetric, JobRepository
+from selene.data.metric import JobMetric, JobRepository
 from selene.util.db import DatabaseConnectionConfig, connect_to_db
 from selene.util.log import configure_logger
 
@@ -96,7 +96,7 @@ class SeleneScript(object):
         self.log.info('* * * * *  END OF JOB  * * * * *')
 
     def _insert_metrics(self):
-        """Add a row to the job metrics table for monitoring purposes."""
+        """Add a row to the job metric table for monitoring purposes."""
         if self.args is not None:
             job_repository = JobRepository(self.db)
             job_metric = JobMetric(

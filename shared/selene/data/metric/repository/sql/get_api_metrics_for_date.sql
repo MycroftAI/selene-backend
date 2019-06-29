@@ -1,6 +1,6 @@
 SELECT
     *
 FROM
-    metrics.api
+    metric.api
 WHERE
     access_ts::date = %(metrics_date)s

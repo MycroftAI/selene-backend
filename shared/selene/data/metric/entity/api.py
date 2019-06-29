@@ -9,6 +9,7 @@ class ApiMetric(object):
     access_ts: datetime
     api: str
     duration: Decimal
+    http_method: str
     http_status: int
     id: str = None
     account_id: str = None

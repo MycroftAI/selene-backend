@@ -2,11 +2,11 @@ from datetime import datetime
 from http import HTTPStatus
 
 from selene.api import PublicEndpoint
-from selene.data.metrics import CoreMetric, CoreMetricRepository
+from selene.data.metric import CoreMetric, CoreMetricRepository
 
 
 class DeviceMetricsEndpoint(PublicEndpoint):
-    """Endpoint to communicate with the metrics service"""
+    """Endpoint to communicate with the metric service"""
 
     def post(self, device_id, metric):
         self._authenticate(device_id)

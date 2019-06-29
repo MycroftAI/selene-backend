@@ -83,9 +83,10 @@ class PublicEndpoint(MethodView):
     """Abstract class for all endpoints used by Mycroft devices"""
 
     def __init__(self):
+        global_context.url = request.url
+        global_context.http_method = request.method
         self.config: dict = current_app.config
         self.request = request
-        global_context.url = request.url
         self.cache: SeleneCache = self.config['SELENE_CACHE']
         global_context.cache = self.cache
         self.etag_manager: ETagManager = ETagManager(self.cache, self.config)

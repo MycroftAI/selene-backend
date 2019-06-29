@@ -6,7 +6,7 @@ from http import HTTPStatus
 from flask import current_app, Blueprint, g as global_context
 from schematics.exceptions import DataError
 
-from selene.data.metrics import ApiMetric, ApiMetricsRepository
+from selene.data.metric import ApiMetric, ApiMetricsRepository
 from selene.util.auth import AuthenticationError
 from selene.util.cache import DEVICE_LAST_CONTACT_KEY
 from selene.util.db import connect_to_db
@@ -44,9 +44,9 @@ def teardown_request(response):
 
 
 def add_api_metric(http_status):
-    """Add a row to the table tracking metrics for API calls"""
+    """Add a row to the table tracking metric for API calls"""
     api = None
-    # We are not logging metrics for the public API until after the socket
+    # We are not logging metric for the public API until after the socket
     # implementation to avoid putting millions of rows a day on the table
     for api_name in ('account', 'sso', 'market', 'public'):
         if api_name in current_app.name:
@@ -74,6 +74,7 @@ def add_api_metric(http_status):
             api=api,
             device_id=device_id,
             duration=Decimal(str(duration.total_seconds())),
+            http_method=global_context.http_method,
             http_status=int(http_status),
             url=global_context.url
         )

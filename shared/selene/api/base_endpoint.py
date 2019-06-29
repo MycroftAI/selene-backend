@@ -31,10 +31,11 @@ class SeleneEndpoint(MethodView):
         -  override the _build_response_data method
     """
     def __init__(self):
+        global_context.url = request.url
+        global_context.http_method = request.method
         self.config: dict = current_app.config
         self.request = request
         self.response: tuple = None
-        global_context.url = request.url
         self.account: Account = None
         self.access_token = self._init_access_token()
         self.refresh_token = self._init_refresh_token()
