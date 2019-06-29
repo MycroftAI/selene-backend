@@ -35,7 +35,7 @@ from logging import (
 class LoggingConfig(object):
     """Configure a logger with a daily log file and a console log"""
     def __init__(self, logger_name):
-        self.logger = getLogger(logger_name)
+        self.logger = getLogger()
         self.logger.level = DEBUG
         self.file_log_level = DEBUG
         self.console_log_level = INFO
@@ -78,4 +78,4 @@ def configure_logger(logger_name: str):
     logging_config = LoggingConfig(logger_name)
     logging_config.configure()
 
-    return logging_config.logger
+    return getLogger(logger_name)
