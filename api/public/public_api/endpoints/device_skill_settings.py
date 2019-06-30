@@ -12,6 +12,7 @@ from selene.data.device import DeviceSkillRepository
 from selene.data.skill import (
     SettingsDisplay,
     SettingsDisplayRepository,
+    Skill,
     SkillRepository,
     SkillSettingRepository
 )
@@ -96,7 +97,8 @@ class SkillSettingUpdater(object):
                 self.display_data.get('identifier')
         )
         skill_repo = SkillRepository(self.db)
-        self.skill = skill_repo.get_skill_by_global_id(skill_global_id)
+        skill_id = skill_repo.ensure_skill_exists(skill_global_id)
+        self.skill = Skill(skill_global_id, skill_id)
 
     def _ensure_settings_display_exists(self) -> bool:
         """If the settings display changed, a new row needs to be added."""
@@ -141,7 +143,7 @@ class SkillSettingUpdater(object):
                 )
 
 
-class SkillField(Model):
+class RequestSkillField(Model):
     name = StringType()
     type = StringType()
     label = StringType()
@@ -152,26 +154,26 @@ class SkillField(Model):
     options = StringType()
 
 
-class SkillSection(Model):
+class RequestSkillSection(Model):
     name = StringType(required=True)
-    fields = ListType(ModelType(SkillField))
+    fields = ListType(ModelType(RequestSkillField))
 
 
-class SkillMetadata(Model):
-    sections = ListType(ModelType(SkillSection))
+class RequestSkillMetadata(Model):
+    sections = ListType(ModelType(RequestSkillSection))
 
 
-class SkillIcon(Model):
+class RequestSkillIcon(Model):
     color = StringType()
     icon = StringType()
 
 
-class Skill(Model):
+class RequestSkill(Model):
     name = StringType()
     skill_gid = StringType(regex=GLOBAL_ID_ANY_PATTERN)
-    skillMetadata = ModelType(SkillMetadata)
+    skillMetadata = ModelType(RequestSkillMetadata)
     icon_img = StringType()
-    icon = ModelType(SkillIcon)
+    icon = ModelType(RequestSkillIcon)
     display_name = StringType()
     color = StringType()
     identifier = StringType()
@@ -295,7 +297,7 @@ class DeviceSkillsEndpoint(PublicEndpoint):
         return dict(uuid=skill_id), HTTPStatus.OK
 
     def _validate_put_request(self):
-        skill = Skill(self.request.json)
+        skill = RequestSkill(self.request.json)
         skill.validate()
 
     def _update_skill_settings(self, device_id):

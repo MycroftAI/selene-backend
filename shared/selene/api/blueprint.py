@@ -3,7 +3,7 @@ from datetime import datetime
 from decimal import Decimal
 from http import HTTPStatus
 
-from flask import current_app, Blueprint, g as global_context
+from flask import current_app, Blueprint, g as global_context, request
 from schematics.exceptions import DataError
 
 from selene.data.metric import ApiMetric, ApiMetricsRepository
@@ -74,7 +74,7 @@ def add_api_metric(http_status):
             api=api,
             device_id=device_id,
             duration=Decimal(str(duration.total_seconds())),
-            http_method=global_context.http_method,
+            http_method=request.method,
             http_status=int(http_status),
             url=global_context.url
         )

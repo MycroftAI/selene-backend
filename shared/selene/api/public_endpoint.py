@@ -84,7 +84,6 @@ class PublicEndpoint(MethodView):
 
     def __init__(self):
         global_context.url = request.url
-        global_context.http_method = request.method
         self.config: dict = current_app.config
         self.request = request
         self.cache: SeleneCache = self.config['SELENE_CACHE']
