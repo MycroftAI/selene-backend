@@ -1,3 +1,5 @@
+import os
+
 from behave import fixture, use_fixture
 
 from public_api.api import public
@@ -150,8 +152,16 @@ def _add_device_specific_skill(context):
 def after_tag(context, tag):
     if tag == 'new_skill':
         _delete_new_skill(context)
+    elif tag == 'stt':
+        _delete_stt_tagging_files()
 
 
 def _delete_new_skill(context):
     remove_device_skill(context.db, context.new_manifest_skill)
     remove_skill(context.db, context.new_skill)
+
+
+def _delete_stt_tagging_files():
+    data_dir = '/opt/selene/data'
+    for file_name in os.listdir(data_dir):
+        os.remove(os.path.join(data_dir, file_name))

@@ -89,6 +89,7 @@ class PublicEndpoint(MethodView):
         self.cache: SeleneCache = self.config['SELENE_CACHE']
         global_context.cache = self.cache
         self.etag_manager: ETagManager = ETagManager(self.cache, self.config)
+        self.device_id = None
 
     @property
     def db(self):
@@ -112,6 +113,7 @@ class PublicEndpoint(MethodView):
                 session = json.loads(session)
                 device_uuid = session['uuid']
                 global_context.device_id = device_uuid
+                self.device_id = device_uuid
                 if device_id is not None:
                     device_authenticated = (device_id == device_uuid)
                 else:
