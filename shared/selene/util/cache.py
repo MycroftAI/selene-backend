@@ -4,6 +4,7 @@ from redis import Redis
 
 DEVICE_LAST_CONTACT_KEY = 'device:last_contact:{device_id}'
 DEVICE_SKILL_ETAG_KEY = 'device.skill.etag:{device_id}'
+DEVICE_PAIRING_CODE_KEY = 'pairing.code:{pairing_code}'
 
 
 class SeleneCache(object):
@@ -14,9 +15,17 @@ class SeleneCache(object):
         redis_port = int(os.environ['REDIS_PORT'])
         self.redis = Redis(host=redis_host, port=redis_port)
 
-    def set_if_not_exists_with_expiration(self, key, value, expiration: int):
-        """Sets a key only if it doesn't exist and using a given expiration time"""
+    def set_if_not_exists_with_expiration(
+            self, key: str, value: str, expiration: int
+    ) -> bool:
+        """Sets a key only if it doesn't exist and using a given expiration time
+
+        :return True if the set operation is successful, False if not.  Will
+            return False if the value already exists for this key
+        """
         if expiration > 0:
+            # Setting the "nx" argument to True will ensure the set will fail
+            # if a value already exists for this key.
             return self.redis.set(name=key, value=value, ex=expiration, nx=True)
 
     def set_with_expiration(self, key, value, expiration: int):
