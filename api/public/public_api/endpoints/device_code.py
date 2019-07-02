@@ -2,54 +2,64 @@ import hashlib
 import json
 import random
 import uuid
+from http import HTTPStatus
 
 from selene.api import PublicEndpoint
+from selene.util.cache import DEVICE_PAIRING_CODE_KEY
+
+ONE_DAY = 86400
 
 
 class DeviceCodeEndpoint(PublicEndpoint):
     """Endpoint to get a pairing code"""
 
-    # We need to do that to avoid ambiguous characters, like 0 and O, that is even harder to distinguish
-    # in the display of the mark 1
-    ALLOWED_CHARACTERS = "ACEFHJKLMNPRTUVWXY3479"
+    # We need to do that to avoid ambiguous characters, like 0 and O, that
+    # is even harder to distinguish in the display of the mark 1
+    allowed_characters = "ACEFHJKLMNPRTUVWXY3479"
 
     def __init__(self):
         super(DeviceCodeEndpoint, self).__init__()
-        self.device_pairing_time = 86400
-        self.sha512 = hashlib.sha512()
 
     def get(self):
-        # The pairing process happens in two steps, the step where we get the pairing code and
-        # the step to activate the device. The state parameter is used to make sure that the device that is
-        # trying to be activate is the device which started the previous step
-        state = self.request.args['state']
-        return self._create(state)
+        """Return a pairing code to the requesting device.
 
-    def _create(self, state):
-        self.sha512.update(bytes(str(uuid.uuid4()), 'utf-8'))
-        token = self.sha512.hexdigest()
-        code = self._pairing_code()
-        pairing = {
-            'code': code,
-            'state': state,
-            'token': token,
-            'expiration': self.device_pairing_time
-        }
-        pairing_json = json.dumps(pairing)
-        # This is to deal with the case where we generate a pairing code that already exists in the
-        # cache, meaning another device is trying to pairing using the same code. In this case, we should
-        # call the method again to get another random pairing code
-        if self.cache.set_if_not_exists_with_expiration(self._code_key(code),
-                                                        value=pairing_json,
-                                                        expiration=self.device_pairing_time):
-            response = pairing
-        else:
-            response = self._create(state)
-        return response
+        The pairing process happens in two steps.  First step generates
+        pairing code.  Second step uses the pairing code to activate the device.
+        The state parameter is used to make sure that the device that is
+        """
+        response_data = self._build_response()
+        return response_data, HTTPStatus.OK
+
+    def _build_response(self):
+        """
+        Build the response data to return to the device.
+
+        The pairing code generated may already exist for another device. So,
+        continue to generate pairing codes until one that does not already
+        exist is created.
+        """
+        response_data = dict(
+            state=self.request.args['state'],
+            token=self._generate_token(),
+            expiration=ONE_DAY
+        )
+        pairing_code_added = False
+        while not pairing_code_added:
+            pairing_code = self._generate_pairing_code()
+            response_data.update(code=pairing_code)
+            pairing_code_added = self.cache.set_if_not_exists_with_expiration(
+                DEVICE_PAIRING_CODE_KEY.format(pairing_code=pairing_code),
+                value=json.dumps(response_data),
+                expiration=ONE_DAY
+            )
+
+        return response_data
 
     @staticmethod
-    def _code_key(code):
-        return 'pairing.code:{}'.format(code)
+    def _generate_token():
+        sha512 = hashlib.sha512()
+        sha512.update(bytes(str(uuid.uuid4()), 'utf-8'))
+        return sha512.hexdigest()
 
-    def _pairing_code(self):
-        return ''.join(random.choice(self.ALLOWED_CHARACTERS) for _ in range(6))
+    def _generate_pairing_code(self):
+        return ''.join(random.choice(self.allowed_characters) for _ in range(6))
