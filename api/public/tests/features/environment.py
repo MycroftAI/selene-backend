@@ -62,9 +62,10 @@ def before_scenario(context, _):
         _add_skills(context)
         _add_device(context)
         _add_device_skills(context)
-    except:
+    except Exception as e:
         import traceback
-        print(traceback.print_exc())
+        print(traceback.format_exc())
+        print(traceback.format_stack())
 
 
 def after_scenario(context, _):
