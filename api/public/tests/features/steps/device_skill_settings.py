@@ -6,6 +6,7 @@ from hamcrest import assert_that, equal_to, is_not, is_in
 from selene.api.etag import ETAG_REQUEST_HEADER_KEY
 from selene.data.device import DeviceSkillRepository
 from selene.data.skill import SkillSettingRepository
+from selene.testing.skill import add_skill, build_label_field, build_text_field
 from selene.util.cache import DEVICE_SKILL_ETAG_KEY
 
 
@@ -41,6 +42,19 @@ def expire_skill_setting_etag(context):
     )
 
 
+@given('settings for a skill not assigned to the device')
+def add_skill_not_assigned_to_device(context):
+    foobar_skill, foobar_settings_display = add_skill(
+        context.db,
+        skill_global_id='foobar-skill|19.02',
+        settings_fields=[build_label_field(), build_text_field()]
+    )
+    section = foobar_settings_display.display_data['skillMetadata']['sections'][0]
+    field_with_value = section['fields'][1]
+    field_with_value['value'] = 'New skill text value'
+    context.skills.update(foobar=(foobar_skill, foobar_settings_display))
+
+
 @when('a device requests the settings for its skills')
 def get_device_skill_settings(context):
     if hasattr(context, 'device_skill_etag'):
@@ -54,12 +68,12 @@ def get_device_skill_settings(context):
     )
 
 
-@when('the device sends a request to update the skill settings')
-def update_skill_settings(context):
-    _, bar_settings_display = context.skills['bar']
+@when('the device sends a request to update the {skill} skill settings')
+def update_skill_settings(context, skill):
+    _, settings_display = context.skills[skill]
     context.response = context.client.put(
         '/v1/device/{device_id}/skill'.format(device_id=context.device_id),
-        data=json.dumps(bar_settings_display.display_data),
+        data=json.dumps(settings_display.display_data),
         content_type='application/json',
         headers=context.request_header
     )
@@ -125,6 +139,23 @@ def validate_updated_skill_setting_value(context):
     ]
     assert_that(len(device_skill_settings), equal_to(2))
     expected_settings_values = dict(textfield='New device text value')
+    assert_that(
+        expected_settings_values,
+        is_in(device_settings_values)
+    )
+
+
+@then('the skill is assigned to the device with the settings populated')
+def validate_updated_skill_setting_value(context):
+    settings_repo = SkillSettingRepository(context.db)
+    device_skill_settings = settings_repo.get_skill_settings_for_device(
+        context.device_id
+    )
+    device_settings_values = [
+        dss.settings_values for dss in device_skill_settings
+    ]
+    assert_that(len(device_skill_settings), equal_to(3))
+    expected_settings_values = dict(textfield='New skill text value')
     assert_that(
         expected_settings_values,
         is_in(device_settings_values)

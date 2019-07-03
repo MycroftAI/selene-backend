@@ -13,12 +13,12 @@ class DeviceSkillRepository(RepositoryBase):
         super(DeviceSkillRepository, self).__init__(db, __file__)
 
     def get_device_skill_settings_for_account(
-            self, account_id: str
+            self, account_id: str, skill_id: str
     ) -> List[DeviceSkillSettings]:
         return self._select_all_into_dataclass(
             DeviceSkillSettings,
             sql_file_name='get_device_skill_settings_for_account.sql',
-            args=dict(account_id=account_id)
+            args=dict(account_id=account_id, skill_id=skill_id)
         )
 
     def get_device_skill_settings_for_device(
@@ -43,22 +43,23 @@ class DeviceSkillRepository(RepositoryBase):
         )
         self.cursor.update(db_request)
 
-    def update_device_skill_settings(
+    def upsert_device_skill_settings(
             self,
             device_ids: List[str],
             settings_display: SettingsDisplay,
             settings_values: str,
     ):
-        db_request = self._build_db_request(
-            sql_file_name='update_device_skill_settings.sql',
-            args=dict(
-                device_ids=tuple(device_ids),
-                skill_id=settings_display.skill_id,
-                settings_values=json.dumps(settings_values),
-                settings_display_id=settings_display.id
+        for device_id in device_ids:
+            db_request = self._build_db_request(
+                sql_file_name='upsert_device_skill_settings.sql',
+                args=dict(
+                    device_id=device_id,
+                    skill_id=settings_display.skill_id,
+                    settings_values=json.dumps(settings_values),
+                    settings_display_id=settings_display.id
+                )
             )
-        )
-        self.cursor.update(db_request)
+            self.cursor.insert(db_request)
 
     def get_skill_manifest_for_device(
             self, device_id: str

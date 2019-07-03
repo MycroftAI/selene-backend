@@ -19,7 +19,7 @@ from .endpoints.device_refresh_token import DeviceRefreshTokenEndpoint
 from .endpoints.device_setting import DeviceSettingEndpoint
 from .endpoints.device_skill import DeviceSkillEndpoint
 from .endpoints.device_skill_manifest import DeviceSkillManifestEndpoint
-from .endpoints.device_skill_settings import DeviceSkillsEndpoint
+from .endpoints.device_skill_settings import DeviceSkillSettingsEndpoint
 from .endpoints.device_subscription import DeviceSubscriptionEndpoint
 from .endpoints.google_stt import GoogleSTTEndpoint
 from .endpoints.oauth_callback import OauthCallbackEndpoint
@@ -40,13 +40,13 @@ public.register_blueprint(selene_api)
 
 public.add_url_rule(
     '/v1/device/<string:device_id>/skill/<string:skill_gid>',
-    view_func=DeviceSkillsEndpoint.as_view('device_skill_delete_api'),
+    view_func=DeviceSkillSettingsEndpoint.as_view('device_skill_delete_api'),
     methods=['DELETE']
 )
 
 public.add_url_rule(
     '/v1/device/<string:device_id>/skill',
-    view_func=DeviceSkillsEndpoint.as_view('device_skill_api'),
+    view_func=DeviceSkillSettingsEndpoint.as_view('device_skill_api'),
     methods=['GET', 'PUT']
 )
 

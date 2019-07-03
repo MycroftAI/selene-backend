@@ -9,6 +9,7 @@ FROM
     INNER JOIN device.device_skill dds ON dd.id = dds.device_id
 WHERE
     dd.account_id = %(account_id)s
+    AND dds.skill_id = %(skill_id)s
 GROUP BY
     dds.skill_settings_display_id,
     dds.settings::jsonb,

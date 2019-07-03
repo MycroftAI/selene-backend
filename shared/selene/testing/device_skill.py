@@ -22,7 +22,7 @@ def add_device_skill(db, device_id, skill):
 
 def add_device_skill_settings(db, device_id, settings_display, settings_values):
     device_skill_repo = DeviceSkillRepository(db)
-    device_skill_repo.update_device_skill_settings(
+    device_skill_repo.upsert_device_skill_settings(
         [device_id],
         settings_display,
         settings_values

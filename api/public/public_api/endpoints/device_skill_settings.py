@@ -66,7 +66,7 @@ class SkillSettingUpdater(object):
         self._extract_settings_values()
         self._get_skill_id()
         self._ensure_settings_display_exists()
-        self._update_device_skill()
+        self._upsert_device_skill()
 
     def _extract_settings_values(self):
         """Extract the settings values from the skillMetadata
@@ -120,27 +120,56 @@ class SkillSettingUpdater(object):
 
         return new_settings_display
 
-    def _update_device_skill(self):
+    def _upsert_device_skill(self):
         """Update the account's devices with the skill to have new settings"""
+        skill_settings = self._get_account_skill_settings()
+        device_skill_found = self._update_skill_settings(skill_settings)
+        if not device_skill_found:
+            self._add_skill_to_device()
+
+    def _get_account_skill_settings(self):
+        """Get all the permutations of settings for a skill"""
         account_repo = AccountRepository(self.db)
         account = account_repo.get_account_by_device_id(self.device_id)
-        device_skill_settings = (
+        skill_settings = (
             self.device_skill_repo.get_device_skill_settings_for_account(
-                account.id
+                account.id,
+                self.skill.id
             )
         )
 
-        for device_skill in device_skill_settings:
-            if device_skill.skill_id == self.skill.id:
-                if device_skill.install_method in ('voice', 'cli'):
-                    device_ids = [self.device_id]
+        return skill_settings
+
+    def _update_skill_settings(self, skill_settings):
+        device_skill_found = False
+        for skill_setting in skill_settings:
+            if self.device_id in skill_setting.device_ids:
+                device_skill_found = True
+                if skill_setting.install_method in ('voice', 'cli'):
+                    devices_to_update = [self.device_id]
                 else:
-                    device_ids = device_skill.device_ids
-                self.device_skill_repo.update_device_skill_settings(
-                    device_ids,
+                    devices_to_update = skill_setting.device_ids
+                self.device_skill_repo.upsert_device_skill_settings(
+                    devices_to_update,
                     self.settings_display,
                     self.settings_values if self.settings_values else None
                 )
+                break
+
+        return device_skill_found
+
+    def _add_skill_to_device(self):
+        """Add a device_skill row for this skill.
+
+        In theory, the skill manifest endpoint handles adding skills to a
+        device but testing shows that this endpoint gets called before the
+        manifest endpoint in some cases.
+        """
+        self.device_skill_repo.upsert_device_skill_settings(
+            [self.device_id],
+            self.settings_display,
+            self.settings_values if self.settings_values else None
+        )
 
 
 class RequestSkillField(Model):
@@ -186,7 +215,7 @@ class RequestSkill(Model):
         return value
 
 
-class DeviceSkillsEndpoint(PublicEndpoint):
+class DeviceSkillSettingsEndpoint(PublicEndpoint):
     """Fetch all skills associated with a device using the API v1 format"""
     _device_skill_repo = None
     _skill_repo = None

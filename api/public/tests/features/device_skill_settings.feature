@@ -26,13 +26,23 @@ Feature: Upload and fetch skills and their settings
     And an E-tag is generated for these settings
     And device last contact timestamp is updated
 
-  Scenario: A device uploads a change to a single skill setting value
+  Scenario: A device uploads a change to a skill setting value
     Given an authorized device
     And a valid device skill E-tag
     And skill settings with a new value
-    When the device sends a request to update the skill settings
+    When the device sends a request to update the bar skill settings
     Then the request will be successful
     And the skill settings are updated with the new value
+    And the device skill E-tag is expired
+    And device last contact timestamp is updated
+
+  Scenario: A device uploads a change to a skill not assigned to it
+    Given an authorized device
+    And a valid device skill E-tag
+    And settings for a skill not assigned to the device
+    When the device sends a request to update the foobar skill settings
+    Then the request will be successful
+    And the skill is assigned to the device with the settings populated
     And the device skill E-tag is expired
     And device last contact timestamp is updated
 
@@ -40,7 +50,7 @@ Feature: Upload and fetch skills and their settings
     Given an authorized device
     And a valid device skill E-tag
     And skill settings with a deleted field
-    When the device sends a request to update the skill settings
+    When the device sends a request to update the bar skill settings
     Then the request will be successful
     And the field is no longer in the skill settings
     And the device skill E-tag is expired
