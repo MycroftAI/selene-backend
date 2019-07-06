@@ -1,3 +1,12 @@
+"""Endpoint to activate a device and finish the pairing process.
+
+A device will call this endpoint every 10 seconds to determine if the user
+has completed the device activation process on home.mycroft.ai.  The account
+API will set a Redis entry with the a key of "pairing.token" and a value of
+the pairing token generated in the pairing code endpoint.  The device passes
+the same token in the request body.  When a match is found, the activation
+is complete.
+"""
 import json
 from http import HTTPStatus
 
@@ -7,9 +16,10 @@ from schematics.types import StringType
 from selene.api import PublicEndpoint
 from selene.api import generate_device_login
 from selene.data.device import DeviceRepository
+from selene.util.cache import DEVICE_PAIRING_TOKEN_KEY
 
 
-class DeviceActivate(Model):
+class ActivationRequest(Model):
     token = StringType(required=True)
     state = StringType(required=True)
     platform = StringType(default='unknown')
@@ -19,19 +29,13 @@ class DeviceActivate(Model):
 
 
 class DeviceActivateEndpoint(PublicEndpoint):
-    """Endpoint to activate a device and finish the pairing process"""
-
-    def __init__(self):
-        super(DeviceActivateEndpoint, self).__init__()
-
     def post(self):
-        payload = json.loads(self.request.data)
-        device_activate = DeviceActivate(payload)
-        device_activate.validate()
-        pairing = self._get_pairing_session(device_activate)
+        activation_request = ActivationRequest(self.request.json)
+        activation_request.validate()
+        pairing = self._get_pairing_session(activation_request)
         if pairing:
             device_id = pairing['uuid']
-            self._activate(device_id, device_activate)
+            self._activate(device_id, activation_request)
             response = (
                 generate_device_login(device_id, self.cache),
                 HTTPStatus.OK
@@ -40,26 +44,26 @@ class DeviceActivateEndpoint(PublicEndpoint):
             response = '', HTTPStatus.NOT_FOUND
         return response
 
-    def _get_pairing_session(self, device_activate: DeviceActivate):
+    def _get_pairing_session(self, activation_request: ActivationRequest):
         """Get the pairing session from the cache.
 
         device_activate must have same state as that stored in the
         pairing session.
         """
-        token = str(device_activate.token)
-        token_key = 'pairing.token:{}'.format(token)
+        token = str(activation_request.token)
+        token_key = DEVICE_PAIRING_TOKEN_KEY.format(pairing_token=token)
         pairing = self.cache.get(token_key)
         if pairing:
             pairing = json.loads(pairing)
-            if str(device_activate.state) == pairing['state']:
+            if str(activation_request.state) == pairing['state']:
                 self.cache.delete(token_key)
                 return pairing
 
-    def _activate(self, device_id: str, device_activate: DeviceActivate):
+    def _activate(self, device_id: str, activation_request: ActivationRequest):
         """Updates the core version, platform and enclosure_version columns"""
         updates = dict(
-            platform=str(device_activate.platform),
-            enclosure_version=str(device_activate.enclosureVersion),
-            core_version=str(device_activate.coreVersion)
+            platform=str(activation_request.platform),
+            enclosure_version=str(activation_request.enclosureVersion),
+            core_version=str(activation_request.coreVersion)
         )
         DeviceRepository(self.db).update_device_from_core(device_id, updates)

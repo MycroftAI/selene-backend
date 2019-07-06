@@ -5,6 +5,7 @@ from redis import Redis
 DEVICE_LAST_CONTACT_KEY = 'device:last_contact:{device_id}'
 DEVICE_SKILL_ETAG_KEY = 'device.skill.etag:{device_id}'
 DEVICE_PAIRING_CODE_KEY = 'pairing.code:{pairing_code}'
+DEVICE_PAIRING_TOKEN_KEY = 'pairing.token:{pairing_token}'
 
 
 class SeleneCache(object):
