@@ -63,14 +63,15 @@ class DeviceCodeEndpoint(PublicEndpoint):
         pairing_code_added = False
         while not pairing_code_added:
             pairing_code = self._generate_pairing_code()
-            _log.debug('Generated pairing code ') + pairing_code
+            _log.debug('Generated pairing code ' + pairing_code)
             response_data.update(code=pairing_code)
             pairing_code_added = self.cache.set_if_not_exists_with_expiration(
                 DEVICE_PAIRING_CODE_KEY.format(pairing_code=pairing_code),
                 value=json.dumps(response_data),
                 expiration=ONE_DAY
             )
-            _log.debug('Pairing code {} exists, generating new code')
+            log_msg = 'Pairing code {pairing_code} exists, generating new code'
+            _log.debug(log_msg.format(pairing_code=pairing_code))
 
         return response_data
 
