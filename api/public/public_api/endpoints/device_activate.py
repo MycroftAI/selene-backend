@@ -30,11 +30,10 @@ class ActivationRequest(Model):
 
 class DeviceActivateEndpoint(PublicEndpoint):
     def post(self):
-        activation_request = ActivationRequest(self.request.json)
-        activation_request.validate()
-        pairing = self._get_pairing_session(activation_request)
-        if pairing:
-            device_id = pairing['uuid']
+        activation_request = self._validate_request()
+        pairing_session = self._get_pairing_session()
+        if pairing_session is not None:
+            device_id = pairing_session['uuid']
             self._activate(device_id, activation_request)
             response = (
                 generate_device_login(device_id, self.cache),
@@ -44,20 +43,28 @@ class DeviceActivateEndpoint(PublicEndpoint):
             response = '', HTTPStatus.NOT_FOUND
         return response
 
-    def _get_pairing_session(self, activation_request: ActivationRequest):
+    def _validate_request(self):
+        activation_request = ActivationRequest(self.request.json)
+        activation_request.validate()
+
+        return activation_request
+
+    def _get_pairing_session(self):
         """Get the pairing session from the cache.
 
-        device_activate must have same state as that stored in the
+        The request must have same state value as that stored in the
         pairing session.
         """
-        token = str(activation_request.token)
-        token_key = DEVICE_PAIRING_TOKEN_KEY.format(pairing_token=token)
-        pairing = self.cache.get(token_key)
-        if pairing:
-            pairing = json.loads(pairing)
-            if str(activation_request.state) == pairing['state']:
-                self.cache.delete(token_key)
-                return pairing
+        pairing_session_token = self.request.json['token']
+        pairing_session_key = DEVICE_PAIRING_TOKEN_KEY.format(
+            pairing_token=pairing_session_token
+        )
+        pairing_session = self.cache.get(pairing_session_key)
+        if pairing_session:
+            pairing_session = json.loads(pairing_session)
+            if self.request.json['state'] == pairing_session['state']:
+                self.cache.delete(pairing_session_key)
+                return pairing_session
 
     def _activate(self, device_id: str, activation_request: ActivationRequest):
         """Updates the core version, platform and enclosure_version columns"""
