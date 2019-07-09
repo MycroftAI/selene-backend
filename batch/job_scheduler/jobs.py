@@ -80,6 +80,16 @@ def test_scheduler():
     job_runner.run_job()
 
 
+def parse_core_metrics():
+    """Copy rows from metric.core to de-normalized metric.core_interaction
+
+    Build a de-normalized table that will make latency research easier.
+    """
+    job_runner = JobRunner('parse_core_metrics.py')
+    job_runner.job_date = date.today() - timedelta(days=1)
+    job_runner.run_job()
+
+
 def partition_api_metrics():
     """Copy rows from metric.api table to partitioned metric.api_history table
 
@@ -108,6 +118,7 @@ if os.environ['SELENE_ENVIRONMENT'] != 'prod':
 
 schedule.every().day.at('00:00').do(partition_api_metrics)
 schedule.every().day.at('00:05').do(update_device_last_contact)
+schedule.every().day.at('00:10').do(parse_core_metrics)
 
 # Run the schedule
 while True:
