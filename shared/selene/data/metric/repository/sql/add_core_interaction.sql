@@ -1,0 +1,39 @@
+INSERT INTO
+    metric.core_interaction (
+        device_id,
+        core_id,
+        start_ts,
+        stt_engine,
+        stt_transcription,
+        stt_duration,
+        intent_type,
+        intent_duration,
+        fallback_handler_duration,
+        skill_handler,
+        skill_duration,
+        tts_engine,
+        tts_utterance,
+        tts_duration,
+        speech_playback_duration
+    )
+VALUES
+    (
+        %(device_id)s,
+        %(core_id)s,
+        %(start_ts)s,
+        %(stt_engine)s,
+        %(stt_transcription)s,
+        %(stt_duration)s,
+        %(intent_type)s,
+        %(intent_duration)s,
+        %(fallback_handler_duration)s,
+        %(skill_handler)s,
+        %(skill_duration)s,
+        %(tts_engine)s,
+        %(tts_utterance)s,
+        %(tts_duration)s,
+        %(speech_playback_duration)s
+
+    )
+RETURNING
+    id
