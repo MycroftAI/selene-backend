@@ -19,13 +19,7 @@ def use_transaction(func):
             prev_autocommit = instance.db.autocommit
             instance.db.autocommit = False
             with instance.db:
-                try:
-                    return_value = func(*args, **kwargs)
-                except:
-                    instance.db.rollback()
-                    raise
-                else:
-                    instance.db.commit()
+                return_value = func(*args, **kwargs)
             instance.db.autocommit = prev_autocommit
 
         return return_value
