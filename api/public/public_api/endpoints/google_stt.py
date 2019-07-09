@@ -43,12 +43,12 @@ class GoogleSTTEndpoint(PublicEndpoint):
 
     def _write_flac_audio_file(self):
         """Save the audio file for STT tagging"""
-        self._write_open_dataset_file(self.request.data, file_type='.flac')
+        self._write_open_dataset_file(self.request.data, file_type='flac')
 
     def _write_stt_result_file(self, stt_result):
         """Save the STT results for tagging."""
         file_contents = '\n'.join(stt_result)
-        self._write_open_dataset_file(file_contents.encode(), file_type='.stt')
+        self._write_open_dataset_file(file_contents.encode(), file_type='stt')
 
     def _write_open_dataset_file(self, content, file_type):
         if self.account is not None:

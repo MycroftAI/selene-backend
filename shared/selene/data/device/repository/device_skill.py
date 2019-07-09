@@ -50,12 +50,16 @@ class DeviceSkillRepository(RepositoryBase):
             settings_values: str,
     ):
         for device_id in device_ids:
+            if settings_values is None:
+                db_settings_values = None
+            else:
+                db_settings_values = json.dumps(settings_values)
             db_request = self._build_db_request(
                 sql_file_name='upsert_device_skill_settings.sql',
                 args=dict(
                     device_id=device_id,
                     skill_id=settings_display.skill_id,
-                    settings_values=json.dumps(settings_values),
+                    settings_values=db_settings_values,
                     settings_display_id=settings_display.id
                 )
             )

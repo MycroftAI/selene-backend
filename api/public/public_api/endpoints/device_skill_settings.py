@@ -84,8 +84,9 @@ class SkillSettingUpdater(object):
                 for field in section_without_values['fields']:
                     field_name = field.get('name')
                     field_value = field.get('value')
-                    if field_name is not None and field_value is not None:
-                        self.settings_values[field_name] = field_value
+                    if field_value is not None:
+                        if field_name is not None:
+                            self.settings_values[field_name] = field_value
                         del(field['value'])
                 sections_without_values.append(section_without_values)
             settings_definition['sections'] = sections_without_values
