@@ -22,6 +22,8 @@ class CoreMetricsParser(SeleneScript):
         self.core_metric_repo = CoreMetricRepository(self.db)
         self.interaction_cnt = 0
         self.interaction: CoreInteraction = None
+        self.stt_start_ts = None
+        self.playback_start_ts = None
 
     def _run(self):
         last_interaction_id = None
@@ -42,6 +44,8 @@ class CoreMetricsParser(SeleneScript):
                 metric.metric_value['start_time']
             ),
         )
+        self.stt_start_ts = None
+        self.playback_start_ts = None
 
     def _add_metric_to_interaction(self, metric_value):
         """Combine all the steps of an interaction into a single record"""
@@ -51,6 +55,7 @@ class CoreMetricsParser(SeleneScript):
             self.interaction.stt_engine = metric_value['stt']
             self.interaction.stt_transcription = metric_value['transcription']
             self.interaction.stt_duration = duration
+            self.stt_start_ts = metric_value['start_time']
         elif metric_value['system'] == 'intent_service':
             self.interaction.intent_type = metric_value['intent_type']
             self.interaction.intent_duration = duration
@@ -66,6 +71,15 @@ class CoreMetricsParser(SeleneScript):
             self.interaction.tts_duration = duration
         elif metric_value['system'] == 'speech_playback':
             self.interaction.speech_playback_duration = duration
+            self.playback_start_ts = metric_value['start_time']
+
+        # The user-experienced latency is the time between when the user
+        # finishes speaking their intent and when the device provides a voice
+        # response.
+        if self.stt_start_ts is not None and self.playback_start_ts is not None:
+            self.interaction.user_latency = (
+                    self.playback_start_ts - self.stt_start_ts
+            )
 
     def _add_interaction_to_db(self):
         if self.interaction is not None:

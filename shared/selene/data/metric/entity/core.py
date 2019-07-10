@@ -26,4 +26,5 @@ class CoreInteraction(object):
     tts_utterance: str = None
     tts_duration: str = None
     speech_playback_duration: Decimal = None
+    user_latency: Decimal = None
     id: str = None

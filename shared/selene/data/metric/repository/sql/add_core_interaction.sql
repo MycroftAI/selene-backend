@@ -14,7 +14,8 @@ INSERT INTO
         tts_engine,
         tts_utterance,
         tts_duration,
-        speech_playback_duration
+        speech_playback_duration,
+        user_latency
     )
 VALUES
     (
@@ -32,8 +33,8 @@ VALUES
         %(tts_engine)s,
         %(tts_utterance)s,
         %(tts_duration)s,
-        %(speech_playback_duration)s
-
+        %(speech_playback_duration)s,
+        %(user_latency)s
     )
 RETURNING
     id

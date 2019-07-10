@@ -17,6 +17,8 @@ CREATE TABLE metric.core_interaction (
     tts_utterance               text,
     tts_duration                NUMERIC,
     speech_playback_duration    NUMERIC,
+    -- user_latency is the time between stt start and speech playback start
+    user_latency                NUMERIC,
     insert_ts                   TIMESTAMP   NOT NULL
             DEFAULT current_timestamp,
     UNIQUE (device_id, core_id)
