@@ -4,9 +4,11 @@ from decimal import Decimal
 
 
 @dataclass
-class CoreTimingMetric(object):
+class CoreMetric(object):
     device_id: str
+    metric_type: str
     metric_value: dict
+    id: str = None
 
 
 @dataclass

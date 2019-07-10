@@ -1,4 +1,3 @@
-from datetime import datetime
 from http import HTTPStatus
 
 from selene.api import PublicEndpoint
@@ -13,7 +12,6 @@ class DeviceMetricsEndpoint(PublicEndpoint):
         core_metric = CoreMetric(
             device_id=device_id,
             metric_type=metric,
-            insert_ts=datetime.now(),
             metric_value=self.request.json
         )
         self._add_metric(core_metric)
