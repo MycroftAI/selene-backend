@@ -47,13 +47,16 @@ easier to scale and monitor each application independently.  However, all applic
 This configuration is could be more practical for a household running a handful of devices. 
 
 These instructions will assume a multi-server setup for several thousand devices. To run on a single server servicing a 
-small number of devices, the recommended system requirements are 4 CPU, 8GB RAM and 100GB of disk.
+small number of devices, the recommended system requirements are 4 CPU, 8GB RAM and 100GB of disk.  There are a lot of
+manual steps in this section that will eventually be replaced with a installation script.
+
+All Selene applications are time zone agnostic.  It is recommended that the time zone on any sever running Selene be UTC.
 
 ## Postgres DB
 ### Recommended Server Configuration 
 Ubuntu 18.04 LTS, 2 CPU, 4GB RAM, 50GB disk.
-###Installation Procedure
-* Use a package management system to install Python 3.7, Python 3 pip and PostgreSQL 10  
+### Installation Procedure
+* Use the package management system to install Python 3.7, Python 3 pip and PostgreSQL 10  
 ```bash
 sudo apt-get install postgresql python3.7 python
 ```
@@ -97,6 +100,259 @@ export POSTGRES_PASWORD=<postgres user password>
 ```bash
 cd /opt/selene/selene-backend/db/scripts
 pipenv run python bootstrap_mycroft_db.py
+```
+## Redis DB
+### Recommended Sever Configuration
+Ubuntu 18.04 LTS, 1 CPU, 1GB RAM, 5GB disk.
+### Installation Procedure
+So as to not reinvent the wheel, here are some easy-to-follow instructions for 
+[installing Redis on Ubuntu 18.04](https://www.digitalocean.com/community/tutorials/how-to-install-and-secure-redis-on-ubuntu-18-04).
+One additional step is to change the "bind" variable in /etc/redis/redis.conf to be the private IP of the Redis host.
+## APIs
+The majority of the setup for each API is the same.  This section defines the steps common to all APIs. Steps specific
+to each API will be defined in their respective sections.
+* Add an application user to the VM. Either give this user sudo privileges or execute the sudo commands below as a user
+with sudo privileges.  These instructions will assume a user name of "mycroft"
+*
+* Use the package management system to install Python 3.7, Python 3 pip and Python 3.7 Developer Tools 
+```bash
+sudo apt install python3.7 python3-pip python3.7-dev 
+sudo python3.7 -m pip install pipenv
+```
+* Setup the Backend Application Directory
+```bash
+sudo mkdir -p /opt/selene
+sudo chown -R mycroft:users /opt/selene
+```
+* Setup the Log Directory
+```bash
+sudo mkdir -p /var/log/mycroft
+sudo chown -R mycroft:users /var/log/mycroft
+```
+* Clone the Selene Backend Repository
+```bash
+cd /opt/selene
+git clone https://github.com/MycroftAI/selene-backend.git
+```
+* If running in a test environment, be sure to checkout the "test" branch of the repository
+## Single Sign On API
+### Recommended Sever Configuration
+Ubuntu 18.04 LTS, 1 CPU, 1GB RAM, 5GB disk
+### Installation Procedure
+* Create the virtual environment and install the requirements for the application
+```bash
+cd /opt/selene/selene-backend/sso
+pipenv install
+```
+* The SSO application uses three JWTs for authentication. First is an access key, which is required to authenticate a
+user for API calls.  Second is a refresh key that automatically refreshes the access key when it expires.  Third is a
+reset key, which is used in a password reset scenario.  Generate a secret key for each JWT.
+* Any data that can identify a user is encrypted.  Generate a salt that will be used with the encryption algorithm.
+* Access to the Github API is required to support logging in with your Github account.  Details can be found
+[here](https://developer.github.com/v3/guides/basics-of-authentication/).
+* The password reset functionality sends an email to the user with a link to reset their password.  Selene uses 
+SendGrid to send these emails so a SendGrid account and API key are required.
+* Define a systemd service to run the API.  The service defines environment variables that use the secret and API keys
+generated in previous steps.
+```bash
+sudo vim /etc/systemd/system/sso_api.service
+```
+```
+[Unit]
+Description=Mycroft Single Sign On Api
+After=network.target
+
+[Service]
+User=mycroft
+Group=www-data
+Restart=always
+Type=simple
+WorkingDirectory=/opt/selene/selene-backend/api/sso
+ExecStart=/usr/local/bin/pipenv run uwsgi --ini uwsgi.ini
+Environment=DB_HOST=<IP address or name of database host>
+Environment=DB_NAME=mycroft
+Environment=DB_PASSWORD=<selene database user password>
+Environment=DB_PORT=5432
+Environment=DB_USER=selene
+Environment=GITHUB_CLIENT_ID=<github client id>
+Environment=GITHUB_CLIENT_SECRET=<github client secret>
+Environment=JWT_ACCESS_SECRET=<access secret>
+Environment=JWT_REFRESH_SECRET=<refresh secret>
+Environment=JWT_RESET_SECRET=<reset secret>
+Environment=SALT=<salt value>
+Environment=SELENE_ENVIRONMENT=<test/prod>
+Environment=SENDGRID_API_KEY=<sendgrid API key>
+Environment=SSO_BASE_URL=<base url for single sign on application>
+
+[Install]
+WantedBy=multi-user.target
+```
+* Start the sso_api service and set it to start on boot
+```bash
+sudo systemctl start sso_api.service
+sudo systemctl enable sso_api.service
+```
+## Account API
+### Recommended Sever Configuration
+Ubuntu 18.04 LTS, 1 CPU, 1GB RAM, 5GB disk
+### Installation Procedure
+* Create the virtual environment and install the requirements for the application
+```bash
+cd /opt/selene/selene-backend/account
+pipenv install
+```
+* The account API uses the same authentication mechanism as the single sign on API.  The JWT_ACCESS_SECRET, 
+JWT_REFRESH_SECRET and SALT environment variables must be the same values as those on the single sign on API.
+* This application uses the Redis database so the service needs to know where it resides.
+* Define a systemd service to run the API.  The service defines environment variables that use the secret and API keys
+generated in previous steps.
+```bash
+sudo vim /etc/systemd/system/account_api.service
+```
+```
+[Unit]
+Description=Mycroft Account API
+After=network.target
+
+[Service]
+User=mycroft
+Group=www-data
+Restart=always
+Type=simple
+WorkingDirectory=/opt/selene/selene-backend/api/account
+ExecStart=/usr/local/bin/pipenv run uwsgi --ini uwsgi.ini
+Environment=DB_HOST=<db host IP address or name>
+Environment=DB_NAME=mycroft
+Environment=DB_PASSWORD=<selene user database password>
+Environment=DB_PORT=5432
+Environment=DB_USER=selene
+Environment=JWT_ACCESS_SECRET=<same as value for single sign on>
+Environment=JWT_REFRESH_SECRET=<same as value for single sign on>
+Environment=OAUTH_BASE_URL=<url for oauth service>
+Environment=REDIS_HOST=<IP address or name of redis host>
+Environment=REDIS_PORT=6379
+Environment=SELENE_ENVIRONMENT=<test/prod>
+Environment=SALT=<same as value for single sign on>
+
+[Install]
+WantedBy=multi-user.target
+```
+* Start the account_api service and set it to start on boot
+```bash
+sudo systemctl start account_api.service
+sudo systemctl enable account_api.service
+```
+## Marketplace API
+### Recommended Sever Configuration
+Ubuntu 18.04 LTS, 1 CPU, 1GB RAM, 10GB disk
+### Installation Procedure
+* Create the virtual environment and install the requirements for the application
+```bash
+cd /opt/selene/selene-backend/market
+pipenv install
+```
+* The marketplace API uses the same authentication mechanism as the single sign on API.  The JWT_ACCESS_SECRET, 
+JWT_REFRESH_SECRET and SALT environment variables must be the same values as those on the single sign on API.
+* This application uses the Redis database so the service needs to know where it resides.
+* Define a systemd service to run the API.  The service defines environment variables that use the secret and API keys
+generated in previous steps.
+```bash
+sudo vim /etc/systemd/system/market_api.service
+```
+```
+[Unit]
+Description=Mycroft Marketplace API
+After=network.target
+
+[Service]
+User=mycroft
+Group=www-data
+Restart=always
+Type=simple
+WorkingDirectory=/opt/selene/selene-backend/api/market
+ExecStart=/usr/local/bin/pipenv run uwsgi --ini uwsgi.ini
+Environment=DB_HOST=<db host IP address or name>
+Environment=DB_NAME=mycroft
+Environment=DB_PASSWORD=<selene user database password>
+Environment=DB_PORT=5432
+Environment=DB_USER=selene
+Environment=JWT_ACCESS_SECRET=<same as value for single sign on>
+Environment=JWT_REFRESH_SECRET=<same as value for single sign on>
+Environment=OAUTH_BASE_URL=<url for oauth service>
+Environment=REDIS_HOST=<IP address or name of redis host>
+Environment=REDIS_PORT=6379
+Environment=SELENE_ENVIRONMENT=<test/prod>
+Environment=SALT=<same as value for single sign on>
+
+[Install]
+WantedBy=multi-user.target
+```
+* Start the market_api service and set it to start on boot
+```bash
+sudo systemctl start market_api.service
+sudo systemctl enable market_api.service
+```
+## Device API
+### Recommended Sever Configuration
+Ubuntu 18.04 LTS, 2 CPU, 2GB RAM, 50GB disk
+### Installation Procedure
+* Create the virtual environment and install the requirements for the application
+```bash
+cd /opt/selene/selene-backend/public
+pipenv install
+```
+* The marketplace API uses the same authentication mechanism as the single sign on API.  The JWT_ACCESS_SECRET, 
+JWT_REFRESH_SECRET and SALT environment variables must be the same values as those on the single sign on API.
+* This application uses the Redis database so the service needs to know where it resides.
+* The weather skill requires a key to the Open Weather Map API
+* The speech to text engine requires a key to Google's STT API.
+* The Wolfram Alpha skill requires an API key to the Wolfram Alpha API
+* Define a systemd service to run the API.  The service defines environment variables that use the secret and API keys
+generated in previous steps.
+```bash
+sudo vim /etc/systemd/system/public_api.service
+```
+```
+[Unit]
+Description=Mycroft Public API
+After=network.target
+
+[Service]
+User=mycroft
+Group=www-data
+Restart=always
+Type=simple
+WorkingDirectory=/opt/selene/selene-backend/api/public
+ExecStart=/usr/local/bin/pipenv run uwsgi --ini uwsgi.ini
+Environment=DB_HOST=<db host IP address or name>
+Environment=DB_NAME=mycroft
+Environment=DB_PASSWORD=<selene user database password>
+Environment=DB_PORT=5432
+Environment=DB_USER=selene
+Environment=EMAIL_SERVICE_HOST=<email host>
+Environment=EMAIL_SERVICE_PORT=<email port>
+Environment=EMAIL_SERVICE_USER=<email user>
+Environment=EMAIL_SERVICE_PASSWORD=<email password>
+Environment=GOOGLE_STT_KEY=<Google STT API key>
+Environment=JWT_ACCESS_SECRET=<same as value for single sign on>
+Environment=JWT_REFRESH_SECRET=<same as value for single sign on>
+Environment=OAUTH_BASE_URL=<url for oauth service>
+Environment=OWM_KEY=<Open Weather Map API Key>
+Environment=OWM_URL=https://api.openweathermap.org/data/2.5
+Environment=REDIS_HOST=<IP address or name of redis host>
+Environment=REDIS_PORT=6379
+Environment=SELENE_ENVIRONMENT=<test/prod>
+Environment=SALT=<same as value for single sign on>
+Environment=WOLFRAM_ALPHA_KEY=<Wolfram Alpha API Key
+Environment=WOLFRAM_ALPHA_URL=https://api.wolframalpha.com
+
+[Install]
+WantedBy=multi-user.target
+```
+* Start the public_api service and set it to start on boot
+```bash
+sudo systemctl start public_api.service
+sudo systemctl enable public_api.service
 ```
 # Running the Backend
 
