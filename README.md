@@ -15,17 +15,6 @@ and settings.  It consists of two repositories.  This one contains Python and SQ
 data access layer, APIs and scripts.  The second repository, [Selene UI](https://github.com/mycroftai/selene-ui), 
 contains Angular web applications that use the APIs defined in this repository.
 
-
-# Getting Started
-
-First, get the code on your system!  The simplest method is via git 
-([git installation instructions](https://gist.github.com/derhuerst/1b15ff4652a867391f03)):
-```
-cd ~/
-git clone https://github.com/MycroftAI/selene-backend.git
-cd selene-backend
-```
-
 There are four APIs defined in this repository, account management, single sign on, skill marketplace and device.
 The first three support account.mycroft.ai (aka home.mycroft.ai), sso.mycroft.ai, and market.mycroft.ai, respectively. 
 The device API is how devices running Mycroft Core communicate with the server. Also included in this repository is
@@ -53,9 +42,7 @@ manual steps in this section that will eventually be replaced with a installatio
 All Selene applications are time zone agnostic.  It is recommended that the time zone on any sever running Selene be UTC.
 
 ## Postgres DB
-### Recommended Server Configuration 
-Ubuntu 18.04 LTS, 2 CPU, 4GB RAM, 50GB disk.
-### Installation Procedure
+* Recommended server configuration: Ubuntu 18.04 LTS, 2 CPU, 4GB RAM, 50GB disk.
 * Use the package management system to install Python 3.7, Python 3 pip and PostgreSQL 10  
 ```bash
 sudo apt-get install postgresql python3.7 python
@@ -102,9 +89,7 @@ cd /opt/selene/selene-backend/db/scripts
 pipenv run python bootstrap_mycroft_db.py
 ```
 ## Redis DB
-### Recommended Sever Configuration
-Ubuntu 18.04 LTS, 1 CPU, 1GB RAM, 5GB disk.
-### Installation Procedure
+* Recommended sever configuration: Ubuntu 18.04 LTS, 1 CPU, 1GB RAM, 5GB disk.
 So as to not reinvent the wheel, here are some easy-to-follow instructions for 
 [installing Redis on Ubuntu 18.04](https://www.digitalocean.com/community/tutorials/how-to-install-and-secure-redis-on-ubuntu-18-04).
 One additional step is to change the "bind" variable in /etc/redis/redis.conf to be the private IP of the Redis host.
@@ -113,7 +98,6 @@ The majority of the setup for each API is the same.  This section defines the st
 to each API will be defined in their respective sections.
 * Add an application user to the VM. Either give this user sudo privileges or execute the sudo commands below as a user
 with sudo privileges.  These instructions will assume a user name of "mycroft"
-*
 * Use the package management system to install Python 3.7, Python 3 pip and Python 3.7 Developer Tools 
 ```bash
 sudo apt install python3.7 python3-pip python3.7-dev 
@@ -136,14 +120,38 @@ git clone https://github.com/MycroftAI/selene-backend.git
 ```
 * If running in a test environment, be sure to checkout the "test" branch of the repository
 ## Single Sign On API
-### Recommended Sever Configuration
-Ubuntu 18.04 LTS, 1 CPU, 1GB RAM, 5GB disk
-### Installation Procedure
+Recommended sever configuration: Ubuntu 18.04 LTS, 1 CPU, 1GB RAM, 5GB disk
 * Create the virtual environment and install the requirements for the application
 ```bash
 cd /opt/selene/selene-backend/sso
 pipenv install
 ```
+## Account API
+* Recommended sever configuration: Ubuntu 18.04 LTS, 1 CPU, 1GB RAM, 5GB disk
+* Create the virtual environment and install the requirements for the application
+```bash
+cd /opt/selene/selene-backend/account
+pipenv install
+```
+## Marketplace API
+* Recommended sever configuration: Ubuntu 18.04 LTS, 1 CPU, 1GB RAM, 10GB disk
+* Create the virtual environment and install the requirements for the application
+```bash
+cd /opt/selene/selene-backend/market
+pipenv install
+```
+## Device API
+* Recommended sever configuration: Ubuntu 18.04 LTS, 2 CPU, 2GB RAM, 50GB disk
+* Create the virtual environment and install the requirements for the application
+```bash
+cd /opt/selene/selene-backend/public
+pipenv install
+```
+# Running the APIs
+Each API is configured to run on port 5000.  This is not a problem if each is running in its own VM but will be an
+issue if all APIs are running on the same server, or if port 5000 is already in use.  To address these scenarios, 
+change the port numbering in the uwsgi.ini file for each API.
+## Single Sign On API
 * The SSO application uses three JWTs for authentication. First is an access key, which is required to authenticate a
 user for API calls.  Second is a refresh key that automatically refreshes the access key when it expires.  Third is a
 reset key, which is used in a password reset scenario.  Generate a secret key for each JWT.
@@ -193,14 +201,6 @@ sudo systemctl start sso_api.service
 sudo systemctl enable sso_api.service
 ```
 ## Account API
-### Recommended Sever Configuration
-Ubuntu 18.04 LTS, 1 CPU, 1GB RAM, 5GB disk
-### Installation Procedure
-* Create the virtual environment and install the requirements for the application
-```bash
-cd /opt/selene/selene-backend/account
-pipenv install
-```
 * The account API uses the same authentication mechanism as the single sign on API.  The JWT_ACCESS_SECRET, 
 JWT_REFRESH_SECRET and SALT environment variables must be the same values as those on the single sign on API.
 * This application uses the Redis database so the service needs to know where it resides.
@@ -243,14 +243,6 @@ sudo systemctl start account_api.service
 sudo systemctl enable account_api.service
 ```
 ## Marketplace API
-### Recommended Sever Configuration
-Ubuntu 18.04 LTS, 1 CPU, 1GB RAM, 10GB disk
-### Installation Procedure
-* Create the virtual environment and install the requirements for the application
-```bash
-cd /opt/selene/selene-backend/market
-pipenv install
-```
 * The marketplace API uses the same authentication mechanism as the single sign on API.  The JWT_ACCESS_SECRET, 
 JWT_REFRESH_SECRET and SALT environment variables must be the same values as those on the single sign on API.
 * This application uses the Redis database so the service needs to know where it resides.
@@ -292,16 +284,8 @@ WantedBy=multi-user.target
 sudo systemctl start market_api.service
 sudo systemctl enable market_api.service
 ```
-## Device API
-### Recommended Sever Configuration
-Ubuntu 18.04 LTS, 2 CPU, 2GB RAM, 50GB disk
-### Installation Procedure
-* Create the virtual environment and install the requirements for the application
-```bash
-cd /opt/selene/selene-backend/public
-pipenv install
-```
-* The marketplace API uses the same authentication mechanism as the single sign on API.  The JWT_ACCESS_SECRET, 
+##Device API
+* The device API uses the same authentication mechanism as the single sign on API.  The JWT_ACCESS_SECRET, 
 JWT_REFRESH_SECRET and SALT environment variables must be the same values as those on the single sign on API.
 * This application uses the Redis database so the service needs to know where it resides.
 * The weather skill requires a key to the Open Weather Map API
@@ -354,9 +338,27 @@ WantedBy=multi-user.target
 sudo systemctl start public_api.service
 sudo systemctl enable public_api.service
 ```
-# Running the Backend
+## Other Considerations
+### DNS
+There are multiple ways to setup DNS.  This document will not dictate how to do so for Selene.  However, here is an 
+example, based on how DNS is setup at Mycroft AI...
 
-TODO
+Each application runs on its own sub-domain.  Assuming a top level domain of "mycroft.ai" the subdomains are:
+* account.mycroft.ai
+* api.mycroft.ai
+* market.mycroft.ai
+* sso.mycroft.ai
+
+The APIs that support the web applications are directories within the sub-domain (e.g. account.mycroft.ai/api).  Since 
+the device API is externally facing, it is versioned.  It's subdirectory must be "v1".
+
+### Reverse Proxy
+There are multiple tools available for setting up a reverse proxy that will point your DNS entries to your APIs.
+As such, the decision on how to set this up will be left to the user.
+
+### SSL
+It is recommended that Selene applications be run using HTTPS.  To do this an SSL certificate is necessary.  
+[Let's Encrypt](https://letsencrypt.org) is a great way to easily set up SSL certificates for free.
 
 # Getting Involved
 
