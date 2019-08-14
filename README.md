@@ -360,6 +360,12 @@ As such, the decision on how to set this up will be left to the user.
 It is recommended that Selene applications be run using HTTPS.  To do this an SSL certificate is necessary.  
 [Let's Encrypt](https://letsencrypt.org) is a great way to easily set up SSL certificates for free.
 
+
+# What About the GUI???
+Once the database and API setup is complete, the next step is to setup the GUI, The README file for the 
+[Selene UI](https://github.com/mycroftai/selene-ui) repository contains the instructions for setting up the web 
+applications.
+
 # Getting Involved
 
 This is an open source project and we would love your help. We have prepared a [contributing](.github/CONTRIBUTING.md) 
