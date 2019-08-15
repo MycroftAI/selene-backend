@@ -44,28 +44,28 @@ All Selene applications are time zone agnostic.  It is recommended that the time
 ## Postgres DB
 * Recommended server configuration: Ubuntu 18.04 LTS, 2 CPU, 4GB RAM, 50GB disk.
 * Use the package management system to install Python 3.7, Python 3 pip and PostgreSQL 10  
-```bash
+```
 sudo apt-get install postgresql python3.7 python
 ```
 * Set Postgres to start on boot  
-```bash
+```
 sudo systemctl enable postgresql
 ```
 * Clone the selene-backend and documentation repositories
-```bash
+```
 sudo mkdir -p /opt/selene
 sudo chown -R mycroft:users /opt/selene
 cd /opt/selene
 git clone https://github.com/MycroftAI/selene-backend.git
 ```
 * Create the virtual environment for the database code
-```bash
+```
 sudo Python3.7 -m pip install pipenv
 cd /opt/selene/selene-backend/db
 pipenv install
 ```
 * Download files from geonames.org used to populate the geography schema tables
-```bash
+```
 mkdir -p /opt/selene/data
 cd /opt/selene/data
 wget http://download.geonames.org/export/dump/countryInfo.txt
@@ -74,47 +74,69 @@ wget http://download.geonames.org/export/dump/admin1CodesASCII.txt
 wget http://download.geonames.org/export/dump/cities500.zip
 ```
 * Generate secure passwords for the postgres user and selene user on the database
-```bash
+```
 sudo -u postgres psql -c "ALTER USER postgres PASSWORD '<new password>'"
 sudo -u postgres psql -c "CREATE ROLE selene WITH LOGIN ENCRYPTED PASSWORD '<password>'"
 ```
 * Add environment variables containing these passwords for the bootstrap script
-```bash
+```
 export DB_PASSWORD=<selene user password>
 export POSTGRES_PASWORD=<postgres user password>
 ```
 * Run the bootstrap script
-```bash
+```
 cd /opt/selene/selene-backend/db/scripts
 pipenv run python bootstrap_mycroft_db.py
+```
+* By default, Postgres only listens on localhost.  This will not do for a multi-server setup.  Change the 
+`listen_addresses` value in the `posgresql.conf` file to the private IP of the database server.  This file is owned by
+the `postgres` user so use the following command to edit it (substituting vi for your favorite editor)
+```
+sudo -u postgres vi /etc/postgres/10/main/postgresql.conf
+```
+* By default, Postgres only allows connections from localhost.  This will not do for a multi-server setup either.  Add
+an entry to the `pg_hba.conf` file for each server that needs to access this database.  This file is also owned by
+the `postgres` user so use the following command to edit it (substituting vi for your favorite editor)
+```
+sudo -u postgres vi /etc/postgres/10/main/pg_hba.conf
+```
+* Instructions on how to update the `pg_hba.conf` file can be found in 
+[Postgres' documentation](https://www.postgresql.org/docs/10/auth-pg-hba-conf.html).  Below is an example for reference.
+```
+# IPv4 Selene connections
+host    mycroft         selene          <private IP address>/32          md5
+```
+* Restart Postgres for the `postgres.conf` and `pg_hba.conf` changes to take effect.
+```
+sudo systemctl restart postgresql
 ```
 ## Redis DB
 * Recommended sever configuration: Ubuntu 18.04 LTS, 1 CPU, 1GB RAM, 5GB disk.
 So as to not reinvent the wheel, here are some easy-to-follow instructions for 
 [installing Redis on Ubuntu 18.04](https://www.digitalocean.com/community/tutorials/how-to-install-and-secure-redis-on-ubuntu-18-04).
-One additional step is to change the "bind" variable in /etc/redis/redis.conf to be the private IP of the Redis host.
+* By default, Redis only listens for One additional step is to change the "bind" variable in /etc/redis/redis.conf to be the private IP of the Redis host.
 ## APIs
 The majority of the setup for each API is the same.  This section defines the steps common to all APIs. Steps specific
 to each API will be defined in their respective sections.
 * Add an application user to the VM. Either give this user sudo privileges or execute the sudo commands below as a user
 with sudo privileges.  These instructions will assume a user name of "mycroft"
 * Use the package management system to install Python 3.7, Python 3 pip and Python 3.7 Developer Tools 
-```bash
+```
 sudo apt install python3.7 python3-pip python3.7-dev 
 sudo python3.7 -m pip install pipenv
 ```
 * Setup the Backend Application Directory
-```bash
+```
 sudo mkdir -p /opt/selene
 sudo chown -R mycroft:users /opt/selene
 ```
 * Setup the Log Directory
-```bash
+```
 sudo mkdir -p /var/log/mycroft
 sudo chown -R mycroft:users /var/log/mycroft
 ```
 * Clone the Selene Backend Repository
-```bash
+```
 cd /opt/selene
 git clone https://github.com/MycroftAI/selene-backend.git
 ```
@@ -122,28 +144,28 @@ git clone https://github.com/MycroftAI/selene-backend.git
 ## Single Sign On API
 Recommended sever configuration: Ubuntu 18.04 LTS, 1 CPU, 1GB RAM, 5GB disk
 * Create the virtual environment and install the requirements for the application
-```bash
+```
 cd /opt/selene/selene-backend/sso
 pipenv install
 ```
 ## Account API
 * Recommended sever configuration: Ubuntu 18.04 LTS, 1 CPU, 1GB RAM, 5GB disk
 * Create the virtual environment and install the requirements for the application
-```bash
+```
 cd /opt/selene/selene-backend/account
 pipenv install
 ```
 ## Marketplace API
 * Recommended sever configuration: Ubuntu 18.04 LTS, 1 CPU, 1GB RAM, 10GB disk
 * Create the virtual environment and install the requirements for the application
-```bash
+```
 cd /opt/selene/selene-backend/market
 pipenv install
 ```
 ## Device API
 * Recommended sever configuration: Ubuntu 18.04 LTS, 2 CPU, 2GB RAM, 50GB disk
 * Create the virtual environment and install the requirements for the application
-```bash
+```
 cd /opt/selene/selene-backend/public
 pipenv install
 ```
@@ -162,7 +184,7 @@ reset key, which is used in a password reset scenario.  Generate a secret key fo
 SendGrid to send these emails so a SendGrid account and API key are required.
 * Define a systemd service to run the API.  The service defines environment variables that use the secret and API keys
 generated in previous steps.
-```bash
+```
 sudo vim /etc/systemd/system/sso_api.service
 ```
 ```
@@ -196,7 +218,7 @@ Environment=SSO_BASE_URL=<base url for single sign on application>
 WantedBy=multi-user.target
 ```
 * Start the sso_api service and set it to start on boot
-```bash
+```
 sudo systemctl start sso_api.service
 sudo systemctl enable sso_api.service
 ```
@@ -206,7 +228,7 @@ JWT_REFRESH_SECRET and SALT environment variables must be the same values as tho
 * This application uses the Redis database so the service needs to know where it resides.
 * Define a systemd service to run the API.  The service defines environment variables that use the secret and API keys
 generated in previous steps.
-```bash
+```
 sudo vim /etc/systemd/system/account_api.service
 ```
 ```
@@ -238,7 +260,7 @@ Environment=SALT=<same as value for single sign on>
 WantedBy=multi-user.target
 ```
 * Start the account_api service and set it to start on boot
-```bash
+```
 sudo systemctl start account_api.service
 sudo systemctl enable account_api.service
 ```
@@ -248,7 +270,7 @@ JWT_REFRESH_SECRET and SALT environment variables must be the same values as tho
 * This application uses the Redis database so the service needs to know where it resides.
 * Define a systemd service to run the API.  The service defines environment variables that use the secret and API keys
 generated in previous steps.
-```bash
+```
 sudo vim /etc/systemd/system/market_api.service
 ```
 ```
@@ -280,7 +302,7 @@ Environment=SALT=<same as value for single sign on>
 WantedBy=multi-user.target
 ```
 * Start the market_api service and set it to start on boot
-```bash
+```
 sudo systemctl start market_api.service
 sudo systemctl enable market_api.service
 ```
@@ -293,7 +315,7 @@ JWT_REFRESH_SECRET and SALT environment variables must be the same values as tho
 * The Wolfram Alpha skill requires an API key to the Wolfram Alpha API
 * Define a systemd service to run the API.  The service defines environment variables that use the secret and API keys
 generated in previous steps.
-```bash
+```
 sudo vim /etc/systemd/system/public_api.service
 ```
 ```
@@ -334,7 +356,7 @@ Environment=WOLFRAM_ALPHA_URL=https://api.wolframalpha.com
 WantedBy=multi-user.target
 ```
 * Start the public_api service and set it to start on boot
-```bash
+```
 sudo systemctl start public_api.service
 sudo systemctl enable public_api.service
 ```
