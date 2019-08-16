@@ -1,10 +1,12 @@
 from glob import glob
 from os import environ, path, remove
+from zipfile import ZipFile
 
 from markdown import markdown
 from psycopg2 import connect
 
 MYCROFT_DB_DIR = path.join(path.abspath('..'), 'mycroft')
+MYCROFT_DB_NAME = environ.get('DB_NAME', 'mycroft')
 SCHEMAS = ('account', 'skill', 'device', 'geography', 'metric')
 DB_DESTROY_FILES = (
     'drop_mycroft_db.sql',
@@ -47,7 +49,7 @@ GEOGRAPHY_TABLE_ORDER = (
 
 METRIC_TABLE_ORDER = (
     'api',
-    'api_history,'
+    'api_history',
     'job',
     'core'
 )
@@ -64,15 +66,15 @@ def get_sql_from_file(file_path: str) -> str:
 
 class PostgresDB(object):
     def __init__(self, db_name, user=None):
-        db_host = environ['DB_HOST']
-        db_port = environ['DB_PORT']
-        db_ssl_mode = environ.get('DB_SSL_MODE')
-        if db_name in ('postgres', 'defaultdb'):
-            db_user = environ['POSTGRES_DB_USER']
-            db_password = environ.get('POSTGRES_DB_PASSWORD')
+        db_host = environ.get('DB_HOST', '127.0.0.1')
+        db_port = environ.get('DB_PORT', 5432)
+        db_ssl_mode = environ.get('DB_SSLMODE')
+        if db_name in ('postgres', 'defaultdb', 'mycroft_template'):
+            db_user = environ.get('POSTGRES_USER', 'postgres')
+            db_password = environ.get('POSTGRES_PASSWORD')
         else:
-            db_user = environ['MYCROFT_DB_USER']
-            db_password = environ['MYCROFT_DB_PASSWORD']
+            db_user = environ.get('DB_USER', 'selene')
+            db_password = environ['DB_PASSWORD']
 
         if user is not None:
             db_user = user
@@ -91,12 +93,12 @@ class PostgresDB(object):
         self.db.close()
 
     def execute_sql(self, sql: str, args=None):
-        cursor = self.db.cursor()
-        cursor.execute(sql, args)
-        return cursor
+        _cursor = self.db.cursor()
+        _cursor.execute(sql, args)
+        return _cursor
 
 
-postgres_db = PostgresDB(db_name=environ['POSTGRES_DB_NAME'])
+postgres_db = PostgresDB(db_name='postgres')
 
 print('Destroying any objects we will be creating later.')
 for db_destroy_file in DB_DESTROY_FILES:
@@ -113,7 +115,7 @@ for db_setup_file in DB_CREATE_FILES:
 postgres_db.close_db()
 
 
-template_db = PostgresDB(db_name='mycroft_template', user='mycroft')
+template_db = PostgresDB(db_name='mycroft_template')
 
 print('Creating the extensions')
 template_db.execute_sql(
@@ -182,7 +184,7 @@ for table in DEVICE_TABLE_ORDER:
     )
 
 print('Creating the metrics schema tables')
-for table in METRICS_TABLE_ORDER:
+for table in METRIC_TABLE_ORDER:
     create_table_file = path.join(
         'metric_schema',
         'tables',
@@ -202,12 +204,12 @@ template_db.close_db()
 
 
 print('Copying template to new database.')
-postgres_db = PostgresDB(db_name=environ['POSTGRES_DB_NAME'])
+postgres_db = PostgresDB(db_name='postgres')
 postgres_db.execute_sql(get_sql_from_file('create_mycroft_db.sql'))
 postgres_db.close_db()
 
 
-mycroft_db = PostgresDB(db_name=environ['MYCROFT_DB_NAME'])
+mycroft_db = PostgresDB(db_name=MYCROFT_DB_NAME)
 insert_files = [
     dict(schema_dir='account_schema', file_name='membership.sql'),
     dict(schema_dir='device_schema', file_name='text_to_speech.sql'),
@@ -229,12 +231,21 @@ for insert_file in insert_files:
 print('Building account.agreement table')
 mycroft_db.db.autocommit = False
 insert_sql = (
-    "insert into account.agreement VALUES (default, '{}', '1', '[today,]', {})"
+    "insert into account.agreement VALUES (default, %s, '1', '[today,]', %s)"
 )
-doc_dir = '/Users/chrisveilleux/Mycroft/github/documentation/_pages/'
+privacy_policy_path = path.join(
+    environ.get('MYCROFT_DOC_DIR', '/opt/selene/documentation'),
+    '_pages',
+    'embed-privacy-policy.md'
+)
+terms_of_use_path = path.join(
+    environ.get('MYCROFT_DOC_DIR', '/opt/selene/documentation'),
+    '_pages',
+    'embed-terms-of-use.md'
+)
 docs = {
-    'Privacy Policy': doc_dir + 'embed-privacy-policy.md',
-    'Terms of Use': doc_dir + 'embed-terms-of-use.md'
+    'Privacy Policy': privacy_policy_path,
+    'Terms of Use': terms_of_use_path
 }
 try:
     for agrmt_type, doc_path in docs.items():
@@ -252,15 +263,11 @@ try:
                 output_format='html5'
             )
             lobj.write(doc_html)
-        mycroft_db.execute_sql(
-            insert_sql.format(agrmt_type, lobj.oid)
-        )
+        mycroft_db.execute_sql(insert_sql, args=(agrmt_type, lobj.oid))
         mycroft_db.execute_sql(
             "grant select on large object {} to selene".format(lobj.oid)
         )
-    mycroft_db.execute_sql(
-        insert_sql.format('Open Dataset', 'null')
-    )
+    mycroft_db.execute_sql(insert_sql, args=('Open Dataset', None))
 except:
     mycroft_db.db.rollback()
     raise
@@ -269,10 +276,9 @@ else:
 
 mycroft_db.db.autocommit = True
 
-reference_file_dir = '/Users/chrisveilleux/Mycroft'
-
 print('Building geography.country table')
-country_file = 'country.txt'
+data_dir = environ.get('MYCROFT_DOC_DIR', '/opt/selene/data')
+country_file = 'countryInfo.txt'
 country_insert = """
 INSERT INTO 
     geography.country (iso_code, name)
@@ -280,7 +286,7 @@ VALUES
     ('{iso_code}', '{country_name}')
 """
 
-with open(path.join(reference_file_dir, country_file)) as countries:
+with open(path.join(data_dir, country_file)) as countries:
     while True:
         rec = countries.readline()
         if rec.startswith('#ISO'):
@@ -295,7 +301,7 @@ with open(path.join(reference_file_dir, country_file)) as countries:
         mycroft_db.execute_sql(country_insert.format(**insert_args))
 
 print('Building geography.region table')
-region_file = 'regions.txt'
+region_file = 'admin1CodesASCII.txt'
 region_insert = """
 INSERT INTO 
     geography.region (country_id, region_code, name)
@@ -305,7 +311,7 @@ VALUES
         %(region_code)s, 
         %(region_name)s)
 """
-with open(path.join(reference_file_dir, region_file)) as regions:
+with open(path.join(data_dir, region_file)) as regions:
     for region in regions.readlines():
         region_fields = region.split('\t')
         country_iso_code = region_fields[0][:2]
@@ -317,7 +323,7 @@ with open(path.join(reference_file_dir, region_file)) as regions:
         mycroft_db.execute_sql(region_insert, insert_args)
 
 print('Building geography.timezone table')
-timezone_file = 'timezones.txt'
+timezone_file = 'timeZones.txt'
 timezone_insert = """
 INSERT INTO 
     geography.timezone (country_id, name, gmt_offset, dst_offset)
@@ -329,7 +335,7 @@ VALUES
         %(dst_offset)s
     )
 """
-with open(path.join(reference_file_dir, timezone_file)) as timezones:
+with open(path.join(data_dir, timezone_file)) as timezones:
     timezones.readline()
     for timezone in timezones.readlines():
         timezone_fields = timezone.split('\t')
@@ -342,7 +348,7 @@ with open(path.join(reference_file_dir, timezone_file)) as timezones:
         mycroft_db.execute_sql(timezone_insert, insert_args)
 
 print('Building geography.city table')
-cities_file = 'cities500.txt'
+cities_file = 'cities500.zip'
 region_query = "SELECT id, region_code FROM geography.region"
 query_result = mycroft_db.execute_sql(region_query)
 region_lookup = dict()
@@ -354,33 +360,27 @@ query_result = mycroft_db.execute_sql(timezone_query)
 timezone_lookup = dict()
 for row in query_result.fetchall():
     timezone_lookup[row[1]] = row[0]
-# city_insert = """
-# INSERT INTO
-#     geography.city (region_id, timezone_id, name, latitude, longitude)
-# VALUES
-#     (%(region_id)s, %(timezone_id)s, %(city_name)s, %(latitude)s, %(longitude)s)
-# """
-with open(path.join(reference_file_dir, cities_file)) as cities:
-    with open(path.join(reference_file_dir, 'city.dump'), 'w') as dump_file:
-        for city in cities.readlines():
-            city_fields = city.split('\t')
-            city_region = city_fields[8] + '.' + city_fields[10]
-            region_id = region_lookup.get(city_region)
-            timezone_id = timezone_lookup[city_fields[17]]
-            if region_id is not None:
-                dump_file.write('\t'.join([
-                    region_id,
-                    timezone_id,
-                    city_fields[1],
-                    city_fields[4],
-                    city_fields[5]
-                ]) + '\n')
-                # mycroft_db.execute_sql(city_insert, insert_args)
-with open(path.join(reference_file_dir, 'city.dump')) as dump_file:
+with ZipFile(path.join(data_dir, cities_file)) as cities_zip:
+    with cities_zip.open('cities500.txt') as cities:
+        with open(path.join(data_dir, 'city.dump'), 'w') as dump_file:
+            for city in cities.readlines():
+                city_fields = city.decode().split('\t')
+                city_region = city_fields[8] + '.' + city_fields[10]
+                region_id = region_lookup.get(city_region)
+                timezone_id = timezone_lookup[city_fields[17]]
+                if region_id is not None:
+                    dump_file.write('\t'.join([
+                        region_id,
+                        timezone_id,
+                        city_fields[1],
+                        city_fields[4],
+                        city_fields[5]
+                    ]) + '\n')
+with open(path.join(data_dir, 'city.dump')) as dump_file:
     cursor = mycroft_db.db.cursor()
     cursor.copy_from(dump_file, 'geography.city', columns=(
         'region_id', 'timezone_id', 'name', 'latitude', 'longitude')
                      )
-remove(path.join(reference_file_dir, 'city.dump'))
+remove(path.join(data_dir, 'city.dump'))
 
 mycroft_db.close_db()
