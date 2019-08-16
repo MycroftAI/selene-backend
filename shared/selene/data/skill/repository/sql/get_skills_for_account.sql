@@ -11,6 +11,7 @@ FROM
     LEFT JOIN skill.display sd ON ss.id = sd.skill_id
     LEFT JOIN skill.settings_display ssd ON ssd.skill_id = ss.id
 WHERE
-    dd.account_id = %(account_id)s
+    ssd.id = dds.skill_settings_display_id
+    AND dd.account_id = %(account_id)s
 GROUP BY
     1, 2, 3, 4
