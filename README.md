@@ -306,7 +306,16 @@ WantedBy=multi-user.target
 sudo systemctl start market_api.service
 sudo systemctl enable market_api.service
 ```
-* The marketplace API assumes that the skills it supplies to the web application are in the Postgres database.
+* The marketplace API assumes that the skills it supplies to the web application are in the Postgres database. To get
+them there, a script needs to be run to download them from Github.  The script requires the GITHUB_USER, GITHUB_PASSWORD,
+DB_HOST, DB_NAME, DB_USER and DB_PASSWORD environment variables to run.  Use the same values as those in the service
+definition files.
+```
+cd /opt/selene/selene-backend/batch
+pipenv install
+pipenv run python load_skill_display_data.py --core-version <specify core version, e.g. 19.02>
+```
+
 ##Device API
 * The device API uses the same authentication mechanism as the single sign on API.  The JWT_ACCESS_SECRET, 
 JWT_REFRESH_SECRET and SALT environment variables must be the same values as those on the single sign on API.
