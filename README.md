@@ -306,6 +306,7 @@ WantedBy=multi-user.target
 sudo systemctl start market_api.service
 sudo systemctl enable market_api.service
 ```
+* The marketplace API assumes that the skills it supplies to the web application are in the Postgres database.
 ##Device API
 * The device API uses the same authentication mechanism as the single sign on API.  The JWT_ACCESS_SECRET, 
 JWT_REFRESH_SECRET and SALT environment variables must be the same values as those on the single sign on API.
