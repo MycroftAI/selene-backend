@@ -4,7 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-flask = "*"
+flask = "<1.1"
 uwsgi = "*"
 schematics = "*"
 stripe = "*"
