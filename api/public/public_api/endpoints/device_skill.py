@@ -8,7 +8,9 @@ paired or a skill is installed. A skill that is not installed on a device
 cannot send it's settings... right?  The skill and its relationship to the
 device should already be known when this endpoint is called.
 """
+from http import HTTPStatus
 from logging import getLogger
+
 from schematics import Model
 from schematics.types import (
     BooleanType,
@@ -21,6 +23,7 @@ from schematics.exceptions import DataError
 from selene.api import PublicEndpoint
 from selene.data.device import DeviceSkillRepository
 from selene.data.skill import (
+    SettingsDisplay,
     SettingsDisplayRepository,
     SkillRepository
 )
@@ -90,15 +93,18 @@ class SkillSettingsMetaEndpoint(PublicEndpoint):
         self._validate_request()
         self._get_skill()
         self._parse_skill_metadata()
-        self._update_skill_settings_definition()
-        self._get_skill_settings_definition()
-        self._update_device_skill(device_id)
+        settings_definition_id = self._ensure_settings_definition_exists()
+        self._update_device_skill(device_id, settings_definition_id)
+
+        return '', HTTPStatus.NO_CONTENT
 
     def _validate_request(self):
-        request_model = RequestDeviceSkill(**self.request.json)
+        """Ensure the request is well-formed."""
+        request_model = RequestDeviceSkill(self.request.json)
         request_model.validate()
 
     def _get_skill(self):
+        """Retrieve the skill associated with the request."""
         skill_repo = SkillRepository(self.db)
         self.skill = skill_repo.get_skill_by_global_id(
             self.request.json['skill_gid']
@@ -112,6 +118,12 @@ class SkillSettingsMetaEndpoint(PublicEndpoint):
             raise DataError(err_msg)
 
     def _parse_skill_metadata(self):
+        """Inspect the contents of the skill settings definition.
+
+        Skill authors often write settings definition files with strings in
+        fields that should be boolean or numeric.  Ensure all fields are cast
+        to the correct type before interacting with the database.
+        """
         self.skill_has_settings = 'skillMetadata' in self.request.json
         if self.skill_has_settings:
             skill_metadata = self.request.json['skillMetadata']
@@ -127,25 +139,44 @@ class SkillSettingsMetaEndpoint(PublicEndpoint):
                 sections=normalized_sections
             )
 
-    def _update_skill_settings_definition(self):
+    def _ensure_settings_definition_exists(self):
+        """Add a row to skill.settings_display if it doesn't already exist."""
+        settings_definition_id = None
         settings_def_repo = SettingsDisplayRepository(self.db)
-        self.settings_definition_id = settings_def_repo.upsert(
-            self.skill.id,
-            self.request.json
+        settings_defs = settings_def_repo.get_settings_definitions_by_gid(
+            self.skill.skill_gid
         )
 
-    def _update_device_skill(self, device_id):
+        for settings_def in settings_defs:
+            if settings_def.display_data == self.request.json:
+                settings_definition_id = settings_def.id
+                break
+
+        if settings_definition_id is None:
+            settings_def_repo = SettingsDisplayRepository(self.db)
+            settings_definition = SettingsDisplay(
+                skill_id=self.skill.id,
+                display_data=self.request.json
+            )
+            settings_definition_id = settings_def_repo.add(
+                settings_definition
+            )
+
+        return settings_definition_id
+
+    def _update_device_skill(self, device_id, settings_definition_id):
+        """Update device.device_skill to match the new settings definition."""
         device_skill_repo = DeviceSkillRepository(self.db)
         device_skill = device_skill_repo.get_skill_settings_for_device(
             device_id,
-            self.skill_id
+            self.skill.id
         )
         if device_skill is None:
             error_msg = 'Received skill setting definition before manifest'
             _log.error(error_msg)
             raise DataError
         else:
-            device_skill.settings_display_id = self.settings_definition_id
+            device_skill.settings_display_id = settings_definition_id
             if self.skill_has_settings:
                 device_skill.settings_values = self._reconcile_skill_settings(
                     device_skill.settings_values
@@ -156,6 +187,7 @@ class SkillSettingsMetaEndpoint(PublicEndpoint):
             )
 
     def _reconcile_skill_settings(self, settings_values):
+        """Fix any new or removed settings."""
         new_settings_values = {}
         if settings_values is None:
             new_settings_values = self.default_settings
