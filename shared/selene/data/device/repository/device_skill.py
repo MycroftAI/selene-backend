@@ -4,7 +4,11 @@ from dataclasses import asdict
 from typing import List
 
 from selene.data.skill import SettingsDisplay
-from ..entity.device_skill import ManifestSkill, DeviceSkillSettings
+from ..entity.device_skill import (
+    AccountSkillSettings,
+    DeviceSkillSettings,
+    ManifestSkill
+)
 from ...repository_base import RepositoryBase
 
 
@@ -12,30 +16,31 @@ class DeviceSkillRepository(RepositoryBase):
     def __init__(self, db):
         super(DeviceSkillRepository, self).__init__(db, __file__)
 
-    def get_device_skill_settings_for_account(
+    def get_skill_settings_for_account(
             self, account_id: str, skill_id: str
-    ) -> List[DeviceSkillSettings]:
+    ) -> List[AccountSkillSettings]:
         return self._select_all_into_dataclass(
-            DeviceSkillSettings,
-            sql_file_name='get_device_skill_settings_for_account.sql',
+            AccountSkillSettings,
+            sql_file_name='get_skill_settings_for_account.sql',
             args=dict(account_id=account_id, skill_id=skill_id)
         )
 
-    def get_device_skill_settings_for_device(
-            self, device_id: str
-    ) -> List[DeviceSkillSettings]:
-        return self._select_all_into_dataclass(
-            DeviceSkillSettings,
-            sql_file_name='get_device_skill_settings_for_device.sql',
-            args=dict(device_id=device_id)
-        )
-
-    def get_skill_settings_for_device(self, device_id, skill_id):
-        self._select_one_into_dataclass(
+    def get_skill_settings_for_device(self, device_id, skill_id=None):
+        device_skills = self._select_all_into_dataclass(
             DeviceSkillSettings,
             sql_file_name='get_skill_settings_for_device.sql',
-            args=dict(device_id=device_id, skill_id=skill_id)
+            args=dict(device_id=device_id)
         )
+        if skill_id is None:
+            skill_settings = device_skills
+        else:
+            skill_settings = None
+            for skill in device_skills:
+                if skill.skill_id == skill_id:
+                    skill_settings = skill
+                    break
+
+        return skill_settings
 
     def update_skill_settings(
             self, account_id: str, device_names: tuple, skill_name: str

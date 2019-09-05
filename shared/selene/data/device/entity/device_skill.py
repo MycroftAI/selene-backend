@@ -17,9 +17,17 @@ class ManifestSkill(object):
 
 
 @dataclass
-class DeviceSkillSettings(object):
+class AccountSkillSettings(object):
     install_method: str
     skill_id: str
     device_ids: List[str] = None
+    settings_values: dict = None
+    settings_display_id: str = None
+
+
+@dataclass
+class DeviceSkillSettings(object):
+    skill_id: str
+    skill_gid: str
     settings_values: dict = None
     settings_display_id: str = None

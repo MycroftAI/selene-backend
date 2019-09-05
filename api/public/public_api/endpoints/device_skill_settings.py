@@ -349,3 +349,53 @@ class DeviceSkillSettingsEndpoint(PublicEndpoint):
         )
         if not skill_count:
             self.settings_display_repo.remove(settings_display_id)
+
+
+class DeviceSkillSettingsEndpointV2(PublicEndpoint):
+    """Replacement that decouples settings definition from values.
+
+    The older version of this class needs to be kept around for compatibility
+    with pre 19.08 versions of mycroft-core.  Once those versions are no
+    longer supported, the older class can be deprecated.
+    """
+    def get(self, device_id):
+        """
+        Retrieve skills installed on device from the database.
+
+        :raises NotModifiedException: when etag in request matches cache
+        """
+        self._authenticate(device_id)
+        self._validate_etag(DEVICE_SKILL_ETAG_KEY.format(device_id=device_id))
+        response_data = self._build_response_data(device_id)
+        response = self._build_response(device_id, response_data)
+
+        return response
+
+    def _build_response_data(self, device_id):
+        device_skill_repo = DeviceSkillRepository(self.db)
+        device_skills = device_skill_repo.get_skill_settings_for_device(
+            device_id
+        )
+        if device_skills is not None:
+            response_data = {}
+            for skill in device_skills:
+                response_data[skill.skill_gid] = skill.settings_values
+
+            return response_data
+
+    def _build_response(self, device_id, response_data):
+        if response_data is None:
+            response = Response(
+                '',
+                status=HTTPStatus.NO_CONTENT,
+                content_type='application/json'
+            )
+        else:
+            response = Response(
+                json.dumps(response_data),
+                status=HTTPStatus.OK,
+                content_type='application/json'
+            )
+            self._add_etag(DEVICE_SKILL_ETAG_KEY.format(device_id=device_id))
+
+        return response
