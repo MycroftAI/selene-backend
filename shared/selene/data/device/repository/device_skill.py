@@ -30,6 +30,13 @@ class DeviceSkillRepository(RepositoryBase):
             args=dict(device_id=device_id)
         )
 
+    def get_skill_settings_for_device(self, device_id, skill_id):
+        self._select_one_into_dataclass(
+            DeviceSkillSettings,
+            sql_file_name='get_skill_settings_for_device.sql',
+            args=dict(device_id=device_id, skill_id=skill_id)
+        )
+
     def update_skill_settings(
             self, account_id: str, device_names: tuple, skill_name: str
     ):
@@ -64,6 +71,23 @@ class DeviceSkillRepository(RepositoryBase):
                 )
             )
             self.cursor.insert(db_request)
+
+    def update_device_skill_settings(self, device_id, device_skill):
+        """Update the skill settings columns on the device_skill table."""
+        if device_skill.settings_values is None:
+            db_settings_values = None
+        else:
+            db_settings_values = json.dumps(device_skill.settings_values)
+        db_request = self._build_db_request(
+            sql_file_name='update_device_skill_settings.sql',
+            args=dict(
+                device_id=device_id,
+                skill_id=device_skill.skill_id,
+                settings_display_id=device_skill.settings_display_id,
+                settings_values=db_settings_values
+            )
+        )
+        self.cursor.update(db_request)
 
     def get_skill_manifest_for_device(
             self, device_id: str
