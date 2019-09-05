@@ -33,6 +33,15 @@ class SettingsDisplayRepository(RepositoryBase):
 
         return None if result is None else result['id']
 
+    def upsert(self, skill_id, settings_definition):
+        self._build_db_request(
+            sql_file_name='upsert_setting_definition.sql',
+            args=dict(
+                skill_id=skill_id,
+                settings_definition=settings_definition
+            )
+        )
+
     def remove(self, settings_display_id: str):
         db_request = self._build_db_request(
             sql_file_name='delete_settings_display.sql',
