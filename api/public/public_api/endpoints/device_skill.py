@@ -72,6 +72,7 @@ class RequestSkillIcon(Model):
 
 
 class RequestDeviceSkill(Model):
+    color = StringType()
     display_name = StringType(required=True)
     icon = ModelType(RequestSkillIcon)
     icon_img = StringType()
