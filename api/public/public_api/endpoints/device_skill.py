@@ -115,7 +115,7 @@ class SkillSettingsMetaEndpoint(PublicEndpoint):
                 self.request.json['skill_gid']
             )
             _log.error(err_msg)
-            raise DataError(err_msg)
+            raise DataError(dict(skill_gid=[err_msg]))
 
     def _parse_skill_metadata(self):
         """Inspect the contents of the skill settings definition.
@@ -174,7 +174,7 @@ class SkillSettingsMetaEndpoint(PublicEndpoint):
         if device_skill is None:
             error_msg = 'Received skill setting definition before manifest'
             _log.error(error_msg)
-            raise DataError
+            raise DataError(dict(skill_gid=[error_msg]))
         else:
             device_skill.settings_display_id = settings_definition_id
             if self.skill_has_settings:
