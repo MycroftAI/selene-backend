@@ -45,6 +45,8 @@ def _normalize_field_value(field):
                 normalized_value = int(field['value'])
             else:
                 normalized_value = 0
+    elif field['value'] == "[]":
+        normalized_value = []
 
     return normalized_value
 
