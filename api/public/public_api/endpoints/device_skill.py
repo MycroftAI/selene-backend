@@ -32,6 +32,7 @@ _log = getLogger(__package__)
 
 
 def _normalize_field_value(field):
+    """The field values in skillMetadata are all strings, convert to native."""
     normalized_value = field.get('value')
     if field['type'].lower() == 'checkbox':
         if field['value'] in ('false', 'False', '0'):
