@@ -39,9 +39,12 @@ def _normalize_field_value(field):
         elif field['value'] in ('true', 'True', '1'):
             normalized_value = True
     elif field['type'].lower() == 'number' and isinstance(field['value'], str):
-        normalized_value = float(field['value'])
-        if not normalized_value % 1:
-            normalized_value = int(field['value'])
+        if field['value']:
+            normalized_value = float(field['value'])
+            if not normalized_value % 1:
+                normalized_value = int(field['value'])
+            else:
+                normalized_value = 0
 
     return normalized_value
 
