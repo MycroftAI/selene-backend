@@ -311,7 +311,7 @@ class DeviceSkillSettingsEndpoint(PublicEndpoint):
             for field in section_with_values['fields']:
                 field_name = field.get('name')
                 if field_name is not None and field_name in settings_values:
-                    field.update(value=settings_values[field_name])
+                    field.update(value=str(settings_values[field_name]))
             sections_with_values.append(section_with_values)
 
         return sections_with_values
