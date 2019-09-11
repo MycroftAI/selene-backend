@@ -216,7 +216,10 @@ class SkillSettingsMetaEndpoint(PublicEndpoint):
             self.skill.id
         )
         if device_skill is None:
-            error_msg = 'Received skill setting definition before manifest'
+            error_msg = (
+                'Received skill setting definition before manifest for '
+                'skill ' + self.skill.skill_gid
+            )
             _log.error(error_msg)
             raise DataError(dict(skill_gid=[error_msg]))
 
