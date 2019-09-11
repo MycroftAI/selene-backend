@@ -55,8 +55,8 @@ class SkillSettingsEndpoint(SeleneEndpoint):
         the value is the value.
         """
         for skill_settings in self.family_settings:
-            if skill_settings.settings_display is not None:
-                for section in skill_settings.settings_display['sections']:
+            if skill_settings.settings_definition is not None:
+                for section in skill_settings.settings_definition['sections']:
                     for field in section['fields']:
                         if field['type'] == 'select':
                             parsed_options = []
@@ -76,10 +76,10 @@ class SkillSettingsEndpoint(SeleneEndpoint):
         for skill_settings in self.family_settings:
             # The UI will throw an error if settings display is null due to how
             # the skill settings data structures are defined.
-            if skill_settings.settings_display is None:
-                skill_settings.settings_display = dict(sections=[])
+            if skill_settings.settings_definition is None:
+                skill_settings.settings_definition = dict(sections=[])
             response_skill = dict(
-                settingsDisplay=skill_settings.settings_display,
+                settingsDisplay=skill_settings.settings_definition,
                 settingsValues=skill_settings.settings_values,
                 deviceNames=skill_settings.device_names
             )
@@ -98,7 +98,7 @@ class SkillSettingsEndpoint(SeleneEndpoint):
         """Update the value of the settings column on the device_skill table,"""
         for new_skill_settings in self.request.json['skillSettings']:
             account_skill_settings = AccountSkillSetting(
-                settings_display=new_skill_settings['settingsDisplay'],
+                settings_definition=new_skill_settings['settingsDisplay'],
                 settings_values=new_skill_settings['settingsValues'],
                 device_names=new_skill_settings['deviceNames']
             )
