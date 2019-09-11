@@ -296,7 +296,9 @@ class DeviceSkillSettingsEndpoint(PublicEndpoint):
             if skill_gid is not None:
                 response_skill.update(skill_gid=skill_gid)
             identifier = skill.settings_display.get('identifier')
-            if identifier is not None:
+            if identifier is None:
+                response_skill.update(identifier=skill_gid)
+            else:
                 response_skill.update(identifier=identifier)
             response_data.append(response_skill)
 
