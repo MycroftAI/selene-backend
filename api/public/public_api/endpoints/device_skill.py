@@ -1,7 +1,8 @@
 """Applies a skill settings definition to the database.
 
-Whenever a change is made to a skill's settings definition on a device, the
-updated definition is sent to the backend.
+Whenever a change is made to a skill's settings definition on a device, this
+endpoint is called to update the same on the database.  If a skill has
+settings, the device's settings are also updated.
 
 This endpoint assumes that the skill manifest is sent when the a device is
 paired or a skill is installed. A skill that is not installed on a device
@@ -21,12 +22,15 @@ from schematics.types import (
 from schematics.exceptions import DataError
 
 from selene.api import PublicEndpoint
+from selene.data.account import AccountRepository
 from selene.data.device import DeviceSkillRepository
 from selene.data.skill import (
+    extract_family_from_global_id,
     SettingsDisplay,
     SettingsDisplayRepository,
     SkillRepository
 )
+from selene.data.skill import SkillSettingRepository
 
 _log = getLogger(__package__)
 
@@ -92,14 +96,22 @@ class SkillSettingsMetaEndpoint(PublicEndpoint):
         self.default_settings = None
         self.skill_has_settings = False
         self.settings_definition_id = None
+        self._device_skill_repo = None
+
+    @property
+    def device_skill_repo(self):
+        if self._device_skill_repo is None:
+            self._device_skill_repo = DeviceSkillRepository(self.db)
+
+        return self._device_skill_repo
 
     def put(self, device_id):
         self._authenticate(device_id)
         self._validate_request()
         self._get_skill()
         self._parse_skill_metadata()
-        settings_definition_id = self._ensure_settings_definition_exists()
-        self._update_device_skill(device_id, settings_definition_id)
+        self._ensure_settings_definition_exists()
+        self._update_device_skill(device_id)
 
         return '', HTTPStatus.NO_CONTENT
 
@@ -146,33 +158,60 @@ class SkillSettingsMetaEndpoint(PublicEndpoint):
 
     def _ensure_settings_definition_exists(self):
         """Add a row to skill.settings_display if it doesn't already exist."""
-        settings_definition_id = None
+        self.settings_definition_id = None
+        self._check_for_existing_settings_definition()
+        if self.settings_definition_id is None:
+            self._add_settings_definition()
+
+    def _check_for_existing_settings_definition(self):
+        """Look for an existing database row matching the request."""
         settings_def_repo = SettingsDisplayRepository(self.db)
         settings_defs = settings_def_repo.get_settings_definitions_by_gid(
             self.skill.skill_gid
         )
-
         for settings_def in settings_defs:
             if settings_def.display_data == self.request.json:
-                settings_definition_id = settings_def.id
+                self.settings_definition_id = settings_def.id
                 break
 
-        if settings_definition_id is None:
-            settings_def_repo = SettingsDisplayRepository(self.db)
-            settings_definition = SettingsDisplay(
-                skill_id=self.skill.id,
-                display_data=self.request.json
-            )
-            settings_definition_id = settings_def_repo.add(
-                settings_definition
-            )
+    def _add_settings_definition(self):
+        """The settings definition does not exist on database so add it."""
+        settings_def_repo = SettingsDisplayRepository(self.db)
+        settings_definition = SettingsDisplay(
+            skill_id=self.skill.id,
+            display_data=self.request.json
+        )
+        self.settings_definition_id = settings_def_repo.add(
+            settings_definition
+        )
 
-        return settings_definition_id
+    def _update_device_skill(self, device_id):
+        """Update device.device_skill to match the new settings definition.
 
-    def _update_device_skill(self, device_id, settings_definition_id):
-        """Update device.device_skill to match the new settings definition."""
-        device_skill_repo = DeviceSkillRepository(self.db)
-        device_skill = device_skill_repo.get_skill_settings_for_device(
+        If the skill has settings and the device_skill table does not, either
+        use the default values in the settings definition or copy the settings
+        from another device under the same account.
+        """
+        device_skill = self._get_device_skill(device_id)
+        device_skill.settings_display_id = self.settings_definition_id
+        if self.skill_has_settings:
+            if device_skill.settings_values is None:
+                new_settings_values = self._initialize_skill_settings(
+                    device_id
+                )
+            else:
+                new_settings_values = self._reconcile_skill_settings(
+                    device_skill.settings_values
+                )
+            device_skill.settings_values = new_settings_values
+        self.device_skill_repo.update_device_skill_settings(
+            device_id,
+            device_skill
+        )
+
+    def _get_device_skill(self, device_id):
+        """Retrieve the device's skill entry from the database."""
+        device_skill = self.device_skill_repo.get_skill_settings_for_device(
             device_id,
             self.skill.id
         )
@@ -180,30 +219,52 @@ class SkillSettingsMetaEndpoint(PublicEndpoint):
             error_msg = 'Received skill setting definition before manifest'
             _log.error(error_msg)
             raise DataError(dict(skill_gid=[error_msg]))
-        else:
-            device_skill.settings_display_id = settings_definition_id
-            if self.skill_has_settings:
-                device_skill.settings_values = self._reconcile_skill_settings(
-                    device_skill.settings_values
-                )
-            device_skill_repo.update_device_skill_settings(
-                device_id,
-                device_skill
-            )
+
+        return device_skill
 
     def _reconcile_skill_settings(self, settings_values):
         """Fix any new or removed settings."""
         new_settings_values = {}
-        if settings_values is None:
-            new_settings_values = self.default_settings
+        for name, value in self.default_settings.items():
+            if name in settings_values:
+                new_settings_values[name] = settings_values[name]
+            else:
+                new_settings_values[name] = self.default_settings[name]
+        for name, value in settings_values.items():
+            if name in self.default_settings:
+                new_settings_values[name] = settings_values[name]
+
+        return new_settings_values
+
+    def _initialize_skill_settings(self, device_id):
+        """Use default settings or copy from another device in same account."""
+        _log.info('Initializing settings for skill ' + self.skill.skill_gid)
+        account_repo = AccountRepository(self.db)
+        account = account_repo.get_account_by_device_id(device_id)
+        skill_settings_repo = SkillSettingRepository(self.db)
+        skill_family = extract_family_from_global_id(self.skill.skill_gid)
+        family_settings = skill_settings_repo.get_family_settings(
+            account.id,
+            skill_family
+        )
+        new_settings_values = self.default_settings
+        if family_settings is not None:
+            for settings in family_settings:
+                if settings.settings_values is None:
+                    continue
+                if settings.settings_values != self.default_settings:
+                    field_names = settings.settings_values.keys()
+                    if field_names == self.default_settings.keys():
+                        _log.info(
+                            'Copying settings from another device for skill' +
+                            self.skill.skill_gid
+                        )
+                        new_settings_values = settings.settings_values
+                        break
         else:
-            for name, value in self.default_settings.items():
-                if name in settings_values:
-                    new_settings_values[name] = settings_values[name]
-                else:
-                    new_settings_values[name] = self.default_settings[name]
-            for name, value in settings_values.items():
-                if name in self.default_settings:
-                    new_settings_values[name] = settings_values[name]
+            _log.info(
+                'Using default skill settings for skill ' +
+                self.skill.skill_gid
+            )
 
         return new_settings_values
