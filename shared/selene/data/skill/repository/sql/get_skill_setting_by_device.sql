@@ -1,5 +1,5 @@
 SELECT
-    ss.id AS skill_id,
+    dds.skill_id,
     dds.settings AS settings_values,
     ssd.settings_display
 FROM

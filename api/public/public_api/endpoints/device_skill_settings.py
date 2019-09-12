@@ -133,7 +133,7 @@ class SkillSettingUpdater(object):
         account_repo = AccountRepository(self.db)
         account = account_repo.get_account_by_device_id(self.device_id)
         skill_settings = (
-            self.device_skill_repo.get_device_skill_settings_for_account(
+            self.device_skill_repo.get_skill_settings_for_account(
                 account.id,
                 self.skill.id
             )
@@ -296,7 +296,9 @@ class DeviceSkillSettingsEndpoint(PublicEndpoint):
             if skill_gid is not None:
                 response_skill.update(skill_gid=skill_gid)
             identifier = skill.settings_display.get('identifier')
-            if identifier is not None:
+            if identifier is None:
+                response_skill.update(identifier=skill_gid)
+            else:
                 response_skill.update(identifier=identifier)
             response_data.append(response_skill)
 
@@ -311,7 +313,7 @@ class DeviceSkillSettingsEndpoint(PublicEndpoint):
             for field in section_with_values['fields']:
                 field_name = field.get('name')
                 if field_name is not None and field_name in settings_values:
-                    field.update(value=settings_values[field_name])
+                    field.update(value=str(settings_values[field_name]))
             sections_with_values.append(section_with_values)
 
         return sections_with_values
@@ -343,30 +345,59 @@ class DeviceSkillSettingsEndpoint(PublicEndpoint):
 
         return skill_setting_updater.skill.id
 
-    def delete(self, device_id, skill_gid):
-        self._authenticate(device_id)
-        skill = self.skill_repo.get_skill_by_global_id(skill_gid)
-        settings_display_id = self._delete_skill_from_device(device_id, skill)
-        self._delete_orphaned_settings_display(settings_display_id)
-        return '', HTTPStatus.OK
-
-    def _delete_skill_from_device(self, device_id, skill):
-        settings_display_id = None
-        device_skills = (
-            self.device_skill_repo.get_device_skill_settings_for_device(
-                device_id
-            )
-        )
-        for device_skill in device_skills:
-            if device_skill.skill_id == skill.id:
-                self.device_skill_repo.remove(device_id, skill.id)
-                settings_display_id = device_skill.settings_display_id
-
-        return settings_display_id
-
     def _delete_orphaned_settings_display(self, settings_display_id):
         skill_count = self.device_skill_repo.get_settings_display_usage(
             settings_display_id
         )
         if not skill_count:
             self.settings_display_repo.remove(settings_display_id)
+
+
+class DeviceSkillSettingsEndpointV2(PublicEndpoint):
+    """Replacement that decouples settings definition from values.
+
+    The older version of this class needs to be kept around for compatibility
+    with pre 19.08 versions of mycroft-core.  Once those versions are no
+    longer supported, the older class can be deprecated.
+    """
+    def get(self, device_id):
+        """
+        Retrieve skills installed on device from the database.
+
+        :raises NotModifiedException: when etag in request matches cache
+        """
+        self._authenticate(device_id)
+        self._validate_etag(DEVICE_SKILL_ETAG_KEY.format(device_id=device_id))
+        response_data = self._build_response_data(device_id)
+        response = self._build_response(device_id, response_data)
+
+        return response
+
+    def _build_response_data(self, device_id):
+        device_skill_repo = DeviceSkillRepository(self.db)
+        device_skills = device_skill_repo.get_skill_settings_for_device(
+            device_id
+        )
+        if device_skills is not None:
+            response_data = {}
+            for skill in device_skills:
+                response_data[skill.skill_gid] = skill.settings_values
+
+            return response_data
+
+    def _build_response(self, device_id, response_data):
+        if response_data is None:
+            response = Response(
+                '',
+                status=HTTPStatus.NO_CONTENT,
+                content_type='application/json'
+            )
+        else:
+            response = Response(
+                json.dumps(response_data),
+                status=HTTPStatus.OK,
+                content_type='application/json'
+            )
+            self._add_etag(DEVICE_SKILL_ETAG_KEY.format(device_id=device_id))
+
+        return response

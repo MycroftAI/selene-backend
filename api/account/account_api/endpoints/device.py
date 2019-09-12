@@ -119,11 +119,6 @@ class DeviceEndpoint(SeleneEndpoint):
             else:
                 last_contact_age = datetime.utcnow() - device.last_contact_ts
         else:
-            last_contact_ts = last_contact_ts.decode()
-            last_contact_ts = datetime.strptime(
-                last_contact_ts,
-                '%Y-%m-%d %H:%M:%S.%f'
-            )
             last_contact_age = datetime.utcnow() - last_contact_ts
 
         return last_contact_age
