@@ -2,7 +2,6 @@ import os
 
 from flask import Flask
 
-from public_api.endpoints.stripe_webhook import StripeWebHookEndpoint
 from selene.api import SeleneResponse, selene_api
 from selene.api.base_config import get_base_config
 from selene.api.public_endpoint import check_oauth_token
@@ -17,14 +16,16 @@ from .endpoints.device_metrics import DeviceMetricsEndpoint
 from .endpoints.device_oauth import OauthServiceEndpoint
 from .endpoints.device_refresh_token import DeviceRefreshTokenEndpoint
 from .endpoints.device_setting import DeviceSettingEndpoint
-from .endpoints.device_skill import DeviceSkillEndpoint
+from .endpoints.device_skill import SkillSettingsMetaEndpoint
 from .endpoints.device_skill_manifest import DeviceSkillManifestEndpoint
 from .endpoints.device_skill_settings import DeviceSkillSettingsEndpoint
+from .endpoints.device_skill_settings import DeviceSkillSettingsEndpointV2
 from .endpoints.device_subscription import DeviceSubscriptionEndpoint
 from .endpoints.google_stt import GoogleSTTEndpoint
 from .endpoints.oauth_callback import OauthCallbackEndpoint
 from .endpoints.open_weather_map import OpenWeatherMapEndpoint
 from .endpoints.premium_voice import PremiumVoiceEndpoint
+from .endpoints.stripe_webhook import StripeWebHookEndpoint
 from .endpoints.wolfram_alpha import WolframAlphaEndpoint
 from .endpoints.wolfram_alpha_spoken import WolframAlphaSpokenEndpoint
 
@@ -51,9 +52,15 @@ public.add_url_rule(
 )
 
 public.add_url_rule(
-    '/v1/device/<string:device_id>/userSkill',
-    view_func=DeviceSkillEndpoint.as_view('device_user_skill_api'),
+    '/v1/device/<string:device_id>/skill/settings',
+    view_func=DeviceSkillSettingsEndpointV2.as_view('skill_settings_api'),
     methods=['GET']
+)
+
+public.add_url_rule(
+    '/v1/device/<string:device_id>/settingsMeta',
+    view_func=SkillSettingsMetaEndpoint.as_view('device_user_skill_api'),
+    methods=['PUT']
 )
 
 public.add_url_rule(
@@ -153,9 +160,9 @@ public.add_url_rule(
     methods=['POST']
 )
 
-"""
-This is a workaround to allow the API return 401 when we call a non existent path. Use case:
-GET /device/{uuid} with empty uuid. Core today uses the 401 to validate if it needs to perform a pairing process
-Whe should fix that in a future version because we have to return 404 when we call a non existent path
-"""
+
+# This is a workaround to allow the API return 401 when we call a non existent
+# path. Use case: GET /device/{uuid} with empty uuid. Core today uses the 401
+# to validate if it needs to perform a pairing process. We should fix that in a
+# future version because we have to return 404 when we call a non existent path
 public.before_request(check_oauth_token)

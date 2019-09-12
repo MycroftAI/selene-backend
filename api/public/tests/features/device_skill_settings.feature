@@ -55,10 +55,3 @@ Feature: Upload and fetch skills and their settings
     And the field is no longer in the skill settings
     And the device skill E-tag is expired
     And device last contact timestamp is updated
-
-  Scenario: A device requests a skill to be deleted
-    Given an authorized device
-    When the device requests a skill to be deleted
-    Then the request will be successful
-    And the skill will be removed from the device skill list
-    And device last contact timestamp is updated

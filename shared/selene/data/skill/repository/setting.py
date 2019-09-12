@@ -17,26 +17,11 @@ class SkillSettingRepository(RepositoryBase):
             account_id: str,
             family_name: str
     ) -> List[AccountSkillSetting]:
-        db_request = self._build_db_request(
-            'get_settings_for_skill_family.sql',
+        return self._select_all_into_dataclass(
+            AccountSkillSetting,
+            sql_file_name='get_settings_for_skill_family.sql',
             args=dict(family_name=family_name, account_id=account_id)
         )
-        db_result = self.cursor.select_all(db_request)
-
-        skill_settings = []
-        for row in db_result:
-            settings_display = row['settings_display']
-            if settings_display is not None:
-                settings_display = settings_display.get('skillMetadata')
-            skill_settings.append(
-                AccountSkillSetting(
-                    settings_display=settings_display,
-                    settings_values=row['settings_values'],
-                    device_names=row['device_names'],
-                )
-            )
-
-        return skill_settings
 
     def get_installer_settings(self, account_id) -> List[AccountSkillSetting]:
         skill_repo = SkillRepository(self.db)
