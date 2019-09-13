@@ -80,6 +80,13 @@ def test_scheduler():
     job_runner.run_job()
 
 
+def load_19_02_skills():
+    """Load the json file from the mycroft-skills-data repository to the DB"""
+    job_runner = JobRunner('load_skill_display_data.py --core-version 19.02')
+    job_runner.job_date = date.today() - timedelta(days=1)
+    job_runner.run_job()
+
+
 def parse_core_metrics():
     """Copy rows from metric.core to de-normalized metric.core_interaction
 
@@ -119,6 +126,7 @@ if os.environ['SELENE_ENVIRONMENT'] != 'prod':
 schedule.every().day.at('00:00').do(partition_api_metrics)
 schedule.every().day.at('00:05').do(update_device_last_contact)
 schedule.every().day.at('00:10').do(parse_core_metrics)
+schedule.every().day.at('00:15').do(load_19_02_skills())
 
 # Run the schedule
 while True:
