@@ -31,6 +31,27 @@ GLOBAL_ID_ANY_PATTERN = '(?:{})|(?:{})|(?:{})'.format(
 )
 
 
+def _normalize_field_value(field):
+    """The field values in skillMetadata are all strings, convert to native."""
+    normalized_value = field.get('value')
+    if field['type'].lower() == 'checkbox':
+        if field['value'] in ('false', 'False', '0'):
+            normalized_value = False
+        elif field['value'] in ('true', 'True', '1'):
+            normalized_value = True
+    elif field['type'].lower() == 'number' and isinstance(field['value'], str):
+        if field['value']:
+            normalized_value = float(field['value'])
+            if not normalized_value % 1:
+                normalized_value = int(field['value'])
+            else:
+                normalized_value = 0
+    elif field['value'] == "[]":
+        normalized_value = []
+
+    return normalized_value
+
+
 class SkillSettingUpdater(object):
     """Update the settings data for all devices with a skill
 
@@ -86,6 +107,7 @@ class SkillSettingUpdater(object):
                     field_value = field.get('value')
                     if field_value is not None:
                         if field_name is not None:
+                            field_value = _normalize_field_value(field)
                             self.settings_values[field_name] = field_value
                         del(field['value'])
                 sections_without_values.append(section_without_values)
