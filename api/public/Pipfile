@@ -8,7 +8,7 @@ behave = "*"
 pyhamcrest = "*"
 
 [packages]
-flask = "*"
+flask = "<1.1"
 requests = "*"
 selene = {editable = true,path = "./../../shared"}
 SpeechRecognition = "*"
