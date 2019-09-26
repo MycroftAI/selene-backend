@@ -1,11 +1,14 @@
 """Call this endpoint to retrieve the timezone for a given location"""
 from dataclasses import asdict
 from http import HTTPStatus
+from logging import getLogger
 
 from selene.api import PublicEndpoint
 from selene.data.geography import CityRepository
 
 ONE_HUNDRED_MILES = 100
+
+_log = getLogger()
 
 
 class GeolocationEndpoint(PublicEndpoint):
@@ -89,7 +92,7 @@ class GeolocationEndpoint(PublicEndpoint):
             selected_geolocation = self.cities[0]
         elif len(self.cities) > 1:
             biggest_city = self.cities[0]
-            if biggest_city.city == self.request_geolocation:
+            if biggest_city.city.lower() == self.request_geolocation.lower():
                 selected_geolocation = biggest_city
             else:
                 city_in_region = self._get_city_for_requested_region()
@@ -108,7 +111,7 @@ class GeolocationEndpoint(PublicEndpoint):
         city_in_requested_region = None
         for city in self.cities:
             location_without_city = self.request_geolocation[len(city.city):]
-            if city.region in location_without_city.strip():
+            if city.region.lower() in location_without_city.strip().lower():
                 city_in_requested_region = city
                 break
 
@@ -124,7 +127,7 @@ class GeolocationEndpoint(PublicEndpoint):
         selected_city = None
         for city in self.cities:
             location_without_city = self.request_geolocation[len(city.city):]
-            if city.country in location_without_city.strip():
+            if city.country.lower() in location_without_city.strip().lower():
                 selected_city = city
                 break
 
