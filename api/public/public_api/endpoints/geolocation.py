@@ -29,7 +29,7 @@ class GeolocationEndpoint(PublicEndpoint):
 
     def get(self):
         """Handle a HTTP GET request."""
-        self.request_geolocation = self.request.args['location']
+        self.request_geolocation = self.request.args['location'].lower()
         response_geolocation = self._get_geolocation()
 
         return dict(data=response_geolocation), HTTPStatus.OK
@@ -92,7 +92,7 @@ class GeolocationEndpoint(PublicEndpoint):
             selected_geolocation = self.cities[0]
         elif len(self.cities) > 1:
             biggest_city = self.cities[0]
-            if biggest_city.city.lower() == self.request_geolocation.lower():
+            if biggest_city.city.lower() == self.request_geolocation:
                 selected_geolocation = biggest_city
             else:
                 city_in_region = self._get_city_for_requested_region()
@@ -111,7 +111,7 @@ class GeolocationEndpoint(PublicEndpoint):
         city_in_requested_region = None
         for city in self.cities:
             location_without_city = self.request_geolocation[len(city.city):]
-            if city.region.lower() in location_without_city.strip().lower():
+            if city.region.lower() in location_without_city.strip():
                 city_in_requested_region = city
                 break
 
@@ -127,7 +127,7 @@ class GeolocationEndpoint(PublicEndpoint):
         selected_city = None
         for city in self.cities:
             location_without_city = self.request_geolocation[len(city.city):]
-            if city.country.lower() in location_without_city.strip().lower():
+            if city.country.lower() in location_without_city.strip():
                 selected_city = city
                 break
 
