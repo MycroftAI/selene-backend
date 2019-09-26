@@ -163,4 +163,4 @@ public.add_url_rule(
 # path. Use case: GET /device/{uuid} with empty uuid. Core today uses the 401
 # to validate if it needs to perform a pairing process. We should fix that in a
 # future version because we have to return 404 when we call a non existent path
-# public.before_request(check_oauth_token)
+public.before_request(check_oauth_token)
