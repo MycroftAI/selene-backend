@@ -74,7 +74,7 @@ public.add_url_rule(
     methods=['GET']
 )
 public.add_url_rule(
-    '/v1/location',
+    '/v1/geolocation',
     view_func=GeolocationEndpoint.as_view('location_api'),
     methods=['GET']
 )
