@@ -18,6 +18,7 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 from dataclasses import asdict
+from datetime import datetime, timedelta
 from http import HTTPStatus
 from logging import getLogger
 
@@ -30,9 +31,12 @@ from selene.api import SeleneEndpoint
 from selene.api.etag import ETagManager
 from selene.api.public_endpoint import delete_device_login
 from selene.data.device import DeviceRepository, Geography, GeographyRepository
-from selene.util.cache import SeleneCache
+from selene.util.cache import DEVICE_LAST_CONTACT_KEY, SeleneCache
 
 ONE_DAY = 86400
+CONNECTED = 'Connected'
+DISCONNECTED = 'Disconnected'
+DORMANT = 'Dormant'
 
 _log = getLogger()
 
@@ -84,21 +88,94 @@ class DeviceEndpoint(SeleneEndpoint):
         )
         response_data = []
         for device in devices:
-            device_dict = asdict(device)
-            device_dict['voice'] = device_dict.pop('text_to_speech')
-            response_data.append(device_dict)
+            response_device = self._format_device_for_response(device)
+            response_data.append(response_device)
 
         return response_data
 
     def _get_device(self, device_id):
         device_repository = DeviceRepository(self.db)
-        device = device_repository.get_device_by_id(
-            device_id
-        )
-        response_data = asdict(device)
-        response_data['voice'] = response_data.pop('text_to_speech')
+        device = device_repository.get_device_by_id(device_id)
+        response_data = self._format_device_for_response(device)
 
         return response_data
+
+    def _format_device_for_response(self, device):
+        """Convert device object into a response object for this endpoint."""
+        last_contact_age = self._get_device_last_contact(device)
+        device_status = self._determine_device_status(last_contact_age)
+        if device_status == DISCONNECTED:
+            disconnect_duration = self._determine_disconnect_duration(
+                last_contact_age
+            )
+        else:
+            disconnect_duration = None
+        device_dict = asdict(device)
+        device_dict['status'] = device_status
+        device_dict['disconnect_duration'] = disconnect_duration
+        device_dict['voice'] = device_dict.pop('text_to_speech')
+
+        return device_dict
+
+    def _get_device_last_contact(self, device):
+        """Get the last time the device contacted the backend.
+
+        The timestamp returned by this method will be used to determine if a
+        device is active or not.
+
+        The device table has a last contacted column but it is only updated
+        daily via batch script.  The real-time values are kept in Redis.
+        If the Redis query returns nothing, the device hasn't contacted the
+        backend yet.  This could be because it was just activated. Give the
+        device a couple of minutes to make that first call to the backend.
+        """
+        last_contact_ts = self.cache.get(
+            DEVICE_LAST_CONTACT_KEY.format(device_id=device.id)
+        )
+        if last_contact_ts is None:
+            if device.last_contact_ts is None:
+                last_contact_age = datetime.utcnow() - device.add_ts
+            else:
+                last_contact_age = datetime.utcnow() - device.last_contact_ts
+        else:
+            last_contact_ts = last_contact_ts.decode()
+            last_contact_ts = datetime.strptime(
+                last_contact_ts,
+                '%Y-%m-%d %H:%M:%S.%f'
+            )
+            last_contact_age = datetime.utcnow() - last_contact_ts
+
+        return last_contact_age
+
+    @staticmethod
+    def _determine_device_status(last_contact_age):
+        """Derive device status from the last time device contacted servers."""
+        if last_contact_age <= timedelta(seconds=120):
+            device_status = CONNECTED
+        elif timedelta(seconds=120) < last_contact_age < timedelta(days=30):
+            device_status = DISCONNECTED
+        else:
+            device_status = DORMANT
+
+        return device_status
+
+    @staticmethod
+    def _determine_disconnect_duration(last_contact_age):
+        """Derive device status from the last time device contacted servers."""
+        disconnect_duration = 'unknown'
+        days, _ = divmod(last_contact_age, timedelta(days=1))
+        if days:
+            disconnect_duration = str(days) + ' days'
+        else:
+            hours, remaining = divmod(last_contact_age, timedelta(hours=1))
+            if hours:
+                disconnect_duration = str(hours) + ' hours'
+            else:
+                minutes, _ = divmod(remaining, timedelta(minutes=1))
+                if minutes:
+                    disconnect_duration = str(minutes) + ' minutes'
+
+        return disconnect_duration
 
     def post(self):
         self._authenticate()

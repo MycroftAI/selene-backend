@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-from .entity.device_skill import ManifestSkill, DeviceSkillSettings
+from .entity.device_skill import ManifestSkill, AccountSkillSettings
 from .entity.geography import Geography
 from .entity.preference import AccountPreferences
 from .entity.text_to_speech import TextToSpeech

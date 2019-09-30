@@ -23,7 +23,7 @@ from typing import List
 
 @dataclass
 class AccountSkillSetting(object):
-    settings_display: dict
+    settings_definition: dict
     settings_values: dict
     device_names: List[str]
 

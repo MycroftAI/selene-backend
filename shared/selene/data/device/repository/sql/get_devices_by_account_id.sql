@@ -7,6 +7,7 @@ SELECT
     d.core_version,
     d.placement,
     d.last_contact_ts,
+    d.insert_ts AS add_ts,
     json_build_object(
         'setting_name', ww.setting_name,
         'display_name', ww.display_name,

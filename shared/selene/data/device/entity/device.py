@@ -42,3 +42,4 @@ class Device(object):
     wake_word: WakeWord
     last_contact_ts: datetime = None
     placement: str = None
+    add_ts: datetime = None

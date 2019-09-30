@@ -23,7 +23,7 @@ from ..entity.skill import Skill, SkillFamily
 from ...repository_base import RepositoryBase
 
 
-def _parse_skill_gid(skill_gid):
+def extract_family_from_global_id(skill_gid):
     id_parts = skill_gid.split('|')
     if id_parts[0].startswith('@'):
         family_name = id_parts[1]
@@ -76,7 +76,7 @@ class SkillRepository(RepositoryBase):
     def ensure_skill_exists(self, skill_global_id: str) -> str:
         skill = self.get_skill_by_global_id(skill_global_id)
         if skill is None:
-            family_name = _parse_skill_gid(skill_global_id)
+            family_name = extract_family_from_global_id(skill_global_id)
             skill_id = self._add_skill(skill_global_id, family_name)
         else:
             skill_id = skill.id

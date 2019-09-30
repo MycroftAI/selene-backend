@@ -211,12 +211,3 @@ def validate_skill_setting_field_removed(context):
             new_skill_definition = new_settings_display['skillMetadata']
             new_section = new_skill_definition['sections'][0]
     assert_that(context.removed_field, not is_in(new_section['fields']))
-
-
-@then('the skill will be removed from the device skill list')
-def validate_delete_skill(context):
-    device_skill_repo = DeviceSkillRepository(context.db)
-    device_skills = device_skill_repo.get_device_skill_settings_for_device(
-        context.device_id
-    )
-    assert_that(len(device_skills), equal_to(1))

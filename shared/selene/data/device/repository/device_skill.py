@@ -23,7 +23,11 @@ from dataclasses import asdict
 from typing import List
 
 from selene.data.skill import SettingsDisplay
-from ..entity.device_skill import ManifestSkill, DeviceSkillSettings
+from ..entity.device_skill import (
+    AccountSkillSettings,
+    DeviceSkillSettings,
+    ManifestSkill
+)
 from ...repository_base import RepositoryBase
 
 
@@ -31,23 +35,31 @@ class DeviceSkillRepository(RepositoryBase):
     def __init__(self, db):
         super(DeviceSkillRepository, self).__init__(db, __file__)
 
-    def get_device_skill_settings_for_account(
+    def get_skill_settings_for_account(
             self, account_id: str, skill_id: str
-    ) -> List[DeviceSkillSettings]:
+    ) -> List[AccountSkillSettings]:
         return self._select_all_into_dataclass(
-            DeviceSkillSettings,
-            sql_file_name='get_device_skill_settings_for_account.sql',
+            AccountSkillSettings,
+            sql_file_name='get_skill_settings_for_account.sql',
             args=dict(account_id=account_id, skill_id=skill_id)
         )
 
-    def get_device_skill_settings_for_device(
-            self, device_id: str
-    ) -> List[DeviceSkillSettings]:
-        return self._select_all_into_dataclass(
+    def get_skill_settings_for_device(self, device_id, skill_id=None):
+        device_skills = self._select_all_into_dataclass(
             DeviceSkillSettings,
-            sql_file_name='get_device_skill_settings_for_device.sql',
+            sql_file_name='get_skill_settings_for_device.sql',
             args=dict(device_id=device_id)
         )
+        if skill_id is None:
+            skill_settings = device_skills
+        else:
+            skill_settings = None
+            for skill in device_skills:
+                if skill.skill_id == skill_id:
+                    skill_settings = skill
+                    break
+
+        return skill_settings
 
     def update_skill_settings(
             self, account_id: str, device_names: tuple, skill_name: str
@@ -83,6 +95,23 @@ class DeviceSkillRepository(RepositoryBase):
                 )
             )
             self.cursor.insert(db_request)
+
+    def update_device_skill_settings(self, device_id, device_skill):
+        """Update the skill settings columns on the device_skill table."""
+        if device_skill.settings_values is None:
+            db_settings_values = None
+        else:
+            db_settings_values = json.dumps(device_skill.settings_values)
+        db_request = self._build_db_request(
+            sql_file_name='update_device_skill_settings.sql',
+            args=dict(
+                device_id=device_id,
+                skill_id=device_skill.skill_id,
+                settings_display_id=device_skill.settings_display_id,
+                settings_values=db_settings_values
+            )
+        )
+        self.cursor.update(db_request)
 
     def get_skill_manifest_for_device(
             self, device_id: str
