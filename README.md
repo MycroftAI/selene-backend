@@ -22,7 +22,7 @@ a package containing batch scripts for maintenance and the definition of the dat
 
 Each API is designed to run independently of the others. Code common to each of the APIs, such as the Data Access Layer, 
 can be found in the "shared" directory.  The shared code is an independent Python package required by each of the APIs. 
-Each API has it's own Pipfile so that it can be run in its own virtual environment. 
+Each API has its own Pipfile so that it can be run in its own virtual environment. 
 
 # Installation
 The Python code utilizes features introduced in Python 3.7, such as data classes. 
@@ -33,13 +33,13 @@ These instructions will use pipenv commands.
 If the Selene applications will be servicing a large number of devices (enterprise usage, for example), it is 
 recommended that each of the applications run on their own server or virtual machine. This configuration makes it
 easier to scale and monitor each application independently.  However, all applications can be run on a single server. 
-This configuration is could be more practical for a household running a handful of devices. 
+This configuration could be more practical for a household running a handful of devices. 
 
 These instructions will assume a multi-server setup for several thousand devices. To run on a single server servicing a 
 small number of devices, the recommended system requirements are 4 CPU, 8GB RAM and 100GB of disk.  There are a lot of
-manual steps in this section that will eventually be replaced with a installation script.
+manual steps in this section that will eventually be replaced with an installation script.
 
-All Selene applications are time zone agnostic.  It is recommended that the time zone on any sever running Selene be UTC.
+All Selene applications are time zone agnostic.  It is recommended that the time zone on any server running Selene be UTC.
 
 ## Postgres DB
 * Recommended server configuration: Ubuntu 18.04 LTS, 2 CPU, 4GB RAM, 50GB disk.
@@ -111,7 +111,7 @@ host    mycroft         selene          <private IP address>/32          md5
 sudo systemctl restart postgresql
 ```
 ## Redis DB
-* Recommended sever configuration: Ubuntu 18.04 LTS, 1 CPU, 1GB RAM, 5GB disk.
+* Recommended server configuration: Ubuntu 18.04 LTS, 1 CPU, 1GB RAM, 5GB disk.
 So as to not reinvent the wheel, here are some easy-to-follow instructions for 
 [installing Redis on Ubuntu 18.04](https://www.digitalocean.com/community/tutorials/how-to-install-and-secure-redis-on-ubuntu-18-04).
 * By default, Redis only listens for One additional step is to change the "bind" variable in /etc/redis/redis.conf to be the private IP of the Redis host.
@@ -142,28 +142,28 @@ git clone https://github.com/MycroftAI/selene-backend.git
 ```
 * If running in a test environment, be sure to checkout the "test" branch of the repository
 ## Single Sign On API
-Recommended sever configuration: Ubuntu 18.04 LTS, 1 CPU, 1GB RAM, 5GB disk
+Recommended server configuration: Ubuntu 18.04 LTS, 1 CPU, 1GB RAM, 5GB disk
 * Create the virtual environment and install the requirements for the application
 ```
 cd /opt/selene/selene-backend/sso
 pipenv install
 ```
 ## Account API
-* Recommended sever configuration: Ubuntu 18.04 LTS, 1 CPU, 1GB RAM, 5GB disk
+* Recommended server configuration: Ubuntu 18.04 LTS, 1 CPU, 1GB RAM, 5GB disk
 * Create the virtual environment and install the requirements for the application
 ```
 cd /opt/selene/selene-backend/account
 pipenv install
 ```
 ## Marketplace API
-* Recommended sever configuration: Ubuntu 18.04 LTS, 1 CPU, 1GB RAM, 10GB disk
+* Recommended server configuration: Ubuntu 18.04 LTS, 1 CPU, 1GB RAM, 10GB disk
 * Create the virtual environment and install the requirements for the application
 ```
 cd /opt/selene/selene-backend/market
 pipenv install
 ```
 ## Device API
-* Recommended sever configuration: Ubuntu 18.04 LTS, 2 CPU, 2GB RAM, 50GB disk
+* Recommended server configuration: Ubuntu 18.04 LTS, 2 CPU, 2GB RAM, 50GB disk
 * Create the virtual environment and install the requirements for the application
 ```
 cd /opt/selene/selene-backend/public
