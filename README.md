@@ -316,7 +316,7 @@ pipenv install
 pipenv run python load_skill_display_data.py --core-version <specify core version, e.g. 19.02>
 ```
 
-##Device API
+## Device API
 * The device API uses the same authentication mechanism as the single sign on API.  The JWT_ACCESS_SECRET, 
 JWT_REFRESH_SECRET and SALT environment variables must be the same values as those on the single sign on API.
 * This application uses the Redis database so the service needs to know where it resides.
