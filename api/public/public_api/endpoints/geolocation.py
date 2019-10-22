@@ -49,11 +49,6 @@ class GeolocationEndpoint(PublicEndpoint):
                 self.request_geolocation
             )
 
-        if selected_geolocation is not None:
-            selected_geolocation = asdict(selected_geolocation)
-            del(selected_geolocation['longitude'])
-            del(selected_geolocation['latitude'])
-
         return selected_geolocation
 
     def _get_cities(self):
