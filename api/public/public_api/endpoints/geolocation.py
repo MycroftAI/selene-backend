@@ -49,6 +49,14 @@ class GeolocationEndpoint(PublicEndpoint):
                 self.request_geolocation
             )
 
+        if selected_geolocation is not None:
+            selected_geolocation.latitude = float(
+                selected_geolocation.latitude
+            )
+            selected_geolocation.longitude = float(
+                selected_geolocation.longitude
+            )
+
         return selected_geolocation
 
     def _get_cities(self):
