@@ -40,6 +40,7 @@ from .endpoints.device_skill_manifest import DeviceSkillManifestEndpoint
 from .endpoints.device_skill_settings import DeviceSkillSettingsEndpoint
 from .endpoints.device_skill_settings import DeviceSkillSettingsEndpointV2
 from .endpoints.device_subscription import DeviceSubscriptionEndpoint
+from .endpoints.geolocation import GeolocationEndpoint
 from .endpoints.google_stt import GoogleSTTEndpoint
 from .endpoints.oauth_callback import OauthCallbackEndpoint
 from .endpoints.open_weather_map import OpenWeatherMapEndpoint
@@ -54,49 +55,46 @@ public = Flask(__name__)
 public.config.from_object(get_base_config())
 public.config['GOOGLE_STT_KEY'] = os.environ['GOOGLE_STT_KEY']
 public.config['SELENE_CACHE'] = SeleneCache()
-
 public.response_class = SeleneResponse
 public.register_blueprint(selene_api)
-
 public.add_url_rule(
     '/v1/device/<string:device_id>/skill/<string:skill_gid>',
     view_func=DeviceSkillSettingsEndpoint.as_view('device_skill_delete_api'),
     methods=['DELETE']
 )
-
 public.add_url_rule(
     '/v1/device/<string:device_id>/skill',
     view_func=DeviceSkillSettingsEndpoint.as_view('device_skill_api'),
     methods=['GET', 'PUT']
 )
-
 public.add_url_rule(
     '/v1/device/<string:device_id>/skill/settings',
     view_func=DeviceSkillSettingsEndpointV2.as_view('skill_settings_api'),
     methods=['GET']
 )
-
 public.add_url_rule(
     '/v1/device/<string:device_id>/settingsMeta',
     view_func=SkillSettingsMetaEndpoint.as_view('device_user_skill_api'),
     methods=['PUT']
 )
-
 public.add_url_rule(
     '/v1/device/<string:device_id>',
     view_func=DeviceEndpoint.as_view('device_api'),
     methods=['GET', 'PATCH']
 )
-
 public.add_url_rule(
     '/v1/device/<string:device_id>/setting',
     view_func=DeviceSettingEndpoint.as_view('device_settings_api'),
     methods=['GET']
 )
-
 public.add_url_rule(
     '/v1/device/<string:device_id>/subscription',
     view_func=DeviceSubscriptionEndpoint.as_view('device_subscription_api'),
+    methods=['GET']
+)
+public.add_url_rule(
+    '/v1/geolocation',
+    view_func=GeolocationEndpoint.as_view('location_api'),
     methods=['GET']
 )
 public.add_url_rule(

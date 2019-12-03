@@ -27,3 +27,13 @@ class City(object):
     longitude: str
     name: str
     timezone: str
+
+
+@dataclass
+class GeographicLocation(object):
+    city: str
+    country: str
+    region: str
+    latitude: str
+    longitude: str
+    timezone: str
