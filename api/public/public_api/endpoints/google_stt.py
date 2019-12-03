@@ -70,7 +70,7 @@ class GoogleSTTEndpoint(PublicEndpoint):
         self._write_open_dataset_file(file_contents.encode(), file_type='stt')
 
     def _write_open_dataset_file(self, content, file_type):
-        if self.account is not None:
+        if self.account is not None and self.account_shares_data:
             file_name = '{account_id}_{time}.{file_type}'.format(
                 account_id=self.account.id,
                 file_type=file_type,
