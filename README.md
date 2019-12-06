@@ -81,7 +81,7 @@ sudo -u postgres psql -c "CREATE ROLE selene WITH LOGIN ENCRYPTED PASSWORD '<pas
 * Add environment variables containing these passwords for the bootstrap script
 ```
 export DB_PASSWORD=<selene user password>
-export POSTGRES_PASWORD=<postgres user password>
+export POSTGRES_PASSWORD=<postgres user password>
 ```
 * Run the bootstrap script
 ```
