@@ -154,8 +154,8 @@ if os.environ['SELENE_ENVIRONMENT'] != 'prod':
 schedule.every().day.at('00:00').do(partition_api_metrics)
 schedule.every().day.at('00:05').do(update_device_last_contact)
 schedule.every().day.at('00:10').do(parse_core_metrics)
-schedule.every().day.at('00:15').do(load_19_02_skills())
-schedule.every().day.at('00:20').do(load_19_08_skills())
+schedule.every().day.at('00:15').do(load_19_02_skills)
+schedule.every().day.at('00:20').do(load_19_08_skills)
 
 # Run the schedule
 while True:
