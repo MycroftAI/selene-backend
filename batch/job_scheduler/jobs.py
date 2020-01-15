@@ -101,14 +101,16 @@ def test_scheduler():
 
 def load_19_02_skills():
     """Load the json file from the mycroft-skills-data repository to the DB"""
-    job_runner = JobRunner('load_skill_display_data.py --core-version 19.02')
+    job_runner = JobRunner('load_skill_display_data.py')
+    job_runner.job_args = '--core-version 19.02'
     job_runner.job_date = date.today() - timedelta(days=1)
     job_runner.run_job()
 
 
 def load_19_08_skills():
     """Load the json file from the mycroft-skills-data repository to the DB"""
-    job_runner = JobRunner('load_skill_display_data.py --core-version 19.08')
+    job_runner = JobRunner('load_skill_display_data.py')
+    job_runner.job_args = '--core-version 19.08'
     job_runner.job_date = date.today() - timedelta(days=1)
     job_runner.run_job()
 
