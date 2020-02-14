@@ -233,7 +233,7 @@ class AccountEndpoint(SeleneEndpoint):
             )
         elif login_data['federated_platform'] == 'GitHub':
             email_address = get_github_account_email(
-                self.request.args['federated_token']
+                login_data.args['federated_token']
             )
         else:
             email_address = login_data['email']
