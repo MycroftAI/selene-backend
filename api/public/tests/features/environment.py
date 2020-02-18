@@ -36,6 +36,7 @@ from selene.testing.device_skill import (
 )
 from selene.testing.skill import (
     add_skill,
+    build_checkbox_field,
     build_label_field,
     build_text_field,
     remove_skill
@@ -122,7 +123,11 @@ def _add_skills(context):
     bar_skill, bar_settings_display = add_skill(
         context.db,
         skill_global_id='bar-skill|19.02',
-        settings_fields=[build_label_field(), build_text_field()]
+        settings_fields=[
+            build_label_field(),
+            build_text_field(),
+            build_checkbox_field()
+        ]
     )
     context.skills = dict(
         foo=(foo_skill, foo_settings_display),
@@ -140,7 +145,10 @@ def _add_device_skills(context):
         )
         settings_values = None
         if skill.skill_gid.startswith('bar'):
-            settings_values = dict(textfield='Device text value')
+            settings_values = dict(
+                textfield='Device text value',
+                checkboxfield='false'
+            )
         add_device_skill_settings(
             context.db,
             context.device_id,
