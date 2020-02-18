@@ -124,11 +124,11 @@ class SkillSettingUpdater(object):
                 for field in section_without_values['fields']:
                     field_name = field.get('name')
                     field_value = field.get('value')
-                    if field_value is not None:
-                        if field_name is not None:
+                    if field_name is not None:
+                        if field_value is not None:
                             field_value = _normalize_field_value(field)
-                            self.settings_values[field_name] = field_value
-                        del(field['value'])
+                            del(field['value'])
+                        self.settings_values[field_name] = field_value
                 sections_without_values.append(section_without_values)
             settings_definition['sections'] = sections_without_values
 
@@ -194,11 +194,21 @@ class SkillSettingUpdater(object):
                 self.device_skill_repo.upsert_device_skill_settings(
                     devices_to_update,
                     self.settings_display,
-                    self.settings_values if self.settings_values else None
+                    self._foo(skill_setting.settings_values)
                 )
                 break
 
         return device_skill_found
+
+    def _foo(self, settings_values=None):
+        bar = {}
+        for field_name, field_value in self.settings_values.items():
+            if field_value is not None:
+                bar[field_name] = field_value
+            elif settings_values is not None and field_name in settings_values:
+                bar[field_name] = settings_values[field_name]
+
+        return bar
 
     def _add_skill_to_device(self):
         """Add a device_skill row for this skill.
@@ -210,7 +220,7 @@ class SkillSettingUpdater(object):
         self.device_skill_repo.upsert_device_skill_settings(
             [self.device_id],
             self.settings_display,
-            self.settings_values if self.settings_values else None
+            self._foo()
         )
 
 
