@@ -78,7 +78,7 @@ class DeviceSkillRepository(RepositoryBase):
             self,
             device_ids: List[str],
             settings_display: SettingsDisplay,
-            settings_values: str,
+            settings_values: dict,
     ):
         for device_id in device_ids:
             if settings_values is None:
