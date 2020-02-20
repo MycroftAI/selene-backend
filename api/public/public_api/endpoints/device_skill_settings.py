@@ -124,11 +124,11 @@ class SkillSettingUpdater(object):
                 for field in section_without_values['fields']:
                     field_name = field.get('name')
                     field_value = field.get('value')
-                    if field_value is not None:
-                        if field_name is not None:
+                    if field_name is not None:
+                        if field_value is not None:
                             field_value = _normalize_field_value(field)
-                            self.settings_values[field_name] = field_value
-                        del(field['value'])
+                            del(field['value'])
+                        self.settings_values[field_name] = field_value
                 sections_without_values.append(section_without_values)
             settings_definition['sections'] = sections_without_values
 
@@ -194,11 +194,28 @@ class SkillSettingUpdater(object):
                 self.device_skill_repo.upsert_device_skill_settings(
                     devices_to_update,
                     self.settings_display,
-                    self.settings_values if self.settings_values else None
+                    self._merge_settings_values(skill_setting.settings_values)
                 )
                 break
 
         return device_skill_found
+
+    def _merge_settings_values(self, settings_values=None):
+        """Merge existing and new settings values into a single place.
+
+        When a settings field is changed or removed, unchanged settings should
+        retain the value they had prior to the change.
+        """
+        merged_values = {}
+        for field_name, field_value in self.settings_values.items():
+            if field_value is not None:
+                # Filter out settings with no value, such as labels
+                merged_values[field_name] = field_value
+            elif settings_values is not None and field_name in settings_values:
+                # if updating existing settings, include the unchanged values
+                merged_values[field_name] = settings_values[field_name]
+
+        return merged_values
 
     def _add_skill_to_device(self):
         """Add a device_skill row for this skill.
@@ -210,7 +227,7 @@ class SkillSettingUpdater(object):
         self.device_skill_repo.upsert_device_skill_settings(
             [self.device_id],
             self.settings_display,
-            self.settings_values if self.settings_values else None
+            self._merge_settings_values()
         )
 
 

@@ -42,6 +42,7 @@ def delete_field_from_settings(context):
     _, bar_settings_display = context.skills['bar']
     section = bar_settings_display.display_data['skillMetadata']['sections'][0]
     context.removed_field = section['fields'].pop(1)
+    context.remaining_field = section['fields'][1]
 
 
 @given('a valid device skill E-tag')
@@ -124,8 +125,10 @@ def validate_response(context):
 
     bar_skill, bar_settings_display = context.skills['bar']
     section = bar_settings_display.display_data['skillMetadata']['sections'][0]
-    field_with_value = section['fields'][1]
-    field_with_value['value'] = 'Device text value'
+    text_field = section['fields'][1]
+    text_field['value'] = 'Device text value'
+    checkbox_field = section['fields'][2]
+    checkbox_field['value'] = 'false'
     bar_skill_expected_result = dict(
         uuid=bar_skill.id,
         skill_gid=bar_skill.skill_gid,
@@ -147,37 +150,40 @@ def check_for_expired_etag(context):
     )
 
 
+def _get_device_skill_settings(context):
+    """Minimize DB hits and code duplication by getting these values once."""
+    if not hasattr(context, 'device_skill_settings'):
+        settings_repo = SkillSettingRepository(context.db)
+        context.device_skill_settings = (
+            settings_repo.get_skill_settings_for_device(context.device_id)
+        )
+        context.device_settings_values = [
+            dss.settings_values for dss in context.device_skill_settings
+        ]
+
+
 @then('the skill settings are updated with the new value')
 def validate_updated_skill_setting_value(context):
-    settings_repo = SkillSettingRepository(context.db)
-    device_skill_settings = settings_repo.get_skill_settings_for_device(
-        context.device_id
+    _get_device_skill_settings(context)
+    assert_that(len(context.device_skill_settings), equal_to(2))
+    expected_settings_values = dict(
+        textfield='New device text value',
+        checkboxfield='false'
     )
-    device_settings_values = [
-        dss.settings_values for dss in device_skill_settings
-    ]
-    assert_that(len(device_skill_settings), equal_to(2))
-    expected_settings_values = dict(textfield='New device text value')
     assert_that(
         expected_settings_values,
-        is_in(device_settings_values)
+        is_in(context.device_settings_values)
     )
 
 
 @then('the skill is assigned to the device with the settings populated')
 def validate_updated_skill_setting_value(context):
-    settings_repo = SkillSettingRepository(context.db)
-    device_skill_settings = settings_repo.get_skill_settings_for_device(
-        context.device_id
-    )
-    device_settings_values = [
-        dss.settings_values for dss in device_skill_settings
-    ]
-    assert_that(len(device_skill_settings), equal_to(3))
+    _get_device_skill_settings(context)
+    assert_that(len(context.device_skill_settings), equal_to(3))
     expected_settings_values = dict(textfield='New skill text value')
     assert_that(
         expected_settings_values,
-        is_in(device_settings_values)
+        is_in(context.device_settings_values)
     )
 
 
@@ -193,21 +199,23 @@ def get_skills_etag(context):
 
 @then('the field is no longer in the skill settings')
 def validate_skill_setting_field_removed(context):
-    settings_repo = SkillSettingRepository(context.db)
-    device_skill_settings = settings_repo.get_skill_settings_for_device(
-        context.device_id
+    _get_device_skill_settings(context)
+    assert_that(len(context.device_skill_settings), equal_to(2))
+    # The removed field should no longer be in the settings values but the
+    # value of the field that was not deleted should remain
+    assert_that(
+        dict(checkboxfield='false'),
+        is_in(context.device_settings_values)
     )
-    device_settings_values = [
-        dss.settings_values for dss in device_skill_settings
-    ]
-    assert_that(len(device_skill_settings), equal_to(2))
-    assert_that([None, None], equal_to(device_settings_values))
 
     new_section = dict(fields=None)
-    for device_skill_setting in device_skill_settings:
+    for device_skill_setting in context.device_skill_settings:
         skill_gid = device_skill_setting.settings_display['skill_gid']
         if skill_gid.startswith('bar'):
             new_settings_display = device_skill_setting.settings_display
             new_skill_definition = new_settings_display['skillMetadata']
             new_section = new_skill_definition['sections'][0]
+    # The removed field should no longer be in the settings values but the
+    # value of the field that was not deleted should remain
     assert_that(context.removed_field, not is_in(new_section['fields']))
+    assert_that(context.remaining_field, is_in(new_section['fields']))

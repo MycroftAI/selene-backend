@@ -34,6 +34,14 @@ def build_text_field():
     )
 
 
+def build_checkbox_field():
+    return dict(
+        name='checkboxfield',
+        type='checkbox',
+        label='Checkbox Field'
+    )
+
+
 def build_label_field():
     return dict(
         type='label',
