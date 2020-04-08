@@ -26,7 +26,7 @@ class SkillDisplayRepository(RepositoryBase):
         super(SkillDisplayRepository, self).__init__(db, __file__)
 
         # TODO: Change this to a value that can be passed in
-        self.core_version = '19.08'
+        self.core_version = '20.02'
 
     def get_display_data_for_skills(self):
         return self._select_all_into_dataclass(
