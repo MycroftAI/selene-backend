@@ -19,19 +19,24 @@
 
 from http import HTTPStatus
 from behave import given, then, when
-from hamcrest import assert_that, equal_to, has_item, is_not
+from hamcrest import assert_that, equal_to
 
-from selene.api.testing import (
+from selene.testing.api import (
     generate_access_token,
     generate_refresh_token,
-    get_account,
+    set_access_token_cookie,
+    set_refresh_token_cookie,
     validate_token_cookies
 )
 
 
-@given('user "{email}" is authenticated')
-def save_email(context, email):
-    context.email = email
+@given('an authenticated account')
+def use_account_with_valid_access_token(context):
+    context.username = 'foobar'
+    context.access_token = generate_access_token(context)
+    set_access_token_cookie(context)
+    context.refresh_token = generate_refresh_token(context)
+    set_refresh_token_cookie(context)
 
 
 @when('user attempts to logout')

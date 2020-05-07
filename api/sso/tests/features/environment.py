@@ -88,6 +88,7 @@ def _add_account(context, db):
     context.account = acct_repository.get_account_by_email(
         test_account.email_address
     )
+    context.accounts = dict(foobar=context.account)
 
 
 def after_scenario(context, _):
@@ -95,4 +96,4 @@ def after_scenario(context, _):
     acct_repository = AccountRepository(db)
     acct_repository.remove(context.account)
     agreement_repository = AgreementRepository(db)
-    agreement_repository.remove(context.agreement, testing=True)
+    agreement_repository.remove(context.agreement)

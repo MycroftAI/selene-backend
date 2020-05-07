@@ -23,9 +23,9 @@ import json
 from unittest.mock import patch
 
 from behave import given, then, when
-from hamcrest import assert_that, equal_to, has_item
+from hamcrest import assert_that, equal_to
 
-from selene.api.testing import get_account, validate_token_cookies
+from selene.testing.api import validate_token_cookies
 
 VALIDATE_FEDERATED = 'sso_api.endpoints.validate_federated.'
 
@@ -54,7 +54,7 @@ def call_validate_federated_endpoint(context):
 
 @when('user attempts to login')
 def call_internal_login_endpoint(context):
-    credentials = '{}:{}'.format(context.email, context.password).encode()
+    credentials = '{}:||:{}'.format(context.email, context.password).encode()
     credentials = b2a_base64(credentials, newline=False).decode()
     context.response = context.client.get(
         '/api/internal-login',

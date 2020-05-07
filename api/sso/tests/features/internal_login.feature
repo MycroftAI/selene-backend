@@ -5,7 +5,7 @@ Feature: internal login
   Scenario: User signs in with valid email/password combination
     Given user enters email address "foo@mycroft.ai" and password "foo"
      When user attempts to login
-     Then login request succeeds
+     Then the request will be successful
       And response contains authentication tokens
 
   Scenario: User signs in with invalid email/password combination
