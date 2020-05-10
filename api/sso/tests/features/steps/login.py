@@ -36,7 +36,7 @@ def save_credentials(context, email, password):
     context.password = password
 
 
-@given('user "{email}" authenticates through facebook')
+@given('user "{email}" authenticates through Facebook')
 def save_email(context, email):
     context.email = email
 
