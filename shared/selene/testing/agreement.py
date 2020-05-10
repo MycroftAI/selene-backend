@@ -17,8 +17,12 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+import json
+from dataclasses import asdict
 from datetime import date, timedelta
 from typing import Tuple, List
+
+from hamcrest import assert_that, equal_to
 
 from selene.data.account import (
     Agreement,
@@ -84,3 +88,28 @@ def remove_agreements(db, agreements: List[Agreement]):
     for agreement in agreements:
         agreement_repository = AgreementRepository(db)
         agreement_repository.remove(agreement)
+
+
+def get_agreements_from_api(context, agreement):
+    """Abstracted so both account and single sign on APIs use in their tests"""
+    if agreement == PRIVACY_POLICY:
+        url = '/api/agreement/privacy-policy'
+    elif agreement == TERMS_OF_USE:
+        url = '/api/agreement/terms-of-use'
+    else:
+        raise ValueError('invalid agreement type')
+
+    context.response = context.client.get(url)
+
+
+def validate_agreement_response(context, agreement):
+    response_data = json.loads(context.response.data)
+    if agreement == PRIVACY_POLICY:
+        expected_response = asdict(context.privacy_policy)
+    elif agreement == TERMS_OF_USE:
+        expected_response = asdict(context.terms_of_use)
+    else:
+        raise ValueError('invalid agreement type')
+
+    del(expected_response['effective_date'])
+    assert_that(response_data, equal_to(expected_response))
