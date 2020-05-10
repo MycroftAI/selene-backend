@@ -10,4 +10,5 @@ Feature: federated login
   Scenario: User without account signs in via Facebook
     Given user "bar@mycroft.ai" authenticates through Facebook
      When single sign on validates the account
-     Then login fails with "no account found for provided email" error
+     Then the request will fail with an unauthorized error
+      And the response will contain a "no account found for provided email" error message

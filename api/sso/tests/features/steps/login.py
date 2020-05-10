@@ -61,15 +61,6 @@ def call_internal_login_endpoint(context):
         headers=dict(Authorization='Basic ' + credentials))
 
 
-@then('login request succeeds')
-def check_for_login_success(context):
-    assert_that(context.response.status_code, equal_to(HTTPStatus.OK))
-    assert_that(
-        context.response.headers['Access-Control-Allow-Origin'],
-        equal_to('*')
-    )
-
-
 @then('response contains authentication tokens')
 def check_token_cookies(context):
     validate_token_cookies(context)
