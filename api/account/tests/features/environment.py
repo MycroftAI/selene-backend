@@ -44,10 +44,7 @@ def acct_api_client(context):
 def before_all(context):
     use_fixture(acct_api_client, context)
     context.db = connect_to_db(context.client_config['DB_CONNECTION_CONFIG'])
-    agreements = add_agreements(context.db)
-    context.terms_of_use = agreements[0]
-    context.privacy_policy = agreements[1]
-    context.open_dataset = agreements[2]
+    add_agreements(context)
 
 
 def after_all(context):

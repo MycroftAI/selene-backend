@@ -66,16 +66,18 @@ def _build_open_dataset():
     )
 
 
-def add_agreements(db) -> Tuple[Agreement, Agreement, Agreement]:
+def add_agreements(context):
+    """Add agreements to database and set a context variable for each."""
     terms_of_use = _build_test_terms_of_use()
     privacy_policy = _build_test_privacy_policy()
     open_dataset = _build_open_dataset()
-    agreement_repository = AgreementRepository(db)
+    agreement_repository = AgreementRepository(context.db)
     terms_of_use.id = agreement_repository.add(terms_of_use)
     privacy_policy.id = agreement_repository.add(privacy_policy)
     open_dataset.id = agreement_repository.add(open_dataset)
-
-    return terms_of_use, privacy_policy, open_dataset
+    context.terms_of_use = terms_of_use
+    context.privacy_policy = privacy_policy
+    context.open_dataset = open_dataset
 
 
 def remove_agreements(db, agreements: List[Agreement]):

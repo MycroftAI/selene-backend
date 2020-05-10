@@ -45,7 +45,8 @@ def build_test_account(**overrides):
 def add_account(db, **overrides):
     acct_repository = AccountRepository(db)
     account = build_test_account(**overrides)
-    account.id = acct_repository.add(account, 'test_password')
+    password = overrides.get('password') or 'test_password'
+    account.id = acct_repository.add(account, password)
     if account.membership is not None:
         acct_repository.add_membership(account.id, account.membership)
 

@@ -16,13 +16,12 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-
 from binascii import b2a_base64
 from datetime import date
 
 from behave import given, then, when
 from flask import json
-from hamcrest import assert_that, equal_to, is_in, not_none
+from hamcrest import assert_that, equal_to, is_in, none, not_none
 
 from selene.data.account import (
     AccountRepository,
@@ -30,36 +29,50 @@ from selene.data.account import (
     TERMS_OF_USE
 )
 
-new_account_request = dict(
-    termsOfUse=True,
-    privacyPolicy=True,
-    login=dict(
-        federatedPlatform=None,
-        federatedToken=None,
-        email=b2a_base64(b'bar@mycroft.ai').decode(),
-        password=b2a_base64(b'bar').decode()
-    )
-)
-
 
 @given('a user completes new account setup')
 def build_new_account_request(context):
-    context.new_account_request = new_account_request
+    context.new_account_request = dict(
+        termsOfUse=True,
+        privacyPolicy=True,
+        login=dict(
+            federatedPlatform=None,
+            federatedToken=None,
+            email=b2a_base64(b'bar@mycroft.ai').decode(),
+            password=b2a_base64(b'bar').decode()
+        )
+    )
 
 
-@given('user does not specify an email address')
-def remove_email_from_request(context):
-    del(context.new_account_request['login']['email'])
+@given('user does not include {required_field}')
+def remove_required_field(context, required_field):
+    if required_field == 'an email address':
+        del(context.new_account_request['login']['email'])
+    elif required_field == 'a password':
+        del (context.new_account_request['login']['password'])
+    elif required_field == 'an accepted Terms of Use':
+        del(context.new_account_request['termsOfUse'])
+    elif required_field == 'an accepted Privacy Policy':
+        del(context.new_account_request['privacyPolicy'])
+
+
+@given('user does not agree to the {agreement}')
+def remove_required_field(context, agreement):
+    if agreement == 'Terms of Use':
+        context.new_account_request['termsOfUse'] = False
+    elif agreement == 'Privacy Policy':
+        context.new_account_request['privacyPolicy'] = False
 
 
 @when('the new account request is submitted')
 def call_add_account_endpoint(context):
     context.client.content_type = 'application/json'
-    context.response = context.client.post(
+    response = context.client.post(
         '/api/account',
         data=json.dumps(context.new_account_request),
         content_type='application/json'
     )
+    context.response = response
 
 
 @then('the account will be added to the system')
