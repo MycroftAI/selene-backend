@@ -115,3 +115,18 @@ def check_http_success(context):
         context.response.status_code,
         is_in([HTTPStatus.OK, HTTPStatus.NO_CONTENT])
     )
+
+
+def check_http_error(context, error_type):
+    if error_type == 'a bad request':
+        assert_that(
+            context.response.status_code,
+            equal_to(HTTPStatus.BAD_REQUEST)
+        )
+    elif error_type == 'an unauthorized':
+        assert_that(
+            context.response.status_code,
+            equal_to(HTTPStatus.UNAUTHORIZED)
+        )
+    else:
+        raise ValueError('unsupported error_type')
