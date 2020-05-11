@@ -36,18 +36,21 @@ def save_credentials(context, email, password):
     context.password = password
 
 
-@given('user "{email}" authenticates through Facebook')
-def save_email(context, email):
+@given('user "{email}" authenticates through {platform}')
+def save_email(context, email, platform):
     context.email = email
+    context.platform = platform
 
 
 @when('single sign on validates the account')
 def call_validate_federated_endpoint(context):
-    func_to_patch = VALIDATE_FEDERATED + 'get_facebook_account_email'
+    func_to_patch = VALIDATE_FEDERATED + 'get_{}_account_email'.format(
+        context.platform.lower()
+    )
     with patch(func_to_patch, return_value=context.email):
         context.response = context.client.post(
             '/api/validate-federated',
-            data=json.dumps(dict(platform='Facebook', token='facebook_token')),
+            data=json.dumps(dict(platform=context.platform, token='federated_token')),
             content_type='application/json'
         )
 
