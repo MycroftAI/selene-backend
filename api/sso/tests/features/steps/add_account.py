@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 from binascii import b2a_base64
-from datetime import date
+from datetime import datetime
 
 from behave import given, then, when
 from flask import json
@@ -87,6 +87,7 @@ def check_db_for_account(context):
     )
 
     assert_that(len(account.agreements), equal_to(2))
+    utc_date = datetime.utcnow().date()
     for agreement in account.agreements:
         assert_that(agreement.type, is_in((PRIVACY_POLICY, TERMS_OF_USE)))
-        assert_that(agreement.accept_date, equal_to(str(date.today())))
+        assert_that(agreement.accept_date, equal_to(str(utc_date)))
