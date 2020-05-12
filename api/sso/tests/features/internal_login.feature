@@ -11,4 +11,5 @@ Feature: internal login
   Scenario: User signs in with invalid email/password combination
     Given user enters email address "foo@mycroft.ai" and password "bar"
      When user attempts to login
-     Then login fails with "provided credentials not found" error
+     Then the request will fail with an unauthorized error
+      And the response will contain a "provided credentials not found" error message

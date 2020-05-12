@@ -5,5 +5,5 @@ Feature: logout
   Scenario: Logged in user requests logout
     Given an authenticated account
      When user attempts to logout
-     Then request is successful
+     Then the request will be successful
       And response contains expired token cookies

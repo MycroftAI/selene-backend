@@ -72,12 +72,3 @@ def call_internal_login_endpoint(context):
 def check_token_cookies(context):
     """Ensure proper JWTs for authentication are included in the cookies."""
     validate_token_cookies(context)
-
-
-@then('login fails with "{error_message}" error')
-def check_for_login_fail(context, error_message):
-    assert_that(context.response.status_code, equal_to(HTTPStatus.UNAUTHORIZED))
-    assert_that(context.response.headers["Access-Control-Allow-Origin"], equal_to("*"))
-    assert_that(context.response.is_json, equal_to(True))
-    response_json = context.response.get_json()
-    assert_that(response_json["error"], equal_to(error_message))

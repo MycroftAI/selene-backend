@@ -48,12 +48,6 @@ def call_logout_endpoint(context):
     context.response = context.client.get("/api/logout")
 
 
-@then("request is successful")
-def check_for_logout_success(context):
-    assert_that(context.response.status_code, equal_to(HTTPStatus.NO_CONTENT))
-    assert_that(context.response.headers["Access-Control-Allow-Origin"], equal_to("*"))
-
-
 @then("response contains expired token cookies")
 def check_response_cookies(context):
     validate_token_cookies(context, expired=True)
