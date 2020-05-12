@@ -31,7 +31,7 @@ from selene.util.db import connect_to_db
 def sso_client(context):
     """Setup a test fixture for the single-sign-on api."""
     sso.testing = True
-    context.db_pool = sso.config['DB_CONNECTION_POOL']
+    context.db_pool = sso.config["DB_CONNECTION_POOL"]
     context.client_config = sso.config
     context.client = sso.test_client()
 
@@ -41,14 +41,14 @@ def sso_client(context):
 def before_all(context):
     """Global setup to run before any tests."""
     use_fixture(sso_client, context)
-    os.environ['SALT'] = 'testsalt'
-    context.db = connect_to_db(context.client_config['DB_CONNECTION_CONFIG'])
+    os.environ["SALT"] = "testsalt"
+    context.db = connect_to_db(context.client_config["DB_CONNECTION_CONFIG"])
     add_agreements(context)
 
 
 def before_scenario(context, _):
     """Scenario-level setup."""
-    account = add_account(context.db, password='foo')
+    account = add_account(context.db, password="foo")
     context.accounts = dict(foobar=account)
 
 
@@ -66,6 +66,5 @@ def after_scenario(context, _):
 def after_all(context):
     """Global cleanup steps run after all tests complete."""
     remove_agreements(
-        context.db,
-        [context.privacy_policy, context.terms_of_use, context.open_dataset]
+        context.db, [context.privacy_policy, context.terms_of_use, context.open_dataset]
     )

@@ -17,19 +17,21 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 """Step functions for single sign on agreement tests."""
-from behave import then, when
+from behave import then, when  # pylint: disable=no-name-in-module
 
 from selene.testing.agreement import (
     get_agreements_from_api,
-    validate_agreement_response
+    validate_agreement_response,
 )
 
 
-@when('API request for {agreement} is made')
+@when("API request for {agreement} is made")
 def call_agreement_endpoint(context, agreement):
+    """Issue call to SSO API to get an agreement"""
     get_agreements_from_api(context, agreement)
 
 
-@then('the current version of the {agreement} agreement is returned')
+@then("the current version of the {agreement} agreement is returned")
 def validate_response(context, agreement):
+    """Validate that the agreement is returned by the API"""
     validate_agreement_response(context, agreement)
