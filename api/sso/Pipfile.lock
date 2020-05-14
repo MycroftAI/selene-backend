@@ -219,10 +219,10 @@
         },
         "stripe": {
             "hashes": [
-                "sha256:195de9785811cdc3147b1bd35be109f5008845fbbf6c94d32e84808ae9f9b28b",
-                "sha256:54cd4a325f1bfb2f71a39ffbe6f68e6c62b9e25b407bcff62a825ae1726b5393"
+                "sha256:515fe2cc915e639468f30150a39c162fc0fb090256ae9d6a04e5022925d136f1",
+                "sha256:bdbbea632b8faa983c670db61debbe0bdb5802ef98fd0613a03aa466e56cdade"
             ],
-            "version": "==2.47.0"
+            "version": "==2.48.0"
         },
         "urllib3": {
             "hashes": [
