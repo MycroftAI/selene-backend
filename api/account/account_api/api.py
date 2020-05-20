@@ -57,7 +57,7 @@ account_endpoint = AccountEndpoint.as_view('account_endpoint')
 acct.add_url_rule(
     '/api/account',
     view_func=account_endpoint,
-    methods=['GET', 'POST', 'PATCH', 'DELETE']
+    methods=['GET', 'PATCH', 'DELETE']
 )
 
 agreements_endpoint = AgreementsEndpoint.as_view('agreements_endpoint')

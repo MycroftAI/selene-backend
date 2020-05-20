@@ -12,6 +12,8 @@ uwsgi = "*"
 [dev-packages]
 behave = "*"
 pyhamcrest = "*"
+black = "*"
+pylint = "*"
 
 [requires]
 python_version = "3.7"

@@ -56,6 +56,7 @@ class ValidateFederatedEndpoint(SeleneEndpoint):
 
     def post(self):
         """Process a HTTP POST request."""
+        self._validate_request()
         self._get_email_address()
         self._get_account_by_email()
         self._generate_tokens()
@@ -64,7 +65,7 @@ class ValidateFederatedEndpoint(SeleneEndpoint):
         return '', HTTPStatus.NO_CONTENT
 
     def _validate_request(self):
-        validator = ValidateFederatedRequest(**self.request.json)
+        validator = ValidateFederatedRequest(self.request.json)
         validator.validate()
 
     def _get_email_address(self):
