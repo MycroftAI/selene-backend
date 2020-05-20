@@ -8,4 +8,4 @@ Feature: User changes password as part of password reset workflow
     Given a user who authenticates with a password
      When the user changes their password
       And user attempts to login
-     Then request is successful
+     Then the request will be successful

@@ -16,24 +16,28 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
+"""Setup the environment for the behavioral tests."""
+from datetime import datetime
+from logging import getLogger
 
 from behave import fixture, use_fixture
 
 from account_api.api import acct
+from selene.data.metric import AccountActivityRepository
 from selene.testing.account import add_account, remove_account
 from selene.testing.account_geography import add_account_geography
 from selene.testing.agreement import add_agreements, remove_agreements
-from selene.testing.text_to_speech import (
-    add_text_to_speech,
-    remove_text_to_speech
-)
+from selene.testing.text_to_speech import add_text_to_speech, remove_text_to_speech
 from selene.testing.wake_word import add_wake_word, remove_wake_word
 from selene.util.cache import SeleneCache
 from selene.util.db import connect_to_db
 
+_log = getLogger()
+
 
 @fixture
 def acct_api_client(context):
+    """Add a test fixture representing the account API."""
     acct.testing = True
     context.client_config = acct.config
     context.client = acct.test_client()
@@ -42,24 +46,30 @@ def acct_api_client(context):
 
 
 def before_all(context):
+    """Execute these steps before any tests run."""
     use_fixture(acct_api_client, context)
-    context.db = connect_to_db(context.client_config['DB_CONNECTION_CONFIG'])
+    context.db = connect_to_db(context.client_config["DB_CONNECTION_CONFIG"])
     add_agreements(context)
 
 
 def after_all(context):
+    """Execute these steps after all tests have run."""
     remove_agreements(
-        context.db,
-        [context.privacy_policy, context.terms_of_use, context.open_dataset]
+        context.db, [context.privacy_policy, context.terms_of_use, context.open_dataset]
     )
 
 
 def before_scenario(context, _):
+    """Setup steps to run before each scenario."""
     account = add_account(context.db)
     context.accounts = dict(foo=account)
     context.geography_id = add_account_geography(context.db, account)
     context.wake_word = add_wake_word(context.db)
     context.voice = add_text_to_speech(context.db)
+    acct_activity_repository = AccountActivityRepository(context.db)
+    context.account_activity = acct_activity_repository.get_activity_by_date(
+        datetime.utcnow().date()
+    )
 
 
 def after_scenario(context, _):
@@ -77,5 +87,6 @@ def after_scenario(context, _):
 
 
 def _clean_cache():
+    """Remove testing data from the Redis database."""
     cache = SeleneCache()
-    cache.delete('pairing.token:this is a token')
+    cache.delete("pairing.token:this is a token")

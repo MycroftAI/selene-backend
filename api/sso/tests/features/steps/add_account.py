@@ -25,6 +25,7 @@ from flask import json
 from hamcrest import assert_that, equal_to, is_in, not_none
 
 from selene.data.account import AccountRepository, PRIVACY_POLICY, TERMS_OF_USE
+from selene.data.metric import AccountActivityRepository
 
 
 @given("a user completes new account setup")
@@ -91,3 +92,19 @@ def check_db_for_account(context):
     for agreement in account.agreements:
         assert_that(agreement.type, is_in((PRIVACY_POLICY, TERMS_OF_USE)))
         assert_that(agreement.accept_date, equal_to(str(utc_date)))
+
+
+@then("the new account will be reflected in the account activity metrics")
+def check_db_for_account_metrics(context):
+    """Ensure the new account is accurately reflected in the metrics."""
+    acct_activity_repository = AccountActivityRepository(context.db)
+    account_activity = acct_activity_repository.get_activity_by_date(
+        datetime.utcnow().date()
+    )
+    if context.account_activity is None:
+        assert_that(account_activity.accounts_added, equal_to(1))
+    else:
+        assert_that(
+            account_activity.accounts_added,
+            equal_to(context.account_activity.accounts_added + 1),
+        )

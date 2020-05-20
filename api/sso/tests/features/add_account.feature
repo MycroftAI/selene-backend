@@ -6,6 +6,7 @@ Feature: Add a new account
     When the new account request is submitted
     Then the request will be successful
     And the account will be added to the system
+    And the new account will be reflected in the account activity metrics
 
   Scenario Outline: Request missing a required field
     Given a user completes new account setup
