@@ -301,12 +301,14 @@ class AccountEndpoint(SeleneEndpoint):
         active_membership = self._get_active_membership()
         if membership_change["membership_type"] is None:
             self._cancel_membership(active_membership)
+            self.account_activity_repository.increment_members_expired()
         elif membership_change["new_membership"]:
             if active_membership is None:
                 self._add_membership(membership_change, active_membership)
+                self.account_activity_repository.increment_members_added()
             else:
                 raise ValidationError(
-                    "new membership requested for account with active " "membership"
+                    "new membership requested for account with active membership"
                 )
         else:
             if active_membership is None:

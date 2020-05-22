@@ -39,6 +39,16 @@ class AccountActivityRepository(RepositoryBase):
         request = self._build_db_request(sql_file_name="increment_accounts_deleted.sql")
         self._update_account_activity(request)
 
+    def increment_members_added(self):
+        """Increment the deleted accounts metric on the account activity table."""
+        request = self._build_db_request(sql_file_name="increment_members_added.sql")
+        self._update_account_activity(request)
+
+    def increment_members_expired(self):
+        """Increment the deleted accounts metric on the account activity table."""
+        request = self._build_db_request(sql_file_name="increment_members_expired.sql")
+        self._update_account_activity(request)
+
     def _update_account_activity(self, update_request):
         """Update today's account activity, adding a row if it doesn't exist."""
         row_updated = self.cursor.update(update_request)
