@@ -21,10 +21,19 @@ import json
 from datetime import date, datetime
 
 from behave import given, then, when
-from hamcrest import assert_that, equal_to, greater_than, has_item, none, starts_with
+from hamcrest import (
+    assert_that,
+    equal_to,
+    greater_than,
+    has_item,
+    is_in,
+    none,
+    starts_with,
+)
 
 from selene.data.account import AccountRepository, PRIVACY_POLICY
 from selene.data.metric import AccountActivityRepository
+from selene.testing.account_activity import check_account_metrics
 from selene.testing.api import (
     generate_access_token,
     generate_refresh_token,
@@ -55,6 +64,15 @@ def add_membership_to_account(context):
 @given("an account without a membership")
 def get_account_no_membership(context):
     context.username = "foo"
+
+
+@given("an account opted {in_or_out} the Open Dataset agreement")
+def set_account_open_dataset(context, in_or_out):
+    context.username = "foo"
+    if in_or_out == "out of":
+        account = context.accounts["foo"]
+        account_repo = AccountRepository(context.db)
+        account_repo.expire_open_dataset_agreement(account.id)
 
 
 @when("a user requests their profile")
@@ -99,6 +117,15 @@ def change_to_yearly_account(context):
     context.response = context.client.patch(
         "/api/account",
         data=json.dumps(dict(membership=membership_data)),
+        content_type="application/json",
+    )
+
+
+@when("the user opts {in_or_out} the open dataset")
+def change_to_yearly_account(context, in_or_out):
+    context.response = context.client.patch(
+        "/api/account",
+        data=json.dumps(dict(openDataset=True if in_or_out == "into" else False)),
         content_type="application/json",
     )
 
@@ -153,27 +180,13 @@ def yearly_account(context):
 
 
 @then("the new member will be reflected in the account activity metrics")
-def check_db_for_account_metrics(context):
-    """Ensure the new account is accurately reflected in the metrics."""
-    acct_activity_repository = AccountActivityRepository(context.db)
-    account_activity = acct_activity_repository.get_activity_by_date(
-        datetime.utcnow().date()
-    )
-    if context.account_activity is None:
-        assert_that(account_activity.members, greater_than(0))
-        assert_that(account_activity.members_added, equal_to(1))
-    else:
-        assert_that(
-            account_activity.members, equal_to(context.account_activity.members + 1),
-        )
-        assert_that(
-            account_activity.members_added,
-            equal_to(context.account_activity.members_added + 1),
-        )
+def check_new_member_account_metrics(context):
+    """Ensure a new membership is accurately reflected in the metrics."""
+    check_account_metrics(context, "members", "members_added")
 
 
 @then("the deleted member will be reflected in the account activity metrics")
-def check_db_for_account_metrics(context):
+def check_expired_member_account_metrics(context):
     """Ensure that the account deletion is recorded in the metrics schema."""
     acct_activity_repository = AccountActivityRepository(context.db)
     account_activity = acct_activity_repository.get_activity_by_date(
@@ -192,3 +205,26 @@ def check_db_for_account_metrics(context):
             account_activity.members_expired,
             equal_to(context.account_activity.members_expired + 1),
         )
+
+
+@then("the account {will_or_wont} have a open dataset agreement")
+def check_for_open_dataset_agreement(context, will_or_wont):
+    account_repo = AccountRepository(context.db)
+    account = account_repo.get_account_by_id(context.accounts["foo"].id)
+    agreements = [agreement.type for agreement in account.agreements]
+    if will_or_wont == "will":
+        assert_that("Open Dataset", is_in(agreements))
+    else:
+        assert_that("Open Dataset", not is_in(agreements))
+
+
+@then("the new agreement will be reflected in the account activity metrics")
+def check_new_member_account_metrics(context):
+    """Ensure a new agreement is accurately reflected in the metrics."""
+    check_account_metrics(context, "open_dataset", "open_dataset_added")
+
+
+@then("the deleted agreement will be reflected in the account activity metrics")
+def check_new_member_account_metrics(context):
+    """Ensure a new agreement is accurately reflected in the metrics."""
+    check_account_metrics(context, "open_dataset", "open_dataset_deleted")

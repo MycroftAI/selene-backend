@@ -367,8 +367,10 @@ class AccountEndpoint(SeleneEndpoint):
         if opt_in:
             agreement = AccountAgreement(type=OPEN_DATASET, accept_date=date.today())
             self.account_repository.add_agreement(self.account.id, agreement)
+            self.account_activity_repository.increment_open_dataset_added()
         else:
             self.account_repository.expire_open_dataset_agreement(self.account.id)
+            self.account_activity_repository.increment_open_dataset_deleted()
 
     def delete(self):
         self._authenticate()
