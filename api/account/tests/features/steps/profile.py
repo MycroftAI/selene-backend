@@ -133,6 +133,7 @@ def change_to_yearly_account(context, in_or_out):
 @then("user profile is returned")
 def validate_response(context):
     response_data = context.response.json
+    utc_date = datetime.utcnow().date()
     account = context.accounts["foo"]
     assert_that(response_data["emailAddress"], equal_to(account.email_address))
     assert_that(response_data["membership"]["type"], equal_to("Monthly Membership"))
@@ -142,9 +143,7 @@ def validate_response(context):
     assert_that(len(response_data["agreements"]), equal_to(3))
     agreement = response_data["agreements"][0]
     assert_that(agreement["type"], equal_to(PRIVACY_POLICY))
-    assert_that(
-        agreement["acceptDate"], equal_to(str(date.today().strftime("%B %d, %Y")))
-    )
+    assert_that(agreement["acceptDate"], equal_to(str(utc_date.strftime("%B %d, %Y"))))
     assert_that(agreement, has_item("id"))
 
 
