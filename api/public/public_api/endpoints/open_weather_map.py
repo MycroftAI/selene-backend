@@ -23,19 +23,38 @@ import os
 import requests
 
 from selene.api import PublicEndpoint
+from selene.data.account import AccountRepository
+from selene.data.metric import AccountActivityRepository
 
 
 class OpenWeatherMapEndpoint(PublicEndpoint):
     """Proxy to the Open Weather Map API"""
+
     def __init__(self):
         super(OpenWeatherMapEndpoint, self).__init__()
-        self.owm_key = os.environ['OWM_KEY']
-        self.owm_url = os.environ['OWM_URL']
+        self.owm_key = os.environ["OWM_KEY"]
+        self.owm_url = os.environ["OWM_URL"]
 
     def get(self, path):
         self._authenticate()
-        params = dict(self.request.args)
-        params['APPID'] = self.owm_key
-        response = requests.get(self.owm_url + '/' + path, params=params)
-        return json.loads(response.content.decode('utf-8'))
+        account = self._update_account_active_ts()
+        self._track_account_activity(account)
+        return self._get_weather(path)
 
+    def _update_account_active_ts(self):
+        account_repository = AccountRepository(self.db)
+        account = account_repository.get_account_by_device_id(self.device_id)
+        account_repository.update_last_activity_ts(account.id)
+
+        return account
+
+    def _track_account_activity(self, account):
+        account_activity_repository = AccountActivityRepository(self.db)
+        account_activity_repository.increment_activity(account)
+
+    def _get_weather(self, path):
+        params = dict(self.request.args)
+        params["APPID"] = self.owm_key
+        response = requests.get(self.owm_url + "/" + path, params=params)
+
+        return json.loads(response.content.decode("utf-8"))

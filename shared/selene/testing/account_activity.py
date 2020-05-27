@@ -24,6 +24,16 @@ from hamcrest import assert_that, equal_to, greater_than
 from selene.data.metric import AccountActivityRepository
 
 
+def get_account_activity(db):
+    acct_activity_repository = AccountActivityRepository(db)
+    return acct_activity_repository.get_activity_by_date(datetime.utcnow().date())
+
+
+def remove_account_activity(db):
+    acct_activity_repository = AccountActivityRepository(db)
+    acct_activity_repository.delete_activity_by_date(datetime.utcnow().date())
+
+
 def check_account_metrics(context, total, changed):
     """Abstract function for checking that account activity metrics were updated."""
     acct_activity_repository = AccountActivityRepository(context.db)

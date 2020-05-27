@@ -24,20 +24,39 @@ import requests
 from flask import Response
 
 from selene.api import PublicEndpoint
+from selene.data.account import AccountRepository
+from selene.data.metric import AccountActivityRepository
 
 
 class WolframAlphaEndpoint(PublicEndpoint):
     """Proxy to the Wolfram Alpha API"""
+
     def __init__(self):
         super(WolframAlphaEndpoint, self).__init__()
-        self.wolfram_alpha_key = os.environ['WOLFRAM_ALPHA_KEY']
-        self.wolfram_alpha_url = os.environ['WOLFRAM_ALPHA_URL']
+        self.wolfram_alpha_key = os.environ["WOLFRAM_ALPHA_KEY"]
+        self.wolfram_alpha_url = os.environ["WOLFRAM_ALPHA_URL"]
 
     def get(self):
         self._authenticate()
-        input = self.request.args.get('input')
-        if input:
-            params = dict(appid=self.wolfram_alpha_key, input=input)
-            response = requests.get(self.wolfram_alpha_url + '/v2/query', params=params)
+        account = self._update_account_active_ts()
+        self._track_account_activity(account)
+        return self._query_wolfram_alpha()
+
+    def _update_account_active_ts(self):
+        account_repository = AccountRepository(self.db)
+        account = account_repository.get_account_by_device_id(self.device_id)
+        account_repository.update_last_activity_ts(account.id)
+
+        return account
+
+    def _track_account_activity(self, account):
+        account_activity_repository = AccountActivityRepository(self.db)
+        account_activity_repository.increment_activity(account)
+
+    def _query_wolfram_alpha(self):
+        query = self.request.args.get("input")
+        if query:
+            params = dict(appid=self.wolfram_alpha_key, input=query)
+            response = requests.get(self.wolfram_alpha_url + "/v2/query", params=params)
             if response.status_code == HTTPStatus.OK:
-                return Response(response.content, mimetype='text/xml')
+                return Response(response.content, mimetype="text/xml")

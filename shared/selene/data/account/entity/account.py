@@ -18,13 +18,14 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 from dataclasses import dataclass
-from datetime import date
+from datetime import date, datetime
 from typing import List
 
 
 @dataclass
 class AccountAgreement(object):
     """Representation of a 'signed' agreement"""
+
     type: str
     accept_date: date
     id: str = None
@@ -33,6 +34,7 @@ class AccountAgreement(object):
 @dataclass
 class AccountMembership(object):
     """Represents the subscription plan chosen by the user"""
+
     type: str
     start_date: date
     payment_method: str
@@ -45,8 +47,10 @@ class AccountMembership(object):
 @dataclass
 class Account(object):
     """Representation of a Mycroft user account."""
+
     email_address: str
     agreements: List[AccountAgreement]
+    last_activity: datetime = None
     membership: AccountMembership = None
     username: str = None
     id: str = None

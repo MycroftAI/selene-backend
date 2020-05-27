@@ -16,11 +16,16 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-
+from datetime import datetime
 from http import HTTPStatus
 
 from selene.api import PublicEndpoint
-from selene.data.metric import CoreMetric, CoreMetricRepository
+from selene.data.account import AccountRepository
+from selene.data.metric import (
+    AccountActivityRepository,
+    CoreMetric,
+    CoreMetricRepository,
+)
 
 
 class DeviceMetricsEndpoint(PublicEndpoint):
@@ -28,14 +33,26 @@ class DeviceMetricsEndpoint(PublicEndpoint):
 
     def post(self, device_id, metric):
         self._authenticate(device_id)
-        core_metric = CoreMetric(
-            device_id=device_id,
-            metric_type=metric,
-            metric_value=self.request.json
-        )
-        self._add_metric(core_metric)
-        return '', HTTPStatus.NO_CONTENT
+        self._add_core_metric(metric)
+        account = self._update_account_active_ts()
+        self._track_account_activity(account)
 
-    def _add_metric(self, metric: CoreMetric):
+        return "", HTTPStatus.NO_CONTENT
+
+    def _add_core_metric(self, metric: str):
+        core_metric = CoreMetric(
+            device_id=self.device_id, metric_type=metric, metric_value=self.request.json
+        )
         core_metrics_repo = CoreMetricRepository(self.db)
-        core_metrics_repo.add(metric)
+        core_metrics_repo.add(core_metric)
+
+    def _update_account_active_ts(self):
+        account_repository = AccountRepository(self.db)
+        account = account_repository.get_account_by_device_id(self.device_id)
+        account_repository.update_last_activity_ts(account.id)
+
+        return account
+
+    def _track_account_activity(self, account):
+        account_activity_repository = AccountActivityRepository(self.db)
+        account_activity_repository.increment_activity(account)

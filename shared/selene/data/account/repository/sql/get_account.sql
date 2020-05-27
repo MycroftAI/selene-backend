@@ -36,6 +36,7 @@ SELECT
         'id', id,
         'email_address', email_address,
         'username', username,
+        'last_activity', last_activity_ts,
         'membership', (SELECT * FROM membership),
         'agreements', (SELECT * FROM agreements)
     ) as account
@@ -43,4 +44,3 @@ FROM
     account.account
 WHERE
     id = {account_id_resolver}
-
