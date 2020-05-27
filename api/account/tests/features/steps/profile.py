@@ -31,7 +31,12 @@ from hamcrest import (
     starts_with,
 )
 
-from selene.data.account import AccountRepository, PRIVACY_POLICY
+from selene.data.account import (
+    AccountRepository,
+    PRIVACY_POLICY,
+    TERMS_OF_USE,
+    OPEN_DATASET,
+)
 from selene.data.metric import AccountActivityRepository
 from selene.testing.account_activity import check_account_metrics
 from selene.testing.api import (
@@ -142,7 +147,7 @@ def validate_response(context):
 
     assert_that(len(response_data["agreements"]), equal_to(3))
     agreement = response_data["agreements"][0]
-    assert_that(agreement["type"], equal_to(PRIVACY_POLICY))
+    assert_that(agreement["type"], is_in([PRIVACY_POLICY, TERMS_OF_USE, OPEN_DATASET]))
     assert_that(agreement["acceptDate"], equal_to(str(utc_date.strftime("%B %d, %Y"))))
     assert_that(agreement, has_item("id"))
 

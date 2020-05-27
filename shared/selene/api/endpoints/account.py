@@ -176,7 +176,7 @@ class AccountEndpoint(SeleneEndpoint):
         )
         one_year = timedelta(days=365)
         one_month = timedelta(days=30)
-        duration = date.today() - membership_start.date()
+        duration = datetime.utcnow().date() - membership_start.date()
         years, remaining_duration = divmod(duration, one_year)
         months, _ = divmod(remaining_duration, one_month)
         membership_duration = []
