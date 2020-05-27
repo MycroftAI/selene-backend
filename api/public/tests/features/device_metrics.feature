@@ -5,10 +5,10 @@ Feature: Save metrics sent to selene from mycroft core
     When the metric endpoint is called
     Then the metric is saved to the database
     And the request will be successful
-    And device last contact timestamp is updated
+    And the device's last contact time is updated
 
   Scenario: Metric endpoint fails for unauthorized device
     Given a non-existent device
     When the metric endpoint is called
     Then the request will fail with an unauthorized error
-    And device last contact timestamp is updated
+    And the device's last contact time is updated
