@@ -16,7 +16,7 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-"""Setup the environment for the behavioral tests."""
+"""Setup the environment for the account API behavioral tests."""
 from datetime import datetime
 from logging import getLogger
 
@@ -46,21 +46,29 @@ def acct_api_client(context):
 
 
 def before_all(context):
-    """Execute these steps before any tests run."""
+    """Setup static test data before any tests run.
+
+    This is data that does not change from test to test so it only needs to be setup
+    and torn down once.
+    """
     use_fixture(acct_api_client, context)
     context.db = connect_to_db(context.client_config["DB_CONNECTION_CONFIG"])
     add_agreements(context)
 
 
 def after_all(context):
-    """Execute these steps after all tests have run."""
+    """Clean up static test data after all tests have run.
+
+    This is data that does not change from test to test so it only needs to be setup
+    and torn down once.
+    """
     remove_agreements(
         context.db, [context.privacy_policy, context.terms_of_use, context.open_dataset]
     )
 
 
 def before_scenario(context, _):
-    """Setup steps to run before each scenario."""
+    """Setup data that could change during a scenario so each test starts clean."""
     account = add_account(context.db)
     context.accounts = dict(foo=account)
     context.geography_id = add_account_geography(context.db, account)
@@ -73,7 +81,7 @@ def before_scenario(context, _):
 
 
 def after_scenario(context, _):
-    """Scenario-level cleanup.
+    """Cleanup data that could change during a scenario so next scenario starts fresh.
 
     The database is setup with cascading deletes that take care of cleaning up[
     referential integrity for us.  All we have to do here is delete the account

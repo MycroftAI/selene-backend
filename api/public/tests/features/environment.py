@@ -16,9 +16,8 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-
+"""Environmental controls for the public API behavioral tests"""
 import os
-from datetime import datetime
 
 from behave import fixture, use_fixture
 
@@ -26,10 +25,7 @@ from public_api.api import public
 from selene.api import generate_device_login
 from selene.api.etag import ETagManager
 from selene.testing.account import add_account, remove_account
-from selene.testing.account_activity import (
-    get_account_activity,
-    remove_account_activity,
-)
+from selene.testing.account_activity import remove_account_activity
 from selene.testing.agreement import add_agreements, remove_agreements
 from selene.testing.account_geography import add_account_geography
 from selene.testing.account_preference import add_account_preference
@@ -54,6 +50,7 @@ from selene.util.db import connect_to_db
 
 @fixture
 def public_api_client(context):
+    """Start the public API for use in the tests."""
     public.testing = True
     context.client_config = public.config
     context.client = public.test_client()
@@ -61,6 +58,11 @@ def public_api_client(context):
 
 
 def before_all(context):
+    """Setup static test data before any tests run.
+
+    This is data that does not change from test to test so it only needs to be setup
+    and torn down once.
+    """
     use_fixture(public_api_client, context)
     context.cache = SeleneCache()
     context.db = connect_to_db(context.client_config["DB_CONNECTION_CONFIG"])
@@ -68,12 +70,18 @@ def before_all(context):
 
 
 def after_all(context):
+    """Clean up static test data after all tests have run.
+
+    This is data that does not change from test to test so it only needs to be setup
+    and torn down once.
+    """
     remove_agreements(
         context.db, [context.privacy_policy, context.terms_of_use, context.open_dataset]
     )
 
 
 def before_scenario(context, _):
+    """Setup data that could change during a scenario so each test starts clean."""
     context.etag_manager = ETagManager(context.cache, context.client_config)
     _add_account(context)
     _add_skills(context)
@@ -82,6 +90,12 @@ def before_scenario(context, _):
 
 
 def after_scenario(context, _):
+    """Cleanup data that could change during a scenario so next scenario starts fresh.
+
+    The database is setup with cascading deletes that take care of cleaning up[
+    referential integrity for us.  All we have to do here is delete the account
+    and all rows on all tables related to that account will also be deleted.
+    """
     remove_account(context.db, context.account)
     remove_account_activity(context.db)
     remove_wake_word(context.db, context.wake_word)
@@ -91,12 +105,14 @@ def after_scenario(context, _):
 
 
 def _add_account(context):
+    """Add an account object to the context for use in step code."""
     context.account = add_account(context.db)
     add_account_preference(context.db, context.account.id)
     context.geography_id = add_account_geography(context.db, context.account)
 
 
 def _add_device(context):
+    """Add a device object to the context for use in step code."""
     context.wake_word = add_wake_word(context.db)
     context.voice = add_text_to_speech(context.db)
     device_id = add_device(context.db, context.account.id, context.geography_id)
@@ -107,6 +123,7 @@ def _add_device(context):
 
 
 def _add_skills(context):
+    """Add skill objects to the context for use in step code."""
     foo_skill, foo_settings_display = add_skill(
         context.db, skill_global_id="foo-skill|19.02",
     )
@@ -125,6 +142,7 @@ def _add_skills(context):
 
 
 def _add_device_skills(context):
+    """Link skills to devices for use in step code."""
     for value in context.skills.values():
         skill, settings_display = value
         context.manifest_skill = add_device_skill(context.db, context.device_id, skill)
@@ -140,11 +158,13 @@ def _add_device_skills(context):
 
 
 def before_tag(context, tag):
+    """Setup steps that only need to occur for scenarios with the specified tag(s)."""
     if tag == "device_specific_skill":
         _add_device_specific_skill(context)
 
 
 def _add_device_specific_skill(context):
+    """Add a skill with a device specific skill GID."""
     dirty_skill, dirty_skill_settings = add_skill(
         context.db,
         skill_global_id="@{device_id}|device-specific-skill|19.02".format(
@@ -158,6 +178,7 @@ def _add_device_specific_skill(context):
 
 
 def after_tag(context, tag):
+    """Delete data that was added as a result of running a test with a specified tag."""
     if tag == "new_skill":
         _delete_new_skill(context)
     elif tag == "stt":
@@ -165,11 +186,13 @@ def after_tag(context, tag):
 
 
 def _delete_new_skill(context):
+    """Delete a skill that was added during a test."""
     remove_device_skill(context.db, context.new_manifest_skill)
     remove_skill(context.db, context.new_skill)
 
 
 def _delete_stt_tagging_files():
+    """Delete speech to text transcriptions that were added during a test."""
     data_dir = "/opt/selene/data"
     for file_name in os.listdir(data_dir):
         os.remove(os.path.join(data_dir, file_name))

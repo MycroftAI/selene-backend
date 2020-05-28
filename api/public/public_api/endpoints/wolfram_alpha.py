@@ -23,9 +23,7 @@ from http import HTTPStatus
 import requests
 from flask import Response
 
-from selene.api import PublicEndpoint
-from selene.data.account import AccountRepository
-from selene.data.metric import AccountActivityRepository
+from selene.api import PublicEndpoint, track_account_activity
 
 
 class WolframAlphaEndpoint(PublicEndpoint):
@@ -38,20 +36,8 @@ class WolframAlphaEndpoint(PublicEndpoint):
 
     def get(self):
         self._authenticate()
-        account = self._update_account_active_ts()
-        self._track_account_activity(account)
+        track_account_activity(self.db, self.device_id)
         return self._query_wolfram_alpha()
-
-    def _update_account_active_ts(self):
-        account_repository = AccountRepository(self.db)
-        account = account_repository.get_account_by_device_id(self.device_id)
-        account_repository.update_last_activity_ts(account.id)
-
-        return account
-
-    def _track_account_activity(self, account):
-        account_activity_repository = AccountActivityRepository(self.db)
-        account_activity_repository.increment_activity(account)
 
     def _query_wolfram_alpha(self):
         query = self.request.args.get("input")

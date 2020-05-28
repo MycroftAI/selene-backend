@@ -18,16 +18,14 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 import os
-from datetime import datetime
 from http import HTTPStatus
 from io import BytesIO
 from time import time
 
 from speech_recognition import AudioFile, Recognizer
 
-from selene.api import PublicEndpoint
+from selene.api import PublicEndpoint, track_account_activity
 from selene.data.account import AccountRepository, OPEN_DATASET
-from selene.data.metric import AccountActivityRepository
 
 SELENE_DATA_DIR = "/opt/selene/data"
 
@@ -59,8 +57,8 @@ class GoogleSTTEndpoint(PublicEndpoint):
         stt_response = self._call_google_stt()
         response = self._build_response(stt_response)
         self._write_stt_result_file(response)
-        self._update_account_activity_ts()
-        self._track_account_activity()
+        if response:
+            track_account_activity(self.db, self.device_id)
 
         return response, HTTPStatus.OK
 
@@ -135,10 +133,3 @@ class GoogleSTTEndpoint(PublicEndpoint):
             response = []
 
         return response
-
-    def _update_account_activity_ts(self):
-        self.account_repo.update_last_activity_ts(self.account.id)
-
-    def _track_account_activity(self):
-        account_activity_repository = AccountActivityRepository(self.db)
-        account_activity_repository.increment_activity(self.account)
