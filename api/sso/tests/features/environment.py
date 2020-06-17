@@ -18,10 +18,12 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 """Environmental controls for the single sign on API tests."""
 import os
+from datetime import datetime
 
 from behave import fixture, use_fixture
 
 from sso_api.api import sso
+from selene.data.metric import AccountActivityRepository
 from selene.testing.account import add_account, remove_account
 from selene.testing.agreement import add_agreements, remove_agreements
 from selene.util.db import connect_to_db
@@ -50,6 +52,10 @@ def before_scenario(context, _):
     """Scenario-level setup."""
     account = add_account(context.db, password="foo")
     context.accounts = dict(foobar=account)
+    acct_activity_repository = AccountActivityRepository(context.db)
+    context.account_activity = acct_activity_repository.get_activity_by_date(
+        datetime.utcnow().date()
+    )
 
 
 def after_scenario(context, _):

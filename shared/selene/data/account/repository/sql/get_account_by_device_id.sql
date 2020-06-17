@@ -46,6 +46,7 @@ SELECT
         'id', acc.id,
         'email_address', acc.email_address,
         'username', acc.username,
+        'last_activity', acc.last_activity_ts,
         'membership', (SELECT * FROM membership),
         'agreements', (SELECT * FROM agreements)
     ) as account
@@ -55,4 +56,3 @@ INNER JOIN
     device.device dev ON acc.id = dev.account_id
 WHERE
     dev.id = %(device_id)s
-
