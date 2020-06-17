@@ -1,5 +1,5 @@
 # Mycroft Server - Backend
-# Copyright (C) 2019 Mycroft AI Inc
+# Copyright (C) 2020 Mycroft AI Inc
 # SPDX-License-Identifier: 	AGPL-3.0-or-later
 #
 # This file is part of the Mycroft Server.
@@ -16,11 +16,23 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
+"""Defines data entities related to account activity metrics."""
+from dataclasses import dataclass
 
-from .base_config import get_base_config
-from .base_endpoint import APIError, SeleneEndpoint
-from .blueprint import selene_api
-from .etag import device_etag_key, device_setting_etag_key, ETagManager
-from .public_endpoint import PublicEndpoint, track_account_activity
-from .public_endpoint import generate_device_login
-from .response import SeleneResponse, snake_to_camel
+
+@dataclass
+class AccountActivity:
+    """Data class representing a row on the account_activity table."""
+
+    accounts: int
+    accounts_added: int
+    accounts_deleted: int
+    accounts_active: int
+    members: int
+    members_added: int
+    members_expired: int
+    members_active: int
+    open_dataset: int
+    open_dataset_added: int
+    open_dataset_deleted: int
+    open_dataset_active: int

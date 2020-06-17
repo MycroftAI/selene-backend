@@ -7,5 +7,6 @@ CREATE TABLE account.account (
             UNIQUE,
     password                text,
     insert_ts               TIMESTAMP   NOT NULL
-            DEFAULT CURRENT_TIMESTAMP
+            DEFAULT CURRENT_TIMESTAMP,
+    last_activity_ts        TIMESTAMP
 );
