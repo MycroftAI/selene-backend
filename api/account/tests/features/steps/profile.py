@@ -127,7 +127,9 @@ def change_to_yearly_account(context):
 
 
 @when("the user opts {in_or_out} the open dataset")
-def change_to_yearly_account(context, in_or_out):
+def set_open_dataset_status(context, in_or_out):
+    if in_or_out not in ("into", "out of"):
+        raise ValueError('User can only opt "into" or "out of" the agreement')
     context.response = context.client.patch(
         "/api/account",
         data=json.dumps(dict(openDataset=True if in_or_out == "into" else False)),
@@ -146,10 +148,14 @@ def validate_response(context):
     assert_that(response_data["membership"], has_item("id"))
 
     assert_that(len(response_data["agreements"]), equal_to(3))
-    agreement = response_data["agreements"][0]
-    assert_that(agreement["type"], is_in([PRIVACY_POLICY, TERMS_OF_USE, OPEN_DATASET]))
-    assert_that(agreement["acceptDate"], equal_to(str(utc_date.strftime("%B %d, %Y"))))
-    assert_that(agreement, has_item("id"))
+    for agreement in response_data["agreements"]:
+        assert_that(
+            agreement["type"], is_in([PRIVACY_POLICY, TERMS_OF_USE, OPEN_DATASET])
+        )
+        assert_that(
+            agreement["acceptDate"], equal_to(str(utc_date.strftime("%B %d, %Y")))
+        )
+        assert_that(agreement, has_item("id"))
 
 
 @then("the account should have a monthly membership")
@@ -217,9 +223,11 @@ def check_for_open_dataset_agreement(context, will_or_wont):
     account = account_repo.get_account_by_id(context.accounts["foo"].id)
     agreements = [agreement.type for agreement in account.agreements]
     if will_or_wont == "will":
-        assert_that("Open Dataset", is_in(agreements))
+        assert_that(OPEN_DATASET, is_in(agreements))
+    elif will_or_wont == "won't":
+        assert_that(OPEN_DATASET, not is_in(agreements))
     else:
-        assert_that("Open Dataset", not is_in(agreements))
+        raise ValueError('Valid values are only "will" or "won\'t"')
 
 
 @then("the new agreement will be reflected in the account activity metrics")
