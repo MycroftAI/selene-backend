@@ -39,10 +39,10 @@
         },
         "deprecated": {
             "hashes": [
-                "sha256:525ba66fb5f90b07169fdd48b6373c18f1ee12728ca277ca44567a367d9d7f74",
-                "sha256:a766c1dccb30c5f6eb2b203f87edd1d8588847709c78589e1521d769addc8218"
+                "sha256:0cf37d293a96805c6afd8b5fc525cb40f23a2cac9b2d066ac3bd4b04e72ceccc",
+                "sha256:55b41a15bda04c6a2c0d27dd4c2b7b81ffa6348c9cad8f077ac1978c59927ab9"
             ],
-            "version": "==1.2.10"
+            "version": "==1.2.9"
         },
         "facebook-sdk": {
             "hashes": [
@@ -189,10 +189,10 @@
         },
         "redis": {
             "hashes": [
-                "sha256:2ef11f489003f151777c064c5dbc6653dfb9f3eade159bcadc524619fddc2242",
-                "sha256:6d65e84bc58091140081ee9d9c187aab0480097750fac44239307a3bdf0b1251"
+                "sha256:6e9d2722a95d10ddf854596e66516d316d99c6a483e5db3b35c34e1158b2bfa1",
+                "sha256:a5b0e25890d216d8189636742c50ab992e42eea699bcc1b08cc2d6bf3adff52a"
             ],
-            "version": "==3.5.2"
+            "version": "==3.5.1"
         },
         "requests": {
             "hashes": [
@@ -223,10 +223,10 @@
         },
         "sendgrid": {
             "hashes": [
-                "sha256:38c0853494c7bfbef64f33934c25bf98bb7648cf0e66a0cfb22410927e4ef4c7",
-                "sha256:838e1f7b0f84d56714be6a18ef66fbcf8fba0bda782eee35c47c04d7a16efde8"
+                "sha256:37d8215974ec3c79085fc455332961bb788eb5d899adde1469640b605a940ec4",
+                "sha256:692c0ac35a6afed093e66e883b86dc7ec60b6b774bf5ef931d42efd19443a1fc"
             ],
-            "version": "==6.3.1"
+            "version": "==6.3.0"
         },
         "stripe": {
             "hashes": [
@@ -295,10 +295,10 @@
         },
         "six": {
             "hashes": [
-                "sha256:30639c035cdb23534cd4aa2dd52c3bf48f06e5f4a941509c8bafd8ce11080259",
-                "sha256:8b74bedcbbbaca38ff6d7491d76f2b06b3592611af620f8426e82dddb04a5ced"
+                "sha256:236bdbdce46e6e6a3d61a337c0f8b763ca1e8717c03b369e87a7ec7ce1319c0a",
+                "sha256:8f3cd2e254d8f793e7f3d6d9df77b92252b52637291d0f0da013c76ea2724b6c"
             ],
-            "version": "==1.15.0"
+            "version": "==1.14.0"
         }
     }
 }
