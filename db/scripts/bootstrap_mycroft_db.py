@@ -17,6 +17,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+from datetime import date
 from glob import glob
 from io import BytesIO
 from os import environ, path, remove
@@ -25,6 +26,7 @@ from zipfile import ZipFile
 
 from markdown import markdown
 from psycopg2 import connect
+from psycopg2.extras import DateRange
 
 MYCROFT_DB_DIR = "/opt/selene/selene-backend/db/mycroft"
 MYCROFT_DB_NAME = environ.get("DB_NAME", "mycroft")
@@ -61,7 +63,7 @@ DEVICE_TABLE_ORDER = (
 )
 GEOGRAPHY_TABLE_ORDER = ("country", "timezone", "region", "city")
 
-METRIC_TABLE_ORDER = ("api", "api_history", "job", "core")
+METRIC_TABLE_ORDER = ("api", "api_history", "job", "core", "account_activity")
 
 schema_directory = "{}_schema"
 
@@ -181,9 +183,7 @@ def _apply_insert_file(db, schema_dir, file_name):
 def _populate_agreement_table(db):
     print("Building account.agreement table")
     db.db.autocommit = False
-    insert_sql = (
-        "insert into account.agreement VALUES (default, %s, '1', '[today,]', %s)"
-    )
+    insert_sql = "insert into account.agreement VALUES (default, %s, '1', %s, %s)"
     privacy_policy_path = path.join(
         environ.get("MYCROFT_DOC_DIR", "/opt/mycroft/devops/agreements"),
         "privacy_policy.md",
@@ -193,13 +193,16 @@ def _populate_agreement_table(db):
         "terms_of_use.md",
     )
     docs = {"Privacy Policy": privacy_policy_path, "Terms of Use": terms_of_use_path}
+    agreement_date_range = DateRange(lower=date(2000, 1, 1), bounds="[]")
     for agreement_type, doc_path in docs.items():
         try:
             lobj = db.db.lobject(0, "b")
             with open(doc_path) as doc:
                 doc_html = markdown(doc.read(), output_format="html5")
                 lobj.write(doc_html)
-            db.execute_sql(insert_sql, args=(agreement_type, lobj.oid))
+            db.execute_sql(
+                insert_sql, args=(agreement_type, agreement_date_range, lobj.oid)
+            )
             db.execute_sql(f"grant select on large object {lobj.oid} to selene")
         except FileNotFoundError:
             print(
@@ -214,7 +217,7 @@ def _populate_agreement_table(db):
             db.db.commit()
 
     db.db.autocommit = True
-    db.execute_sql(insert_sql, args=("Open Dataset", None))
+    db.execute_sql(insert_sql, args=("Open Dataset", agreement_date_range, None))
 
 
 def _populate_country_table(db):
