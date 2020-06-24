@@ -224,7 +224,7 @@ def check_for_open_dataset_agreement(context, will_or_wont):
     agreements = [agreement.type for agreement in account.agreements]
     if will_or_wont == "will":
         assert_that(OPEN_DATASET, is_in(agreements))
-    elif will_or_wont == "won't":
+    elif will_or_wont == "will not":
         assert_that(OPEN_DATASET, not is_in(agreements))
     else:
         raise ValueError('Valid values are only "will" or "won\'t"')
