@@ -157,26 +157,6 @@ def _add_device_skills(context):
         )
 
 
-def before_tag(context, tag):
-    """Setup steps that only need to occur for scenarios with the specified tag(s)."""
-    if tag == "device_specific_skill":
-        _add_device_specific_skill(context)
-
-
-def _add_device_specific_skill(context):
-    """Add a skill with a device specific skill GID."""
-    dirty_skill, dirty_skill_settings = add_skill(
-        context.db,
-        skill_global_id="@{device_id}|device-specific-skill|19.02".format(
-            device_id=context.device_id
-        ),
-    )
-    context.skills.update(dirty=(dirty_skill, dirty_skill_settings))
-    context.device_specific_manifest = add_device_skill(
-        context.db, context.device_id, dirty_skill
-    )
-
-
 def after_tag(context, tag):
     """Delete data that was added as a result of running a test with a specified tag."""
     if tag == "new_skill":
