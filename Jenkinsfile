@@ -24,7 +24,7 @@ pipeline {
         WOLFRAM_ALPHA_KEY=credentials('f718e0a1-c19c-4c7f-af88-0689738ccaa1')
     }
     stages {
-        stage('Integration Tests') {
+        stage('Bootstrap DB') {
             when {
                 anyOf {
                     branch 'testing/sso-api-ci'
@@ -34,54 +34,97 @@ pipeline {
                 }
             }
             steps {
-                echo 'Bootstrapping DB'
-                sh 'docker build \
-                    --target db-bootstrap \
-                    --build-arg github_api_key=$GITHUB_API_PSW \
-                    -t selene-db:${BRANCH_ALIAS} .'
+                labelledShell label: 'Building Docker image', script: """
+                    docker build \
+                        --target db-bootstrap \
+                        --build-arg github_api_key=$GITHUB_API_PSW \
+                        -t selene-db:${BRANCH_ALIAS} .
+                """
                 timeout(time: 5, unit: 'MINUTES')
                 {
-                    sh 'docker run --net selene-net selene-db:${BRANCH_ALIAS}'
+                    labelledShell label: 'Run database bootstrap script', script: """
+                        docker run --net selene-net selene-db:${BRANCH_ALIAS}
+                    """
                 }
-                echo 'Building Account API Testing Docker Image '
-                sh 'docker build \
-                    --target account-api-test \
-                    -t selene-account:${BRANCH_ALIAS} .'
-                echo 'Running Account API Test Suite'
+            }
+        }
+        stage('Account API Tests') {
+            when {
+                anyOf {
+                    branch 'testing/sso-api-ci'
+                    branch 'dev'
+                    branch 'master'
+                    changeRequest target: 'dev'
+                }
+            }
+            steps {
+                labelledShell label: 'Building Docker image', script: """
+                    docker build --target account-api-test -t selene-account:${BRANCH_ALIAS} .
+                """
                 timeout(time: 5, unit: 'MINUTES')
                 {
-                    sh 'docker run \
-                        --net selene-net \
-                        -v "$HOME/allure/selene/:/root/allure" \
-                        selene-account:${BRANCH_ALIAS}'
+                    labelledShell label: 'Running behave tests', script: """
+                        docker run \
+                            --net selene-net \
+                            -v '$HOME/allure/selene/:/root/allure' \
+                            selene-account:${BRANCH_ALIAS}
+                    """
                 }
-                echo 'Building Single Sign On API Testing Docker Image '
-                sh 'docker build \
-                    --build-arg github_client_id=${GITHUB_CLIENT_ID} \
-                    --build-arg github_client_secret=${GITHUB_CLIENT_SECRET} \
-                    --target sso-api-test \
-                    -t selene-sso:${BRANCH_ALIAS} .'
-                echo 'Running Single Sign On API Test Suite'
+            }
+        }
+        stage('Single Sign On API Tests') {
+            when {
+                anyOf {
+                    branch 'testing/sso-api-ci'
+                    branch 'dev'
+                    branch 'master'
+                    changeRequest target: 'dev'
+                }
+            }
+            steps {
+                labelledShell label: 'Building Docker image', script: """
+                    docker build \
+                        --build-arg github_client_id=${GITHUB_CLIENT_ID} \
+                        --build-arg github_client_secret=${GITHUB_CLIENT_SECRET} \
+                        --target sso-api-test \
+                        -t selene-sso:${BRANCH_ALIAS} .
+                """
                 timeout(time: 2, unit: 'MINUTES')
                 {
-                    sh 'docker run \
-                        --net selene-net \
-                        -v "$HOME/allure/selene/:/root/allure" \
-                        selene-sso:${BRANCH_ALIAS}'
+                    labelledShell label: 'Running behave tests', script: """
+                        docker run \
+                            --net selene-net \
+                            -v '$HOME/allure/selene/:/root/allure' \
+                            selene-sso:${BRANCH_ALIAS}
+                    """
                 }
-                echo 'Building Public Device API Testing Docker Image '
-                sh 'docker build \
-                    --build-arg google_stt_key=${GOOGLE_STT_KEY} \
-                    --build-arg wolfram_alpha_key=${WOLFRAM_ALPHA_KEY} \
-                    --target public-api-test \
-                    -t selene-public:${BRANCH_ALIAS} .'
-                echo 'Running Public Device API Test Suite'
+            }
+        }
+        stage('Public Device API Tests') {
+            when {
+                anyOf {
+                    branch 'testing/sso-api-ci'
+                    branch 'dev'
+                    branch 'master'
+                    changeRequest target: 'dev'
+                }
+            }
+            steps {
+                labelledShell label: 'Building Docker image', script: """
+                    docker build \
+                        --build-arg google_stt_key=${GOOGLE_STT_KEY} \
+                        --build-arg wolfram_alpha_key=${WOLFRAM_ALPHA_KEY} \
+                        --target public-api-test \
+                        -t selene-public:${BRANCH_ALIAS} .
+                """
                 timeout(time: 2, unit: 'MINUTES')
                 {
-                    sh 'docker run \
-                        --net selene-net \
-                        -v "$HOME/allure/selene/:/root/allure" \
-                        selene-public:${BRANCH_ALIAS}'
+                    labelledShell label: 'Running behave tests', script: """
+                        docker run \
+                            --net selene-net \
+                            -v '$HOME/allure/selene/:/root/allure' \
+                            selene-public:${BRANCH_ALIAS}
+                    """
                 }
             }
         }
