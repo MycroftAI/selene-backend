@@ -6,6 +6,7 @@ verify_ssl = true
 [dev-packages]
 behave = "*"
 pyhamcrest = "*"
+allure-behave = "*"
 
 [packages]
 flask = "<1.1"

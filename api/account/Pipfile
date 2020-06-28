@@ -13,6 +13,7 @@ selene = {editable = true,path = "./../../shared"}
 [dev-packages]
 behave = "*"
 pyhamcrest = "*"
+allure-behave = "*"
 
 [requires]
 python_version = "3.7"
