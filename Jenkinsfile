@@ -24,6 +24,22 @@ pipeline {
         WOLFRAM_ALPHA_KEY=credentials('f718e0a1-c19c-4c7f-af88-0689738ccaa1')
     }
     stages {
+        stage('Lint & Format') {
+            // Run PyLint and Black to check code quality.
+            when {
+                changeRequest target: 'dev'
+            }
+            steps {
+                labelledShell label: 'Building Docker image', script: """
+                     docker build \
+                        --build-arg github_api_key=$GITHUB_API_PSW \
+                        --file test/Dockerfile \
+                        --target code-checker \
+                        -t selene-linter:${BRANCH_ALIAS} .
+                """
+                labelledShell label: 'Running linter and formatter', script: 'docker run selene-linter:${BRANCH_ALIAS}'
+            }
+        }
         stage('Bootstrap DB') {
             when {
                 anyOf {

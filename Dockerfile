@@ -40,6 +40,16 @@ RUN mkdir -p /opt/mycroft
 WORKDIR /opt/mycroft
 RUN git clone https://$github_api_key@github.com/MycroftAI/devops.git
 
+# Run the code_check.py script which performs linting (using PyLint) and code formatting (using Black)
+FROM devops-build as code-checker
+ARG pull_request
+WORKDIR /opt/selene
+COPY . selene-backend
+WORKDIR /opt/mycroft/devops/jenkins
+RUN git checkout continuous_integration
+RUN pipenv install
+ENTRYPOINT ["pipenv", "run", "python", "-m", "pipeline.code_check", "--repository", "selene-backend", "--pull-request", "$pull_request"]
+
 # Bootstrap the Selene database as it will be needed to run any Selene applications.
 FROM devops-build as db-bootstrap
 ENV POSTGRES_PASSWORD selene
