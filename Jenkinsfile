@@ -43,7 +43,6 @@ pipeline {
         stage('Bootstrap DB') {
             when {
                 anyOf {
-                    branch 'testing/sso-api-ci'
                     branch 'dev'
                     branch 'master'
                     changeRequest target: 'dev'
@@ -67,7 +66,6 @@ pipeline {
         stage('Account API Tests') {
             when {
                 anyOf {
-                    branch 'testing/sso-api-ci'
                     branch 'dev'
                     branch 'master'
                     changeRequest target: 'dev'
@@ -91,7 +89,6 @@ pipeline {
         stage('Single Sign On API Tests') {
             when {
                 anyOf {
-                    branch 'testing/sso-api-ci'
                     branch 'dev'
                     branch 'master'
                     changeRequest target: 'dev'
@@ -119,7 +116,6 @@ pipeline {
         stage('Public Device API Tests') {
             when {
                 anyOf {
-                    branch 'testing/sso-api-ci'
                     branch 'dev'
                     branch 'master'
                     changeRequest target: 'dev'
