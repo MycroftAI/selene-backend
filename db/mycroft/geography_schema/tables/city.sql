@@ -9,6 +9,6 @@ CREATE TABLE geography.city (
     latitude    NUMERIC     NOT NULL,
     longitude   NUMERIC     NOT NULL,
     insert_ts   TIMESTAMP   NOT NULL
-            DEFAULT CURRENT_TIMESTAMP
-
+            DEFAULT CURRENT_TIMESTAMP,
+    population  INTEGER
 )
