@@ -31,31 +31,33 @@ COPY shared shared
 
 # Code quality scripts and user agreements are stored in the MycroftAI/devops repository.  This repository is private.
 # builds for publicly available images should not use this build stage.
-FROM selene-base as devops-build
+#
 # The GitHub API key is sensitive information and can change depending on who is running the application.
 # It is used here to clone the private MycroftAI/devops repository.
+FROM selene-base as devops-build
 ARG github_api_key
 ENV GITHUB_API_KEY=$github_api_key
 RUN mkdir -p /opt/mycroft
 WORKDIR /opt/mycroft
 RUN git clone https://$github_api_key@github.com/MycroftAI/devops.git
-
-# Run the code_check.py script which performs linting (using PyLint) and code formatting (using Black)
-FROM devops-build as code-checker
-ARG pull_request
-WORKDIR /opt/selene
-COPY . selene-backend
 WORKDIR /opt/mycroft/devops/jenkins
-RUN git checkout continuous_integration
+# TODO: remove when the pull-request-identifier branch is merged.
+RUN git checkout bug/pull-request-identifier
 RUN pipenv install
-ENTRYPOINT ["pipenv", "run", "python", "-m", "pipeline.code_check", "--repository", "selene-backend", "--pull-request", "$pull_request"]
+
+# Run a linter and code formatter against the API specified in the build argument
+FROM devops-build as api-code-check
+ARG api_name
+WORKDIR /opt/selene/selene-backend
+COPY api/${api_name} api/${api_name}
+WORKDIR /opt/selene/selene-backend/api/${api_name}
+RUN pipenv install --dev
+WORKDIR /opt/mycroft/devops/jenkins
+ENTRYPOINT ["pipenv", "run", "python", "-m", "pipeline.code_check", "--repository", "selene-backend", "--base-dir", "/opt/selene"]
 
 # Bootstrap the Selene database as it will be needed to run any Selene applications.
 FROM devops-build as db-bootstrap
 ENV POSTGRES_PASSWORD selene
-# TODO: remove when the feature/agreements branch is merged.
-WORKDIR /opt/mycroft/devops
-RUN git checkout feature/agreements
 WORKDIR /opt/selene/selene-backend
 COPY db db
 WORKDIR /opt/selene/selene-backend/db

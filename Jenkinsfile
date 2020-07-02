@@ -30,14 +30,36 @@ pipeline {
                 changeRequest target: 'dev'
             }
             steps {
-                labelledShell label: 'Building Docker image', script: """
+                labelledShell label: 'Account API Setup', script: """
                      docker build \
-                        --build-arg github_api_key=$GITHUB_API_PSW \
-                        --file test/Dockerfile \
-                        --target code-checker \
+                        --build-arg github_api_key=${GITHUB_API_PSW} \
+                        --build-arg api_name=account \
+                        --target api-code-check --no-cache \
                         -t selene-linter:${BRANCH_ALIAS} .
                 """
-                labelledShell label: 'Running linter and formatter', script: 'docker run selene-linter:${BRANCH_ALIAS}'
+                labelledShell label: 'Account API Check', script: """
+                    docker run selene-linter:${BRANCH_ALIAS} --pipenv-dir api/account --pull-request=${BRANCH_NAME}
+                """
+                labelledShell label: 'Single Sign On API Setup', script: """
+                     docker build \
+                        --build-arg github_api_key=${GITHUB_API_PSW} \
+                        --build-arg api_name=sso \
+                        --target api-code-check \
+                        -t selene-linter:${BRANCH_ALIAS} .
+                """
+                labelledShell label: 'Single Sign On API Check', script: """
+                    docker run selene-linter:${BRANCH_ALIAS} --pipenv-dir api/sso --pull-request=${BRANCH_NAME}
+                """
+                labelledShell label: 'Public API Setup', script: """
+                     docker build \
+                        --build-arg github_api_key=${GITHUB_API_PSW} \
+                        --build-arg api_name=public \
+                        --target api-code-check \
+                        -t selene-linter:${BRANCH_ALIAS} .
+                """
+                labelledShell label: 'Public API Check', script: """
+                    docker run selene-linter:${BRANCH_ALIAS} --pipenv-dir api/public --pull-request=${BRANCH_NAME}
+                """
             }
         }
         stage('Bootstrap DB') {
@@ -52,7 +74,7 @@ pipeline {
                 labelledShell label: 'Building Docker image', script: """
                     docker build \
                         --target db-bootstrap \
-                        --build-arg github_api_key=$GITHUB_API_PSW \
+                        --build-arg github_api_key=${GITHUB_API_PSW} \
                         -t selene-db:${BRANCH_ALIAS} .
                 """
                 timeout(time: 5, unit: 'MINUTES')
@@ -80,7 +102,7 @@ pipeline {
                     labelledShell label: 'Running behave tests', script: """
                         docker run \
                             --net selene-net \
-                            -v '$HOME/allure/selene/:/root/allure' \
+                            -v '${HOME}/allure/selene/:/root/allure' \
                             selene-account:${BRANCH_ALIAS}
                     """
                 }
@@ -107,7 +129,7 @@ pipeline {
                     labelledShell label: 'Running behave tests', script: """
                         docker run \
                             --net selene-net \
-                            -v '$HOME/allure/selene/:/root/allure' \
+                            -v '${HOME}/allure/selene/:/root/allure' \
                             selene-sso:${BRANCH_ALIAS}
                     """
                 }
