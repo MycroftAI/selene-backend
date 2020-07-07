@@ -141,7 +141,7 @@ def set_open_dataset_status(context, in_or_out):
         raise ValueError('User can only opt "into" or "out of" the agreement')
     context.response = context.client.patch(
         "/api/account",
-        data=json.dumps(dict(openDataset=True if in_or_out == "into" else False)),
+        data=json.dumps(dict(openDataset=in_or_out == "into")),
         content_type="application/json",
     )
 
@@ -245,12 +245,12 @@ def check_for_open_dataset_agreement(context, will_or_wont):
 
 
 @then("the new agreement will be reflected in the account activity metrics")
-def check_new_member_account_metrics(context):
+def check_new_open_dataset_account_metrics(context):
     """Ensure a new agreement is accurately reflected in the metrics."""
     check_account_metrics(context, "open_dataset", "open_dataset_added")
 
 
 @then("the deleted agreement will be reflected in the account activity metrics")
-def check_new_member_account_metrics(context):
+def check_deleted_open_dataset_account_metrics(context):
     """Ensure a new agreement is accurately reflected in the metrics."""
     check_account_metrics(context, "open_dataset", "open_dataset_deleted")
