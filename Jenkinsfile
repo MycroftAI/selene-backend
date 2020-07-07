@@ -44,7 +44,7 @@ pipeline {
                      docker build \
                         --build-arg github_api_key=${GITHUB_API_PSW} \
                         --build-arg api_name=sso \
-                        --target api-code-check \
+                        --target api-code-check --no-cache \
                         -t selene-linter:${BRANCH_ALIAS} .
                 """
                 labelledShell label: 'Single Sign On API Check', script: """
@@ -54,7 +54,7 @@ pipeline {
                      docker build \
                         --build-arg github_api_key=${GITHUB_API_PSW} \
                         --build-arg api_name=public \
-                        --target api-code-check \
+                        --target api-code-check --no-cache \
                         -t selene-linter:${BRANCH_ALIAS} .
                 """
                 labelledShell label: 'Public API Check', script: """
