@@ -52,6 +52,7 @@ WORKDIR /opt/selene/selene-backend
 COPY api/${api_name} api/${api_name}
 WORKDIR /opt/selene/selene-backend/api/${api_name}
 RUN pipenv install --dev
+ENV PYTHONPATH=$PYTHONPATH:/opt/selene/selene-backend/api/${api_name}
 WORKDIR /opt/mycroft/devops/jenkins
 ENTRYPOINT ["pipenv", "run", "python", "-m", "pipeline.code_check", "--repository", "selene-backend", "--base-dir", "/opt/selene"]
 
