@@ -16,11 +16,11 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-
+"""Step functions for skill manifest management via the public device API."""
 import json
 from datetime import datetime
 
-from behave import given, then, when
+from behave import given, then, when  # pylint: disable=no-name-in-module
 from hamcrest import assert_that, equal_to, is_in, is_, none, not_none, not_
 
 from selene.data.device import DeviceSkillRepository, ManifestSkill
@@ -30,6 +30,7 @@ from selene.testing.skill import add_skill
 
 
 def _build_manifest_upload(manifest_skills):
+    """Build a skill manifest to be used in tests."""
     upload_skills = []
     for skill in manifest_skills:
         upload_skills.append(
@@ -64,12 +65,14 @@ def _add_device_specific_skill(context):
 
 @when("a device uploads a skill manifest without changes")
 def upload_unchanged_skill_manifest(context):
+    """Call the device API to upload an unchanged skill manifest."""
     skill_manifest = _build_manifest_upload([context.manifest_skill])
     _upload_skill_manifest(context, skill_manifest)
 
 
 @when("a device uploads a skill manifest with an updated skill")
-def upload_unchanged_skill_manifest(context):
+def upload_changed_skill_manifest(context):
+    """Call the device API to upload a skill manifest with a updated skill."""
     skill_manifest = _build_manifest_upload([context.manifest_skill])
     context.update_ts = datetime.utcnow().timestamp()
     skill_manifest["skills"][0]["updated"] = context.update_ts
@@ -77,19 +80,22 @@ def upload_unchanged_skill_manifest(context):
 
 
 @when("a device uploads a skill manifest with a deleted skill")
-def upload_unchanged_skill_manifest(context):
+def upload_skill_manifest_with_deleted_skill(context):
+    """Call the device API to upload a skill manifest with a deleted skill."""
     skill_manifest = _build_manifest_upload([])
     _upload_skill_manifest(context, skill_manifest)
 
 
 @when("a device uploads a skill manifest with a deleted device-specific skill")
 def upload_skill_manifest_no_device_specific(context):
+    """Call the device API to upload a skill manifest with a deleted device-specific."""
     skill_manifest = _build_manifest_upload([context.manifest_skill])
     _upload_skill_manifest(context, skill_manifest)
 
 
 @when("a device uploads a skill manifest with a new skill")
-def upload_unchanged_skill_manifest(context):
+def upload_skill_manifest_with_new_skill(context):
+    """Call the device API to upload a skill manifest with a new skill"""
     context.new_skill = Skill(skill_gid="new-test-skill|19.02")
     context.new_manifest_skill = ManifestSkill(
         device_id=context.device_id,
@@ -107,13 +113,15 @@ def upload_unchanged_skill_manifest(context):
 
 
 @when("a device uploads a malformed skill manifest")
-def upload_unchanged_skill_manifest(context):
+def upload_malformed_skill_manifest(context):
+    """Call the device API to upload a malformed skill manifest"""
     skill_manifest = _build_manifest_upload([context.manifest_skill])
     del skill_manifest["skills"][0]["name"]
     _upload_skill_manifest(context, skill_manifest)
 
 
 def _upload_skill_manifest(context, skill_manifest):
+    """Helper method to call the skill manifest endpoint of the public API"""
     context.response = context.client.put(
         "/v1/device/{device_id}/skillJson".format(device_id=context.device_id),
         data=json.dumps(skill_manifest),
@@ -124,6 +132,7 @@ def _upload_skill_manifest(context, skill_manifest):
 
 @then("the skill manifest on the database is unchanged")
 def get_unchanged_skill_manifest(context):
+    """Check that the skill manifest on the database did not change."""
     device_skill_repo = DeviceSkillRepository(context.db)
     skill_manifest = device_skill_repo.get_skill_manifest_for_device(context.device_id)
     assert_that(len(skill_manifest), equal_to(1))
@@ -133,6 +142,7 @@ def get_unchanged_skill_manifest(context):
 
 @then("the skill manifest on the database is updated")
 def get_updated_skill_manifest(context):
+    """Check tha the skill manifest on the database changed."""
     device_skill_repo = DeviceSkillRepository(context.db)
     skill_manifest = device_skill_repo.get_skill_manifest_for_device(context.device_id)
     assert_that(len(skill_manifest), equal_to(1))
@@ -144,6 +154,7 @@ def get_updated_skill_manifest(context):
 
 @then("the skill is removed from the manifest on the database")
 def get_empty_skill_manifest(context):
+    """Check for an empty skill manifest on the database."""
     device_skill_repo = DeviceSkillRepository(context.db)
     skill_manifest = device_skill_repo.get_skill_manifest_for_device(context.device_id)
     assert_that(len(skill_manifest), equal_to(0))
@@ -151,6 +162,7 @@ def get_empty_skill_manifest(context):
 
 @then("the device-specific skill is removed from the manifest on the database")
 def get_skill_manifest_no_device_specific(context):
+    """Check that there are no device-specific skills on the skill manifest."""
     device_skill_repo = DeviceSkillRepository(context.db)
     skill_manifest = device_skill_repo.get_skill_manifest_for_device(context.device_id)
     assert_that(len(skill_manifest), equal_to(1))
@@ -163,6 +175,7 @@ def get_skill_manifest_no_device_specific(context):
 
 @then("the device-specific skill is removed from the database")
 def ensure_device_specific_skill_removed(context):
+    """Check that the device-specific skill is no longer on the skill table."""
     skill_repo = SkillRepository(context.db)
     skill = skill_repo.get_skill_by_global_id(context.device_specific_skill.skill_gid)
     assert_that(skill, is_(none()))
@@ -170,6 +183,7 @@ def ensure_device_specific_skill_removed(context):
 
 @then("the skill is added to the manifest on the database")
 def get_skill_manifest_new_skill(context):
+    """Check that a new skill is added to the manifest."""
     device_skill_repo = DeviceSkillRepository(context.db)
     skill_manifest = device_skill_repo.get_skill_manifest_for_device(context.device_id)
     assert_that(len(skill_manifest), equal_to(2))
@@ -185,6 +199,7 @@ def get_skill_manifest_new_skill(context):
 
 @then("the skill is added to the database")
 def get_new_skill(context):
+    """Check that a skill was added to the database."""
     skill_repo = SkillRepository(context.db)
     skill = skill_repo.get_skill_by_global_id(context.new_skill.skill_gid)
     assert_that(skill, is_(not_none()))
