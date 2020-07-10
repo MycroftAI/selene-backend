@@ -21,9 +21,9 @@ Feature: Device can upload and fetch skills manifest
     And the skill is removed from the manifest on the database
     And the device's last contact time is updated
 
-  @device_specific_skill
   Scenario: Device uploads a manifest with a deleted device-specific skill
     Given an authorized device
+    And a device-specific skill installed on the device
     When a device uploads a skill manifest with a deleted device-specific skill
     Then the request will be successful
     And the device-specific skill is removed from the manifest on the database

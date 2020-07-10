@@ -16,11 +16,12 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
+"""Step functions for maintaining an account profile via the account API."""
 
 import json
-from datetime import date, datetime
+from datetime import datetime
 
-from behave import given, then, when
+from behave import given, then, when  # pylint: disable=no-name-in-module
 from hamcrest import (
     assert_that,
     equal_to,
@@ -63,16 +64,18 @@ def add_membership_to_account(context):
     set_access_token_cookie(context)
     context.refresh_token = generate_refresh_token(context)
     set_refresh_token_cookie(context)
-    add_membership_via_api(context)
+    _add_membership_via_api(context)
 
 
 @given("an account without a membership")
 def get_account_no_membership(context):
+    """Set context username to one with no membership."""
     context.username = "foo"
 
 
 @given("an account opted {in_or_out} the Open Dataset agreement")
 def set_account_open_dataset(context, in_or_out):
+    """Expire open dataset agreement (assumes default is active agreement)."""
     context.username = "foo"
     if in_or_out == "out of":
         account = context.accounts["foo"]
@@ -82,6 +85,7 @@ def set_account_open_dataset(context, in_or_out):
 
 @when("a user requests their profile")
 def call_account_endpoint(context):
+    """Issue API call to retrieve account profile."""
     context.response = context.client.get(
         "/api/account", content_type="application/json"
     )
@@ -89,11 +93,13 @@ def call_account_endpoint(context):
 
 @when("a monthly membership is added")
 def add_monthly_membership(context):
-    context.response = add_membership_via_api(context)
+    """Issue API call to add a monthly membership to an account."""
+    context.response = _add_membership_via_api(context)
 
 
 @when("the membership is cancelled")
 def cancel_membership(context):
+    """Issue API call to cancel and account's membership."""
     membership_data = dict(newMembership=False, membershipType=None)
     context.response = context.client.patch(
         "/api/account",
@@ -102,7 +108,8 @@ def cancel_membership(context):
     )
 
 
-def add_membership_via_api(context):
+def _add_membership_via_api(context):
+    """Helper function to add account membership via API call"""
     membership_data = dict(
         newMembership=True,
         membershipType=MONTHLY_MEMBERSHIP,
@@ -118,6 +125,7 @@ def add_membership_via_api(context):
 
 @when("the membership is changed to yearly")
 def change_to_yearly_account(context):
+    """Issue API call to change a monthly membership to a yearly membership."""
     membership_data = dict(newMembership=False, membershipType=YEARLY_MEMBERSHIP)
     context.response = context.client.patch(
         "/api/account",
@@ -128,17 +136,19 @@ def change_to_yearly_account(context):
 
 @when("the user opts {in_or_out} the open dataset")
 def set_open_dataset_status(context, in_or_out):
+    """Issue API call to opt into or out of the open dataset agreement."""
     if in_or_out not in ("into", "out of"):
         raise ValueError('User can only opt "into" or "out of" the agreement')
     context.response = context.client.patch(
         "/api/account",
-        data=json.dumps(dict(openDataset=True if in_or_out == "into" else False)),
+        data=json.dumps(dict(openDataset=in_or_out == "into")),
         content_type="application/json",
     )
 
 
 @then("user profile is returned")
 def validate_response(context):
+    """Check results of API call."""
     response_data = context.response.json
     utc_date = datetime.utcnow().date()
     account = context.accounts["foo"]
@@ -160,6 +170,7 @@ def validate_response(context):
 
 @then("the account should have a monthly membership")
 def validate_monthly_account(context):
+    """Check that the monthly membership information for an account is accurate."""
     acct_repository = AccountRepository(context.db)
     membership = acct_repository.get_active_account_membership(
         context.accounts["foo"].id
@@ -172,6 +183,7 @@ def validate_monthly_account(context):
 
 @then("the account should have no membership")
 def validate_absence_of_membership(context):
+    """Check for the absence of a membership on an account."""
     acct_repository = AccountRepository(context.db)
     membership = acct_repository.get_active_account_membership(
         context.accounts["foo"].id
@@ -181,6 +193,7 @@ def validate_absence_of_membership(context):
 
 @then("the account should have a yearly membership")
 def yearly_account(context):
+    """Check that the yearly membership information for an account is accurate."""
     acct_repository = AccountRepository(context.db)
     membership = acct_repository.get_active_account_membership(
         context.accounts["foo"].id
@@ -219,24 +232,25 @@ def check_expired_member_account_metrics(context):
 
 @then("the account {will_or_wont} have a open dataset agreement")
 def check_for_open_dataset_agreement(context, will_or_wont):
+    """Check the status of the open dataset agreement for an account."""
     account_repo = AccountRepository(context.db)
     account = account_repo.get_account_by_id(context.accounts["foo"].id)
     agreements = [agreement.type for agreement in account.agreements]
     if will_or_wont == "will":
         assert_that(OPEN_DATASET, is_in(agreements))
-    elif will_or_wont == "won't":
+    elif will_or_wont == "will not":
         assert_that(OPEN_DATASET, not is_in(agreements))
     else:
         raise ValueError('Valid values are only "will" or "won\'t"')
 
 
 @then("the new agreement will be reflected in the account activity metrics")
-def check_new_member_account_metrics(context):
+def check_new_open_dataset_account_metrics(context):
     """Ensure a new agreement is accurately reflected in the metrics."""
     check_account_metrics(context, "open_dataset", "open_dataset_added")
 
 
 @then("the deleted agreement will be reflected in the account activity metrics")
-def check_new_member_account_metrics(context):
+def check_deleted_open_dataset_account_metrics(context):
     """Ensure a new agreement is accurately reflected in the metrics."""
     check_account_metrics(context, "open_dataset", "open_dataset_deleted")
