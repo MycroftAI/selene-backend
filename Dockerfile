@@ -16,7 +16,7 @@ FROM python:3.7-slim as selene-base
 RUN apt-get update && apt-get -y install gcc git
 RUN python3 -m pip install pipenv
 RUN mkdir -p /root/allure /opt/selene/selene-backend /root/code-quality /var/log/mycroft
-WORKDIR /opt/selene
+WORKDIR /opt/selene/selene-backend
 ENV DB_HOST selene-db
 ENV DB_PASSWORD adam
 ENV SELENE_ENVIRONMENT dev
@@ -27,10 +27,13 @@ ENV JWT_REFRESH_SECRET refresh-secret
 ENV SALT testsalt
 ENV REDIS_HOST selene-cache
 ENV REDIS_PORT 6379
+COPY shared shared
 
 # Code quality scripts and user agreements are stored in the MycroftAI/devops repository.  This repository is private.
 # builds for publicly available images should not use this build stage.
 FROM selene-base as devops-build
+# The GitHub API key is sensitive information and can change depending on who is running the application.
+# It is used here to clone the private MycroftAI/devops repository.
 ARG github_api_key
 ENV GITHUB_API_KEY=$github_api_key
 RUN mkdir -p /opt/mycroft
@@ -53,10 +56,39 @@ ENTRYPOINT ["pipenv", "run", "python", "scripts/bootstrap_mycroft_db.py"]
 FROM selene-base as account-api-test
 ENV PYTHONPATH=$PYTHONPATH:/opt/selene/selene-backend/api/account
 ENV STRIPE_PRIVATE_KEY totally_fake_api_key
-WORKDIR /opt/selene/selene-backend
-COPY shared shared
 COPY api/account api/account
 WORKDIR /opt/selene/selene-backend/api/account
 RUN pipenv install --dev
 WORKDIR /opt/selene/selene-backend/api/account/tests
+ENTRYPOINT ["pipenv", "run", "behave", "-f", "allure_behave.formatter:AllureFormatter", "-o", "/root/allure/allure-result"]
+
+# Run the tests defined in the Single Sign On API
+FROM selene-base as sso-api-test
+ARG github_client_id
+ARG github_client_secret
+ENV PYTHONPATH=$PYTHONPATH:/opt/selene/selene-backend/api/sso
+ENV JWT_RESET_SECRET reset-secret
+# The GitHub client ID and secret are sensitive information and can change depending on who is running the application.
+# They are used here to facilitate user authentication using a GitHub account.
+ENV GITHUB_CLIENT_ID $github_client_id
+ENV GITHUB_CLIENT_SECRET $github_client_secret
+COPY api/sso api/sso
+WORKDIR /opt/selene/selene-backend/api/sso
+RUN pipenv install --dev
+WORKDIR /opt/selene/selene-backend/api/sso/tests
+ENTRYPOINT ["pipenv", "run", "behave", "-f", "allure_behave.formatter:AllureFormatter", "-o", "/root/allure/allure-result"]
+
+# Run the tests defined in the Public Device API
+FROM selene-base as public-api-test
+RUN mkdir -p /opt/selene/data
+ARG google_stt_key
+ARG wolfram_alpha_key
+ENV PYTHONPATH=$PYTHONPATH:/opt/selene/selene-backend/api/public
+ENV GOOGLE_STT_KEY $google_stt_key
+ENV WOLFRAM_ALPHA_KEY $wolfram_alpha_key
+ENV WOLFRAM_ALPHA_URL https://api.wolframalpha.com
+COPY api/public api/public
+WORKDIR /opt/selene/selene-backend/api/public
+RUN pipenv install --dev
+WORKDIR /opt/selene/selene-backend/api/public/tests
 ENTRYPOINT ["pipenv", "run", "behave", "-f", "allure_behave.formatter:AllureFormatter", "-o", "/root/allure/allure-result"]
