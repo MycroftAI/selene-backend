@@ -142,7 +142,7 @@ def get_unchanged_skill_manifest(context):
 
 @then("the skill manifest on the database is updated")
 def get_updated_skill_manifest(context):
-    """Check tha the skill manifest on the database changed."""
+    """Check that the skill manifest on the database changed."""
     device_skill_repo = DeviceSkillRepository(context.db)
     skill_manifest = device_skill_repo.get_skill_manifest_for_device(context.device_id)
     assert_that(len(skill_manifest), equal_to(1))

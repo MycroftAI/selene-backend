@@ -8,7 +8,7 @@ pipeline {
     }
     environment {
         // Some branches have a "/" in their name (e.g. feature/new-and-cool)
-        // Some commands, such as those tha deal with directories, don't
+        // Some commands, such as those that deal with directories, don't
         // play nice with this naming convention.  Define an alias for the
         // branch name that can be used in these scenarios.
         BRANCH_ALIAS = sh(
