@@ -67,8 +67,9 @@ ENTRYPOINT ["pipenv", "run", "python", "scripts/bootstrap_mycroft_db.py"]
 
 # Run the tests defined in the Account API
 FROM selene-base as account-api-test
+ARG stripe_api_key
 ENV PYTHONPATH=$PYTHONPATH:/opt/selene/selene-backend/api/account
-ENV STRIPE_PRIVATE_KEY totally_fake_api_key
+ENV STRIPE_PRIVATE_KEY $stripe_api_key
 COPY api/account api/account
 WORKDIR /opt/selene/selene-backend/api/account
 RUN pipenv install --dev

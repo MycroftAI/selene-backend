@@ -21,6 +21,7 @@ pipeline {
         GITHUB_CLIENT_ID=credentials('380f58b1-8a33-4a9d-a67b-354a9b0e792e')
         GITHUB_CLIENT_SECRET=credentials('71626c21-de59-4450-bfad-5034fd596fb2')
         GOOGLE_STT_KEY=credentials('287949f8-2ada-4450-8806-1fe2dd8e4c4d')
+        STRIPE_KEY=credentials('9980e41f-d418-49af-9d62-341d1246f555')
         WOLFRAM_ALPHA_KEY=credentials('f718e0a1-c19c-4c7f-af88-0689738ccaa1')
     }
     stages {
@@ -95,7 +96,10 @@ pipeline {
             }
             steps {
                 labelledShell label: 'Building Docker image', script: """
-                    docker build --target account-api-test -t selene-account:${BRANCH_ALIAS} .
+                    docker build \
+                        --build-arg stripe_api_key=${STRIPE_KEY} \
+                        --target account-api-test \
+                        -t selene-account:${BRANCH_ALIAS} .
                 """
                 timeout(time: 5, unit: 'MINUTES')
                 {
