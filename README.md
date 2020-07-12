@@ -60,6 +60,7 @@ git clone https://github.com/MycroftAI/selene-backend.git
 ```
 * Create the virtual environment for the database code
 ```
+sudo apt-get install python3-pip
 sudo Python3.7 -m pip install pipenv
 cd /opt/selene/selene-backend/db
 pipenv install
