@@ -45,7 +45,7 @@ All Selene applications are time zone agnostic.  It is recommended that the time
 * Recommended server configuration: Ubuntu 18.04 LTS, 2 CPU, 4GB RAM, 50GB disk.
 * Use the package management system to install Python 3.7, Python 3 pip and PostgreSQL 10  
 ```
-sudo apt-get install postgresql python3.7 python
+sudo apt-get install postgresql python3.7 python python3-pip
 ```
 * Set Postgres to start on boot  
 ```
@@ -60,8 +60,7 @@ git clone https://github.com/MycroftAI/selene-backend.git
 ```
 * Create the virtual environment for the database code
 ```
-sudo apt-get install python3-pip
-sudo Python3.7 -m pip install pipenv
+sudo python3.7 -m pip install pipenv
 cd /opt/selene/selene-backend/db
 pipenv install
 ```
