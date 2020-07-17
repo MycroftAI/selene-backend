@@ -12,6 +12,9 @@ uwsgi = "*"
 [dev-packages]
 behave = "*"
 pyhamcrest = "*"
+black = "*"
+pylint = "*"
+allure-behave = "*"
 
 [requires]
 python_version = "3.7"

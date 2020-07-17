@@ -16,10 +16,9 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-
 from http import HTTPStatus
 
-from selene.api import PublicEndpoint
+from selene.api import PublicEndpoint, track_account_activity
 from selene.data.metric import CoreMetric, CoreMetricRepository
 
 
@@ -28,14 +27,14 @@ class DeviceMetricsEndpoint(PublicEndpoint):
 
     def post(self, device_id, metric):
         self._authenticate(device_id)
-        core_metric = CoreMetric(
-            device_id=device_id,
-            metric_type=metric,
-            metric_value=self.request.json
-        )
-        self._add_metric(core_metric)
-        return '', HTTPStatus.NO_CONTENT
+        self._add_core_metric(metric)
+        track_account_activity(self.db, self.device_id)
 
-    def _add_metric(self, metric: CoreMetric):
+        return "", HTTPStatus.NO_CONTENT
+
+    def _add_core_metric(self, metric: str):
+        core_metric = CoreMetric(
+            device_id=self.device_id, metric_type=metric, metric_value=self.request.json
+        )
         core_metrics_repo = CoreMetricRepository(self.db)
-        core_metrics_repo.add(metric)
+        core_metrics_repo.add(core_metric)

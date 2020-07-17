@@ -16,51 +16,38 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-
+"""Behave step functions for single sign on API logout functionality."""
 from http import HTTPStatus
-from behave import given, then, when
-from hamcrest import assert_that, equal_to, has_item, is_not
+from behave import given, then, when  # pylint: disable=no-name-in-module
+from hamcrest import assert_that, equal_to
 
-from selene.api.testing import (
+from selene.testing.api import (
     generate_access_token,
     generate_refresh_token,
-    get_account,
-    validate_token_cookies
+    set_access_token_cookie,
+    set_refresh_token_cookie,
+    validate_token_cookies,
 )
 
 
-@given('user "{email}" is authenticated')
-def save_email(context, email):
-    context.email = email
+@given("an authenticated account")
+def use_account_with_valid_access_token(context):
+    """Setup test context with an authenticated account for future steps."""
+    context.username = "foobar"
+    context.access_token = generate_access_token(context)
+    set_access_token_cookie(context)
+    context.refresh_token = generate_refresh_token(context)
+    set_refresh_token_cookie(context)
 
 
-@when('user attempts to logout')
+@when("user attempts to logout")
 def call_logout_endpoint(context):
+    """Call the single sign on endpoint to logout a user."""
     generate_access_token(context)
     generate_refresh_token(context)
-    context.response = context.client.get('/api/logout')
+    context.response = context.client.get("/api/logout")
 
 
-@then('request is successful')
-def check_for_logout_success(context):
-    assert_that(context.response.status_code, equal_to(HTTPStatus.NO_CONTENT))
-    assert_that(
-        context.response.headers['Access-Control-Allow-Origin'],
-        equal_to('*')
-    )
-
-
-@then('response contains expired token cookies')
+@then("response contains expired token cookies")
 def check_response_cookies(context):
     validate_token_cookies(context, expired=True)
-
-
-@then('logout fails with "{error_message}" error')
-def check_for_login_fail(context, error_message):
-    assert_that(context.response.status_code, equal_to(HTTPStatus.UNAUTHORIZED))
-    assert_that(
-        context.response.headers['Access-Control-Allow-Origin'],
-        equal_to('*')
-    )
-    assert_that(context.response.is_json, equal_to(True))
-    assert_that(context.response.get_json(), equal_to(error_message))

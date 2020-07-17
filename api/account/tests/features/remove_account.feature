@@ -6,4 +6,4 @@ Feature: Delete an account
     When the user's account is deleted
     Then the request will be successful
     And the membership is removed from stripe
-
+    And the deleted account will be reflected in the account activity metrics

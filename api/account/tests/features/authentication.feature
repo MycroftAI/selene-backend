@@ -12,21 +12,21 @@ Feature: Authentication with JWTs
     Given an account with a valid access token
     When a user requests their profile
     Then the request will be successful
-     And the authentication tokens will remain unchanged
+    And the authentication tokens will remain unchanged
 
   Scenario: Access token expired
     Given an account with an expired access token
-     When a user requests their profile
-     Then the request will be successful
-      And the authentication tokens will be refreshed
+    When a user requests their profile
+    Then the request will be successful
+    And the authentication tokens will be refreshed
 
   Scenario: Access token missing but refresh token valid
     Given an account with a refresh token but no access token
-     When a user requests their profile
-     Then the request will be successful
-      And the authentication tokens will be refreshed
+    When a user requests their profile
+    Then the request will be successful
+    And the authentication tokens will be refreshed
 
   Scenario: Both access and refresh tokens expired
     Given an account with expired access and refresh tokens
-     When a user requests their profile
-     Then the request will fail with an unauthorized error
+    When a user requests their profile
+    Then the request will fail with an unauthorized error

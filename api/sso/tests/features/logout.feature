@@ -3,7 +3,7 @@ Feature: logout
   tokens we use to identify logged-in users.
 
   Scenario: Logged in user requests logout
-    Given user "foo@mycroft.ai" is authenticated
+    Given an authenticated account
      When user attempts to logout
-     Then request is successful
+     Then the request will be successful
       And response contains expired token cookies
