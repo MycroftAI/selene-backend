@@ -8,8 +8,7 @@ SELECT
     d.placement,
     d.last_contact_ts,
     json_build_object(
-        'setting_name', ww.setting_name,
-        'display_name', ww.display_name,
+        'name', ww.name,
         'engine', ww.engine,
         'id', ww.id
     ) AS wake_word,
@@ -44,7 +43,7 @@ SELECT
     ) AS timezone
 FROM
     device.device d
-    INNER JOIN device.wake_word ww ON d.wake_word_id = ww.id
+    INNER JOIN wake_word.wake_word ww ON d.wake_word_id = ww.id
     INNER JOIN device.text_to_speech tts ON d.text_to_speech_id = tts.id
     INNER JOIN device.geography g ON d.geography_id = g.id
     INNER JOIN geography.country ctry ON g.country_id = ctry.id

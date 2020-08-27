@@ -17,25 +17,21 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-from selene.data.device import DeviceRepository, WakeWord
+from selene.data.wake_word import WakeWord, WakeWordRepository
 
 
 def _build_wake_word():
-    return WakeWord(
-        setting_name='selene_test_wake_word',
-        display_name='Selene Test Wake Word',
-        engine='precise'
-    )
+    return WakeWord(name="hey selene", engine="precise")
 
 
 def add_wake_word(db):
     wake_word = _build_wake_word()
-    device_repository = DeviceRepository(db)
-    wake_word.id = device_repository.add_wake_word(wake_word)
+    wake_word_repository = WakeWordRepository(db)
+    wake_word.id = wake_word_repository.add(wake_word)
 
     return wake_word
 
 
 def remove_wake_word(db, wake_word):
-    device_repository = DeviceRepository(db)
-    device_repository.remove_wake_word(wake_word.id)
+    wake_word_repository = WakeWordRepository(db)
+    wake_word_repository.remove(wake_word.id)

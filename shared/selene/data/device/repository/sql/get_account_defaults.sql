@@ -23,8 +23,7 @@ SELECT
     ) AS timezone,
     json_build_object(
         'id', ww.id,
-        'setting_name', ww.setting_name,
-        'display_name', ww.display_name,
+        'name', ww.name,
         'engine', ww.engine
     ) AS wake_word,
     json_build_object(
@@ -39,7 +38,7 @@ FROM
     LEFT JOIN geography.region r ON r.id = ad.region_id
     LEFT JOIN geography.city cty ON cty.id = ad.city_id
     LEFT JOIN geography.timezone tz ON tz.id = ad.timezone_id
-    LEFT JOIN device.wake_word ww ON ad.wake_word_id = ww.id
+    LEFT JOIN wake_word.wake_word ww ON ad.wake_word_id = ww.id
     LEFT JOIN device.text_to_speech tts ON ad.text_to_speech_id = tts.id
 WHERE
     ad.account_id = %(account_id)s

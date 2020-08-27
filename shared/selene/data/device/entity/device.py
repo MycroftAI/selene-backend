@@ -22,12 +22,13 @@ from datetime import datetime
 
 from selene.data.geography import City, Country, Region, Timezone
 from .text_to_speech import TextToSpeech
-from .wake_word import WakeWord
+from data.wake_word.entity.wake_word import WakeWord
 
 
 @dataclass
 class Device(object):
     """Representation of a Device"""
+
     account_id: str
     city: City
     country: Country

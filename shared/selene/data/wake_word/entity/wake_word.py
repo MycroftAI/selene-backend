@@ -17,14 +17,11 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-from .entity.device_skill import ManifestSkill, AccountSkillSettings
-from .entity.geography import Geography
-from .entity.preference import AccountPreferences
-from .entity.text_to_speech import TextToSpeech
-from .repository.default import DefaultsRepository
-from .repository.device import DeviceRepository
-from .repository.device_skill import DeviceSkillRepository
-from .repository.geography import GeographyRepository
-from .repository.preference import PreferenceRepository
-from .repository.setting import SettingRepository
-from .repository.text_to_speech import TextToSpeechRepository
+from dataclasses import dataclass
+
+
+@dataclass
+class WakeWord(object):
+    name: str
+    engine: str
+    id: str = None

@@ -11,7 +11,7 @@ CREATE TABLE device.device (
     core_version        text            NOT NULL
             DEFAULT 'unknown',
     wake_word_id        uuid            NOT NULL
-            REFERENCES device.wake_word,
+            REFERENCES wake_word.wake_word,
     text_to_speech_id   uuid            NOT NULL
             REFERENCES device.text_to_speech,
     category_id         uuid

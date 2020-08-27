@@ -1,5 +1,5 @@
 # Mycroft Server - Backend
-# Copyright (C) 2019 Mycroft AI Inc
+# Copyright (C) 2020 Mycroft AI Inc
 # SPDX-License-Identifier: 	AGPL-3.0-or-later
 #
 # This file is part of the Mycroft Server.
@@ -21,16 +21,7 @@ from dataclasses import dataclass
 
 
 @dataclass
-class WakeWord(object):
-    display_name: str
-    setting_name: str
-    engine: str
-    user_defined: bool = False
-    id: str = None
-
-
-@dataclass
-class WakeWordSettings(object):
+class PocketsphinxSettings(object):
     id: str
     sample_rate: int
     channels: int
@@ -38,3 +29,4 @@ class WakeWordSettings(object):
     threshold: str
     threshold_multiplier: float
     dynamic_energy_ratio: float
+    account_id: str = None

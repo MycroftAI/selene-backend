@@ -67,6 +67,7 @@ def before_all(context):
     context.cache = SeleneCache()
     context.db = connect_to_db(context.client_config["DB_CONNECTION_CONFIG"])
     add_agreements(context)
+    context.wake_word = add_wake_word(context.db)
 
 
 def after_all(context):
@@ -75,6 +76,7 @@ def after_all(context):
     This is data that does not change from test to test so it only needs to be setup
     and torn down once.
     """
+    remove_wake_word(context.db, context.wake_word)
     remove_agreements(
         context.db, [context.privacy_policy, context.terms_of_use, context.open_dataset]
     )
@@ -98,7 +100,6 @@ def after_scenario(context, _):
     """
     remove_account(context.db, context.account)
     remove_account_activity(context.db)
-    remove_wake_word(context.db, context.wake_word)
     remove_text_to_speech(context.db, context.voice)
     for skill in context.skills.values():
         remove_skill(context.db, skill[0])
@@ -113,7 +114,6 @@ def _add_account(context):
 
 def _add_device(context):
     """Add a device object to the context for use in step code."""
-    context.wake_word = add_wake_word(context.db)
     context.voice = add_text_to_speech(context.db)
     device_id = add_device(context.db, context.account.id, context.geography_id)
     context.device_id = device_id
