@@ -21,6 +21,7 @@ from datetime import date
 from glob import glob
 from io import BytesIO
 from os import environ, path, remove
+from tempfile import TemporaryDirectory
 from urllib import request
 from zipfile import ZipFile
 
@@ -112,7 +113,6 @@ def destroy_existing(db):
     print("Destroying any objects we will be creating later.")
     for db_destroy_file in DB_DESTROY_FILES:
         db.execute_sql(get_sql_from_file(db_destroy_file))
-
 
 def create_anew(db):
     print("Creating the mycroft database")
@@ -309,9 +309,13 @@ def _populate_city_table(db):
     cities_download = request.urlopen(
         "http://download.geonames.org/export/dump/cities500.zip"
     )
+
+    temp_dir = TemporaryDirectory()
+    dump_file_path = path.join(temp_dir.name, "city.dump")
+
     with ZipFile(BytesIO(cities_download.read())) as cities_zip:
         with cities_zip.open("cities500.txt") as cities:
-            with open("city.dump", "w") as dump_file:
+            with open(dump_file_path, "w") as dump_file:
                 for city in cities.readlines():
                     city_fields = city.decode().split("\t")
                     city_region = city_fields[8] + "." + city_fields[10]
@@ -331,7 +335,7 @@ def _populate_city_table(db):
                             )
                             + "\n"
                         )
-    with open("city.dump") as dump_file:
+    with open(dump_file_path) as dump_file:
         cursor = db.db.cursor()
         cursor.copy_from(
             dump_file,
@@ -345,7 +349,8 @@ def _populate_city_table(db):
                 "population",
             ),
         )
-    remove("city.dump")
+    remove(dump_file_path)
+    temp_dir.cleanup()
 
 
 def _populate_db():
