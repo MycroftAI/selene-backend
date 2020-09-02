@@ -30,7 +30,7 @@ from psycopg2.extras import DateRange
 
 MYCROFT_DB_DIR = environ.get("DB_DIR", "/opt/selene/selene-backend/db/mycroft")
 MYCROFT_DB_NAME = environ.get("DB_NAME", "mycroft")
-SCHEMAS = ("account", "skill", "device", "geography", "metric", "wake_word")
+SCHEMAS = ("account", "skill", "device", "geography", "metric", "tagging", "wake_word")
 DB_DESTROY_FILES = ("drop_mycroft_db.sql", "drop_template_db.sql", "drop_roles.sql")
 DB_CREATE_FILES = (
     "create_roles.sql",
@@ -61,6 +61,7 @@ DEVICE_TABLE_ORDER = (
 )
 GEOGRAPHY_TABLE_ORDER = ("country", "timezone", "region", "city")
 METRIC_TABLE_ORDER = ("api", "api_history", "job", "core", "account_activity")
+TAGGING_TABLE_ORDER = ("file_location", "file", "wake_word_file")
 WAKE_WORD_TABLE_ORDER = ("wake_word", "pocketsphinx_settings")
 
 schema_directory = "{}_schema"
@@ -159,6 +160,7 @@ def _build_template_db():
     _build_schema_tables(template_db, "geography", GEOGRAPHY_TABLE_ORDER)
     _build_schema_tables(template_db, "wake_word", WAKE_WORD_TABLE_ORDER)
     _build_schema_tables(template_db, "device", DEVICE_TABLE_ORDER)
+    _build_schema_tables(template_db, "tagging", TAGGING_TABLE_ORDER)
     _build_schema_tables(template_db, "metric", METRIC_TABLE_ORDER)
     _grant_access(template_db)
     template_db.close_db()

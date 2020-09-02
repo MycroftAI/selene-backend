@@ -7,12 +7,11 @@
 -- The new wake word table is now a domain table of all possible wake words.  The account ID
 -- is moved from the wake_word level to the pocketsphinx settings level to accommodate this.
 CREATE SCHEMA wake_word;
-CREATE TYPE wake_word_engine_enum AS ENUM ('precise', 'pocketsphinx');
 CREATE TABLE wake_word.wake_word (
-    id              uuid                    PRIMARY KEY DEFAULT gen_random_uuid(),
-    name            text                    NOT NULL,
-    engine          wake_word_engine_enum   NOT NULL,
-    insert_ts       TIMESTAMP               NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    id              uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+    name            text        NOT NULL,
+    engine          text        NOT NULL,
+    insert_ts       TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
     UNIQUE (name, engine)
 );
 CREATE TABLE wake_word.pocketsphinx_settings (
@@ -44,7 +43,7 @@ INSERT INTO
     (
         SELECT
             DISTINCT TRIM(LEADING FROM setting_name),
-            'pocketsphinx'::wake_word_engine_enum
+            'pocketsphinx'
         FROM
             device.wake_word
     )
@@ -133,20 +132,31 @@ ALTER TABLE device.account_defaults ADD CONSTRAINT account_defaults_wake_word_id
 -- With all the wake word data moved to the new schema, drop the existing tables.
 DROP TABLE device.wake_word_settings;
 DROP TABLE device.wake_word;
--- CREATE SCHEMA tagging;
--- CREATE TABLE tagging.file_location (
---     id              uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
---     server          text        NOT NULL,
---     directory       text        NOT NULL,
---     insert_ts       TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
---     UNIQUE (server, directory)
--- );
---
--- CREATE TABLE tagging.file (
---     id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
---     name                text        NOT NULL UNIQUE,
---     submission_date     date        NOT NULL DEFAULT CURRENT_DATE,
---     file_location_id    uuid        REFERENCES tagging.file_location,
---     account_id          uuid,
---     insert_ts           TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP
--- );
+
+-- Create the tagging schema and the first two tables to reside within it.
+-- More tagging tables will be added in the next iteration.
+CREATE SCHEMA tagging;
+CREATE TYPE tagging_file_origin_enum AS ENUM ('mycroft', 'selene', 'manual');
+CREATE TABLE tagging.file_location (
+    id              uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+    server          inet        NOT NULL,
+    directory       text        NOT NULL,
+    insert_ts       TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (server, directory)
+);
+CREATE TABLE tagging.file (
+    id                  uuid                        PRIMARY KEY DEFAULT gen_random_uuid(),
+    name                text                        NOT NULL UNIQUE,
+    origin              tagging_file_origin_enum    NOT NULL,
+    submission_date     date                        NOT NULL DEFAULT CURRENT_DATE,
+    file_location_id    uuid                        REFERENCES tagging.file_location,
+    account_id          uuid,
+    insert_ts           TIMESTAMP                   NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE tagging.wake_word_file (
+    wake_word_id    uuid    NOT NULL REFERENCES wake_word.wake_word
+)
+INHERITS (tagging.file);
+GRANT USAGE ON SCHEMA wake_word TO selene;
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA wake_word TO selene;
