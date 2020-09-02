@@ -17,15 +17,12 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+from selene.data.tagging import WakeWordFileRepository
 from selene.data.wake_word import WakeWord, WakeWordRepository
 
 
-def _build_wake_word():
-    return WakeWord(name="hey selene", engine="precise")
-
-
 def add_wake_word(db):
-    wake_word = _build_wake_word()
+    wake_word = WakeWord(name="hey selene", engine="precise")
     wake_word_repository = WakeWordRepository(db)
     wake_word.id = wake_word_repository.add(wake_word)
 
@@ -33,5 +30,9 @@ def add_wake_word(db):
 
 
 def remove_wake_word(db, wake_word):
+    file_repository = WakeWordFileRepository(db)
     wake_word_repository = WakeWordRepository(db)
-    wake_word_repository.remove(wake_word.id)
+    if wake_word.id is None:
+        wake_word.id = wake_word_repository.get_id(wake_word)
+    file_repository.remove_by_wake_word(wake_word)
+    wake_word_repository.remove(wake_word)

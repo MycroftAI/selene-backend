@@ -1,8 +1,9 @@
 SELECT
-    id,
-    name,
-    engine
+    ww.id,
+    ww.name,
+    ww.engine
 FROM
-    wake_word.wake_word
+    wake_word.wake_word ww
+    INNER JOIN wake_word.pocketsphinx_settings ps ON ww.id = ps.wake_word_id
 WHERE
-    name in ('hey mycroft', 'hey jarvis', 'hey ezra', 'christopher')
+    ps.account_id is NULL

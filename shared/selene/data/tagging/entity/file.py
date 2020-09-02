@@ -1,5 +1,5 @@
 # Mycroft Server - Backend
-# Copyright (C) 2019 Mycroft AI Inc
+# Copyright (C) 2020 Mycroft AI Inc
 # SPDX-License-Identifier: 	AGPL-3.0-or-later
 #
 # This file is part of the Mycroft Server.
@@ -16,7 +16,22 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
+"""Data entities representing a wake word sample."""
+from dataclasses import dataclass
+from datetime import date
 
-from .entity.wake_word import WakeWord
-from .entity.pocketsphinx_settings import PocketsphinxSettings
-from .repository.wake_word import WakeWordRepository
+from selene.data.wake_word import WakeWord
+from .file_location import TaggingFileLocation
+
+
+@dataclass
+class WakeWordFile:
+    """Data representation of a wake word sample that has not been classified."""
+
+    wake_word: WakeWord
+    name: str
+    origin: str
+    submission_date: date
+    location: TaggingFileLocation
+    account_id: str = None
+    id: str = None

@@ -18,6 +18,9 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 """Environmental controls for the public API behavioral tests"""
 import os
+from logging import getLogger
+from pathlib import Path
+from tempfile import mkdtemp
 
 from behave import fixture, use_fixture
 
@@ -47,6 +50,8 @@ from selene.testing.wake_word import add_wake_word, remove_wake_word
 from selene.util.cache import SeleneCache
 from selene.util.db import connect_to_db
 
+_log = getLogger("public_api_behave_tests")
+
 
 @fixture
 def public_api_client(context):
@@ -63,11 +68,15 @@ def before_all(context):
     This is data that does not change from test to test so it only needs to be setup
     and torn down once.
     """
+    _log.info("setting up test suite...")
     use_fixture(public_api_client, context)
     context.cache = SeleneCache()
     context.db = connect_to_db(context.client_config["DB_CONNECTION_CONFIG"])
     add_agreements(context)
-    context.wake_word = add_wake_word(context.db)
+    context.wake_words = {"hey selene": add_wake_word(context.db)}
+    data_dir = mkdtemp()
+    context.wake_word_dir = Path(data_dir).joinpath("wake-word")
+    os.environ["SELENE_DATA_DIR"] = data_dir
 
 
 def after_all(context):
@@ -76,14 +85,35 @@ def after_all(context):
     This is data that does not change from test to test so it only needs to be setup
     and torn down once.
     """
-    remove_wake_word(context.db, context.wake_word)
-    remove_agreements(
-        context.db, [context.privacy_policy, context.terms_of_use, context.open_dataset]
-    )
+    _log.info("cleaning up test suite")
+    try:
+        for wake_word in context.wake_words.values():
+            _remove_wake_word_files(context, wake_word)
+            remove_wake_word(context.db, wake_word)
+        remove_agreements(
+            context.db,
+            [context.privacy_policy, context.terms_of_use, context.open_dataset],
+        )
+        os.removedirs(context.wake_word_dir)
+    except Exception:
+        _log.exception("failure in test suite cleanup")
+        raise
+
+
+def _remove_wake_word_files(context, wake_word):
+    """Delete the .wav files from the file system and their references on the database
+
+    Assumes that there are no subdirectories in the provided temp directory.
+    """
+    file_dir = context.wake_word_dir.joinpath(wake_word.name.replace(" ", "-"))
+    for file_name in os.listdir(file_dir):
+        os.remove(file_dir.joinpath(file_name))
+    os.rmdir(file_dir)
 
 
 def before_scenario(context, _):
     """Setup data that could change during a scenario so each test starts clean."""
+    _log.info("setting up scenario...")
     context.etag_manager = ETagManager(context.cache, context.client_config)
     _add_account(context)
     _add_skills(context)
@@ -98,6 +128,7 @@ def after_scenario(context, _):
     referential integrity for us.  All we have to do here is delete the account
     and all rows on all tables related to that account will also be deleted.
     """
+    _log.info("cleaning up after scenario...")
     remove_account(context.db, context.account)
     remove_account_activity(context.db)
     remove_text_to_speech(context.db, context.voice)

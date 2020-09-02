@@ -1,5 +1,5 @@
 # Mycroft Server - Backend
-# Copyright (C) 2019 Mycroft AI Inc
+# Copyright (C) 2020 Mycroft AI Inc
 # SPDX-License-Identifier: 	AGPL-3.0-or-later
 #
 # This file is part of the Mycroft Server.
@@ -16,7 +16,14 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
+"""Data entities representing possible locations of machine learning training files."""
+from dataclasses import dataclass
 
-from .entity.wake_word import WakeWord
-from .entity.pocketsphinx_settings import PocketsphinxSettings
-from .repository.wake_word import WakeWordRepository
+
+@dataclass
+class TaggingFileLocation:
+    """Data representation of a directory containing machine learning training files."""
+
+    server: str
+    directory: str
+    id: str = None
