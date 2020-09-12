@@ -53,7 +53,7 @@ def add_device(context):
         placement="Mycroft Offices",
         region="Missouri",
         timezone="America/Chicago",
-        wakeWord="Selene Test Wake Word",
+        wakeWord="hey selene",
         voice="Selene Test Voice",
     )
     response = context.client.post(

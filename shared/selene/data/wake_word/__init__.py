@@ -17,24 +17,6 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-from dataclasses import dataclass
-
-
-@dataclass
-class WakeWord(object):
-    display_name: str
-    setting_name: str
-    engine: str
-    user_defined: bool = False
-    id: str = None
-
-
-@dataclass
-class WakeWordSettings(object):
-    id: str
-    sample_rate: int
-    channels: int
-    pronunciation: str
-    threshold: str
-    threshold_multiplier: float
-    dynamic_energy_ratio: float
+from .entity.wake_word import WakeWord
+from .entity.pocketsphinx_settings import PocketsphinxSettings
+from .repository.wake_word import WakeWordRepository

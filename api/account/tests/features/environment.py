@@ -54,6 +54,7 @@ def before_all(context):
     use_fixture(acct_api_client, context)
     context.db = connect_to_db(context.client_config["DB_CONNECTION_CONFIG"])
     add_agreements(context)
+    context.wake_word = add_wake_word(context.db)
 
 
 def after_all(context):
@@ -62,6 +63,7 @@ def after_all(context):
     This is data that does not change from test to test so it only needs to be setup
     and torn down once.
     """
+    remove_wake_word(context.db, context.wake_word)
     remove_agreements(
         context.db, [context.privacy_policy, context.terms_of_use, context.open_dataset]
     )
@@ -72,7 +74,6 @@ def before_scenario(context, _):
     account = add_account(context.db)
     context.accounts = dict(foo=account)
     context.geography_id = add_account_geography(context.db, account)
-    context.wake_word = add_wake_word(context.db)
     context.voice = add_text_to_speech(context.db)
     acct_activity_repository = AccountActivityRepository(context.db)
     context.account_activity = acct_activity_repository.get_activity_by_date(
@@ -89,7 +90,6 @@ def after_scenario(context, _):
     """
     for account in context.accounts.values():
         remove_account(context.db, account)
-    remove_wake_word(context.db, context.wake_word)
     remove_text_to_speech(context.db, context.voice)
     _clean_cache()
 
