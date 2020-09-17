@@ -97,7 +97,7 @@ def after_scenario(context, _):
         file_repository = WakeWordFileRepository(context.db)
         file_repository.remove_by_wake_word(context.wake_word_file.wake_word)
         location_repository = TaggingFileLocationRepository(context.db)
-        location_repository
+        location_repository.remove(context.wake_word_file.location)
 
 
 def _clean_cache():
