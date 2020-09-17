@@ -41,6 +41,7 @@ from selene.data.account import (
     MembershipRepository,
 )
 from selene.data.metric import AccountActivityRepository
+from selene.data.tagging import WakeWordFileRepository
 from selene.util.auth import (
     get_facebook_account_email,
     get_github_account_email,
@@ -373,11 +374,28 @@ class AccountEndpoint(SeleneEndpoint):
             self.account_activity_repository.increment_open_dataset_deleted()
 
     def delete(self):
+        """Process a HTTP DELETE request for an account."""
         self._authenticate()
         self.account_repository.remove(self.account)
         self.account_activity_repository.increment_accounts_deleted()
-        membership = self.account.membership
-        if membership is not None:
-            cancel_stripe_subscription(membership.payment_id)
+        if self.account.membership is not None:
+            cancel_stripe_subscription(self.account.membership.payment_id)
+        self._change_wake_word_file_status()
 
         return "", HTTPStatus.NO_CONTENT
+
+    def _change_wake_word_file_status(self):
+        """Set the status of wake word files to "pending delete".
+
+        Deleting all the wake word files for an account can be a time consuming
+        process.  Especially if the account has contributed a lot of files.
+        To keep the API call from taking too long to return, the "pending delete"
+        status will be used by a nightly batch job to actually delete the files from
+        the file system.
+        """
+        agreements = [agreement.type for agreement in self.account.agreements]
+        if OPEN_DATASET in agreements:
+            file_repository = WakeWordFileRepository(self.db)
+            file_repository.change_account_file_status(
+                self.account.id, "pending delete"
+            )

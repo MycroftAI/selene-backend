@@ -69,3 +69,9 @@ class TaggingFileLocationRepository(RepositoryBase):
         result = self.cursor.select_one(db_request)
 
         return None if result is None else result["id"]
+
+    def remove(self, file_location: TaggingFileLocation):
+        db_request = self._build_db_request(
+            sql_file_name="remove_file_location.sql", args=dict(id=file_location.id),
+        )
+        self.cursor.delete(db_request)
