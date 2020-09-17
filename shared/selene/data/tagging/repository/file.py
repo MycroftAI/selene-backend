@@ -25,6 +25,10 @@ from ..entity.file import WakeWordFile
 from ..entity.file_location import TaggingFileLocation
 from ...repository_base import RepositoryBase
 
+DELETED_STATUS = "deleted"
+PENDING_DELETE_STATUS = "pending delete"
+UPLOADED_STATUS = "uploaded"
+
 
 class WakeWordFileRepository(RepositoryBase):
     """Data access and manipulation for the wake_word.sample table."""
@@ -72,6 +76,7 @@ class WakeWordFileRepository(RepositoryBase):
                 origin=row["origin"],
                 submission_date=row["submission_date"],
                 account_id=row["account_id"],
+                status=row["status"],
                 location=file_location,
             )
             wake_word_files.append(wake_word_file)

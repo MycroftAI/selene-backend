@@ -33,5 +33,6 @@ class WakeWordFile:
     origin: str
     submission_date: date
     location: TaggingFileLocation
+    status: str
     account_id: str = None
     id: str = None

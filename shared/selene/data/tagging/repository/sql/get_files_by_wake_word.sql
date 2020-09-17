@@ -3,6 +3,7 @@ SELECT
     wwf.origin,
     wwf.submission_date,
     wwf.account_id,
+    wwf.status,
     fl.directory,
     fl.server
 FROM
