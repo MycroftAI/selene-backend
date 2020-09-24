@@ -29,9 +29,8 @@ class JobRepository(RepositoryBase):
 
     def add(self, job: JobMetric):
         db_request = self._build_db_request(
-            sql_file_name='add_job_metric.sql',
-            args=asdict(job)
+            sql_file_name="add_job_metric.sql", args=asdict(job)
         )
         db_result = self.cursor.insert_returning(db_request)
 
-        return db_result.id
+        return db_result["id"]

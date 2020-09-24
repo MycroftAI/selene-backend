@@ -59,13 +59,12 @@ class SeleneScript(object):
         """Connect to the mycroft database"""
         if self._db is None:
             db_connection_config = DatabaseConnectionConfig(
-                host=environ['DB_HOST'],
-                db_name=environ['DB_NAME'],
-                password=environ['DB_PASSWORD'],
-                port=environ.get('DB_PORT', 5432),
-                user=environ['DB_USER'],
-                sslmode=environ.get('DB_SSLMODE'),
-                use_namedtuple_cursor=True
+                host=environ["DB_HOST"],
+                db_name=environ["DB_NAME"],
+                password=environ["DB_PASSWORD"],
+                port=environ.get("DB_PORT", 5432),
+                user=environ["DB_USER"],
+                sslmode=environ.get("DB_SSLMODE"),
             )
             self._db = connect_to_db(db_connection_config)
 
@@ -78,7 +77,7 @@ class SeleneScript(object):
             self._run()
             self.success = True
         except:
-            self.log.exception('An exception occurred - aborting script')
+            self.log.exception("An exception occurred - aborting script")
             raise
         finally:
             self._finish_job()
@@ -86,7 +85,7 @@ class SeleneScript(object):
     def _start_job(self):
         """Initialization tasks."""
         # Logger builds daily files, delineate start in case of multiple runs
-        self.log.info('* * * * *  START OF JOB  * * * * *')
+        self.log.info("* * * * *  START OF JOB  * * * * *")
         self._define_args()
         self.args = self._arg_parser.parse_args()
 
@@ -95,8 +94,8 @@ class SeleneScript(object):
         self._arg_parser.add_argument(
             "--date",
             default=date.today(),
-            help='Processing date in YYYY-MM-DD format',
-            type=lambda dt: datetime.strptime(dt, '%Y-%m-%d').date()
+            help="Processing date in YYYY-MM-DD format",
+            type=lambda dt: datetime.strptime(dt, "%Y-%m-%d").date(),
         )
 
     def _run(self):
@@ -108,11 +107,9 @@ class SeleneScript(object):
         self.end_ts = datetime.now()
         self._insert_metrics()
         self.db.close()
-        self.log.info(
-            'script run time: ' + str(self.end_ts - self.start_ts)
-        )
+        self.log.info("script run time: " + str(self.end_ts - self.start_ts))
         # Logger builds daily files, delineate end in case of multiple runs
-        self.log.info('* * * * *  END OF JOB  * * * * *')
+        self.log.info("* * * * *  END OF JOB  * * * * *")
 
     def _insert_metrics(self):
         """Add a row to the job metric table for monitoring purposes."""
@@ -123,8 +120,8 @@ class SeleneScript(object):
                 batch_date=self.args.date,
                 start_ts=self.start_ts,
                 end_ts=self.end_ts,
-                command=' '.join(sys.argv),
-                success=self.success
+                command=" ".join(sys.argv),
+                success=self.success,
             )
             job_id = job_repository.add(job_metric)
-            self.log.info('Job ID: ' + job_id)
+            self.log.info("Job ID: " + job_id)
