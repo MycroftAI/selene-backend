@@ -1,5 +1,5 @@
 # Mycroft Server - Backend
-# Copyright (C) 2019 Mycroft AI Inc
+# Copyright (C) 2020 Mycroft AI Inc
 # SPDX-License-Identifier: 	AGPL-3.0-or-later
 #
 # This file is part of the Mycroft Server.
@@ -16,15 +16,14 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
+"""Data entities representing possible locations of machine learning training files."""
+from dataclasses import dataclass
 
-from .entity.device_skill import ManifestSkill, AccountSkillSettings
-from .entity.geography import Geography
-from .entity.preference import AccountPreferences
-from .entity.text_to_speech import TextToSpeech
-from .repository.default import DefaultsRepository
-from .repository.device import DeviceRepository
-from .repository.device_skill import DeviceSkillRepository
-from .repository.geography import GeographyRepository
-from .repository.preference import PreferenceRepository
-from .repository.setting import SettingRepository
-from .repository.text_to_speech import TextToSpeechRepository
+
+@dataclass
+class TaggingFileLocation:
+    """Data representation of a directory containing machine learning training files."""
+
+    server: str
+    directory: str
+    id: str = None

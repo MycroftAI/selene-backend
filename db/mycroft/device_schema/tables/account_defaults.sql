@@ -6,7 +6,7 @@ CREATE TABLE device.account_defaults (
             UNIQUE
             REFERENCES account.account ON DELETE CASCADE,
     wake_word_id        uuid
-            REFERENCES device.wake_word,
+            REFERENCES wake_word.wake_word,
     text_to_speech_id   uuid
             REFERENCES device.text_to_speech,
     country_id          uuid

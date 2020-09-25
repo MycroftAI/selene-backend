@@ -28,9 +28,9 @@ from markdown import markdown
 from psycopg2 import connect
 from psycopg2.extras import DateRange
 
-MYCROFT_DB_DIR = "/opt/selene/selene-backend/db/mycroft"
+MYCROFT_DB_DIR = environ.get("DB_DIR", "/opt/selene/selene-backend/db/mycroft")
 MYCROFT_DB_NAME = environ.get("DB_NAME", "mycroft")
-SCHEMAS = ("account", "skill", "device", "geography", "metric")
+SCHEMAS = ("account", "skill", "device", "geography", "metric", "tagging", "wake_word")
 DB_DESTROY_FILES = ("drop_mycroft_db.sql", "drop_template_db.sql", "drop_roles.sql")
 DB_CREATE_FILES = (
     "create_roles.sql",
@@ -54,16 +54,15 @@ DEVICE_TABLE_ORDER = (
     "category",
     "geography",
     "text_to_speech",
-    "wake_word",
-    "wake_word_settings",
     "account_preferences",
     "account_defaults",
     "device",
     "device_skill",
 )
 GEOGRAPHY_TABLE_ORDER = ("country", "timezone", "region", "city")
-
 METRIC_TABLE_ORDER = ("api", "api_history", "job", "core", "account_activity")
+TAGGING_TABLE_ORDER = ("file_location", "file", "wake_word_file")
+WAKE_WORD_TABLE_ORDER = ("wake_word", "pocketsphinx_settings")
 
 schema_directory = "{}_schema"
 
@@ -159,7 +158,9 @@ def _build_template_db():
     _build_schema_tables(template_db, "account", ACCOUNT_TABLE_ORDER)
     _build_schema_tables(template_db, "skill", SKILL_TABLE_ORDER)
     _build_schema_tables(template_db, "geography", GEOGRAPHY_TABLE_ORDER)
+    _build_schema_tables(template_db, "wake_word", WAKE_WORD_TABLE_ORDER)
     _build_schema_tables(template_db, "device", DEVICE_TABLE_ORDER)
+    _build_schema_tables(template_db, "tagging", TAGGING_TABLE_ORDER)
     _build_schema_tables(template_db, "metric", METRIC_TABLE_ORDER)
     _grant_access(template_db)
     template_db.close_db()
@@ -181,7 +182,7 @@ def _apply_insert_file(db, schema_dir, file_name):
 
 
 def _populate_agreement_table(db):
-    print("Building account.agreement table")
+    print("Populating account.agreement table")
     db.db.autocommit = False
     insert_sql = "insert into account.agreement VALUES (default, %s, '1', %s, %s)"
     privacy_policy_path = path.join(
@@ -221,7 +222,7 @@ def _populate_agreement_table(db):
 
 
 def _populate_country_table(db):
-    print("Building geography.country table")
+    print("Populating geography.country table")
     country_insert = """
     INSERT INTO
         geography.country (iso_code, name)
@@ -241,7 +242,7 @@ def _populate_country_table(db):
 
 
 def _populate_region_table(db):
-    print("Building geography.region table")
+    print("Populating geography.region table")
     region_insert = """
     INSERT INTO
         geography.region (country_id, region_code, name)
@@ -266,7 +267,7 @@ def _populate_region_table(db):
 
 
 def _populate_timezone_table(db):
-    print("Building geography.timezone table")
+    print("Populating geography.timezone table")
     timezone_insert = """
     INSERT INTO
         geography.timezone (country_id, name, gmt_offset, dst_offset)
@@ -293,7 +294,7 @@ def _populate_timezone_table(db):
 
 
 def _populate_city_table(db):
-    print("Building geography.city table")
+    print("Populating geography.city table")
     region_query = "SELECT id, region_code FROM geography.region"
     query_result = db.execute_sql(region_query)
     region_lookup = dict()

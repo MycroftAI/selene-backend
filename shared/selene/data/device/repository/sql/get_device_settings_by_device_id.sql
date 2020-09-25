@@ -5,14 +5,14 @@ SELECT
   acc.time_format as time_format,
   json_build_object('setting_name', tts.setting_name, 'engine', tts.engine) as tts_settings,
   json_build_object(
-    'uuid', wk_word_st.id,
-    'sampleRate', wk_word_st.sample_rate,
-    'channels', wk_word_st.channels,
-    'wakeWord', wk_word.setting_name,
-    'phonemes', wk_word_st.pronunciation,
-    'threshold', wk_word_st.threshold,
-    'multiplier', wk_word_st.threshold_multiplier,
-    'energyRatio', wk_word_st.dynamic_energy_ratio) as listener_setting
+    'uuid', ps.id,
+    'sampleRate', ps.sample_rate,
+    'channels', ps.channels,
+    'wakeWord', ww.name,
+    'phonemes', ps.pronunciation,
+    'threshold', ps.threshold,
+    'multiplier', ps.threshold_multiplier,
+    'energyRatio', ps.dynamic_energy_ratio) as listener_setting
 FROM
   device.device dev
 INNER JOIN
@@ -20,8 +20,8 @@ INNER JOIN
 INNER JOIN
   device.text_to_speech tts ON dev.text_to_speech_id = tts.id
 INNER JOIN
-  device.wake_word wk_word ON dev.wake_word_id = wk_word.id
+  wake_word.wake_word ww ON dev.wake_word_id = ww.id
 LEFT JOIN
-  device.wake_word_settings wk_word_st ON wk_word.id = wk_word_st.wake_word_id
+  wake_word.pocketsphinx_settings ps ON ww.id = ps.wake_word_id
 WHERE
   dev.id = %(device_id)s
