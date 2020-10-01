@@ -17,6 +17,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 """Data access and manipulation for the wake_word.sample table."""
+from datetime import date
 from typing import List
 
 from selene.data.wake_word import WakeWord
@@ -77,8 +78,53 @@ class WakeWordFileRepository(RepositoryBase):
 
         return wake_word_files
 
+    def get_by_submission_date(self, submission_date: date) -> List[WakeWordFile]:
+        """Get sample file references based on the submission date.
+
+        :param submission_date: identifies the date the file was submitted.
+        :return: list of WakeWordFile objects containing the retrieved row
+        """
+        wake_word_files = []
+        db_request = self._build_db_request(
+            sql_file_name="get_files_by_submission_date.sql",
+            args=dict(submission_date=submission_date),
+        )
+        for row in self.cursor.select_all(db_request):
+            file_location = TaggingFileLocation(
+                server=row["server"], directory=row["directory"]
+            )
+            wake_word = WakeWord(name=row["wake_word_name"], engine=row["engine"])
+            wake_word_file = WakeWordFile(
+                wake_word=wake_word,
+                name=row["file_name"],
+                origin=row["origin"],
+                submission_date=row["submission_date"],
+                account_id=row["account_id"],
+                location=file_location,
+            )
+            wake_word_files.append(wake_word_file)
+
+        return wake_word_files
+
+    def change_file_location(self, wake_word_file_id: str, file_location_id: str):
+        """Change the database representation of the file system location
+
+        :param wake_word_file_id: UUID of the file being moved
+        :param file_location_id: UUID of the destination on the file server
+        """
+        db_request = self._build_db_request(
+            sql_file_name="change_file_location.sql",
+            args=dict(
+                file_location_id=file_location_id, wake_word_file_id=wake_word_file_id
+            ),
+        )
+        self.cursor.update(db_request)
+
     def remove_by_wake_word(self, wake_word: WakeWord):
-        """Delete all files related to a wake word."""
+        """Delete all files related to a wake word.
+
+        :param wake_word: The wake word used in the delete WHERE clause.
+        """
         db_request = self._build_db_request(
             sql_file_name="remove_files_by_wake_word.sql",
             args=dict(wake_word_id=wake_word.id),
