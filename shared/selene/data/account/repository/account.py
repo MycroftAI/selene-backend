@@ -219,99 +219,102 @@ class AccountRepository(RepositoryBase):
         report_30_days = self.cursor.select_one(db_request)
 
         report_table = [
-            {
-                "type": "User",
-                "current": report_1_day.total,
-                "oneDay": report_1_day.total - report_1_day.total_new,
-                "oneDayDelta": report_1_day.total_new,
-                "oneDayMinus": 0,
-                "fifteenDays": report_15_days.total - report_15_days.total_new,
-                "fifteenDaysDelta": report_15_days.total_new,
-                "fifteenDaysMinus": 0,
-                "thirtyDays": report_30_days.total - report_30_days.total_new,
-                "thirtyDaysDelta": report_30_days.total_new,
-                "thirtyDaysMinus": 0,
-            },
-            {
-                "type": "Free Account",
-                "current": report_1_day.total - report_1_day.paid_total,
-                "oneDay": report_1_day.total
-                - report_1_day.paid_total
-                - report_1_day.total_new
-                + report_1_day.paid_new,
-                "oneDayDelta": report_1_day.total_new - report_1_day.paid_new,
-                "oneDayMinus": 0,
-                "fifteenDays": report_15_days.total
-                - report_15_days.paid_total
-                - report_15_days.total_new
-                + report_15_days.paid_new,
-                "fifteenDaysDelta": report_15_days.total_new - report_15_days.paid_new,
-                "fifteenDaysMinus": 0,
-                "thirtyDays": report_30_days.total
-                - report_30_days.paid_total
-                - report_30_days.total_new
-                + report_30_days.paid_new,
-                "thirtyDaysDelta": report_30_days.total_new - report_30_days.paid_new,
-                "thirtyDaysMinus": 0,
-            },
-            {
-                "type": "Monthly Account",
-                "current": report_1_day.monthly_total,
-                "oneDay": report_1_day.monthly_total
-                - report_1_day.monthly_new
-                + report_1_day.monthly_minus,
-                "oneDayDelta": report_1_day.monthly_new,
-                "oneDayMinus": report_1_day.monthly_minus,
-                "fifteenDays": report_15_days.monthly_total
-                - report_15_days.monthly_new
-                + report_15_days.monthly_minus,
-                "fifteenDaysDelta": report_15_days.monthly_new,
-                "fifteenDaysMinus": report_15_days.monthly_minus,
-                "thirtyDays": report_30_days.monthly_total
-                - report_30_days.monthly_new
-                + report_30_days.monthly_minus,
-                "thirtyDaysDelta": report_30_days.monthly_new,
-                "thirtyDaysMinus": report_30_days.monthly_minus,
-            },
-            {
-                "type": "Yearly Account",
-                "current": report_1_day.yearly_total,
-                "oneDay": report_1_day.yearly_total
-                - report_1_day.yearly_new
-                + report_1_day.yearly_minus,
-                "oneDayDelta": report_1_day.yearly_new,
-                "oneDayMinus": report_1_day.yearly_minus,
-                "fifteenDays": report_15_days.yearly_total
-                - report_15_days.yearly_new
-                + report_15_days.yearly_minus,
-                "fifteenDaysDelta": report_15_days.yearly_new,
-                "fifteenDaysMinus": report_15_days.yearly_minus,
-                "thirtyDays": report_30_days.yearly_total
-                - report_30_days.yearly_new
-                + report_30_days.yearly_minus,
-                "thirtyDaysDelta": report_30_days.yearly_new,
-                "thirtyDaysMinus": report_30_days.yearly_minus,
-            },
-            {
-                "type": "Paid Account",
-                "current": report_1_day.paid_total,
-                "oneDay": report_1_day.paid_total
-                - report_1_day.paid_new
-                + report_1_day.paid_minus,
-                "oneDayDelta": report_1_day.paid_new,
-                "oneDayMinus": report_1_day.paid_minus,
-                "fifteenDays": report_15_days.paid_total
-                - report_15_days.paid_new
-                + report_15_days.paid_minus,
-                "fifteenDaysDelta": report_15_days.paid_new,
-                "fifteenDaysMinus": report_15_days.paid_minus,
-                "thirtyDays": report_30_days.paid_total
-                - report_30_days.paid_new
-                + report_30_days.paid_minus,
-                "thirtyDaysDelta": report_30_days.paid_new,
-                "thirtyDaysMinus": report_30_days.paid_minus,
-            },
+            dict(
+                type="User",
+                current=report_1_day["total"],
+                oneDay=report_1_day["total"] - report_1_day["total_new"],
+                oneDayDelta=report_1_day["total_new"],
+                oneDayMinus=0,
+                fifteenDays=report_15_days["total"] - report_15_days["total_new"],
+                fifteenDaysDelta=report_15_days["total_new"],
+                fifteenDaysMinus=0,
+                thirtyDays=report_30_days["total"] - report_30_days["total_new"],
+                thirtyDaysDelta=report_30_days["total_new"],
+                thirtyDaysMinus=0,
+            ),
+            dict(
+                type="Free Account",
+                current=report_1_day["total"] - report_1_day["paid_total"],
+                oneDay=report_1_day["total"]
+                - report_1_day["paid_total"]
+                - report_1_day["total_new"]
+                + report_1_day["paid_new"],
+                oneDayDelta=report_1_day["total_new"] - report_1_day["paid_new"],
+                oneDayMinus=0,
+                fifteenDays=report_15_days["total"]
+                - report_15_days["paid_total"]
+                - report_15_days["total_new"]
+                + report_15_days["paid_new"],
+                fifteenDaysDelta=report_15_days["total_new"]
+                - report_15_days["paid_new"],
+                fifteenDaysMinus=0,
+                thirtyDays=report_30_days["total"]
+                - report_30_days["paid_total"]
+                - report_30_days["total_new"]
+                + report_30_days["paid_new"],
+                thirtyDaysDelta=report_30_days["total_new"]
+                - report_30_days["paid_new"],
+                thirtyDaysMinus=0,
+            ),
+            dict(
+                type="Monthly Account",
+                current=report_1_day["monthly_total"],
+                oneDay=report_1_day["monthly_total"]
+                - report_1_day["monthly_new"]
+                + report_1_day["monthly_minus"],
+                oneDayDelta=report_1_day["monthly_new"],
+                oneDayMinus=report_1_day["monthly_minus"],
+                fifteenDays=report_15_days["monthly_total"]
+                - report_15_days["monthly_new"]
+                + report_15_days["monthly_minus"],
+                fifteenDaysDelta=report_15_days["monthly_new"],
+                fifteenDaysMinus=report_15_days["monthly_minus"],
+                thirtyDays=report_30_days["monthly_total"]
+                - report_30_days["monthly_new"]
+                + report_30_days["monthly_minus"],
+                thirtyDaysDelta=report_30_days["monthly_new"],
+                thirtyDaysMinus=report_30_days["monthly_minus"],
+            ),
+            dict(
+                type="Yearly Account",
+                current=report_1_day["yearly_total"],
+                oneDay=report_1_day["yearly_total"]
+                - report_1_day["yearly_new"]
+                + report_1_day["yearly_minus"],
+                oneDayDelta=report_1_day["yearly_new"],
+                oneDayMinus=report_1_day["yearly_minus"],
+                fifteenDays=report_15_days["yearly_total"]
+                - report_15_days["yearly_new"]
+                + report_15_days["yearly_minus"],
+                fifteenDaysDelta=report_15_days["yearly_new"],
+                fifteenDaysMinus=report_15_days["yearly_minus"],
+                thirtyDays=report_30_days["yearly_total"]
+                - report_30_days["yearly_new"]
+                + report_30_days["yearly_minus"],
+                thirtyDaysDelta=report_30_days["yearly_new"],
+                thirtyDaysMinus=report_30_days["yearly_minus"],
+            ),
+            dict(
+                type="Paid Account",
+                current=report_1_day["paid_total"],
+                oneDay=report_1_day["paid_total"]
+                - report_1_day["paid_new"]
+                + report_1_day["paid_minus"],
+                oneDayDelta=report_1_day["paid_new"],
+                oneDayMinus=report_1_day["paid_minus"],
+                fifteenDays=report_15_days["paid_total"]
+                - report_15_days["paid_new"]
+                + report_15_days["paid_minus"],
+                fifteenDaysDelta=report_15_days["paid_new"],
+                fifteenDaysMinus=report_15_days["paid_minus"],
+                thirtyDays=report_30_days["paid_total"]
+                - report_30_days["paid_new"]
+                + report_30_days["paid_minus"],
+                thirtyDaysDelta=report_30_days["paid_new"],
+                thirtyDaysMinus=report_30_days["paid_minus"],
+            ),
         ]
+
         return report_table
 
     def add_membership(self, acct_id: str, membership: AccountMembership):

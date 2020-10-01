@@ -35,7 +35,7 @@ class TaggingFileLocationRepository(RepositoryBase):
         :param server: IP address of the server the file resides on
         :param directory: fully qualified directory where the file resides
         """
-        file_location = TaggingFileLocation(server=server, directory=directory)
+        file_location = TaggingFileLocation(server=server, directory=str(directory))
         file_location.id = self.get_id(file_location)
         if file_location.id is None:
             file_location.id = self.add(file_location)
