@@ -38,6 +38,7 @@ from selene.data.tagging import (
 
 @given("a wake word sample contributed by the user")
 def add_wake_word_sample(context):
+    """Add a sample wake word file to the database to be queried by future steps."""
     file_repository = WakeWordFileRepository(context.db)
     location_repository = TaggingFileLocationRepository(context.db)
     location = TaggingFileLocation(server="127.0.0.1", directory="/opt/selene/data")
