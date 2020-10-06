@@ -64,23 +64,14 @@ class WakeWordFileRepository(RepositoryBase):
         """
         wake_word_files = []
         db_request = self._build_db_request(
-            sql_file_name="get_files_by_wake_word.sql",
+            sql_file_name="get_wake_word_files.sql",
             args=dict(wake_word=wake_word.name, engine=wake_word.engine),
         )
+        db_request.sql = db_request.sql.format(
+            where_clause="ww.name = %(wake_word)s AND ww.engine = %(engine)s"
+        )
         for row in self.cursor.select_all(db_request):
-            file_location = TaggingFileLocation(
-                server=row["server"], directory=row["directory"]
-            )
-            wake_word_file = WakeWordFile(
-                wake_word=wake_word,
-                name=row["name"],
-                origin=row["origin"],
-                submission_date=row["submission_date"],
-                account_id=row["account_id"],
-                status=row["status"],
-                location=file_location,
-            )
-            wake_word_files.append(wake_word_file)
+            wake_word_files.append(self._convert_db_row_to_dataclass(row))
 
         return wake_word_files
 
@@ -92,8 +83,11 @@ class WakeWordFileRepository(RepositoryBase):
         """
         wake_word_files = []
         db_request = self._build_db_request(
-            sql_file_name="get_files_by_submission_date.sql",
+            sql_file_name="get_wake_word_files.sql",
             args=dict(submission_date=submission_date),
+        )
+        db_request.sql = db_request.sql.format(
+            where_clause="ww.name = %(wake_word)s AND ww.engine = %(engine)s"
         )
         for row in self.cursor.select_all(db_request):
             wake_word_files.append(self._convert_db_row_to_dataclass(row))
@@ -106,8 +100,9 @@ class WakeWordFileRepository(RepositoryBase):
         :return: list of WakeWordFile objects containing the retrieved row
         """
         wake_word_files = defaultdict(list)
-        db_request = self._build_db_request(
-            sql_file_name="get_files_pending_delete.sql"
+        db_request = self._build_db_request(sql_file_name="get_wake_word_files.sql")
+        db_request.sql = db_request.sql.format(
+            where_clause="wwf.status = 'pending delete'::tagging_file_status_enum"
         )
         for row in self.cursor.select_all(db_request):
             wake_word_files[row["account_id"]].append(
@@ -117,22 +112,12 @@ class WakeWordFileRepository(RepositoryBase):
         return wake_word_files
 
     @staticmethod
-    def _convert_db_row_to_dataclass(row):
-        file_location = TaggingFileLocation(
-            server=row["server"], directory=row["directory"]
+    def _convert_db_row_to_dataclass(row) -> WakeWordFile:
+        row.update(
+            wake_word=WakeWord(**row["wake_word"]),
+            location=TaggingFileLocation(**row["location"]),
         )
-        wake_word = WakeWord(name=row["wake_word_name"], engine=row["engine"])
-        wake_word_file = WakeWordFile(
-            wake_word=wake_word,
-            name=row["file_name"],
-            origin=row["origin"],
-            submission_date=row["submission_date"],
-            account_id=row["account_id"],
-            status=row["status"],
-            location=file_location,
-        )
-
-        return wake_word_file
+        return WakeWordFile(**row)
 
     def change_file_location(self, wake_word_file_id: str, file_location_id: str):
         """Change the database representation of the file system location
