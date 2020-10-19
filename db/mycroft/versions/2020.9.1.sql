@@ -150,9 +150,10 @@ CREATE TABLE tagging.file_location (
     insert_ts       TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
     UNIQUE (server, directory)
 );
-CREATE TABLE tagging.file (
+CREATE TABLE tagging.wake_wordfile (
     id                  uuid                        PRIMARY KEY DEFAULT gen_random_uuid(),
     name                text                        NOT NULL UNIQUE,
+    wake_word_id        uuid                        NOT NULL REFERENCES wake_word.wake_word,
     origin              tagging_file_origin_enum    NOT NULL,
     submission_date     date                        NOT NULL DEFAULT CURRENT_DATE,
     file_location_id    uuid                        NOT NULL REFERENCES tagging.file_location,
@@ -160,10 +161,55 @@ CREATE TABLE tagging.file (
     status              tagging_file_status_enum    NOT NULL DEFAULT 'uploaded'::tagging_file_status_enum,
     insert_ts           TIMESTAMP                   NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+CREATE TABLE tagging.tagger (
+    id              uuid                PRIMARY KEY DEFAULT gen_random_uuid(),
+    entity_type     tagger_type_enum    NOT NULL,
+    entity_id       text                NOT NULL,
+    insert_ts       TIMESTAMP           NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (entity_type, entity_id)
+);
+CREATE TABLE tagging.session (
+    id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+    tagger_id           text        NOT NULL,
+    session_ts_range    tsrange     NOT NULL DEFAULT '[now,]'::tsrange,
+    note                text,
+    insert_ts           timestamp   NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    EXCLUDE USING gist (tagger_id WITH =, session_ts_range with &&),
+    UNIQUE (tagger_id, session_ts_range)
+);
+CREATE TABLE tagging.tag (
+    id              uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+    name            text        NOT NULL UNIQUE,
+    title           text        NOT NULL,
+    instructions    text        NOT NULL,
+    insert_ts       TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE tagging.tag_value (
+    id              uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+    tag_id          uuid        NOT NULL REFERENCES tagging.tag,
+    value           text        NOT NULL,
+    display         text        NOT NULL,
+    insert_ts       TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (tag_id, value)
+);
+CREATE TABLE tagging.wake_word_file_tag (
+    id              uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+    wake_word_file_id   uuid    NOT NULL REFERENCES tagging.wake_word_file,
+    session_id      uuid        NOT NULL REFERENCES tagging.session,
+    tag_id          uuid        NOT NULL REFERENCES tagging.tag,
+    tag_value_id    uuid        NOT NULL REFERENCES tagging.tag_value,
+    insert_ts       TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (wake_word_file_id, session_id, tag_id)
+);
+CREATE TABLE tagging.wake_word_file_designation (
+    id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+    wake_word_file_id   uuid        NOT NULL REFERENCES tagging.wake_word_file,
+    tag_id              uuid        NOT NULL REFERENCES tagging.tag,
+    tag_value_id        uuid        NOT NULL REFERENCES tagging.tag_value,
+    insert_ts           TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (wake_word_file_id, tag_id)
+);
 
-CREATE TABLE tagging.wake_word_file (
-    wake_word_id    uuid    NOT NULL REFERENCES wake_word.wake_word
-)
-INHERITS (tagging.file);
+
 GRANT USAGE ON SCHEMA wake_word TO selene;
 GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA wake_word TO selene;
