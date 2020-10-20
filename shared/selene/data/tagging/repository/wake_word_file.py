@@ -16,7 +16,7 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-"""Data access and manipulation for the wake_word.sample table."""
+"""Data access and manipulation for the tagging.wake_word_file table."""
 import hashlib
 from collections import defaultdict
 from datetime import date
@@ -26,7 +26,7 @@ from typing import List
 from psycopg2 import IntegrityError
 
 from selene.data.wake_word import WakeWord
-from ..entity.file import WakeWordFile
+from ..entity.wake_word_file import TaggableFile, WakeWordFile
 from ..entity.file_location import TaggingFileLocation
 from ...repository_base import RepositoryBase
 
@@ -48,7 +48,7 @@ def build_tagging_file_name(file_contents):
 
 
 class WakeWordFileRepository(RepositoryBase):
-    """Data access and manipulation for the wake_word.sample table."""
+    """Data access and manipulation for the tagging.wake_word_file table."""
 
     def __init__(self, db):
         super(WakeWordFileRepository, self).__init__(db, __file__)
@@ -170,6 +170,29 @@ class WakeWordFileRepository(RepositoryBase):
             )
 
         return wake_word_files
+
+    def get_taggable_file(self, wake_word: str, tag_id: str) -> TaggableFile:
+        """Retrieve a file that needs to be tagged from the database.
+
+        :param wake_word: the wake word being tagged
+        :param tag_id: Identifier of the wake word characteristic being tagged.
+        :return:
+        """
+        taggable_file = None
+        db_request = self._build_db_request(
+            sql_file_name="get_file_for_tagging.sql",
+            args=dict(tag_id=tag_id, wake_word=wake_word),
+        )
+        result = self.cursor.select_one(db_request)
+        if result is not None:
+            file_location = TaggingFileLocation(
+                server=result["server"], directory=result["directory"]
+            )
+            taggable_file = TaggableFile(
+                id=result["id"], name=result["name"], location=file_location
+            )
+
+        return taggable_file
 
     @staticmethod
     def _convert_db_row_to_dataclass(row) -> WakeWordFile:

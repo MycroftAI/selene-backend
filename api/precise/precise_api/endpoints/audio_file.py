@@ -16,22 +16,22 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-"""Public API into the tagging data repository."""
+"""Precise API endpoint for presenting a URL to the GUI for the audio file."""
 
-from .entity.file_location import TaggingFileLocation
-from .entity.tag import Tag
-from .entity.tagger import Tagger
-from .entity.wake_word_file import TaggableFile, WakeWordFile
-from .entity.wake_word_file_tag import WakeWordFileTag
-from .repository.file_location import TaggingFileLocationRepository
-from .repository.session import SessionRepository
-from .repository.tag import TagRepository
-from .repository.tagger import TaggerRepository
-from .repository.wake_word_file import (
-    build_tagging_file_name,
-    DELETED_STATUS,
-    PENDING_DELETE_STATUS,
-    UPLOADED_STATUS,
-    WakeWordFileRepository,
-)
-from .repository.wake_word_file_tag import FileTagRepository
+from os import environ
+
+from flask import abort, send_from_directory
+
+from selene.api import SeleneEndpoint
+
+
+class AudioFileEndpoint(SeleneEndpoint):
+    """Precise API endpoint for presenting a URL to the GUI for the audio file."""
+
+    def get(self, file_name):
+        """Handle an HTTP GET request."""
+        self._authenticate()
+        try:
+            return send_from_directory(environ["SELENE_DATA_DIR"], file_name)
+        except FileNotFoundError:
+            abort(404)

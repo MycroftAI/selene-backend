@@ -16,23 +16,21 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-"""Data entities representing a wake word sample."""
-from dataclasses import dataclass
-from datetime import date
-
-from selene.data.wake_word import WakeWord
-from .file_location import TaggingFileLocation
+"""Data access and manipulation for the tagging.wake_word_file_tag table."""
+from dataclasses import asdict
+from ..entity.wake_word_file_tag import WakeWordFileTag
+from ...repository_base import RepositoryBase
 
 
-@dataclass
-class WakeWordFile:
-    """Data representation of a wake word sample that has not been classified."""
+class FileTagRepository(RepositoryBase):  # pylint: disable=too-few-public-methods
+    """Data access and manipulation for the tagging.wake_word_file_tag table."""
 
-    wake_word: WakeWord
-    name: str
-    origin: str
-    submission_date: date
-    location: TaggingFileLocation
-    status: str
-    account_id: str = None
-    id: str = None
+    def __init__(self, db):
+        super(FileTagRepository, self).__init__(db, __file__)
+
+    def add(self, file_tag: WakeWordFileTag):
+        """Add a tag to a wake word file."""
+        db_request = self._build_db_request(
+            sql_file_name="add_wake_word_file_tag.sql", args=asdict(file_tag)
+        )
+        self.cursor.insert(db_request)

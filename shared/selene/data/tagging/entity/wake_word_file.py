@@ -16,22 +16,32 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-"""Public API into the tagging data repository."""
+"""Data entities representing a wake word sample."""
+from dataclasses import dataclass
+from datetime import date
 
-from .entity.file_location import TaggingFileLocation
-from .entity.tag import Tag
-from .entity.tagger import Tagger
-from .entity.wake_word_file import TaggableFile, WakeWordFile
-from .entity.wake_word_file_tag import WakeWordFileTag
-from .repository.file_location import TaggingFileLocationRepository
-from .repository.session import SessionRepository
-from .repository.tag import TagRepository
-from .repository.tagger import TaggerRepository
-from .repository.wake_word_file import (
-    build_tagging_file_name,
-    DELETED_STATUS,
-    PENDING_DELETE_STATUS,
-    UPLOADED_STATUS,
-    WakeWordFileRepository,
-)
-from .repository.wake_word_file_tag import FileTagRepository
+from selene.data.wake_word import WakeWord
+from .file_location import TaggingFileLocation
+
+
+@dataclass
+class WakeWordFile:
+    """Data representation of a wake word sample that has not been classified."""
+
+    wake_word: WakeWord
+    name: str
+    origin: str
+    submission_date: date
+    location: TaggingFileLocation
+    status: str
+    account_id: str = None
+    id: str = None
+
+
+@dataclass
+class TaggableFile:
+    """Data representation of a wake word file that requires further tagging."""
+
+    id: str
+    name: str
+    location: TaggingFileLocation

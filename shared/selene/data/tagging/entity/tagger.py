@@ -16,22 +16,14 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-"""Public API into the tagging data repository."""
+"""Data entities representing possible locations of machine learning training files."""
+from dataclasses import dataclass
 
-from .entity.file_location import TaggingFileLocation
-from .entity.tag import Tag
-from .entity.tagger import Tagger
-from .entity.wake_word_file import TaggableFile, WakeWordFile
-from .entity.wake_word_file_tag import WakeWordFileTag
-from .repository.file_location import TaggingFileLocationRepository
-from .repository.session import SessionRepository
-from .repository.tag import TagRepository
-from .repository.tagger import TaggerRepository
-from .repository.wake_word_file import (
-    build_tagging_file_name,
-    DELETED_STATUS,
-    PENDING_DELETE_STATUS,
-    UPLOADED_STATUS,
-    WakeWordFileRepository,
-)
-from .repository.wake_word_file_tag import FileTagRepository
+
+@dataclass
+class Tagger:
+    """Data representation of a tagging entity."""
+
+    entity_type: str
+    entity_id: str
+    id: str = None
