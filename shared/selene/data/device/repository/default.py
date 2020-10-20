@@ -16,11 +16,11 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-
+"""Data access and manipulation for account defaults."""
 from selene.data.geography import City, Country, Region, Timezone
+from selene.data.wake_word.entity.wake_word import WakeWord
 from ..entity.default import AccountDefaults
 from ..entity.text_to_speech import TextToSpeech
-from data.wake_word.entity.wake_word import WakeWord
 from ...repository_base import RepositoryBase
 
 defaults_dataclasses = dict(
@@ -34,11 +34,14 @@ defaults_dataclasses = dict(
 
 
 class DefaultsRepository(RepositoryBase):
+    """Data access and manipulation for account defaults."""
+
     def __init__(self, db, account_id):
         super(DefaultsRepository, self).__init__(db, __file__)
         self.account_id = account_id
 
     def upsert(self, defaults):
+        """Update account defaults if they exist, otherwise, add them"""
         db_request_args = dict(account_id=self.account_id)
         db_request_args.update(defaults)
         db_request_args["wake_word"] = db_request_args["wake_word"]
@@ -48,6 +51,7 @@ class DefaultsRepository(RepositoryBase):
         self.cursor.insert(db_request)
 
     def get_account_defaults(self):
+        """Get the device defaults for an account."""
         db_request = self._build_db_request(
             sql_file_name="get_account_defaults.sql",
             args=dict(account_id=self.account_id),
