@@ -35,7 +35,7 @@ class WakeWordFileRepository(RepositoryBase):
     """Data access and manipulation for the wake_word.sample table."""
 
     def __init__(self, db):
-        super(WakeWordFileRepository, self).__init__(db, __file__)
+        super().__init__(db, __file__)
 
     def add(self, wake_word_file: WakeWordFile):
         """Adds a row to the wake word file table

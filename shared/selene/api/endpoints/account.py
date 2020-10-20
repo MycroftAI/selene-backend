@@ -135,7 +135,7 @@ class AccountEndpoint(SeleneEndpoint):
 
     def __init__(self):
         """Constructor"""
-        super(AccountEndpoint, self).__init__()
+        super().__init__()
         self.request_data = None
 
     @property
