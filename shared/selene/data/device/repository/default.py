@@ -37,7 +37,7 @@ class DefaultsRepository(RepositoryBase):
     """Data access and manipulation for account defaults."""
 
     def __init__(self, db, account_id):
-        super(DefaultsRepository, self).__init__(db, __file__)
+        super().__init__(db, __file__)
         self.account_id = account_id
 
     def upsert(self, defaults):
