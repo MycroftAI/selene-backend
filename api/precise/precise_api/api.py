@@ -38,6 +38,4 @@ acct.add_url_rule(
     "/api/audio/<string:file_name>", view_func=audio_file_endpoint, methods=["GET"]
 )
 tag_endpoint = TagEndpoint.as_view("tag_endpoint")
-acct.add_url_rule(
-    "/api/tag/<string:wake_word>", view_func=tag_endpoint, methods=["GET", "POST"]
-)
+acct.add_url_rule("/api/tag", view_func=tag_endpoint, methods=["GET", "POST"])

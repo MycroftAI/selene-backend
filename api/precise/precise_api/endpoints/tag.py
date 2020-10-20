@@ -44,6 +44,7 @@ from selene.util.ssh import get_remote_file, SshClientConfig
 
 
 class TagPostRequest(Model):
+    """Define the expected arguments to be passed in the POST request."""
 
     tag_id = StringType()
     tag_value = StringType()
@@ -60,23 +61,23 @@ class TagEndpoint(SeleneEndpoint):
     for a subsequent API call.
     """
 
-    def get(self, wake_word):
+    def get(self):
         """Handle an HTTP GET request."""
         self._authenticate()
-        response_data, file_to_tag = self._build_response_data(wake_word)
+        response_data, file_to_tag = self._build_response_data()
         if response_data:
             self._copy_audio_file(file_to_tag)
 
         return response_data, HTTPStatus.OK if response_data else HTTPStatus.NO_CONTENT
 
-    def _build_response_data(self, wake_word: str):
+    def _build_response_data(self):
         """Build the response from data retrieved from the database
 
-        :param wake_word: the wake word being tagged by the user
         :return the response and the taggable file object
         """
+        wake_word = self.request.args["wakeWord"].replace("-", " ")
         tag = self._select_random_tag(wake_word)
-        file_to_tag = self._get_taggable_file(wake_word.replace("-", " "), tag.id)
+        file_to_tag = self._get_taggable_file(wake_word, tag.id)
         if file_to_tag is None:
             response_data = ""
         else:
@@ -101,7 +102,7 @@ class TagEndpoint(SeleneEndpoint):
         tags = tag_repository.get_all()
         random_tag = choice(tags)
         if random_tag.name == "wake word":
-            random_tag.name = wake_word.replace("-", " ").title()
+            random_tag.name = wake_word.title()
 
         return random_tag
 
@@ -142,7 +143,7 @@ class TagEndpoint(SeleneEndpoint):
             )
             get_remote_file(ssh_config, local_path, remote_path)
 
-    def post(self, wake_word):
+    def post(self):
         """Process HTTP POST request for an account."""
         self._authenticate()
         self._validate_post_request()
