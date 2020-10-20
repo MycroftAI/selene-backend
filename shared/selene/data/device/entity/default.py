@@ -16,7 +16,7 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-
+"""Define data entities for the device.account_defaults table"""
 from dataclasses import dataclass
 
 from selene.data.geography import City, Country, Region, Timezone
@@ -25,7 +25,9 @@ from .text_to_speech import TextToSpeech
 
 
 @dataclass
-class AccountDefaults(object):
+class AccountDefaults:
+    """Data representation of the device.account_defaults table."""
+
     city: City = None
     country: Country = None
     region: Region = None
