@@ -12,7 +12,7 @@
 #   "--net <network name>" argument.
 
 # Build steps that apply to all of the selene applications.
-FROM python:3.7-slim as selene-base
+FROM python:3.7-slim as base-build
 RUN apt-get update && apt-get -y install gcc git
 RUN python3 -m pip install pipenv
 RUN mkdir -p /root/allure /opt/selene/selene-backend /root/code-quality /var/log/mycroft
@@ -27,6 +27,9 @@ ENV JWT_REFRESH_SECRET refresh-secret
 ENV SALT testsalt
 ENV REDIS_HOST selene-cache
 ENV REDIS_PORT 6379
+
+# Put the copy of the shared library code in its own section to avoid reinstalling base software every time
+FROM base-build as selene-base
 COPY shared shared
 
 # Code quality scripts and user agreements are stored in the MycroftAI/devops repository.  This repository is private.
@@ -41,8 +44,6 @@ RUN mkdir -p /opt/mycroft
 WORKDIR /opt/mycroft
 RUN git clone https://$github_api_key@github.com/MycroftAI/devops.git
 WORKDIR /opt/mycroft/devops/jenkins
-# TODO: remove when the pull-request-identifier branch is merged.
-RUN git checkout bug/pull-request-identifier
 RUN pipenv install
 
 # Run a linter and code formatter against the API specified in the build argument
