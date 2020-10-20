@@ -20,8 +20,8 @@
 from dataclasses import dataclass
 
 from selene.data.geography import City, Country, Region, Timezone
+from selene.data.wake_word.entity.wake_word import WakeWord
 from .text_to_speech import TextToSpeech
-from data.wake_word.entity.wake_word import WakeWord
 
 
 @dataclass
