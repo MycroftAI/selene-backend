@@ -25,7 +25,7 @@ class TaggingFileLocationRepository(RepositoryBase):
     """Data access and manipulation for the wake_word.sample table."""
 
     def __init__(self, db):
-        super(TaggingFileLocationRepository, self).__init__(db, __file__)
+        super().__init__(db, __file__)
 
     def ensure_location_exists(
         self, server: str, directory: str
