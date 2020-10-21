@@ -86,8 +86,10 @@ class WakeWordFileRepository(RepositoryBase):
                     )
                     db_request.args.update(file_name=new_file_name)
                     _log.info(
-                        f"Wake word file name {wake_word_file.name} exists. Trying "
-                        f"{new_file_name}"
+                        "Wake word file name {file_name} exists. Trying "
+                        "{new_file_name}".format(
+                            file_name=wake_word_file.name, new_file_name=new_file_name
+                        )
                     )
                     collisions += 1
                 else:
