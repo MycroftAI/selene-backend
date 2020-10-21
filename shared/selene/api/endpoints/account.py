@@ -25,10 +25,10 @@ from datetime import date, datetime, timedelta
 from http import HTTPStatus
 
 import stripe
-from flask import json, jsonify
 from schematics import Model
 from schematics.exceptions import ValidationError
 from schematics.types import BooleanType, EmailType, ModelType, StringType
+from flask import json, jsonify
 
 from selene.data.account import (
     Account,
@@ -41,6 +41,7 @@ from selene.data.account import (
     MembershipRepository,
 )
 from selene.data.metric import AccountActivityRepository
+from selene.data.tagging import WakeWordFileRepository
 from selene.util.auth import (
     get_facebook_account_email,
     get_github_account_email,
@@ -61,56 +62,61 @@ STRIPE_PAYMENT = "Stripe"
 
 
 def agreement_accepted(value):
+    """Helper function to for validating an account add request."""
     if not value:
         raise ValidationError("agreement not accepted")
 
 
 class Login(Model):
+    """Representation of the login information for an add account request."""
+
     federated_platform = StringType(choices=["Facebook", "Google", "GitHub"])
     federated_token = StringType()
     email = EmailType()
     password = StringType()
 
-    def validate_email(self, data, value):
+    def validate_email(self, data, value):  # pylint: disable=no-self-use
+        """If email address is used to login, it must be specified."""
         if data["federated_token"] is None:
             if value is None:
                 raise ValidationError(
                     "either a federated login or an email address is required"
                 )
 
-    def validate_password(self, data, value):
+    def validate_password(self, data, value):  # pylint: disable=no-self-use
+        """If email address is used to login, the password must be supplied."""
         if data["email"] is not None:
             if value is None:
                 raise ValidationError("email address must be accompanied by a password")
 
 
-class Support(Model):
-    open_dataset = BooleanType(required=True)
-    membership = StringType(choices=(MONTHLY_MEMBERSHIP, YEARLY_MEMBERSHIP))
-    payment_method = StringType(choices=[STRIPE_PAYMENT])
-    payment_token = StringType()
-
-
 class UpdateMembershipRequest(Model):
+    """Representation of a request to update a membership for data validation."""
+
     new_membership = BooleanType(required=True)
     membership_type = StringType(choices=(MONTHLY_MEMBERSHIP, YEARLY_MEMBERSHIP))
     payment_method = StringType(choices=[STRIPE_PAYMENT])
     payment_token = StringType()
 
-    def validate_membership_type(self, data, value):
+    def validate_membership_type(self, data, value):  # pylint: disable=no-self-use
+        """A new membership must have a membership type."""
         if data["new_membership"] and value is None:
             raise ValidationError("new memberships require a membership type")
 
-    def validate_payment_method(self, data, value):
+    def validate_payment_method(self, data, value):  # pylint: disable=no-self-use
+        """A new membership must have a payment method."""
         if data["new_membership"] and value is None:
             raise ValidationError("new memberships require a payment method")
 
-    def validate_payment_token(self, data, value):
+    def validate_payment_token(self, data, value):  # pylint: disable=no-self-use
+        """A new membership must have a payment token."""
         if data["new_membership"] and value is None:
             raise ValidationError("payment token required for new memberships")
 
 
 class AddAccountRequest(Model):
+    """Representation of a request to add and account for data validation."""
+
     privacy_policy = BooleanType(required=True, validators=[agreement_accepted])
     terms_of_use = BooleanType(required=True, validators=[agreement_accepted])
     login = ModelType(Login)
@@ -123,11 +129,13 @@ class AccountEndpoint(SeleneEndpoint):
     _account_activity_repository = None
 
     def __init__(self):
-        super(AccountEndpoint, self).__init__()
+        """Constructor"""
+        super().__init__()
         self.request_data = None
 
     @property
     def account_repository(self):
+        """Lazily instantiates an instance of the account repository."""
         if self._account_repository is None:
             self._account_repository = AccountRepository(self.db)
 
@@ -135,6 +143,7 @@ class AccountEndpoint(SeleneEndpoint):
 
     @property
     def account_activity_repository(self):
+        """Lazily instantiates an instance of the account activity repository."""
         if self._account_activity_repository is None:
             self._account_activity_repository = AccountActivityRepository(self.db)
 
@@ -149,6 +158,7 @@ class AccountEndpoint(SeleneEndpoint):
         return self.response
 
     def _build_response_data(self):
+        """Build the response to the GET request."""
         response_data = asdict(self.account)
         for agreement in response_data["agreements"]:
             agreement_date = self._format_agreement_date(agreement)
@@ -164,6 +174,7 @@ class AccountEndpoint(SeleneEndpoint):
 
     @staticmethod
     def _format_agreement_date(agreement):
+        """Helper function to format the agreement date for display in the GUI."""
         agreement_date = datetime.strptime(agreement["accept_date"], "%Y-%m-%d")
         formatted_agreement_date = agreement_date.strftime("%B %d, %Y")
 
@@ -171,6 +182,7 @@ class AccountEndpoint(SeleneEndpoint):
 
     @staticmethod
     def _format_membership_duration(response_data):
+        """Helper function to format the membership duration for display in the GUI."""
         membership_start = datetime.strptime(
             response_data["membership"]["start_date"], "%Y-%m-%d"
         )
@@ -188,6 +200,7 @@ class AccountEndpoint(SeleneEndpoint):
         return " ".join(membership_duration) if membership_duration else None
 
     def post(self):
+        """Process HTTP POST request for an account."""
         self.request_data = json.loads(self.request.data)
         self._validate_post_request()
         email_address, password = self._determine_login_method()
@@ -195,6 +208,7 @@ class AccountEndpoint(SeleneEndpoint):
         return jsonify("Account added successfully"), HTTPStatus.OK
 
     def _validate_post_request(self):
+        """Validate the contents of the request object for a POST request."""
         add_request = AddAccountRequest(
             dict(
                 privacy_policy=self.request_data.get("privacyPolicy"),
@@ -207,6 +221,7 @@ class AccountEndpoint(SeleneEndpoint):
         self.request_data = add_request.to_native()
 
     def _build_login_schematic(self) -> Login:
+        """Build the data representation of the POST request for validation."""
         login = None
         login_data = self.request.json.get("login")
         if login_data is not None:
@@ -228,6 +243,7 @@ class AccountEndpoint(SeleneEndpoint):
         return login
 
     def _determine_login_method(self):
+        """Use the data in the request to determine the login method employed."""
         login_data = self.request_data["login"]
         password = None
         if login_data["federated_platform"] == "Facebook":
@@ -243,6 +259,11 @@ class AccountEndpoint(SeleneEndpoint):
         return email_address, password
 
     def _add_account(self, email_address, password):
+        """Add a new account to the database.
+
+        :param email_address: the email address of the user
+        :param password: the password used for login
+        """
         account = Account(
             email_address=email_address,
             agreements=[
@@ -254,6 +275,7 @@ class AccountEndpoint(SeleneEndpoint):
         self.account_activity_repository.increment_accounts_added()
 
     def patch(self):
+        """Process HTTP PATCH request to update an account."""
         self._authenticate()
         errors = self._update_account()
         if errors:
@@ -272,6 +294,7 @@ class AccountEndpoint(SeleneEndpoint):
         etag_manager.expire_device_setting_etag_by_account_id(self.account.id)
 
     def _update_account(self):
+        """Update the account on the database based on the PATCH request."""
         errors = []
         for key, value in self.request.json.items():
             if key == "membership":
@@ -286,7 +309,9 @@ class AccountEndpoint(SeleneEndpoint):
 
         return errors
 
-    def _validate_membership_update_request(self, value):
+    @staticmethod
+    def _validate_membership_update_request(value):
+        """Validate a request to update membership is well formed."""
         validator = UpdateMembershipRequest()
         validator.new_membership = value["newMembership"]
         validator.membership_type = value["membershipType"]
@@ -297,6 +322,7 @@ class AccountEndpoint(SeleneEndpoint):
         return validator
 
     def _update_membership(self, membership_change):
+        """Update an account's membership status."""
         stripe.api_key = os.environ["STRIPE_PRIVATE_KEY"]
         active_membership = self._get_active_membership()
         if membership_change["membership_type"] is None:
@@ -311,16 +337,17 @@ class AccountEndpoint(SeleneEndpoint):
                     "new membership requested for account with active membership"
                 )
         else:
-            if active_membership is None:
+            if active_membership is not None:
+                self._cancel_membership(active_membership)
+                self._add_membership(membership_change, active_membership)
+            else:
                 raise ValidationError(
                     "membership change requested for account with no "
                     "active membership"
                 )
-            else:
-                self._cancel_membership(active_membership)
-                self._add_membership(membership_change, active_membership)
 
     def _get_active_membership(self):
+        """Get the currently active membership for the account."""
         acct_repository = AccountRepository(self.db)
         active_membership = acct_repository.get_active_account_membership(
             self.account.id
@@ -329,6 +356,7 @@ class AccountEndpoint(SeleneEndpoint):
         return active_membership
 
     def _add_membership(self, membership_change, active_membership):
+        """Add a membership for an account to the database."""
         if active_membership is None:
             payment_account_id = create_stripe_account(
                 membership_change["payment_token"], self.account.email_address
@@ -349,21 +377,25 @@ class AccountEndpoint(SeleneEndpoint):
         self.account_repository.add_membership(self.account.id, new_membership)
 
     def _get_stripe_plan(self, plan):
+        """Get the Stripe plan being used for the membership."""
         membership_repository = MembershipRepository(self.db)
         membership = membership_repository.get_membership_by_type(plan)
 
         return membership.stripe_plan
 
     def _cancel_membership(self, active_membership):
+        """Cancel the Stripe plan and expire the database row."""
         cancel_stripe_subscription(active_membership.payment_id)
         active_membership.end_date = datetime.utcnow()
         account_repository = AccountRepository(self.db)
         account_repository.end_membership(active_membership)
 
     def _update_username(self, username):
+        """Change the username for an account."""
         self.account_repository.update_username(self.account.id, username)
 
     def _update_open_dataset_agreement(self, opt_in: bool):
+        """Update the status of the open dataset agreement for the account."""
         if opt_in:
             agreement = AccountAgreement(type=OPEN_DATASET, accept_date=date.today())
             self.account_repository.add_agreement(self.account.id, agreement)
@@ -373,11 +405,28 @@ class AccountEndpoint(SeleneEndpoint):
             self.account_activity_repository.increment_open_dataset_deleted()
 
     def delete(self):
+        """Process a HTTP DELETE request for an account."""
         self._authenticate()
         self.account_repository.remove(self.account)
         self.account_activity_repository.increment_accounts_deleted()
-        membership = self.account.membership
-        if membership is not None:
-            cancel_stripe_subscription(membership.payment_id)
+        if self.account.membership is not None:
+            cancel_stripe_subscription(self.account.membership.payment_id)
+        self._change_wake_word_file_status()
 
         return "", HTTPStatus.NO_CONTENT
+
+    def _change_wake_word_file_status(self):
+        """Set the status of wake word files to "pending delete".
+
+        Deleting all the wake word files for an account can be a time consuming
+        process.  Especially if the account has contributed a lot of files.
+        To keep the API call from taking too long to return, the "pending delete"
+        status will be used by a nightly batch job to actually delete the files from
+        the file system.
+        """
+        agreements = [agreement.type for agreement in self.account.agreements]
+        if OPEN_DATASET in agreements:
+            file_repository = WakeWordFileRepository(self.db)
+            file_repository.change_account_file_status(
+                self.account.id, "pending delete"
+            )

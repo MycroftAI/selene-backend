@@ -33,6 +33,7 @@ from selene.api import PublicEndpoint
 from selene.data.account import Account, AccountRepository
 from selene.data.tagging import (
     TaggingFileLocationRepository,
+    UPLOADED_STATUS,
     WakeWordFile,
     WakeWordFileRepository,
 )
@@ -164,6 +165,7 @@ class WakeWordFileUpload(PublicEndpoint):
             origin="mycroft",
             submission_date=datetime.utcnow().date(),
             wake_word=self.wake_word,
+            status=UPLOADED_STATUS,
         )
         file_repository = WakeWordFileRepository(self.db)
         file_repository.add(sample)

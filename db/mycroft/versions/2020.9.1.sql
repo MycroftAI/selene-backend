@@ -137,6 +137,12 @@ DROP TABLE device.wake_word;
 -- More tagging tables will be added in the next iteration.
 CREATE SCHEMA tagging;
 CREATE TYPE tagging_file_origin_enum AS ENUM ('mycroft', 'selene', 'manual');
+CREATE TYPE tagging_file_status_enum AS ENUM (
+    'uploaded',
+    'stored',
+    'pending delete',
+    'deleted'
+);
 CREATE TABLE tagging.file_location (
     id              uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
     server          inet        NOT NULL,
@@ -151,6 +157,7 @@ CREATE TABLE tagging.file (
     submission_date     date                        NOT NULL DEFAULT CURRENT_DATE,
     file_location_id    uuid                        REFERENCES tagging.file_location,
     account_id          uuid,
+    status              tagging_file_status_enum    NOT NULL DEFAULT 'uploaded'::tagging_file_status_enum,
     insert_ts           TIMESTAMP                   NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 

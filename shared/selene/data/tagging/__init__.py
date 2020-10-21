@@ -16,8 +16,14 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
+"""Public API into the tagging data repository."""
 
 from .entity.file import WakeWordFile
 from .entity.file_location import TaggingFileLocation
-from .repository.file import WakeWordFileRepository
+from .repository.file import (
+    DELETED_STATUS,
+    PENDING_DELETE_STATUS,
+    UPLOADED_STATUS,
+    WakeWordFileRepository,
+)
 from .repository.file_location import TaggingFileLocationRepository
