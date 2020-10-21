@@ -34,5 +34,6 @@ def remove_wake_word(db, wake_word):
     wake_word_repository = WakeWordRepository(db)
     if wake_word.id is None:
         wake_word.id = wake_word_repository.get_id(wake_word)
-    file_repository.remove_by_wake_word(wake_word)
+    for wake_word_file in file_repository.get_by_wake_word(wake_word):
+        file_repository.remove(wake_word_file)
     wake_word_repository.remove(wake_word)
