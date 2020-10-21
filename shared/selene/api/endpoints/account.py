@@ -75,8 +75,7 @@ class Login(Model):
     email = EmailType()
     password = StringType()
 
-    @staticmethod
-    def validate_email(data, value):
+    def validate_email(self, data, value):  # pylint: disable=no-self-use
         """If email address is used to login, it must be specified."""
         if data["federated_token"] is None:
             if value is None:
@@ -84,8 +83,7 @@ class Login(Model):
                     "either a federated login or an email address is required"
                 )
 
-    @staticmethod
-    def validate_password(data, value):
+    def validate_password(self, data, value):  # pylint: disable=no-self-use
         """If email address is used to login, the password must be supplied."""
         if data["email"] is not None:
             if value is None:
@@ -100,20 +98,17 @@ class UpdateMembershipRequest(Model):
     payment_method = StringType(choices=[STRIPE_PAYMENT])
     payment_token = StringType()
 
-    @staticmethod
-    def validate_membership_type(data, value):
+    def validate_membership_type(self, data, value):  # pylint: disable=no-self-use
         """A new membership must have a membership type."""
         if data["new_membership"] and value is None:
             raise ValidationError("new memberships require a membership type")
 
-    @staticmethod
-    def validate_payment_method(data, value):
+    def validate_payment_method(self, data, value):  # pylint: disable=no-self-use
         """A new membership must have a payment method."""
         if data["new_membership"] and value is None:
             raise ValidationError("new memberships require a payment method")
 
-    @staticmethod
-    def validate_payment_token(data, value):
+    def validate_payment_token(self, data, value):  # pylint: disable=no-self-use
         """A new membership must have a payment token."""
         if data["new_membership"] and value is None:
             raise ValidationError("payment token required for new memberships")
