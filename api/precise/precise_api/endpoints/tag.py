@@ -86,7 +86,7 @@ class TagEndpoint(SeleneEndpoint):
                 audioFileName=file_to_tag.name,
                 tagId=tag.id,
                 tagInstructions=tag.instructions,
-                tagName=tag.name,
+                tagName=tag.name.title(),
                 tagTitle=tag.title,
                 tagValues=tag.values,
             )
@@ -102,7 +102,7 @@ class TagEndpoint(SeleneEndpoint):
         tags = tag_repository.get_all()
         random_tag = choice(tags)
         if random_tag.name == "wake word":
-            random_tag.name = wake_word.title()
+            random_tag.name = wake_word
 
         return random_tag
 
@@ -114,7 +114,9 @@ class TagEndpoint(SeleneEndpoint):
         :return: dataclass instance representing the file to be tagged
         """
         file_repository = WakeWordFileRepository(self.db)
-        file_to_tag = file_repository.get_taggable_file(wake_word, tag_id)
+        file_to_tag = file_repository.get_taggable_file(
+            wake_word, tag_id, self.request.args.get("session_id")
+        )
 
         return file_to_tag
 
@@ -151,7 +153,7 @@ class TagEndpoint(SeleneEndpoint):
         session_id = self._ensure_session_exists(tagger)
         self._add_tag(session_id)
 
-        return jsonify("File tagged successfully"), HTTPStatus.OK
+        return dict(sessionId=session_id), HTTPStatus.OK
 
     def _validate_post_request(self):
         """Validate the contents of the request object for a POST request."""
@@ -178,7 +180,6 @@ class TagEndpoint(SeleneEndpoint):
         return session_id
 
     def _add_tag(self, session_id: str):
-        print(self.request.json)
         file_tag = WakeWordFileTag(
             file_id=self.request.json["audioFileId"],
             session_id=session_id,
