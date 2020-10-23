@@ -28,14 +28,14 @@ _log = configure_logger("precise_api")
 
 
 # Define the Flask application
-acct = Flask(__name__)
-acct.config.from_object(get_base_config())
-acct.response_class = SeleneResponse
-acct.register_blueprint(selene_api)
+precise = Flask(__name__)
+precise.config.from_object(get_base_config())
+precise.response_class = SeleneResponse
+precise.register_blueprint(selene_api)
 
 audio_file_endpoint = AudioFileEndpoint.as_view("audio_file_endpoint")
-acct.add_url_rule(
+precise.add_url_rule(
     "/api/audio/<string:file_name>", view_func=audio_file_endpoint, methods=["GET"]
 )
 tag_endpoint = TagEndpoint.as_view("tag_endpoint")
-acct.add_url_rule("/api/tag", view_func=tag_endpoint, methods=["GET", "POST"])
+precise.add_url_rule("/api/tag", view_func=tag_endpoint, methods=["GET", "POST"])
