@@ -133,8 +133,7 @@ ALTER TABLE device.account_defaults ADD CONSTRAINT account_defaults_wake_word_id
 DROP TABLE device.wake_word_settings;
 DROP TABLE device.wake_word;
 
--- Create the tagging schema and the first two tables to reside within it.
--- More tagging tables will be added in the next iteration.
+-- Create the tagging schema
 CREATE SCHEMA tagging;
 CREATE TYPE tagging_file_origin_enum AS ENUM ('mycroft', 'selene', 'manual');
 CREATE TYPE tagging_file_status_enum AS ENUM (
@@ -150,7 +149,7 @@ CREATE TABLE tagging.file_location (
     insert_ts       TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
     UNIQUE (server, directory)
 );
-CREATE TABLE tagging.wake_wordfile (
+CREATE TABLE tagging.wake_word_file (
     id                  uuid                        PRIMARY KEY DEFAULT gen_random_uuid(),
     name                text                        NOT NULL UNIQUE,
     wake_word_id        uuid                        NOT NULL REFERENCES wake_word.wake_word,
@@ -210,6 +209,54 @@ CREATE TABLE tagging.wake_word_file_designation (
     UNIQUE (wake_word_file_id, tag_id)
 );
 
+-- Give the selene user access to the schema and its tables
+GRANT USAGE ON SCHEMA tagging TO selene;
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA tagging TO selene;
 
-GRANT USAGE ON SCHEMA wake_word TO selene;
-GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA wake_word TO selene;
+--  Populate the static data in tagging.tag and tagging.tag_values
+INSERT INTO
+    tagging.tag (name, title, instructions)
+VALUES
+    (
+        'wake word',
+        'Do you hear the wake word',
+        'Indicate if you did not hear the wake word (no); heard a partial wake word or something '
+         || 'that sounds similar to the wake word (no, but similar); heard multiple occurrences of '
+         || 'the wake word (yes, multiple); or heard a single occurrence of the full wake word (yes, '
+         || 'once).  Using the "Hey Mycroft" wake word as an example, answer "no, but similar" if you '
+         || 'hear something like "Mycroft", "Microsoft", "Hey Minecraft" or "Hey Mike Ross".'
+    ),
+    (
+        'gender',
+        'What is the perceived',
+        'For the speaker in this audio clip choose which category best describes the pitch and timbre.'
+    ),
+    (
+        'age',
+        'What is the perceived',
+        'For the speaker in this audio clip choose which category best describes the their age.'
+    ),
+    (
+        'background noise',
+        'Do you hear any',
+        'Besides the voice of the speaker, can you hear any background noise (e.g. fan, appliance, '
+        || 'vehicle, television or radio)?'
+    )
+;
+INSERT INTO
+    tagging.tag_value (tag_id, value, display)
+VALUES
+    ((SELECT id FROM tagging.tag WHERE tag.name = 'wake_word'), 'no', 'NO'),
+    ((SELECT id FROM tagging.tag WHERE tag.name = 'wake_word'), 'similar', 'NO, BUT SIMILAR'),
+    ((SELECT id FROM tagging.tag WHERE tag.name = 'wake_word'), 'multiple', 'YES, MULTIPLE'),
+    ((SELECT id FROM tagging.tag WHERE tag.name = 'wake_word'), 'yes', 'YES, SINGLE'),
+    ((SELECT id FROM tagging.tag WHERE name = 'gender'), 'male', 'MASCULINE'),
+    ((SELECT id FROM tagging.tag WHERE name = 'gender'), 'neutral', 'NEUTRAL'),
+    ((SELECT id FROM tagging.tag WHERE name = 'gender'), 'female', 'FEMININE'),
+    ((SELECT id FROM tagging.tag WHERE name = 'age'), 'child', 'CHILD'),
+    ((SELECT id FROM tagging.tag WHERE name = 'age'), 'neutral', 'NEUTRAL'),
+    ((SELECT id FROM tagging.tag WHERE name = 'age'), 'adult', 'ADULT'),
+    ((SELECT id FROM tagging.tag WHERE name = 'background noise'), 'no', 'NO NOISE'),
+    ((SELECT id FROM tagging.tag WHERE name = 'background noise'), 'some', 'SOME NOISE'),
+    ((SELECT id FROM tagging.tag WHERE name = 'background noise'), 'yes', 'ADULT')
+;
