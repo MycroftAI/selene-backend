@@ -44,7 +44,7 @@ class SshClientConfig:
         if self.ssh_key_directory is None:
             self.ssh_key_directory = Path(f"/home/{self.local_user}/.ssh")
         if self.ssh_key_file_name is None:
-            self.ssh_key_file_name = "id.rsa"
+            self.ssh_key_file_name = "id_rsa"
 
 
 class SeleneSshClient:
