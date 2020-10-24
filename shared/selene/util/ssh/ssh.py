@@ -74,8 +74,8 @@ class SeleneSshClient:
         """Open connection to remote host."""
         if self._client is None:
             self._client = SSHClient()
-            self.client.load_system_host_keys()
-            self.client.set_missing_host_key_policy(AutoAddPolicy())
+            self._client.load_system_host_keys()
+            self._client.set_missing_host_key_policy(AutoAddPolicy())
 
         return self._client
 
