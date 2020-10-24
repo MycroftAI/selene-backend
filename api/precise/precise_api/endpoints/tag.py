@@ -24,7 +24,6 @@ from os import environ
 from pathlib import Path
 from random import choice
 
-from flask import jsonify
 from schematics import Model
 from schematics.types import StringType
 
