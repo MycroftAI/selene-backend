@@ -19,9 +19,10 @@
 """Library for re-usable SFTP functions"""
 from pathlib import Path
 
+from paramiko import Transport, RSAKey
 from paramiko.sftp_client import SFTPClient
 
-from .ssh import SeleneSshClient, SshClientConfig
+from .ssh import SshClientConfig
 
 
 def get_remote_file(ssh_config: SshClientConfig, local_path: Path, remote_path: Path):
@@ -31,8 +32,10 @@ def get_remote_file(ssh_config: SshClientConfig, local_path: Path, remote_path: 
     :param local_path: Destination path of the file being transferred
     :param remote_path: Source path of the file being transferred
     """
-    ssh_client = SeleneSshClient(ssh_config)
-    ssh_client.connect()
-    sftp_client = SFTPClient(ssh_client.client.get_transport())
+    ssh_transport = Transport((ssh_config.remote_server, int(ssh_config.ssh_port)))
+    ssh_key = RSAKey.from_private_key_file("/home/mycroft/.ssh/id_rsa")
+    ssh_transport.connect(hostkey=None, username=ssh_config.remote_user, pkey=ssh_key)
+    sftp_client = SFTPClient.from_transport(ssh_transport)
     sftp_client.get(str(remote_path), str(local_path))
     sftp_client.close()
+    ssh_transport.close()
