@@ -24,10 +24,10 @@ from behave import fixture, use_fixture
 
 from account_api.api import acct
 from selene.data.metric import AccountActivityRepository
-from selene.data.tagging import TaggingFileLocationRepository, WakeWordFileRepository
 from selene.testing.account import add_account, remove_account
 from selene.testing.account_geography import add_account_geography
 from selene.testing.agreement import add_agreements, remove_agreements
+from selene.testing.tagging import remove_wake_word_files
 from selene.testing.text_to_speech import add_text_to_speech, remove_text_to_speech
 from selene.testing.wake_word import add_wake_word, remove_wake_word
 from selene.util.cache import SeleneCache
@@ -94,10 +94,7 @@ def after_scenario(context, _):
     remove_text_to_speech(context.db, context.voice)
     _clean_cache()
     if hasattr(context, "wake_word_file"):
-        file_repository = WakeWordFileRepository(context.db)
-        file_repository.remove_by_wake_word(context.wake_word_file.wake_word)
-        location_repository = TaggingFileLocationRepository(context.db)
-        location_repository.remove(context.wake_word_file.location)
+        remove_wake_word_files(context.db, context.wake_word_file)
 
 
 def _clean_cache():

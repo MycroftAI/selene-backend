@@ -21,6 +21,7 @@
 from .entity.file import WakeWordFile
 from .entity.file_location import TaggingFileLocation
 from .repository.file import (
+    build_tagging_file_name,
     DELETED_STATUS,
     PENDING_DELETE_STATUS,
     UPLOADED_STATUS,

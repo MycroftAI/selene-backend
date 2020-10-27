@@ -32,6 +32,7 @@ from schematics.exceptions import DataError
 from selene.api import PublicEndpoint
 from selene.data.account import Account, AccountRepository
 from selene.data.tagging import (
+    build_tagging_file_name,
     TaggingFileLocationRepository,
     UPLOADED_STATUS,
     WakeWordFile,
@@ -113,8 +114,12 @@ class WakeWordFileUpload(PublicEndpoint):
         self._authenticate(device_id)
         self._validate_post_request()
         account = self._get_account(device_id)
-        file_name = self._save_audio_file(account)
-        self._add_wake_word_file(account, file_name)
+        file_contents = self.request.files["audio_file"].read()
+        hashed_file_name = build_tagging_file_name(file_contents)
+        new_file_name = self._add_wake_word_file(account, hashed_file_name)
+        if new_file_name is not None:
+            hashed_file_name = new_file_name
+        self._save_audio_file(hashed_file_name, file_contents)
 
         return jsonify("Wake word sample uploaded successfully"), HTTPStatus.OK
 
@@ -141,31 +146,28 @@ class WakeWordFileUpload(PublicEndpoint):
         account_repository = AccountRepository(self.db)
         return account_repository.get_account_by_device_id(device_id)
 
-    def _save_audio_file(self, account: Account):
-        """Build the file path for the audio file.
+    def _save_audio_file(self, hashed_file_name: str, file_contents: bytes):
+        """Build the file path for the audio file."""
+        file_path = Path(self.file_location.directory).joinpath(hashed_file_name)
+        with open(file_path, "wb") as audio_file:
+            audio_file.write(file_contents)
 
-        :param account: the account from which sample originated
-        """
-        file_name = f"{account.id}.{self.request_data['timestamp']}.wav"
-        file_path = Path(self.file_location.directory).joinpath(file_name)
-        self.request.files["audio_file"].save(str(file_path))
-
-        return file_name
-
-    def _add_wake_word_file(self, account: Account, file_name: str):
+    def _add_wake_word_file(self, account: Account, hashed_file_name: str):
         """Add the sample to the database for reference and classification.
 
         :param account: the account from which sample originated
-        :param file_name: name of the audio file saved to file system
+        :param hashed_file_name: name of the audio file saved to file system
         """
         sample = WakeWordFile(
             account_id=account.id,
             location=self.file_location,
-            name=file_name,
+            name=hashed_file_name,
             origin="mycroft",
             submission_date=datetime.utcnow().date(),
             wake_word=self.wake_word,
             status=UPLOADED_STATUS,
         )
         file_repository = WakeWordFileRepository(self.db)
-        file_repository.add(sample)
+        new_file_name = file_repository.add(sample)
+
+        return new_file_name
