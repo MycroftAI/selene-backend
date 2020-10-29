@@ -18,6 +18,7 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 """Public Device API endpoint for uploading a sample wake word for tagging."""
+import json
 from datetime import datetime
 from http import HTTPStatus
 from logging import getLogger
@@ -114,7 +115,7 @@ class WakeWordFileUpload(PublicEndpoint):
         self._authenticate(device_id)
         self._validate_post_request()
         account = self._get_account(device_id)
-        file_contents = self.request.files["audio_file"].read()
+        file_contents = self.request.files["audio"].read()
         hashed_file_name = build_tagging_file_name(file_contents)
         new_file_name = self._add_wake_word_file(account, hashed_file_name)
         if new_file_name is not None:
@@ -125,18 +126,21 @@ class WakeWordFileUpload(PublicEndpoint):
 
     def _validate_post_request(self):
         """Load the post request into the validation class and perform validations."""
+        if "audio" not in self.request.files:
+            raise DataError(dict(audio="No audio file included in request"))
+        if "metadata" not in self.request.files:
+            raise DataError(dict(metadata="No metadata file included in request"))
+        metadata = json.loads(self.request.files["metadata"].read().decode())
         upload_request = UploadRequest(
             dict(
-                wake_word=self.request.form.get("wake_word"),
-                engine=self.request.form.get("engine"),
-                timestamp=self.request.form.get("timestamp"),
-                model=self.request.form.get("model"),
+                wake_word=metadata.get("wake_word"),
+                engine=metadata.get("engine"),
+                timestamp=metadata.get("timestamp"),
+                model=metadata.get("model"),
             )
         )
         upload_request.validate()
         self.request_data = upload_request.to_native()
-        if "audio_file" not in self.request.files:
-            raise DataError(dict(audio_file="No audio file included in request"))
 
     def _get_account(self, device_id: str):
         """Use the device ID to find the account.
