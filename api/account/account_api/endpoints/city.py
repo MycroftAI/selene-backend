@@ -16,7 +16,7 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-
+"""Account API endpoint for retrieving city geographical information."""
 from http import HTTPStatus
 
 from selene.api import SeleneEndpoint
@@ -24,7 +24,10 @@ from selene.data.geography import CityRepository
 
 
 class CityEndpoint(SeleneEndpoint):
+    """Retrieve a city in a region"""
+
     def get(self):
+        """Process an HTTP GET request."""
         region_id = self.request.args["region"]
         city_repository = CityRepository(self.db)
         cities = city_repository.get_cities_by_region(region_id=region_id)

@@ -16,6 +16,6 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-
+"""Public API into the ssh package."""
 from .sftp import get_remote_file
 from .ssh import SshClientConfig
