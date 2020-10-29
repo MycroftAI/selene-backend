@@ -15,7 +15,8 @@
 # GNU Affero General Public License for more details.
 #
 # You should have received a copy of the GNU Affero General Public License
-# along with this program. If not, see <https://www.gnu.org/licenses/>.
+# along with this program. If not, see <https://www.gnu.org/licenses/
+"""Account API endpoint to return a list of available wake words."""
 
 from http import HTTPStatus
 
@@ -24,13 +25,17 @@ from selene.data.wake_word import WakeWordRepository
 
 
 class WakeWordEndpoint(SeleneEndpoint):
+    """Return a list of available wake words"""
+
     def get(self):
+        """Handle a HTTP GET request."""
         self._authenticate()
         response_data = self._build_response_data()
 
         return response_data, HTTPStatus.OK
 
     def _build_response_data(self):
+        """Build the response to the HTTP GET request."""
         response_data = []
         wake_word_repository = WakeWordRepository(self.db)
         wake_words = wake_word_repository.get_wake_words_for_web()
