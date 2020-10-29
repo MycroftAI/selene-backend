@@ -84,7 +84,7 @@ class WakeWordFileUpload(PublicEndpoint):
         """Build and return a WakeWord object."""
         if self._wake_word is None:
             self._wake_word = self.wake_word_repository.ensure_wake_word_exists(
-                name=self.request_data["wake_word"].strip(),
+                name=self.request_data["wake_word"].strip().replace("-", " "),
                 engine=self.request_data["engine"],
             )
 
