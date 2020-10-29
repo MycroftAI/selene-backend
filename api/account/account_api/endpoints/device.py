@@ -34,20 +34,20 @@ from selene.data.device import DeviceRepository, Geography, GeographyRepository
 from selene.util.cache import DEVICE_LAST_CONTACT_KEY, SeleneCache
 
 ONE_DAY = 86400
-CONNECTED = 'Connected'
-DISCONNECTED = 'Disconnected'
-DORMANT = 'Dormant'
+CONNECTED = "Connected"
+DISCONNECTED = "Disconnected"
+DORMANT = "Dormant"
 
 _log = getLogger()
 
 
 def validate_pairing_code(pairing_code):
-    cache_key = 'pairing.code:' + pairing_code
+    cache_key = "pairing.code:" + pairing_code
     cache = SeleneCache()
     pairing_cache = cache.get(cache_key)
 
     if pairing_cache is None:
-        raise ValidationError('pairing code not found')
+        raise ValidationError("pairing code not found")
 
 
 class UpdateDeviceRequest(Model):
@@ -69,7 +69,7 @@ class DeviceEndpoint(SeleneEndpoint):
     def __init__(self):
         super(DeviceEndpoint, self).__init__()
         self.devices = None
-        self.cache = self.config['SELENE_CACHE']
+        self.cache = self.config["SELENE_CACHE"]
         self.etag_manager: ETagManager = ETagManager(self.cache, self.config)
 
     def get(self, device_id):
@@ -83,9 +83,7 @@ class DeviceEndpoint(SeleneEndpoint):
 
     def _get_devices(self):
         device_repository = DeviceRepository(self.db)
-        devices = device_repository.get_devices_by_account_id(
-            self.account.id
-        )
+        devices = device_repository.get_devices_by_account_id(self.account.id)
         response_data = []
         for device in devices:
             response_device = self._format_device_for_response(device)
@@ -105,15 +103,14 @@ class DeviceEndpoint(SeleneEndpoint):
         last_contact_age = self._get_device_last_contact(device)
         device_status = self._determine_device_status(last_contact_age)
         if device_status == DISCONNECTED:
-            disconnect_duration = self._determine_disconnect_duration(
-                last_contact_age
-            )
+            disconnect_duration = self._determine_disconnect_duration(last_contact_age)
         else:
             disconnect_duration = None
+        device.wake_word.name = device.wake_word.name.title()
         device_dict = asdict(device)
-        device_dict['status'] = device_status
-        device_dict['disconnect_duration'] = disconnect_duration
-        device_dict['voice'] = device_dict.pop('text_to_speech')
+        device_dict["status"] = device_status
+        device_dict["disconnect_duration"] = disconnect_duration
+        device_dict["voice"] = device_dict.pop("text_to_speech")
 
         return device_dict
 
@@ -139,10 +136,7 @@ class DeviceEndpoint(SeleneEndpoint):
                 last_contact_age = datetime.utcnow() - device.last_contact_ts
         else:
             last_contact_ts = last_contact_ts.decode()
-            last_contact_ts = datetime.strptime(
-                last_contact_ts,
-                '%Y-%m-%d %H:%M:%S.%f'
-            )
+            last_contact_ts = datetime.strptime(last_contact_ts, "%Y-%m-%d %H:%M:%S.%f")
             last_contact_age = datetime.utcnow() - last_contact_ts
 
         return last_contact_age
@@ -162,18 +156,18 @@ class DeviceEndpoint(SeleneEndpoint):
     @staticmethod
     def _determine_disconnect_duration(last_contact_age):
         """Derive device status from the last time device contacted servers."""
-        disconnect_duration = 'unknown'
+        disconnect_duration = "unknown"
         days, _ = divmod(last_contact_age, timedelta(days=1))
         if days:
-            disconnect_duration = str(days) + ' days'
+            disconnect_duration = str(days) + " days"
         else:
             hours, remaining = divmod(last_contact_age, timedelta(hours=1))
             if hours:
-                disconnect_duration = str(hours) + ' hours'
+                disconnect_duration = str(hours) + " hours"
             else:
                 minutes, _ = divmod(remaining, timedelta(minutes=1))
                 if minutes:
-                    disconnect_duration = str(minutes) + ' minutes'
+                    disconnect_duration = str(minutes) + " minutes"
 
         return disconnect_duration
 
@@ -186,19 +180,19 @@ class DeviceEndpoint(SeleneEndpoint):
 
     def _validate_request(self):
         request_data = json.loads(self.request.data)
-        if self.request.method == 'POST':
+        if self.request.method == "POST":
             device = NewDeviceRequest()
-            device.pairing_code = request_data['pairingCode']
+            device.pairing_code = request_data["pairingCode"]
         else:
             device = UpdateDeviceRequest()
-        device.city = request_data['city']
-        device.country = request_data['country']
-        device.name = request_data['name']
-        device.placement = request_data['placement']
-        device.region = request_data['region']
-        device.timezone = request_data['timezone']
-        device.wake_word = request_data['wakeWord']
-        device.voice = request_data['voice']
+        device.city = request_data["city"]
+        device.country = request_data["country"]
+        device.name = request_data["name"]
+        device.placement = request_data["placement"]
+        device.region = request_data["region"]
+        device.timezone = request_data["timezone"]
+        device.wake_word = request_data["wakeWord"].lower()
+        device.voice = request_data["voice"]
         device.validate()
 
         return device
@@ -208,8 +202,8 @@ class DeviceEndpoint(SeleneEndpoint):
         try:
             pairing_data = self._get_pairing_data(device.pairing_code)
             device_id = self._add_device(device)
-            pairing_data['uuid'] = device_id
-            self.cache.delete('pairing.code:{}'.format(device.pairing_code))
+            pairing_data["uuid"] = device_id
+            self.cache.delete("pairing.code:{}".format(device.pairing_code))
             self._build_pairing_token(pairing_data)
         except Exception:
             self.db.rollback()
@@ -221,7 +215,7 @@ class DeviceEndpoint(SeleneEndpoint):
 
     def _get_pairing_data(self, pairing_code: str) -> dict:
         """Checking if there's one pairing session for the pairing code."""
-        cache_key = 'pairing.code:' + pairing_code
+        cache_key = "pairing.code:" + pairing_code
         pairing_cache = self.cache.get(cache_key)
         pairing_data = json.loads(pairing_cache)
 
@@ -239,10 +233,10 @@ class DeviceEndpoint(SeleneEndpoint):
 
     def _ensure_geography_exists(self, db, device: dict):
         geography = Geography(
-            city=device['city'],
-            country=device['country'],
-            region=device['region'],
-            time_zone=device['timezone']
+            city=device["city"],
+            country=device["country"],
+            region=device["region"],
+            time_zone=device["timezone"],
         )
         geography_repository = GeographyRepository(db, self.account.id)
         geography_id = geography_repository.get_geography_id(geography)
@@ -253,15 +247,15 @@ class DeviceEndpoint(SeleneEndpoint):
 
     def _build_pairing_token(self, pairing_data):
         self.cache.set_with_expiration(
-            key='pairing.token:' + pairing_data['token'],
+            key="pairing.token:" + pairing_data["token"],
             value=json.dumps(pairing_data),
-            expiration=ONE_DAY
+            expiration=ONE_DAY,
         )
 
     def delete(self, device_id):
         self._authenticate()
         self._delete_device(device_id)
-        return '', HTTPStatus.NO_CONTENT
+        return "", HTTPStatus.NO_CONTENT
 
     def _delete_device(self, device_id):
         device_repository = DeviceRepository(self.db)
@@ -276,7 +270,7 @@ class DeviceEndpoint(SeleneEndpoint):
         self.etag_manager.expire_device_location_etag_by_device_id(device_id)
         self.etag_manager.expire_device_setting_etag_by_device_id(device_id)
 
-        return '', HTTPStatus.NO_CONTENT
+        return "", HTTPStatus.NO_CONTENT
 
     def _update_device(self, device_id, updates):
         device_updates = updates.to_native()
@@ -284,7 +278,5 @@ class DeviceEndpoint(SeleneEndpoint):
         device_updates.update(geography_id=geography_id)
         device_repository = DeviceRepository(self.db)
         device_repository.update_device_from_account(
-            self.account.id,
-            device_id,
-            device_updates
+            self.account.id, device_id, device_updates
         )
