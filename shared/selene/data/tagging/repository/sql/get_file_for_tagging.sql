@@ -1,4 +1,14 @@
-WITH file_to_tag AS (
+WITH wake_word_yes AS (
+    SELECT
+        tv.id
+    FROM
+        tagging.tag_value tv
+        INNER JOIN tagging.tag t ON tv.tag_id = t.id
+    WHERE
+        t.name = 'wake word'
+        AND tv.value = 'yes'
+),
+file_to_tag AS (
     SELECT
         wwf.id,
         wwf.name,
@@ -11,19 +21,10 @@ WITH file_to_tag AS (
             INNER JOIN tagging.file_location fl ON fl.id = wwf.file_location_id
             LEFT JOIN tagging.wake_word_file_designation wwfd ON wwfd.wake_word_file_id = wwf.id
     WHERE
-        ww.name = %(wake_word)s
+        ww.name = 'hey mycroft'
         AND (
             wwfd.tag_value_id IS NULL
-            OR wwfd.tag_value_id = (
-                SELECT
-                    tv.id
-                FROM
-                    tagging.tag_value tv
-                    INNER JOIN tagging.tag t ON tv.tag_id = t.id
-                WHERE
-                    t.name = 'wake word'
-                    AND tv.value = 'yes'
-            )
+            OR wwfd.tag_value_id = (SELECT id FROM wake_word_yes)
         )
     GROUP BY
         1, 2, 3, 4
