@@ -19,6 +19,7 @@
 """Data entities representing a wake word sample."""
 from dataclasses import dataclass
 from datetime import date
+from typing import List
 
 from selene.data.wake_word import WakeWord
 from .file_location import TaggingFileLocation
@@ -45,3 +46,4 @@ class TaggableFile:
     id: str
     name: str
     location: TaggingFileLocation
+    designations: List

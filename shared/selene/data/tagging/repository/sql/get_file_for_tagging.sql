@@ -1,33 +1,39 @@
-WITH undesignated_file_tag AS (
+WITH file_to_tag AS (
     SELECT
-        wwft.wake_word_file_id,
-        wwft.session_id
+        wwf.id,
+        wwf.name,
+        fl.server,
+        fl.directory,
+        array_agg(row_to_json(wwfd.*)) AS designations
     FROM
-        tagging.tag t
-        LEFT JOIN tagging.wake_word_file_tag wwft ON t.id = wwft.tag_id
+        tagging.wake_word_file wwf
+            INNER JOIN wake_word.wake_word ww ON wwf.wake_word_id = ww.id
+            INNER JOIN tagging.file_location fl ON fl.id = wwf.file_location_id
+            LEFT JOIN tagging.wake_word_file_designation wwfd ON wwfd.wake_word_file_id = wwf.id
     WHERE
-        t.id = %(tag_id)s
-        AND wwft.wake_word_file_id NOT IN (
-            SELECT
-                wake_word_file_id
-            FROM
-                tagging.wake_word_file_designation
-            WHERE
-                tag_id = t.id
+        ww.name = %(wake_word)s
+        AND (
+            wwfd.tag_value_id IS NULL
+            OR wwfd.tag_value_id = (
+                SELECT
+                    tv.id
+                FROM
+                    tagging.tag_value tv
+                    INNER JOIN tagging.tag t ON tv.tag_id = t.id
+                WHERE
+                    t.name = 'wake word'
+                    AND tv.value = 'yes'
+            )
         )
+    GROUP BY
+        1, 2, 3, 4
 )
 SELECT
-    wwf.id,
-    wwf.name,
-    fl.server,
-    fl.directory
+    *
 FROM
-    tagging.wake_word_file wwf
-    INNER JOIN wake_word.wake_word ww ON wwf.wake_word_id = ww.id
-    INNER JOIN tagging.file_location fl ON wwf.file_location_id = fl.id
-    LEFT JOIN undesignated_file_tag uft ON uft.wake_word_file_id = wwf.id
+    file_to_tag
 WHERE
-    ww.name = %(wake_word)s
-    AND uft.session_id IS NULL
-    OR uft.session_id != %(session_id)s
+    cardinality(designations) < (SELECT count(*) FROM tagging.tag)
+ORDER BY
+    random()
 LIMIT 1
