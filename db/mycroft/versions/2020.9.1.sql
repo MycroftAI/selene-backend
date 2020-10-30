@@ -254,7 +254,7 @@ VALUES
     ((SELECT id FROM tagging.tag WHERE name = 'gender'), 'neutral', 'NEUTRAL'),
     ((SELECT id FROM tagging.tag WHERE name = 'gender'), 'female', 'FEMININE'),
     ((SELECT id FROM tagging.tag WHERE name = 'age'), 'child', 'CHILD'),
-    ((SELECT id FROM tagging.tag WHERE name = 'age'), 'neutral', 'NEUTRAL'),
+    ((SELECT id FROM tagging.tag WHERE name = 'age'), 'unsure', 'UNSURE'),
     ((SELECT id FROM tagging.tag WHERE name = 'age'), 'adult', 'ADULT'),
     ((SELECT id FROM tagging.tag WHERE name = 'background noise'), 'no', 'NO NOISE'),
     ((SELECT id FROM tagging.tag WHERE name = 'background noise'), 'some', 'SOME NOISE'),
