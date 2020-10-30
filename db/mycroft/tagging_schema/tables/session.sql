@@ -2,7 +2,7 @@
 CREATE TABLE tagging.session (
     id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
     tagger_id           text        NOT NULL,
-    session_ts_range    tsrange     NOT NULL DEFAULT '[now,]'::tsrange,
+    session_ts_range    tsrange     NOT NULL,
     note                text,
     insert_ts           timestamp   NOT NULL DEFAULT CURRENT_TIMESTAMP,
     EXCLUDE USING gist (tagger_id WITH =, session_ts_range with &&),
