@@ -88,7 +88,7 @@ class SessionRepository(RepositoryBase):
         :param end_ts: the date and time the session ended.
         """
         db_request = self._build_db_request(
-            sql_file_name="update_session_end_ts",
+            sql_file_name="update_session_end_ts.sql",
             args=dict(session_id=session_id, end_ts=end_ts),
         )
         self.cursor.update(db_request)
