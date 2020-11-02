@@ -68,7 +68,7 @@ class WakeWordFileUpload(PublicEndpoint):
     _wake_word = None
 
     def __init__(self):
-        super(WakeWordFileUpload, self).__init__()
+        super().__init__()
         self.request_data = None
 
     @property
