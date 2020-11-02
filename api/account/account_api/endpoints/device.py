@@ -75,7 +75,7 @@ class DeviceEndpoint(SeleneEndpoint):
     """Retrieve and maintain device information for the Account API"""
 
     def __init__(self):
-        super(DeviceEndpoint, self).__init__()
+        super().__init__()
         self.devices = None
         self.cache = self.config["SELENE_CACHE"]
         self.etag_manager: ETagManager = ETagManager(self.cache, self.config)

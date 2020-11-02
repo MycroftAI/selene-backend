@@ -27,7 +27,7 @@ class TagRepository(RepositoryBase):
     """Data access and manipulation functions for the tagging.tag table."""
 
     def __init__(self, db):
-        super(TagRepository, self).__init__(db, __file__)
+        super().__init__(db, __file__)
 
     def get_all(self) -> List[Tag]:
         """Return a list of all the tags."""

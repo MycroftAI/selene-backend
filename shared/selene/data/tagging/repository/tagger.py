@@ -26,7 +26,7 @@ class TaggerRepository(RepositoryBase):
     """Data access and manipulation for the tagging.tagger table."""
 
     def __init__(self, db):
-        super(TaggerRepository, self).__init__(db, __file__)
+        super().__init__(db, __file__)
 
     def ensure_tagger_exists(self, tagger: Tagger) -> str:
         """Insert an active session in the database if one does not exist

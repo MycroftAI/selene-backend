@@ -26,7 +26,7 @@ class SessionRepository(RepositoryBase):
     """Data access and manipulation for the tagging.session table."""
 
     def __init__(self, db):
-        super(SessionRepository, self).__init__(db, __file__)
+        super().__init__(db, __file__)
 
     def ensure_session_exists(self, tagger: Tagger):
         """Insert an active session in the database if one does not exist

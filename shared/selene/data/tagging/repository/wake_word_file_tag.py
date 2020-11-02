@@ -26,7 +26,7 @@ class FileTagRepository(RepositoryBase):  # pylint: disable=too-few-public-metho
     """Data access and manipulation for the tagging.wake_word_file_tag table."""
 
     def __init__(self, db):
-        super(FileTagRepository, self).__init__(db, __file__)
+        super().__init__(db, __file__)
 
     def add(self, file_tag: WakeWordFileTag):
         """Add a tag to a wake word file."""
