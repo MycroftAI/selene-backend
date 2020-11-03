@@ -1,5 +1,5 @@
 # Mycroft Server - Backend
-# Copyright (C) 2019 Mycroft AI Inc
+# Copyright (C) 2020 Mycroft AI Inc
 # SPDX-License-Identifier: 	AGPL-3.0-or-later
 #
 # This file is part of the Mycroft Server.
@@ -16,31 +16,22 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
+"""Precise API endpoint for presenting a URL to the GUI for the audio file."""
 
-"""
-This is used to support pipenv installing the shared code to the virtual
-environments used in developement of Selene APIs and services.
-"""
-from setuptools import setup, find_packages
+from os import environ
 
-setup(
-    name="selene",
-    version="0.0.0",
-    packages=find_packages(),
-    include_package_data=True,
-    install_requires=[
-        "facebook-sdk",
-        "flask",
-        "paramiko",
-        "passlib",
-        "pygithub",
-        "pyhamcrest",
-        "pyjwt",
-        "psycopg2-binary",
-        "redis",
-        "sendgrid",
-        "schematics",
-        "stripe",
-        "schedule",
-    ],
-)
+from flask import abort, send_from_directory
+
+from selene.api import SeleneEndpoint
+
+
+class AudioFileEndpoint(SeleneEndpoint):
+    """Precise API endpoint for presenting a URL to the GUI for the audio file."""
+
+    def get(self, file_name):
+        """Handle an HTTP GET request."""
+        self._authenticate()
+        try:
+            return send_from_directory(environ["SELENE_DATA_DIR"], file_name)
+        except FileNotFoundError:
+            abort(404)

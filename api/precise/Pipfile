@@ -1,21 +1,18 @@
 [[source]]
+name = "pypi"
 url = "https://pypi.org/simple"
 verify_ssl = true
-name = "pypi"
-
-[packages]
-flask = "*"
-certifi = "*"
-pyjwt = "<=1.7.1"
-selene = {editable = true,path = "./../../shared"}
-uwsgi = "*"
 
 [dev-packages]
 behave = "*"
 pyhamcrest = "*"
-black = "*"
 pylint = "*"
-allure-behave = "*"
+black = "*"
+
+[packages]
+flask = "*"
+selene = {editable = true,path = "./../../shared"}
+uwsgi = "*"
 
 [requires]
 python_version = "3.7"

@@ -85,7 +85,7 @@ class Login(Model):
 
     def validate_password(self, data, value):  # pylint: disable=no-self-use
         """If email address is used to login, the password must be supplied."""
-        if data["email"] is not None:
+        if data.get("email") is not None:
             if value is None:
                 raise ValidationError("email address must be accompanied by a password")
 

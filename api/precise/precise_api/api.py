@@ -16,22 +16,26 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-"""Public API into the tagging data repository."""
 
-from .entity.file_location import TaggingFileLocation
-from .entity.tag import Tag
-from .entity.tagger import Tagger
-from .entity.wake_word_file import TaggableFile, WakeWordFile
-from .entity.wake_word_file_tag import WakeWordFileTag
-from .repository.file_location import TaggingFileLocationRepository
-from .repository.session import SessionRepository
-from .repository.tag import TagRepository
-from .repository.tagger import TaggerRepository
-from .repository.wake_word_file import (
-    build_tagging_file_name,
-    DELETED_STATUS,
-    PENDING_DELETE_STATUS,
-    UPLOADED_STATUS,
-    WakeWordFileRepository,
+"""Entry point for the API that supports the Mycroft Marketplace."""
+from flask import Flask
+
+from selene.api import get_base_config, selene_api, SeleneResponse
+from selene.util.log import configure_logger
+from .endpoints import AudioFileEndpoint, TagEndpoint
+
+_log = configure_logger("precise_api")
+
+
+# Define the Flask application
+precise = Flask(__name__)
+precise.config.from_object(get_base_config())
+precise.response_class = SeleneResponse
+precise.register_blueprint(selene_api)
+
+audio_file_endpoint = AudioFileEndpoint.as_view("audio_file_endpoint")
+precise.add_url_rule(
+    "/api/audio/<string:file_name>", view_func=audio_file_endpoint, methods=["GET"]
 )
-from .repository.wake_word_file_tag import FileTagRepository
+tag_endpoint = TagEndpoint.as_view("tag_endpoint")
+precise.add_url_rule("/api/tag", view_func=tag_endpoint, methods=["GET", "POST"])

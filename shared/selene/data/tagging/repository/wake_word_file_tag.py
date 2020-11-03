@@ -1,5 +1,5 @@
 # Mycroft Server - Backend
-# Copyright (C) 2019 Mycroft AI Inc
+# Copyright (C) 2020 Mycroft AI Inc
 # SPDX-License-Identifier: 	AGPL-3.0-or-later
 #
 # This file is part of the Mycroft Server.
@@ -16,31 +16,21 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
+"""Data access and manipulation for the tagging.wake_word_file_tag table."""
+from dataclasses import asdict
+from ..entity.wake_word_file_tag import WakeWordFileTag
+from ...repository_base import RepositoryBase
 
-"""
-This is used to support pipenv installing the shared code to the virtual
-environments used in developement of Selene APIs and services.
-"""
-from setuptools import setup, find_packages
 
-setup(
-    name="selene",
-    version="0.0.0",
-    packages=find_packages(),
-    include_package_data=True,
-    install_requires=[
-        "facebook-sdk",
-        "flask",
-        "paramiko",
-        "passlib",
-        "pygithub",
-        "pyhamcrest",
-        "pyjwt",
-        "psycopg2-binary",
-        "redis",
-        "sendgrid",
-        "schematics",
-        "stripe",
-        "schedule",
-    ],
-)
+class FileTagRepository(RepositoryBase):  # pylint: disable=too-few-public-methods
+    """Data access and manipulation for the tagging.wake_word_file_tag table."""
+
+    def __init__(self, db):
+        super().__init__(db, __file__)
+
+    def add(self, file_tag: WakeWordFileTag):
+        """Add a tag to a wake word file."""
+        db_request = self._build_db_request(
+            sql_file_name="add_wake_word_file_tag.sql", args=asdict(file_tag)
+        )
+        self.cursor.insert(db_request)

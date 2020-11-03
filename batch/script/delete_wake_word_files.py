@@ -71,7 +71,7 @@ class WakeWordFileRemover(SeleneScript):
     def _remove_from_file_system(self, file_to_delete):
         file_dir = Path(file_to_delete.location.directory)
         file_path = file_dir.joinpath(file_to_delete.name)
-        if file_to_delete.location.server == self.precise_server:
+        if file_to_delete.location.remote_server == self.precise_server:
             success = self._remove_from_precise_file_system(file_path)
         else:
             success = self._remove_from_local_file_system(file_path)
@@ -103,7 +103,7 @@ class WakeWordFileRemover(SeleneScript):
 
     def _check_for_empty_directory(self, file_location):
         directory_empty = False
-        if file_location.server == self.precise_server:
+        if file_location.remote_server == self.precise_server:
             list_command = f'"ls {file_location.directory}"'
             success, stdout, stderr = self._run_on_precise_server(list_command)
             if success:
@@ -112,7 +112,7 @@ class WakeWordFileRemover(SeleneScript):
             else:
                 self.log.error(
                     f"Failed to list contents of {file_location.directory} from "
-                    f"file system on {file_location.server}\n\tstdout: "
+                    f"file system on {file_location.remote_server}\n\tstdout: "
                     f"{stdout}\n\tstderr: {stderr}"
                 )
         else:
@@ -122,7 +122,7 @@ class WakeWordFileRemover(SeleneScript):
         return directory_empty
 
     def _delete_empty_directory(self, file_location):
-        if file_location.server == self.precise_server:
+        if file_location.remote_server == self.precise_server:
             delete_command = f'"rmdir {file_location.directory}"'
             success, stdout, stderr = self._run_on_precise_server(delete_command)
             if success:
@@ -133,7 +133,7 @@ class WakeWordFileRemover(SeleneScript):
             else:
                 self.log.error(
                     f"Failed to delete directory {file_location.directory} from file "
-                    f"system on {file_location.server}\n\tstdout: {stdout}\n\t"
+                    f"system on {file_location.remote_server}\n\tstdout: {stdout}\n\t"
                     f"stderr: {stderr}"
                 )
         else:
