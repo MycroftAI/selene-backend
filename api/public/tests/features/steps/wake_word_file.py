@@ -17,8 +17,10 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 """Step functions for the wake word sample upload feature."""
+import json
 import os
 from datetime import datetime
+from io import BytesIO
 from pathlib import Path
 
 from behave import then, when  # pylint: disable=no-name-in-module
@@ -80,13 +82,16 @@ def _build_expected_wake_word_file(context, wake_word):
     context.expected_wake_word_file = wake_word_file
 
 
-def _call_upload_endpoint(context, request):
+def _call_upload_endpoint(context, metadata):
     """Upload a wake word sample file using the public API"""
     resources_dir = Path(os.path.dirname(__file__)).joinpath("resources")
     audio_file_path = str(resources_dir.joinpath("wake_word_test.wav"))
     access_token = context.device_login["accessToken"]
     with open(audio_file_path, "rb") as audio_file:
-        request.update(audio_file=(audio_file, "wake_word.wav"))
+        request = dict(
+            audio=(audio_file, "wake_word.wav"),
+            metadata=(BytesIO(json.dumps(metadata).encode()), "metadata.json"),
+        )
         response = context.client.post(
             f"/v1/device/{context.device_id}/wake-word-file",
             headers=dict(Authorization="Bearer {token}".format(token=access_token)),
