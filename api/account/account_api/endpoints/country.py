@@ -25,6 +25,12 @@ from selene.data.geography import CountryRepository
 
 class CountryEndpoint(SeleneEndpoint):
     def get(self):
+        """
+        Gets the countries
+
+        Args:
+            self: (todo): write your description
+        """
         country_repository = CountryRepository(self.db)
         countries = country_repository.get_countries()
 

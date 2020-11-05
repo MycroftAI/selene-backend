@@ -28,6 +28,13 @@ from ...repository_base import RepositoryBase
 
 class SkillSettingRepository(RepositoryBase):
     def __init__(self, db):
+        """
+        Initialize the database.
+
+        Args:
+            self: (todo): write your description
+            db: (todo): write your description
+        """
         super(SkillSettingRepository, self).__init__(db, __file__)
         self.db = db
 
@@ -36,6 +43,14 @@ class SkillSettingRepository(RepositoryBase):
             account_id: str,
             family_name: str
     ) -> List[AccountSkillSetting]:
+        """
+        Return the family settings.
+
+        Args:
+            self: (todo): write your description
+            account_id: (str): write your description
+            family_name: (str): write your description
+        """
         return self._select_all_into_dataclass(
             AccountSkillSetting,
             sql_file_name='get_settings_for_skill_family.sql',
@@ -43,6 +58,13 @@ class SkillSettingRepository(RepositoryBase):
         )
 
     def get_installer_settings(self, account_id) -> List[AccountSkillSetting]:
+        """
+        Return a list of skill settings.
+
+        Args:
+            self: (todo): write your description
+            account_id: (str): write your description
+        """
         skill_repo = SkillRepository(self.db)
         skills = skill_repo.get_skills_for_account(account_id)
         installer_skill_id = None
@@ -66,6 +88,15 @@ class SkillSettingRepository(RepositoryBase):
             new_skill_settings: AccountSkillSetting,
             skill_ids: List[str]
     ):
+        """
+        Update skill settings.
+
+        Args:
+            self: (todo): write your description
+            account_id: (str): write your description
+            new_skill_settings: (todo): write your description
+            skill_ids: (str): write your description
+        """
         if new_skill_settings.settings_values is None:
             serialized_settings_values = None
         else:

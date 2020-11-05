@@ -29,6 +29,12 @@ _log = getLogger(__package__)
 
 class LogoutEndpoint(SeleneEndpoint):
     def get(self):
+        """
+        Get the authentication request.
+
+        Args:
+            self: (todo): write your description
+        """
         self._authenticate()
         self._logout()
 

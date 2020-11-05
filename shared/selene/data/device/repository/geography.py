@@ -23,10 +23,24 @@ from ...repository_base import RepositoryBase
 
 class GeographyRepository(RepositoryBase):
     def __init__(self, db, account_id):
+        """
+        Initialize db.
+
+        Args:
+            self: (todo): write your description
+            db: (todo): write your description
+            account_id: (str): write your description
+        """
         super(GeographyRepository, self).__init__(db, __file__)
         self.account_id = account_id
 
     def get_account_geographies(self):
+        """
+        Returns a list of all geometries.
+
+        Args:
+            self: (todo): write your description
+        """
         db_request = self._build_db_request(
             sql_file_name='get_account_geographies.sql',
             args=dict(account_id=self.account_id)
@@ -36,6 +50,13 @@ class GeographyRepository(RepositoryBase):
         return [Geography(**row) for row in db_response]
 
     def get_geography_id(self, geography: Geography):
+        """
+        Return the geometry id for a given geometry.
+
+        Args:
+            self: (todo): write your description
+            geography: (str): write your description
+        """
         geography_id = None
         acct_geographies = self.get_account_geographies()
         for acct_geography in acct_geographies:
@@ -52,6 +73,13 @@ class GeographyRepository(RepositoryBase):
         return geography_id
 
     def add(self, geography: Geography):
+        """
+        Add a new geography to this account.
+
+        Args:
+            self: (todo): write your description
+            geography: (todo): write your description
+        """
         db_request = self._build_db_request(
             sql_file_name='add_geography.sql',
             args=dict(
@@ -67,6 +95,13 @@ class GeographyRepository(RepositoryBase):
         return db_result['id']
 
     def get_location_by_device_id(self, device_id):
+        """
+        Returns the location of a device by its id.
+
+        Args:
+            self: (todo): write your description
+            device_id: (int): write your description
+        """
         db_request = self._build_db_request(
             sql_file_name='get_location_by_device_id.sql',
             args=dict(device_id=device_id)

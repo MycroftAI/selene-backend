@@ -23,12 +23,25 @@ from ...repository_base import RepositoryBase
 
 class SkillDisplayRepository(RepositoryBase):
     def __init__(self, db):
+        """
+        Initialize the database.
+
+        Args:
+            self: (todo): write your description
+            db: (todo): write your description
+        """
         super(SkillDisplayRepository, self).__init__(db, __file__)
 
         # TODO: Change this to a value that can be passed in
         self.core_version = '20.02'
 
     def get_display_data_for_skills(self):
+        """
+        Returns a dictionary of the sqlite database data for a given sqlite database.
+
+        Args:
+            self: (todo): write your description
+        """
         return self._select_all_into_dataclass(
             dataclass=SkillDisplay,
             sql_file_name='get_display_data_for_skills.sql',
@@ -36,6 +49,13 @@ class SkillDisplayRepository(RepositoryBase):
         )
 
     def get_display_data_for_skill(self, skill_display_id) -> SkillDisplay:
+        """
+        Return the skill for a skill.
+
+        Args:
+            self: (todo): write your description
+            skill_display_id: (int): write your description
+        """
         return self._select_one_into_dataclass(
             dataclass=SkillDisplay,
             sql_file_name='get_display_data_for_skill.sql',
@@ -43,6 +63,13 @@ class SkillDisplayRepository(RepositoryBase):
         )
 
     def upsert(self, skill_display: SkillDisplay):
+        """
+        Ups a skill.
+
+        Args:
+            self: (todo): write your description
+            skill_display: (str): write your description
+        """
         db_request = self._build_db_request(
             sql_file_name='upsert_skill_display_data.sql',
             args=dict(

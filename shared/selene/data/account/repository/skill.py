@@ -25,10 +25,24 @@ from selene.data.repository_base import RepositoryBase
 
 class AccountSkillRepository(RepositoryBase):
     def __init__(self, db, account_id):
+        """
+        Initialize account. db.
+
+        Args:
+            self: (todo): write your description
+            db: (todo): write your description
+            account_id: (str): write your description
+        """
         super(AccountSkillRepository, self).__init__(db, __file__)
         self.account_id = account_id
 
     def get_skills_for_account(self) -> List[AccountSkill]:
+        """
+        Returns account accounts.
+
+        Args:
+            self: (todo): write your description
+        """
         db_request = self._build_db_request(
             sql_file_name='get_account_skills.sql',
             args=dict(account_id=self.account_id)

@@ -27,10 +27,22 @@ from selene.api import PublicEndpoint
 class OauthCallbackEndpoint(PublicEndpoint):
 
     def __init__(self):
+        """
+        Initialize the oauth2 client.
+
+        Args:
+            self: (todo): write your description
+        """
         super(OauthCallbackEndpoint, self).__init__()
         self.oauth_service_host = os.environ['OAUTH_BASE_URL']
 
     def get(self):
+        """
+        Returns the request the oauth2 request
+
+        Args:
+            self: (todo): write your description
+        """
         params = dict(self.request.args)
         url = self.oauth_service_host + '/auth/callback'
         response = requests.get(url, params=params)

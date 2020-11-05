@@ -38,10 +38,22 @@ class SkillInstallStatusEndpoint(SeleneEndpoint):
     authentication_required = False
 
     def __init__(self):
+        """
+        Initialize the default application.
+
+        Args:
+            self: (todo): write your description
+        """
         super(SkillInstallStatusEndpoint, self).__init__()
         self.installed_skills = defaultdict(list)
 
     def get(self):
+        """
+        Get the authentication request.
+
+        Args:
+            self: (todo): write your description
+        """
         try:
             self._authenticate()
         except AuthenticationError:
@@ -54,6 +66,12 @@ class SkillInstallStatusEndpoint(SeleneEndpoint):
         return self.response
 
     def _get_installed_skills(self):
+        """
+        Return a list of skill skill packages.
+
+        Args:
+            self: (todo): write your description
+        """
         skill_repo = DeviceSkillRepository(self.db)
         installed_skills = skill_repo.get_skill_manifest_for_account(
             self.account.id
@@ -62,6 +80,12 @@ class SkillInstallStatusEndpoint(SeleneEndpoint):
             self.installed_skills[skill.skill_id].append(skill)
 
     def _build_response_data(self) -> dict:
+        """
+        Return a response : { response : return : a dict }
+
+        Args:
+            self: (todo): write your description
+        """
         install_statuses = {}
         failure_reasons = {}
         for skill_id, skills in self.installed_skills.items():
@@ -85,6 +109,13 @@ class SkillManifestAggregator(object):
     """Base class containing functionality shared by summary and detail"""
 
     def __init__(self, installed_skills: List[ManifestSkill]):
+        """
+        Initialize all the list of the manifest.
+
+        Args:
+            self: (todo): write your description
+            installed_skills: (todo): write your description
+        """
         self.installed_skills = installed_skills
         self.aggregate_skill = ManifestSkill(**asdict(installed_skills[0]))
 
@@ -100,6 +131,12 @@ class SkillManifestAggregator(object):
             self._determine_failure_reason()
 
     def _validate_install_status(self):
+        """
+        Validate the pip status.
+
+        Args:
+            self: (todo): write your description
+        """
         for skill in self.installed_skills:
             if skill.install_status not in VALID_STATUS_VALUES:
                 raise ValueError(

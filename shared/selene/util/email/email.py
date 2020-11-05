@@ -42,17 +42,37 @@ class SeleneMailer(object):
     template_directory = os.path.join(os.path.dirname(__file__), 'templates')
 
     def __init__(self, message: EmailMessage):
+        """
+        Initialize the mail.
+
+        Args:
+            self: (todo): write your description
+            message: (str): write your description
+        """
         self.mailer = SendGridAPIClient(api_key=os.environ['SENDGRID_API_KEY'])
         self.message = message
 
     @property
     def template_path(self):
+        """
+        Return the path to the template.
+
+        Args:
+            self: (todo): write your description
+        """
         return os.path.join(
             self.template_directory,
             self.message.template_file_name
         )
 
     def send(self, using_jinja=False):
+        """
+        Sends an email.
+
+        Args:
+            self: (todo): write your description
+            using_jinja: (str): write your description
+        """
         message = Mail(
             from_email=self.message.sender,
             to_emails=[self.message.recipient],
@@ -70,6 +90,13 @@ class SeleneMailer(object):
             )
 
     def _build_content(self, using_jinja=False) -> Content:
+        """
+        Builds a string representation of the template.
+
+        Args:
+            self: (todo): write your description
+            using_jinja: (bool): write your description
+        """
         with open(self.template_path) as template_file:
             email_content = template_file.read()
         if self.message.template_variables is not None:

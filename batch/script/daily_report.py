@@ -41,6 +41,12 @@ mycroft_db = DatabaseConnectionConfig(
 
 class DailyReport(SeleneScript):
     def __init__(self):
+        """
+        Initialize the argument parser.
+
+        Args:
+            self: (todo): write your description
+        """
         super(DailyReport, self).__init__(__file__)
         self._arg_parser.add_argument(
             '--run-mode',
@@ -51,6 +57,12 @@ class DailyReport(SeleneScript):
         )
 
     def _run(self):
+        """
+        Run the report.
+
+        Args:
+            self: (todo): write your description
+        """
         if self.args.run_mode == 'job':
             schedule.every().day.at('00:00').do(self._build_report)
             while True:
@@ -60,6 +72,13 @@ class DailyReport(SeleneScript):
             self._build_report(self.args.date)
 
     def _build_report(self, date: datetime = None):
+        """
+        Builds the report.
+
+        Args:
+            self: (todo): write your description
+            date: (todo): write your description
+        """
         if date is None:
             date = datetime.now()
         user_metrics = AccountRepository(self.db).daily_report(date)

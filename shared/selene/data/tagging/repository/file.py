@@ -30,6 +30,13 @@ class WakeWordFileRepository(RepositoryBase):
     """Data access and manipulation for the wake_word.sample table."""
 
     def __init__(self, db):
+        """
+        Initialize database.
+
+        Args:
+            self: (todo): write your description
+            db: (todo): write your description
+        """
         super(WakeWordFileRepository, self).__init__(db, __file__)
 
     def add(self, wake_word_file: WakeWordFile):

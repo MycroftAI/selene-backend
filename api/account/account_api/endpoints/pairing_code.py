@@ -24,10 +24,23 @@ from selene.api import SeleneEndpoint
 
 class PairingCodeEndpoint(SeleneEndpoint):
     def __init__(self):
+        """
+        Initialize the application.
+
+        Args:
+            self: (todo): write your description
+        """
         super(PairingCodeEndpoint, self).__init__()
         self.cache = self.config['SELENE_CACHE']
 
     def get(self, pairing_code):
+        """
+        Returns a dict with the keys ) pairs.
+
+        Args:
+            self: (todo): write your description
+            pairing_code: (str): write your description
+        """
         self._authenticate()
         pairing_code_is_valid = self._get_pairing_data(pairing_code)
 

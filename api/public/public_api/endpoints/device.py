@@ -38,9 +38,22 @@ class UpdateDevice(Model):
 class DeviceEndpoint(PublicEndpoint):
     """Return the device entity using the device_id"""
     def __init__(self):
+        """
+        Initialize the device.
+
+        Args:
+            self: (todo): write your description
+        """
         super(DeviceEndpoint, self).__init__()
 
     def get(self, device_id):
+        """
+        Get a single device.
+
+        Args:
+            self: (todo): write your description
+            device_id: (int): write your description
+        """
         self._authenticate(device_id)
         self._validate_etag(device_etag_key(device_id))
         device = DeviceRepository(self.db).get_device_by_id(device_id)
@@ -64,6 +77,13 @@ class DeviceEndpoint(PublicEndpoint):
         return response
 
     def patch(self, device_id):
+        """
+        Updates the device.
+
+        Args:
+            self: (todo): write your description
+            device_id: (int): write your description
+        """
         self._authenticate(device_id)
         payload = json.loads(self.request.data)
         update_device = UpdateDevice(payload)

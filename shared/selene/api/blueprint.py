@@ -36,26 +36,55 @@ selene_api = Blueprint('selene_api', __name__)
 
 @selene_api.app_errorhandler(DataError)
 def handle_data_error(error):
+    """
+    Convert json error.
+
+    Args:
+        error: (todo): write your description
+    """
     return json.dumps(error.to_primitive()), HTTPStatus.BAD_REQUEST
 
 
 @selene_api.app_errorhandler(AuthenticationError)
 def handle_data_error(error):
+    """
+    Convert the error response.
+
+    Args:
+        error: (todo): write your description
+    """
     return dict(error=str(error)), HTTPStatus.UNAUTHORIZED
 
 
 @selene_api.app_errorhandler(NotModifiedException)
 def handle_not_modified(_):
+    """
+    Returns true if the request was modified.
+
+    Args:
+        _: (todo): write your description
+    """
     return '', HTTPStatus.NOT_MODIFIED
 
 
 @selene_api.before_app_request
 def setup_request():
+    """
+    Setup the global request.
+
+    Args:
+    """
     global_context.start_ts = datetime.utcnow()
 
 
 @selene_api.after_app_request
 def teardown_request(response):
+    """
+    Teardown request.
+
+    Args:
+        response: (todo): write your description
+    """
     add_api_metric(response.status_code)
     update_device_last_contact()
 

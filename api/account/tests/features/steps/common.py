@@ -32,11 +32,23 @@ from selene.testing.api import (
 
 @given("an account")
 def define_account(context):
+    """
+    Define the account.
+
+    Args:
+        context: (todo): write your description
+    """
     context.username = "foo"
 
 
 @given("the account is authenticated")
 def use_account_with_valid_access_token(context):
+    """
+    Generate a new access token.
+
+    Args:
+        context: (dict): write your description
+    """
     context.access_token = generate_access_token(context)
     set_access_token_cookie(context)
     context.refresh_token = generate_refresh_token(context)
@@ -45,6 +57,12 @@ def use_account_with_valid_access_token(context):
 
 @then("the request will be successful")
 def check_request_success(context):
+    """
+    Check if the request was successful.
+
+    Args:
+        context: (todo): write your description
+    """
     assert_that(
         context.response.status_code, is_in([HTTPStatus.OK, HTTPStatus.NO_CONTENT])
     )
@@ -52,6 +70,13 @@ def check_request_success(context):
 
 @then("the request will fail with {error_type} error")
 def check_for_bad_request(context, error_type):
+    """
+    Checks the bad bad bad response.
+
+    Args:
+        context: (todo): write your description
+        error_type: (todo): write your description
+    """
     if error_type == "a bad request":
         assert_that(context.response.status_code, equal_to(HTTPStatus.BAD_REQUEST))
     elif error_type == "an unauthorized":

@@ -37,6 +37,12 @@ SKILL_HANDLERS_TO_SKIP = ('reset', 'notify', 'prime', 'stop_laugh')
 
 class CoreMetricsParser(SeleneScript):
     def __init__(self):
+        """
+        Initialize the metric
+
+        Args:
+            self: (todo): write your description
+        """
         super(CoreMetricsParser, self).__init__(__file__)
         self.core_metric_repo = CoreMetricRepository(self.db)
         self.interaction_cnt = 0
@@ -45,6 +51,12 @@ class CoreMetricsParser(SeleneScript):
         self.playback_start_ts = None
 
     def _run(self):
+        """
+        Runs the loop
+
+        Args:
+            self: (todo): write your description
+        """
         last_interaction_id = None
         for metric in self.core_metric_repo.get_metrics_by_date(self.args.date):
             if metric.metric_value['id'] != last_interaction_id:
@@ -101,6 +113,12 @@ class CoreMetricsParser(SeleneScript):
             )
 
     def _add_interaction_to_db(self):
+        """
+        Add an interaction to the database.
+
+        Args:
+            self: (todo): write your description
+        """
         if self.interaction is not None:
             if self.interaction.stt_transcription is not None:
                 self.interaction_cnt += 1

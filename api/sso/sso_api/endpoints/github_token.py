@@ -25,6 +25,12 @@ from selene.util.auth import get_github_authentication_token
 
 class GithubTokenEndpoint(SeleneEndpoint):
     def get(self):
+        """
+        Get the access token.
+
+        Args:
+            self: (todo): write your description
+        """
         token = get_github_authentication_token(
             self.request.args['code'],
             self.request.args['state']

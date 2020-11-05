@@ -25,10 +25,24 @@ from ...repository_base import RepositoryBase
 
 class PreferenceRepository(RepositoryBase):
     def __init__(self, db, account_id):
+        """
+        : param db_id.
+
+        Args:
+            self: (todo): write your description
+            db: (todo): write your description
+            account_id: (str): write your description
+        """
         super(PreferenceRepository, self).__init__(db, __file__)
         self.account_id = account_id
 
     def get_account_preferences(self) -> AccountPreferences:
+        """
+        Fetches for the given db.
+
+        Args:
+            self: (todo): write your description
+        """
         db_request = self._build_db_request(
             sql_file_name='get_account_preferences.sql',
             args=dict(account_id=self.account_id)
@@ -43,6 +57,13 @@ class PreferenceRepository(RepositoryBase):
         return preferences
 
     def upsert(self, preferences: AccountPreferences):
+        """
+        Update the db into db.
+
+        Args:
+            self: (todo): write your description
+            preferences: (todo): write your description
+        """
         db_request_args = dict(account_id=self.account_id)
         db_request_args.update(asdict(preferences))
         db_request = self._build_db_request(

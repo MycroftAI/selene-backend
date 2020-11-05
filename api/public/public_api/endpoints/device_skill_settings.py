@@ -82,6 +82,15 @@ class SkillSettingUpdater(object):
     _settings_display_repo = None
 
     def __init__(self, db, device_id, display_data: dict):
+        """
+        Initialize the database.
+
+        Args:
+            self: (todo): write your description
+            db: (todo): write your description
+            device_id: (str): write your description
+            display_data: (todo): write your description
+        """
         self.db = db
         self.device_id = device_id
         self.display_data = display_data
@@ -90,6 +99,12 @@ class SkillSettingUpdater(object):
 
     @property
     def device_skill_repo(self):
+        """
+        Return the skill skill skill skill.
+
+        Args:
+            self: (todo): write your description
+        """
         if self._device_skill_repo is None:
             self._device_skill_repo = DeviceSkillRepository(self.db)
 
@@ -97,12 +112,24 @@ class SkillSettingUpdater(object):
 
     @property
     def settings_display_repo(self):
+        """
+        Return the settings for this repo.
+
+        Args:
+            self: (todo): write your description
+        """
         if self._settings_display_repo is None:
             self._settings_display_repo = SettingsDisplayRepository(self.db)
 
         return self._settings_display_repo
 
     def update(self):
+        """
+        Updates the posix values.
+
+        Args:
+            self: (todo): write your description
+        """
         self._extract_settings_values()
         self._get_skill_id()
         self._ensure_settings_display_exists()
@@ -183,6 +210,13 @@ class SkillSettingUpdater(object):
         return skill_settings
 
     def _update_skill_settings(self, skill_settings):
+        """
+        Update the skill settings.
+
+        Args:
+            self: (todo): write your description
+            skill_settings: (todo): write your description
+        """
         device_skill_found = False
         for skill_setting in skill_settings:
             if self.device_id in skill_setting.device_ids:
@@ -267,6 +301,14 @@ class RequestSkill(Model):
     identifier = StringType()
 
     def validate_skill_gid(self, data, value):
+        """
+        Validate skill id.
+
+        Args:
+            self: (todo): write your description
+            data: (array): write your description
+            value: (todo): write your description
+        """
         if data['skill_gid'] is None and data['identifier'] is None:
             raise ValidationError(
                 'skill should have either skill_gid or identifier defined'
@@ -283,6 +325,12 @@ class DeviceSkillSettingsEndpoint(PublicEndpoint):
 
     @property
     def device_skill_repo(self):
+        """
+        Return the skill skill skill skill.
+
+        Args:
+            self: (todo): write your description
+        """
         if self._device_skill_repo is None:
             self._device_skill_repo = DeviceSkillRepository(self.db)
 
@@ -290,6 +338,12 @@ class DeviceSkillSettingsEndpoint(PublicEndpoint):
 
     @property
     def settings_display_repo(self):
+        """
+        Return the settings for this repo.
+
+        Args:
+            self: (todo): write your description
+        """
         if self._settings_display_repo is None:
             self._settings_display_repo = SettingsDisplayRepository(self.db)
 
@@ -297,6 +351,12 @@ class DeviceSkillSettingsEndpoint(PublicEndpoint):
 
     @property
     def skill_repo(self):
+        """
+        Return skill skill skill skill skill
+
+        Args:
+            self: (todo): write your description
+        """
         if self._skill_repo is None:
             self._skill_repo = SkillRepository(self.db)
 
@@ -304,6 +364,12 @@ class DeviceSkillSettingsEndpoint(PublicEndpoint):
 
     @property
     def skill_setting_repo(self):
+        """
+        The skill skill setting.
+
+        Args:
+            self: (todo): write your description
+        """
         if self._skill_setting_repo is None:
             self._skill_setting_repo = SkillSettingRepository(self.db)
 
@@ -338,6 +404,13 @@ class DeviceSkillSettingsEndpoint(PublicEndpoint):
         return response
 
     def _build_response_data(self, device_skills):
+        """
+        Builds a skill response
+
+        Args:
+            self: (todo): write your description
+            device_skills: (todo): write your description
+        """
         response_data = []
         for skill in device_skills:
             response_skill = dict(uuid=skill.skill_id)
@@ -377,6 +450,13 @@ class DeviceSkillSettingsEndpoint(PublicEndpoint):
         return sections_with_values
 
     def put(self, device_id):
+        """
+        Put a device.
+
+        Args:
+            self: (todo): write your description
+            device_id: (int): write your description
+        """
         self._authenticate(device_id)
         self._validate_put_request()
         skill_id = self._update_skill_settings(device_id)
@@ -387,10 +467,23 @@ class DeviceSkillSettingsEndpoint(PublicEndpoint):
         return dict(uuid=skill_id), HTTPStatus.OK
 
     def _validate_put_request(self):
+        """
+        Validate the skill request.
+
+        Args:
+            self: (todo): write your description
+        """
         skill = RequestSkill(self.request.json)
         skill.validate()
 
     def _update_skill_settings(self, device_id):
+        """
+        Update the skill settings for a particular usb device.
+
+        Args:
+            self: (todo): write your description
+            device_id: (int): write your description
+        """
         skill_setting_updater = SkillSettingUpdater(
             self.db,
             device_id,
@@ -404,6 +497,13 @@ class DeviceSkillSettingsEndpoint(PublicEndpoint):
         return skill_setting_updater.skill.id
 
     def _delete_orphaned_settings_display(self, settings_display_id):
+        """
+        Removes all display settings from display.
+
+        Args:
+            self: (todo): write your description
+            settings_display_id: (str): write your description
+        """
         skill_count = self.device_skill_repo.get_settings_display_usage(
             settings_display_id
         )
@@ -432,6 +532,13 @@ class DeviceSkillSettingsEndpointV2(PublicEndpoint):
         return response
 
     def _build_response_data(self, device_id):
+        """
+        Build skill data
+
+        Args:
+            self: (todo): write your description
+            device_id: (int): write your description
+        """
         device_skill_repo = DeviceSkillRepository(self.db)
         device_skills = device_skill_repo.get_skill_settings_for_device(
             device_id
@@ -444,6 +551,14 @@ class DeviceSkillSettingsEndpointV2(PublicEndpoint):
             return response_data
 
     def _build_response(self, device_id, response_data):
+        """
+        Build a response object.
+
+        Args:
+            self: (todo): write your description
+            device_id: (int): write your description
+            response_data: (todo): write your description
+        """
         if response_data is None:
             response = Response(
                 '',

@@ -42,6 +42,12 @@ _log = getLogger()
 
 
 def validate_pairing_code(pairing_code):
+    """
+    Validate pairing code.
+
+    Args:
+        pairing_code: (str): write your description
+    """
     cache_key = 'pairing.code:' + pairing_code
     cache = SeleneCache()
     pairing_cache = cache.get(cache_key)
@@ -67,12 +73,25 @@ class NewDeviceRequest(UpdateDeviceRequest):
 
 class DeviceEndpoint(SeleneEndpoint):
     def __init__(self):
+        """
+        Initialize the device.
+
+        Args:
+            self: (todo): write your description
+        """
         super(DeviceEndpoint, self).__init__()
         self.devices = None
         self.cache = self.config['SELENE_CACHE']
         self.etag_manager: ETagManager = ETagManager(self.cache, self.config)
 
     def get(self, device_id):
+        """
+        Get device data.
+
+        Args:
+            self: (todo): write your description
+            device_id: (int): write your description
+        """
         self._authenticate()
         if device_id is None:
             response_data = self._get_devices()
@@ -82,6 +101,12 @@ class DeviceEndpoint(SeleneEndpoint):
         return response_data, HTTPStatus.OK
 
     def _get_devices(self):
+        """
+        Returns a list of devices.
+
+        Args:
+            self: (todo): write your description
+        """
         device_repository = DeviceRepository(self.db)
         devices = device_repository.get_devices_by_account_id(
             self.account.id
@@ -94,6 +119,13 @@ class DeviceEndpoint(SeleneEndpoint):
         return response_data
 
     def _get_device(self, device_id):
+        """
+        Get device information.
+
+        Args:
+            self: (todo): write your description
+            device_id: (int): write your description
+        """
         device_repository = DeviceRepository(self.db)
         device = device_repository.get_device_by_id(device_id)
         response_data = self._format_device_for_response(device)
@@ -178,6 +210,12 @@ class DeviceEndpoint(SeleneEndpoint):
         return disconnect_duration
 
     def post(self):
+        """
+        Perform post request.
+
+        Args:
+            self: (todo): write your description
+        """
         self._authenticate()
         device = self._validate_request()
         device_id = self._pair_device(device)
@@ -185,6 +223,12 @@ class DeviceEndpoint(SeleneEndpoint):
         return device_id, HTTPStatus.OK
 
     def _validate_request(self):
+        """
+        Validate device request.
+
+        Args:
+            self: (todo): write your description
+        """
         request_data = json.loads(self.request.data)
         if self.request.method == 'POST':
             device = NewDeviceRequest()
@@ -204,6 +248,13 @@ class DeviceEndpoint(SeleneEndpoint):
         return device
 
     def _pair_device(self, device):
+        """
+        Delete a device.
+
+        Args:
+            self: (todo): write your description
+            device: (todo): write your description
+        """
         self.db.autocommit = False
         try:
             pairing_data = self._get_pairing_data(device.pairing_code)
@@ -238,6 +289,14 @@ class DeviceEndpoint(SeleneEndpoint):
         return device_id
 
     def _ensure_geography_exists(self, db, device: dict):
+        """
+        Ensure a geojson exists.
+
+        Args:
+            self: (todo): write your description
+            db: (todo): write your description
+            device: (todo): write your description
+        """
         geography = Geography(
             city=device['city'],
             country=device['country'],
@@ -252,6 +311,13 @@ class DeviceEndpoint(SeleneEndpoint):
         return geography_id
 
     def _build_pairing_token(self, pairing_data):
+        """
+        Build a jwt token.
+
+        Args:
+            self: (todo): write your description
+            pairing_data: (str): write your description
+        """
         self.cache.set_with_expiration(
             key='pairing.token:' + pairing_data['token'],
             value=json.dumps(pairing_data),
@@ -259,16 +325,37 @@ class DeviceEndpoint(SeleneEndpoint):
         )
 
     def delete(self, device_id):
+        """
+        Deletes the device.
+
+        Args:
+            self: (todo): write your description
+            device_id: (int): write your description
+        """
         self._authenticate()
         self._delete_device(device_id)
         return '', HTTPStatus.NO_CONTENT
 
     def _delete_device(self, device_id):
+        """
+        Deletes a device.
+
+        Args:
+            self: (todo): write your description
+            device_id: (int): write your description
+        """
         device_repository = DeviceRepository(self.db)
         device_repository.remove(device_id)
         delete_device_login(device_id, self.cache)
 
     def patch(self, device_id):
+        """
+        Updates the device.
+
+        Args:
+            self: (todo): write your description
+            device_id: (int): write your description
+        """
         self._authenticate()
         updates = self._validate_request()
         self._update_device(device_id, updates)
@@ -279,6 +366,14 @@ class DeviceEndpoint(SeleneEndpoint):
         return '', HTTPStatus.NO_CONTENT
 
     def _update_device(self, device_id, updates):
+        """
+        Updates an existing updates.
+
+        Args:
+            self: (todo): write your description
+            device_id: (int): write your description
+            updates: (todo): write your description
+        """
         device_updates = updates.to_native()
         geography_id = self._ensure_geography_exists(self.db, device_updates)
         device_updates.update(geography_id=geography_id)

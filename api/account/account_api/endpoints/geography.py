@@ -25,12 +25,24 @@ from selene.data.device import GeographyRepository
 
 class GeographyEndpoint(SeleneEndpoint):
     def get(self):
+        """
+        Returns the authentication data.
+
+        Args:
+            self: (todo): write your description
+        """
         self._authenticate()
         response_data = self._build_response_data()
 
         return response_data, HTTPStatus.OK
 
     def _build_response_data(self):
+        """
+        Build a response data dictionary from the data.
+
+        Args:
+            self: (todo): write your description
+        """
         geography_repository = GeographyRepository(self.db, self.account.id)
         geographies = geography_repository.get_account_geographies()
 

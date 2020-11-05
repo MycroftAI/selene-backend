@@ -25,12 +25,24 @@ from selene.data.skill import SkillRepository
 
 class SkillsEndpoint(SeleneEndpoint):
     def get(self):
+        """
+        Returns the authentication data.
+
+        Args:
+            self: (todo): write your description
+        """
         self._authenticate()
         response_data = self._build_response_data()
 
         return response_data, HTTPStatus.OK
 
     def _build_response_data(self):
+        """
+        Builds a skill data
+
+        Args:
+            self: (todo): write your description
+        """
         skill_repository = SkillRepository(self.db)
         skills = skill_repository.get_skills_for_account(self.account.id)
 

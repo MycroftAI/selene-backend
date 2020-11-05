@@ -25,6 +25,12 @@ from selene.data.account import MembershipRepository
 
 class MembershipEndpoint(SeleneEndpoint):
     def get(self):
+        """
+        Get the membership.
+
+        Args:
+            self: (todo): write your description
+        """
         membership_repository = MembershipRepository(self.db)
         membership_types = membership_repository.get_membership_types()
         for membership_type in membership_types:

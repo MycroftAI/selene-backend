@@ -38,10 +38,22 @@ class DefaultsRequest(Model):
 
 class AccountDefaultsEndpoint(SeleneEndpoint):
     def __init__(self):
+        """
+        Initialize the default values.
+
+        Args:
+            self: (todo): write your description
+        """
         super(AccountDefaultsEndpoint, self).__init__()
         self.defaults = None
 
     def get(self):
+        """
+        Returns a response.
+
+        Args:
+            self: (todo): write your description
+        """
         self._authenticate()
         self._get_defaults()
         if self.defaults is None:
@@ -54,10 +66,22 @@ class AccountDefaultsEndpoint(SeleneEndpoint):
         return response_data, response_code
 
     def _get_defaults(self):
+        """
+        Gets the default repository
+
+        Args:
+            self: (todo): write your description
+        """
         default_repository = DefaultsRepository(self.db, self.account.id)
         self.defaults = default_repository.get_account_defaults()
 
     def post(self):
+        """
+        Perform post request.
+
+        Args:
+            self: (todo): write your description
+        """
         self._authenticate()
         defaults = self._validate_request()
         self._upsert_defaults(defaults)
@@ -65,6 +89,12 @@ class AccountDefaultsEndpoint(SeleneEndpoint):
         return '', HTTPStatus.NO_CONTENT
 
     def patch(self):
+        """
+        Patch the request.
+
+        Args:
+            self: (todo): write your description
+        """
         self._authenticate()
         defaults = self._validate_request()
         self._upsert_defaults(defaults)
@@ -72,6 +102,12 @@ class AccountDefaultsEndpoint(SeleneEndpoint):
         return '', HTTPStatus.NO_CONTENT
 
     def _validate_request(self):
+        """
+        Validate the request.
+
+        Args:
+            self: (todo): write your description
+        """
         request_data = json.loads(self.request.data)
         defaults = DefaultsRequest()
         defaults.city = request_data.get('city')
@@ -85,5 +121,12 @@ class AccountDefaultsEndpoint(SeleneEndpoint):
         return defaults
 
     def _upsert_defaults(self, defaults):
+        """
+        Update the default repository : param default repository.
+
+        Args:
+            self: (todo): write your description
+            defaults: (todo): write your description
+        """
         defaults_repository = DefaultsRepository(self.db, self.account.id)
         defaults_repository.upsert(defaults.to_native())

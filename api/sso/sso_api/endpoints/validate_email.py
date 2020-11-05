@@ -31,6 +31,12 @@ from selene.util.auth import (
 
 class ValidateEmailEndpoint(SeleneEndpoint):
     def get(self):
+        """
+        Fetches account data
+
+        Args:
+            self: (todo): write your description
+        """
         return_data = dict(accountExists=False, noFederatedEmail=False)
         if self.request.args['token']:
             email_address = self._get_email_address()
@@ -44,6 +50,12 @@ class ValidateEmailEndpoint(SeleneEndpoint):
         return return_data, HTTPStatus.OK
 
     def _get_email_address(self):
+        """
+        Get the email address for an account.
+
+        Args:
+            self: (todo): write your description
+        """
         if self.request.args['platform'] == 'Google':
             email_address = get_google_account_email(
                 self.request.args['token']

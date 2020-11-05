@@ -50,6 +50,14 @@ def _instantiate_dataclass(dataclass, db_result):
 
 class RepositoryBase(object):
     def __init__(self, db, repository_path):
+        """
+        Initialize the database.
+
+        Args:
+            self: (todo): write your description
+            db: (todo): write your description
+            repository_path: (str): write your description
+        """
         self.db = db
         self.cursor = Cursor(db)
         self.sql_dir = path.join(path.dirname(repository_path), 'sql')

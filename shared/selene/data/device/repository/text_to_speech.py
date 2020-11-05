@@ -23,9 +23,22 @@ from ...repository_base import RepositoryBase
 
 class TextToSpeechRepository(RepositoryBase):
     def __init__(self, db):
+        """
+        Initialize the database.
+
+        Args:
+            self: (todo): write your description
+            db: (todo): write your description
+        """
         super(TextToSpeechRepository, self).__init__(db, __file__)
 
     def get_voices(self):
+        """
+        Returns a list of mongices.
+
+        Args:
+            self: (todo): write your description
+        """
         db_request = self._build_db_request(sql_file_name='get_voices.sql')
         db_result = self.cursor.select_all(db_request)
 

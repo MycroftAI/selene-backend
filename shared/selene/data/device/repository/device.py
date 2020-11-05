@@ -28,6 +28,13 @@ from ...repository_base import RepositoryBase
 
 class DeviceRepository(RepositoryBase):
     def __init__(self, db):
+        """
+        Initialize the device.
+
+        Args:
+            self: (todo): write your description
+            db: (todo): write your description
+        """
         super(DeviceRepository, self).__init__(db, __file__)
 
     def get_device_by_id(self, device_id: str) -> Device:
@@ -73,6 +80,13 @@ class DeviceRepository(RepositoryBase):
         return devices
 
     def get_account_device_count(self, account_id):
+        """
+        Returns the number of account count.
+
+        Args:
+            self: (todo): write your description
+            account_id: (str): write your description
+        """
         db_request = self._build_db_request(
             sql_file_name="get_account_device_count.sql",
             args=dict(account_id=account_id),
@@ -82,6 +96,12 @@ class DeviceRepository(RepositoryBase):
         return db_results["device_count"]
 
     def get_all_device_ids(self):
+        """
+        Returns a list of devices.
+
+        Args:
+            self: (todo): write your description
+        """
         db_request = self._build_db_request(sql_file_name="get_all_device_ids.sql")
 
         return self.cursor.select_all(db_request)
@@ -154,6 +174,13 @@ class DeviceRepository(RepositoryBase):
         self.cursor.delete(db_request)
 
     def remove(self, device_id):
+        """
+        Deletes the device.
+
+        Args:
+            self: (todo): write your description
+            device_id: (int): write your description
+        """
         db_request = self._build_db_request(
             sql_file_name="remove_device.sql", args=dict(device_id=device_id)
         )
@@ -171,6 +198,14 @@ class DeviceRepository(RepositoryBase):
         self.cursor.update(db_request)
 
     def update_last_contact_ts(self, device_id, last_contact_ts):
+        """
+        Update the last contact time for the last contact.
+
+        Args:
+            self: (todo): write your description
+            device_id: (int): write your description
+            last_contact_ts: (todo): write your description
+        """
         db_request = self._build_db_request(
             sql_file_name="update_last_contact_ts.sql",
             args=dict(device_id=device_id, last_contact_ts=last_contact_ts),

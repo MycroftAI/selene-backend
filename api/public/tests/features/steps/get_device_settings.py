@@ -29,6 +29,12 @@ from selene.api.etag import ETagManager, device_setting_etag_key
 
 @when('try to fetch device\'s setting')
 def get_device_settings(context):
+    """
+    Get settings.
+
+    Args:
+        context: (todo): write your description
+    """
     login = context.device_login
     device_id = login['uuid']
     access_token = login['accessToken']
@@ -41,6 +47,12 @@ def get_device_settings(context):
 
 @then('a valid setting should be returned')
 def validate_response_setting(context):
+    """
+    Validate the response setting.
+
+    Args:
+        context: (todo): write your description
+    """
     response = context.response_setting
     assert_that(response.status_code, equal_to(HTTPStatus.OK))
     setting = json.loads(response.data)
@@ -59,6 +71,12 @@ def validate_response_setting(context):
 
 @when('the settings endpoint is a called to a not allowed device')
 def get_device_settings(context):
+    """
+    Gets settings for the current user.
+
+    Args:
+        context: (todo): write your description
+    """
     access_token = context.device_login['accessToken']
     headers = dict(Authorization='Bearer {token}'.format(token=access_token))
     context.get_invalid_setting_response = context.client.get(
@@ -69,12 +87,24 @@ def get_device_settings(context):
 
 @then('a 401 status code should be returned for the setting')
 def validate_response(context):
+    """
+    Validate the response.
+
+    Args:
+        context: (todo): write your description
+    """
     response = context.get_invalid_setting_response
     assert_that(response.status_code, equal_to(HTTPStatus.UNAUTHORIZED))
 
 
 @given('a device\'s setting with a valid etag')
 def get_device_setting_etag(context):
+    """
+    Gets the device setting for the device.
+
+    Args:
+        context: (todo): write your description
+    """
     device_id = context.device_login['uuid']
     etag_manager: ETagManager = context.etag_manager
     context.device_etag = etag_manager.get(device_setting_etag_key(device_id))
@@ -82,6 +112,12 @@ def get_device_setting_etag(context):
 
 @when('try to fetch the device\'s settings using a valid etag')
 def get_device_settings_using_etag(context):
+    """
+    Gets iam settings.
+
+    Args:
+        context: (todo): write your description
+    """
     etag = context.device_etag
     access_token = context.device_login['accessToken']
     device_id = context.device_login['uuid']
@@ -97,12 +133,24 @@ def get_device_settings_using_etag(context):
 
 @then('304 status code should be returned by the device\'s settings endpoint')
 def validate_etag_response(context):
+    """
+    Validate the response.
+
+    Args:
+        context: (todo): write your description
+    """
     response = context.get_setting_etag_response
     assert_that(response.status_code, equal_to(HTTPStatus.NOT_MODIFIED))
 
 
 @given('a device\'s setting etag expired by the web ui at device level')
 def expire_etag_device_level(context):
+    """
+    Expire the device level.
+
+    Args:
+        context: (todo): write your description
+    """
     device_id = context.device_login['uuid']
     etag_manager: ETagManager = context.etag_manager
     context.device_etag = etag_manager.get(device_setting_etag_key(device_id))
@@ -111,6 +159,12 @@ def expire_etag_device_level(context):
 
 @given('a device\'s setting etag expired by the web ui at account level')
 def expire_etag_account_level(context):
+    """
+    Expire the current login level.
+
+    Args:
+        context: (todo): write your description
+    """
     account_id = context.account.id
     device_id = context.device_login['uuid']
     etag_manager: ETagManager = context.etag_manager
@@ -120,6 +174,12 @@ def expire_etag_account_level(context):
 
 @when('try to fetch the device\'s settings using an expired etag')
 def get_device_settings_using_etag(context):
+    """
+    Gets iam settings.
+
+    Args:
+        context: (todo): write your description
+    """
     etag = context.device_etag
     access_token = context.device_login['accessToken']
     device_id = context.device_login['uuid']
@@ -135,6 +195,12 @@ def get_device_settings_using_etag(context):
 
 @then('200 status code should be returned by the device\'s setting endpoint and a new etag')
 def validate_new_etag(context):
+    """
+    Validate a new etag.
+
+    Args:
+        context: (todo): write your description
+    """
     etag = context.device_etag
     response = context.get_setting_invalid_etag_response
     etag_from_response = response.headers.get('ETag')

@@ -28,6 +28,12 @@ from hamcrest import assert_that, equal_to, not_none
 
 @When('A flac audio with the utterance "tell me a joke" is passed')
 def call_google_stt_endpoint(context):
+    """
+    Call the google cloud provider.
+
+    Args:
+        context: (todo): write your description
+    """
     access_token = context.device_login['accessToken']
     headers = dict(Authorization='Bearer {token}'.format(token=access_token))
     resources_dir = os.path.join(os.path.dirname(__file__), 'resources')
@@ -42,6 +48,12 @@ def call_google_stt_endpoint(context):
 
 @Then('return the utterance "tell me a joke"')
 def validate_response(context):
+    """
+    Validate the response.
+
+    Args:
+        context: (todo): write your description
+    """
     assert_that(context.response.status_code, equal_to(HTTPStatus.OK))
     response_data = json.loads(context.response.data)
     expected_response = ['tell me a joke']
@@ -64,6 +76,13 @@ def validate_response(context):
 
 
 def _get_stt_result_file(account_id, file_suffix):
+    """
+    Returns the file_id for a file_stt file.
+
+    Args:
+        account_id: (str): write your description
+        file_suffix: (str): write your description
+    """
     file_path = None
     for stt_file_name in os.listdir('/opt/selene/data'):
         file_name_match = (

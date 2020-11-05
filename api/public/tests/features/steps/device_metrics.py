@@ -33,16 +33,35 @@ metric_value = dict(type="timing", start="123")
 
 @given("a device registered to a user opted {in_or_out} the open dataset")
 def define_authorized_device(context, in_or_out):
+    """
+    Define a device.
+
+    Args:
+        context: (todo): write your description
+        in_or_out: (int): write your description
+    """
     context.metric_device_id = context.device_login["uuid"]
 
 
 @given("a non-existent device")
 def define_unauthorized_device(context):
+    """
+    Define a device.
+
+    Args:
+        context: (todo): write your description
+    """
     context.metric_device_id = str(uuid.uuid4())
 
 
 @when("someone issues a voice command to the device")
 def call_metrics_endpoint(context):
+    """
+    Post metrics to provider metrics endpoint.
+
+    Args:
+        context: (todo): write your description
+    """
     headers = dict(
         Authorization="Bearer {token}".format(token=context.device_login["accessToken"])
     )
@@ -60,6 +79,12 @@ def call_metrics_endpoint(context):
 
 @then("usage metrics are saved to the database")
 def validate_metric_in_db(context):
+    """
+    Validate that the metric. metrics.
+
+    Args:
+        context: (todo): write your description
+    """
     core_metric_repo = CoreMetricRepository(context.db)
     device_metrics = core_metric_repo.get_metrics_by_device(
         context.device_login["uuid"]

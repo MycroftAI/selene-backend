@@ -31,6 +31,14 @@ REFRESH_TOKEN_COOKIE_KEY = 'seleneRefresh'
 
 
 def generate_access_token(context, duration=ONE_MINUTE):
+    """
+    Generate a new access token.
+
+    Args:
+        context: (todo): write your description
+        duration: (str): write your description
+        ONE_MINUTE: (todo): write your description
+    """
     access_token = AuthenticationToken(
         context.client_config['ACCESS_SECRET'],
         duration
@@ -42,6 +50,14 @@ def generate_access_token(context, duration=ONE_MINUTE):
 
 
 def set_access_token_cookie(context, duration=ONE_MINUTE):
+    """
+    Set the access token.
+
+    Args:
+        context: (todo): write your description
+        duration: (todo): write your description
+        ONE_MINUTE: (todo): write your description
+    """
     context.client.set_cookie(
         context.client_config['DOMAIN'],
         ACCESS_TOKEN_COOKIE_KEY,
@@ -51,6 +67,14 @@ def set_access_token_cookie(context, duration=ONE_MINUTE):
 
 
 def generate_refresh_token(context, duration=TWO_MINUTES):
+    """
+    Generate a new access token.
+
+    Args:
+        context: (todo): write your description
+        duration: (todo): write your description
+        TWO_MINUTES: (todo): write your description
+    """
     refresh_token = AuthenticationToken(
         context.client_config['REFRESH_SECRET'],
         duration
@@ -62,6 +86,14 @@ def generate_refresh_token(context, duration=TWO_MINUTES):
 
 
 def set_refresh_token_cookie(context, duration=TWO_MINUTES):
+    """
+    Set refresh token.
+
+    Args:
+        context: (todo): write your description
+        duration: (todo): write your description
+        TWO_MINUTES: (int): write your description
+    """
     context.client.set_cookie(
         context.client_config['DOMAIN'],
         REFRESH_TOKEN_COOKIE_KEY,
@@ -71,6 +103,13 @@ def set_refresh_token_cookie(context, duration=TWO_MINUTES):
 
 
 def validate_token_cookies(context, expired=False):
+    """
+    Validate the access token.
+
+    Args:
+        context: (todo): write your description
+        expired: (todo): write your description
+    """
     for cookie in context.response.headers.getlist('Set-Cookie'):
         ingredients = _parse_cookie(cookie)
         ingredient_names = list(ingredients.keys())
@@ -91,6 +130,12 @@ def validate_token_cookies(context, expired=False):
 
 
 def _parse_cookie(cookie: str) -> dict:
+    """
+    Parse a cookie.
+
+    Args:
+        cookie: (str): write your description
+    """
     ingredients = {}
     for ingredient in cookie.split('; '):
         if '=' in ingredient:
@@ -103,6 +148,12 @@ def _parse_cookie(cookie: str) -> dict:
 
 
 def get_account(context) -> Account:
+    """
+    Returns the account.
+
+    Args:
+        context: (todo): write your description
+    """
     db = connect_to_db(context.client['DB_CONNECTION_CONFIG'])
     acct_repository = AccountRepository(db)
     account = acct_repository.get_account_by_id(context.account.id)
@@ -111,6 +162,12 @@ def get_account(context) -> Account:
 
 
 def check_http_success(context):
+    """
+    Check if the http status code.
+
+    Args:
+        context: (todo): write your description
+    """
     assert_that(
         context.response.status_code,
         is_in([HTTPStatus.OK, HTTPStatus.NO_CONTENT])
@@ -118,6 +175,13 @@ def check_http_success(context):
 
 
 def check_http_error(context, error_type):
+    """
+    Check if the http errors.
+
+    Args:
+        context: (dict): write your description
+        error_type: (todo): write your description
+    """
     if error_type == 'a bad request':
         assert_that(
             context.response.status_code,

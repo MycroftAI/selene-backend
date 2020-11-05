@@ -29,6 +29,12 @@ from selene.util.db import connect_to_db
 
 @given("a device pairing code")
 def set_device_pairing_code(context):
+    """
+    Set pairing code.
+
+    Args:
+        context: (todo): write your description
+    """
     pairing_data = dict(
         code="ABC123",
         state="this is a state",
@@ -45,6 +51,12 @@ def set_device_pairing_code(context):
 
 @when("an API request is sent to add a device")
 def add_device(context):
+    """
+    Add device.
+
+    Args:
+        context: (todo): write your description
+    """
     device = dict(
         city="Kansas City",
         country="United States",
@@ -64,6 +76,12 @@ def add_device(context):
 
 @then("the pairing code is removed from cache")
 def validate_pairing_code_removal(context):
+    """
+    Validate that the pairing is validators.
+
+    Args:
+        context: (todo): write your description
+    """
     cache = SeleneCache()
     pairing_data = cache.get("pairing.code:ABC123")
     assert_that(pairing_data, none())
@@ -71,6 +89,12 @@ def validate_pairing_code_removal(context):
 
 @then("the device is added to the database")
 def validate_response(context):
+    """
+    Validate the account.
+
+    Args:
+        context: (todo): write your description
+    """
     device_id = context.response.data.decode()
     account = context.accounts["foo"]
     db = connect_to_db(context.client_config["DB_CONNECTION_CONFIG"])
@@ -85,6 +109,12 @@ def validate_response(context):
 
 @then("the pairing token is added to cache")
 def validate_pairing_token(context):
+    """
+    Validate a pairing token.
+
+    Args:
+        context: (todo): write your description
+    """
     device_id = context.response.data.decode()
     cache = SeleneCache()
     pairing_data = cache.get("pairing.token:this is a token")

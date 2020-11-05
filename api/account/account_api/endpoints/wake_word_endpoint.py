@@ -25,12 +25,24 @@ from selene.data.wake_word import WakeWordRepository
 
 class WakeWordEndpoint(SeleneEndpoint):
     def get(self):
+        """
+        Returns the authentication data.
+
+        Args:
+            self: (todo): write your description
+        """
         self._authenticate()
         response_data = self._build_response_data()
 
         return response_data, HTTPStatus.OK
 
     def _build_response_data(self):
+        """
+        Builds a dictionary of word data.
+
+        Args:
+            self: (todo): write your description
+        """
         response_data = []
         wake_word_repository = WakeWordRepository(self.db, self.account.id)
         wake_words = wake_word_repository.get_wake_words_for_web()

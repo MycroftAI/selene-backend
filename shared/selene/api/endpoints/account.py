@@ -61,6 +61,12 @@ STRIPE_PAYMENT = "Stripe"
 
 
 def agreement_accepted(value):
+    """
+    Validate that the given value.
+
+    Args:
+        value: (todo): write your description
+    """
     if not value:
         raise ValidationError("agreement not accepted")
 
@@ -72,6 +78,14 @@ class Login(Model):
     password = StringType()
 
     def validate_email(self, data, value):
+        """
+        Validate value is a valid email address.
+
+        Args:
+            self: (todo): write your description
+            data: (array): write your description
+            value: (todo): write your description
+        """
         if data["federated_token"] is None:
             if value is None:
                 raise ValidationError(
@@ -79,6 +93,14 @@ class Login(Model):
                 )
 
     def validate_password(self, data, value):
+        """
+        Validate password.
+
+        Args:
+            self: (todo): write your description
+            data: (array): write your description
+            value: (str): write your description
+        """
         if data["email"] is not None:
             if value is None:
                 raise ValidationError("email address must be accompanied by a password")
@@ -98,14 +120,38 @@ class UpdateMembershipRequest(Model):
     payment_token = StringType()
 
     def validate_membership_type(self, data, value):
+        """
+        Validate the membership type.
+
+        Args:
+            self: (todo): write your description
+            data: (array): write your description
+            value: (todo): write your description
+        """
         if data["new_membership"] and value is None:
             raise ValidationError("new memberships require a membership type")
 
     def validate_payment_method(self, data, value):
+        """
+        Validate payment method.
+
+        Args:
+            self: (todo): write your description
+            data: (array): write your description
+            value: (str): write your description
+        """
         if data["new_membership"] and value is None:
             raise ValidationError("new memberships require a payment method")
 
     def validate_payment_token(self, data, value):
+        """
+        Validate payment token.
+
+        Args:
+            self: (todo): write your description
+            data: (todo): write your description
+            value: (str): write your description
+        """
         if data["new_membership"] and value is None:
             raise ValidationError("payment token required for new memberships")
 
@@ -123,11 +169,23 @@ class AccountEndpoint(SeleneEndpoint):
     _account_activity_repository = None
 
     def __init__(self):
+        """
+        Initialize the request.
+
+        Args:
+            self: (todo): write your description
+        """
         super(AccountEndpoint, self).__init__()
         self.request_data = None
 
     @property
     def account_repository(self):
+        """
+        Returns the repository repository.
+
+        Args:
+            self: (todo): write your description
+        """
         if self._account_repository is None:
             self._account_repository = AccountRepository(self.db)
 
@@ -135,6 +193,12 @@ class AccountEndpoint(SeleneEndpoint):
 
     @property
     def account_activity_repository(self):
+        """
+        Gets the activity activity list of the account.
+
+        Args:
+            self: (todo): write your description
+        """
         if self._account_activity_repository is None:
             self._account_activity_repository = AccountActivityRepository(self.db)
 
@@ -149,6 +213,12 @@ class AccountEndpoint(SeleneEndpoint):
         return self.response
 
     def _build_response_data(self):
+        """
+        Builds the response data dictionary for the analysis.
+
+        Args:
+            self: (todo): write your description
+        """
         response_data = asdict(self.account)
         for agreement in response_data["agreements"]:
             agreement_date = self._format_agreement_date(agreement)
@@ -164,6 +234,12 @@ class AccountEndpoint(SeleneEndpoint):
 
     @staticmethod
     def _format_agreement_date(agreement):
+        """
+        Format the agreement date.
+
+        Args:
+            agreement: (str): write your description
+        """
         agreement_date = datetime.strptime(agreement["accept_date"], "%Y-%m-%d")
         formatted_agreement_date = agreement_date.strftime("%B %d, %Y")
 
@@ -171,6 +247,12 @@ class AccountEndpoint(SeleneEndpoint):
 
     @staticmethod
     def _format_membership_duration(response_data):
+        """
+        Formats the duration.
+
+        Args:
+            response_data: (bool): write your description
+        """
         membership_start = datetime.strptime(
             response_data["membership"]["start_date"], "%Y-%m-%d"
         )
@@ -188,6 +270,12 @@ class AccountEndpoint(SeleneEndpoint):
         return " ".join(membership_duration) if membership_duration else None
 
     def post(self):
+        """
+        Creates request
+
+        Args:
+            self: (todo): write your description
+        """
         self.request_data = json.loads(self.request.data)
         self._validate_post_request()
         email_address, password = self._determine_login_method()
@@ -195,6 +283,12 @@ class AccountEndpoint(SeleneEndpoint):
         return jsonify("Account added successfully"), HTTPStatus.OK
 
     def _validate_post_request(self):
+        """
+        Validate the login request.
+
+        Args:
+            self: (todo): write your description
+        """
         add_request = AddAccountRequest(
             dict(
                 privacy_policy=self.request_data.get("privacyPolicy"),
@@ -207,6 +301,12 @@ class AccountEndpoint(SeleneEndpoint):
         self.request_data = add_request.to_native()
 
     def _build_login_schematic(self) -> Login:
+        """
+        Build login login request.
+
+        Args:
+            self: (todo): write your description
+        """
         login = None
         login_data = self.request.json.get("login")
         if login_data is not None:
@@ -228,6 +328,12 @@ class AccountEndpoint(SeleneEndpoint):
         return login
 
     def _determine_login_method(self):
+        """
+        Determine the login method.
+
+        Args:
+            self: (todo): write your description
+        """
         login_data = self.request_data["login"]
         password = None
         if login_data["federated_platform"] == "Facebook":
@@ -243,6 +349,14 @@ class AccountEndpoint(SeleneEndpoint):
         return email_address, password
 
     def _add_account(self, email_address, password):
+        """
+        Add a new account.
+
+        Args:
+            self: (todo): write your description
+            email_address: (str): write your description
+            password: (str): write your description
+        """
         account = Account(
             email_address=email_address,
             agreements=[
@@ -254,6 +368,12 @@ class AccountEndpoint(SeleneEndpoint):
         self.account_activity_repository.increment_accounts_added()
 
     def patch(self):
+        """
+        Authenticates the device.
+
+        Args:
+            self: (todo): write your description
+        """
         self._authenticate()
         errors = self._update_account()
         if errors:
@@ -267,11 +387,23 @@ class AccountEndpoint(SeleneEndpoint):
         return response_data, response_status
 
     def _expire_device_setting_cache(self):
+        """
+        Expire the device to be used in the device.
+
+        Args:
+            self: (todo): write your description
+        """
         cache = SeleneCache()
         etag_manager = ETagManager(cache, self.config)
         etag_manager.expire_device_setting_etag_by_account_id(self.account.id)
 
     def _update_account(self):
+        """
+        Updates members.
+
+        Args:
+            self: (todo): write your description
+        """
         errors = []
         for key, value in self.request.json.items():
             if key == "membership":
@@ -287,6 +419,13 @@ class AccountEndpoint(SeleneEndpoint):
         return errors
 
     def _validate_membership_update_request(self, value):
+        """
+        Validate the membership membership.
+
+        Args:
+            self: (todo): write your description
+            value: (dict): write your description
+        """
         validator = UpdateMembershipRequest()
         validator.new_membership = value["newMembership"]
         validator.membership_type = value["membershipType"]
@@ -297,6 +436,13 @@ class AccountEndpoint(SeleneEndpoint):
         return validator
 
     def _update_membership(self, membership_change):
+        """
+        Updates the membership membership.
+
+        Args:
+            self: (todo): write your description
+            membership_change: (todo): write your description
+        """
         stripe.api_key = os.environ["STRIPE_PRIVATE_KEY"]
         active_membership = self._get_active_membership()
         if membership_change["membership_type"] is None:
@@ -321,6 +467,12 @@ class AccountEndpoint(SeleneEndpoint):
                 self._add_membership(membership_change, active_membership)
 
     def _get_active_membership(self):
+        """
+        Returns the membership membership of the current user.
+
+        Args:
+            self: (todo): write your description
+        """
         acct_repository = AccountRepository(self.db)
         active_membership = acct_repository.get_active_account_membership(
             self.account.id
@@ -329,6 +481,14 @@ class AccountEndpoint(SeleneEndpoint):
         return active_membership
 
     def _add_membership(self, membership_change, active_membership):
+        """
+        Add a new membership to the group.
+
+        Args:
+            self: (todo): write your description
+            membership_change: (todo): write your description
+            active_membership: (todo): write your description
+        """
         if active_membership is None:
             payment_account_id = create_stripe_account(
                 membership_change["payment_token"], self.account.email_address
@@ -349,21 +509,49 @@ class AccountEndpoint(SeleneEndpoint):
         self.account_repository.add_membership(self.account.id, new_membership)
 
     def _get_stripe_plan(self, plan):
+        """
+        Gets the membership for the given plan.
+
+        Args:
+            self: (todo): write your description
+            plan: (str): write your description
+        """
         membership_repository = MembershipRepository(self.db)
         membership = membership_repository.get_membership_by_type(plan)
 
         return membership.stripe_plan
 
     def _cancel_membership(self, active_membership):
+        """
+        Cancel the membership of the given group.
+
+        Args:
+            self: (todo): write your description
+            active_membership: (bool): write your description
+        """
         cancel_stripe_subscription(active_membership.payment_id)
         active_membership.end_date = datetime.utcnow()
         account_repository = AccountRepository(self.db)
         account_repository.end_membership(active_membership)
 
     def _update_username(self, username):
+        """
+        Update the username of the account.
+
+        Args:
+            self: (todo): write your description
+            username: (str): write your description
+        """
         self.account_repository.update_username(self.account.id, username)
 
     def _update_open_dataset_agreement(self, opt_in: bool):
+        """
+        Updates the open accounts of the account.
+
+        Args:
+            self: (todo): write your description
+            opt_in: (todo): write your description
+        """
         if opt_in:
             agreement = AccountAgreement(type=OPEN_DATASET, accept_date=date.today())
             self.account_repository.add_agreement(self.account.id, agreement)
@@ -373,6 +561,12 @@ class AccountEndpoint(SeleneEndpoint):
             self.account_activity_repository.increment_open_dataset_deleted()
 
     def delete(self):
+        """
+        Deletes the member.
+
+        Args:
+            self: (todo): write your description
+        """
         self._authenticate()
         self.account_repository.remove(self.account)
         self.account_activity_repository.increment_accounts_deleted()

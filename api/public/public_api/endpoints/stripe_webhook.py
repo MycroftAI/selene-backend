@@ -27,9 +27,21 @@ from selene.data.account import AccountRepository
 class StripeWebHookEndpoint(PublicEndpoint):
 
     def __init__(self):
+        """
+        Initialize the logger.
+
+        Args:
+            self: (todo): write your description
+        """
         super(StripeWebHookEndpoint, self).__init__()
 
     def post(self):
+        """
+        Handle post request
+
+        Args:
+            self: (todo): write your description
+        """
         event = json.loads(self.request.data)
         type = event.get('type')
         if type == 'customer.subscription.deleted':

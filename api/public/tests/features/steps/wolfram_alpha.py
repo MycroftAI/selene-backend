@@ -25,6 +25,12 @@ from hamcrest import assert_that
 
 @when("a query is sent to the Wolfram Alpha fallback")
 def send_question(context):
+    """
+    Send question question
+
+    Args:
+        context: (todo): write your description
+    """
     login = context.device_login
     access_token = login["accessToken"]
     context.wolfram_response = context.client.get(
@@ -35,6 +41,12 @@ def send_question(context):
 
 @when("a question is sent to the wolfram alpha spoken endpoint")
 def send_question(context):
+    """
+    Send question question
+
+    Args:
+        context: (todo): write your description
+    """
     login = context.device_login
     access_token = login["accessToken"]
     context.wolfram_response = context.client.get(
@@ -45,5 +57,11 @@ def send_question(context):
 
 @then("the answer provided by Wolfram Alpha is returned")
 def validate_response(context):
+    """
+    Validate the response.
+
+    Args:
+        context: (todo): write your description
+    """
     response = context.wolfram_response
     assert_that(response.status_code, HTTPStatus.OK)

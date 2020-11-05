@@ -21,6 +21,13 @@ from selene.data.device import AccountPreferences, PreferenceRepository
 
 
 def add_account_preference(db, account_id):
+    """
+    Add a preference to the given db. db.
+
+    Args:
+        db: (todo): write your description
+        account_id: (str): write your description
+    """
     account_preferences = AccountPreferences(
         date_format='MM/DD/YYYY',
         time_format='12 Hour',

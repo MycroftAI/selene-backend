@@ -21,6 +21,14 @@ from selene.data.device import DeviceRepository
 
 
 def add_device(db, account_id, geography_id):
+    """
+    Add a device.
+
+    Args:
+        db: (todo): write your description
+        account_id: (str): write your description
+        geography_id: (int): write your description
+    """
     device = dict(
         name="Selene Test Device",
         pairing_code="ABC123",

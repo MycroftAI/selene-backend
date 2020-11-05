@@ -36,6 +36,14 @@ class AuthenticationError(Exception):
 class AuthenticationToken(object):
     # TODO: move duration argument to generate method
     def __init__(self, secret: str, duration: int):
+        """
+        Initialize the jwt.
+
+        Args:
+            self: (todo): write your description
+            secret: (str): write your description
+            duration: (todo): write your description
+        """
         self.secret = secret
         self.duration = duration
         self.jwt: str = ''
@@ -78,6 +86,12 @@ class AuthenticationToken(object):
 
 
 def get_google_account_email(token: str) -> str:
+    """
+    Gets the account email.
+
+    Args:
+        token: (str): write your description
+    """
     google_response = requests.get(
         'https://oauth2.googleapis.com/tokeninfo?id_token=' + token
     )
@@ -91,6 +105,12 @@ def get_google_account_email(token: str) -> str:
 
 
 def get_facebook_account_email(token: str) -> str:
+    """
+    Returns the account email.
+
+    Args:
+        token: (str): write your description
+    """
     facebook_api = GraphAPI(token)
     facebook_account = facebook_api.get_object(id='me?fields=email')
 
@@ -98,6 +118,12 @@ def get_facebook_account_email(token: str) -> str:
 
 
 def get_github_account_email(token: str) -> str:
+    """
+    Retrieves the email.
+
+    Args:
+        token: (str): write your description
+    """
     github_email = None
     github_user = requests.get(
         'https://api.github.com/user/emails',
@@ -112,6 +138,13 @@ def get_github_account_email(token: str) -> str:
 
 
 def get_github_authentication_token(access_code: str, state: str) -> str:
+    """
+    Get an access token from github.
+
+    Args:
+        access_code: (str): write your description
+        state: (todo): write your description
+    """
     params = [
         'client_id=' + os.environ['GITHUB_CLIENT_ID'],
         'client_secret=' + os.environ['GITHUB_CLIENT_SECRET'],

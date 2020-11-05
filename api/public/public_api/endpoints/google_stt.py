@@ -36,6 +36,12 @@ class GoogleSTTEndpoint(PublicEndpoint):
     _account_repo = None
 
     def __init__(self):
+        """
+        Initialize the google account.
+
+        Args:
+            self: (todo): write your description
+        """
         super(GoogleSTTEndpoint, self).__init__()
         self.google_stt_key = self.config["GOOGLE_STT_KEY"]
         self.recognizer = Recognizer()
@@ -44,12 +50,24 @@ class GoogleSTTEndpoint(PublicEndpoint):
 
     @property
     def account_repo(self):
+        """
+        : return repo : return : attribute.
+
+        Args:
+            self: (todo): write your description
+        """
         if self._account_repo is None:
             self._account_repo = AccountRepository(self.db)
 
         return self._account_repo
 
     def post(self):
+        """
+        Called when the activity.
+
+        Args:
+            self: (todo): write your description
+        """
         self._authenticate()
         self._get_account()
         self._check_for_open_dataset_agreement()
@@ -63,10 +81,22 @@ class GoogleSTTEndpoint(PublicEndpoint):
         return response, HTTPStatus.OK
 
     def _get_account(self):
+        """
+        Get the account object.
+
+        Args:
+            self: (todo): write your description
+        """
         if self.device_id is not None:
             self.account = self.account_repo.get_account_by_device_id(self.device_id)
 
     def _check_for_open_dataset_agreement(self):
+        """
+        Check if the open accounts have open.
+
+        Args:
+            self: (todo): write your description
+        """
         for agreement in self.account.agreements:
             if agreement.type == OPEN_DATASET:
                 self.account_shares_data = True
@@ -81,6 +111,14 @@ class GoogleSTTEndpoint(PublicEndpoint):
         self._write_open_dataset_file(file_contents.encode(), file_type="stt")
 
     def _write_open_dataset_file(self, content, file_type):
+        """
+        Write the data file.
+
+        Args:
+            self: (todo): write your description
+            content: (str): write your description
+            file_type: (str): write your description
+        """
         if self.account is not None and self.account_shares_data:
             file_name = "{account_id}_{time}.{file_type}".format(
                 account_id=self.account.id, file_type=file_type, time=time()

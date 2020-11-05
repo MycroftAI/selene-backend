@@ -35,6 +35,12 @@ new_fields = dict(
 
 @when('device is retrieved')
 def get_device(context):
+    """
+    Get the device.
+
+    Args:
+        context: (todo): write your description
+    """
     access_token = context.device_login['accessToken']
     headers = dict(Authorization='Bearer {token}'.format(token=access_token))
     device_id = context.device_login['uuid']
@@ -47,6 +53,12 @@ def get_device(context):
 
 @then('a valid device should be returned')
 def validate_response(context):
+    """
+    Validate the response.
+
+    Args:
+        context: (todo): write your description
+    """
     response = context.get_device_response
     assert_that(response.status_code, equal_to(HTTPStatus.OK))
     device = json.loads(response.data)
@@ -63,11 +75,23 @@ def validate_response(context):
 
 @when('try to fetch a device without the authorization header')
 def get_invalid_device(context):
+    """
+    Get the device.
+
+    Args:
+        context: (todo): write your description
+    """
     context.get_invalid_device_response = context.client.get('/v1/device/{uuid}'.format(uuid=str(uuid.uuid4())))
 
 
 @when('try to fetch a not allowed device')
 def get_not_allowed_device(context):
+    """
+    Get the access token.
+
+    Args:
+        context: (todo): write your description
+    """
     access_token = context.device_login['accessToken']
     headers = dict(Authorization='Bearer {token}'.format(token=access_token))
     context.get_invalid_device_response = context.client.get(
@@ -78,12 +102,24 @@ def get_not_allowed_device(context):
 
 @then('a 401 status code should be returned')
 def validate_invalid_response(context):
+    """
+    Validate the response.
+
+    Args:
+        context: (todo): write your description
+    """
     response = context.get_invalid_device_response
     assert_that(response.status_code, equal_to(HTTPStatus.UNAUTHORIZED))
 
 
 @when('the device is updated')
 def update_device(context):
+    """
+    Update the device.
+
+    Args:
+        context: (todo): write your description
+    """
     login = context.device_login
     access_token = login['accessToken']
     device_id = login['uuid']
@@ -99,6 +135,12 @@ def update_device(context):
 
 @then('the information should be updated')
 def validate_update(context):
+    """
+    Validate a single device.
+
+    Args:
+        context: (todo): write your description
+    """
     response = context.update_device_response
     assert_that(response.status_code, equal_to(HTTPStatus.OK))
 
@@ -113,6 +155,12 @@ def validate_update(context):
 
 @given('a device with a valid etag')
 def get_device_etag(context):
+    """
+    Get etag.
+
+    Args:
+        context: (todo): write your description
+    """
     etag_manager: ETagManager = context.etag_manager
     device_id = context.device_login['uuid']
     context.device_etag = etag_manager.get(device_etag_key(device_id))
@@ -120,6 +168,12 @@ def get_device_etag(context):
 
 @when('try to fetch a device using a valid etag')
 def get_device_using_etag(context):
+    """
+    Get an etag.
+
+    Args:
+        context: (todo): write your description
+    """
     etag = context.device_etag
     assert_that(etag, not_none())
     access_token = context.device_login['accessToken']
@@ -136,12 +190,24 @@ def get_device_using_etag(context):
 
 @then('304 status code should be returned by the device endpoint')
 def validate_etag(context):
+    """
+    Validate the response.
+
+    Args:
+        context: (todo): write your description
+    """
     response = context.response_using_etag
     assert_that(response.status_code, equal_to(HTTPStatus.NOT_MODIFIED))
 
 
 @given('a device\'s etag expired by the web ui')
 def expire_etag(context):
+    """
+    Expire the current etag.
+
+    Args:
+        context: (todo): write your description
+    """
     etag_manager: ETagManager = context.etag_manager
     device_id = context.device_login['uuid']
     context.device_etag = etag_manager.get(device_etag_key(device_id))
@@ -150,6 +216,12 @@ def expire_etag(context):
 
 @when('try to fetch a device using an expired etag')
 def fetch_device_expired_etag(context):
+    """
+    Fetch an access token.
+
+    Args:
+        context: (todo): write your description
+    """
     etag = context.device_etag
     assert_that(etag, not_none())
     access_token = context.device_login['accessToken']
@@ -166,12 +238,24 @@ def fetch_device_expired_etag(context):
 
 @then('should return status 200')
 def validate_status_code(context):
+    """
+    Validate the status code.
+
+    Args:
+        context: (todo): write your description
+    """
     response = context.response_using_invalid_etag
     assert_that(response.status_code, equal_to(HTTPStatus.OK))
 
 
 @then('a new etag')
 def validate_new_etag(context):
+    """
+    Validate etag.
+
+    Args:
+        context: (todo): write your description
+    """
     etag = context.device_etag
     response = context.response_using_invalid_etag
     etag_from_response = response.headers.get('ETag')

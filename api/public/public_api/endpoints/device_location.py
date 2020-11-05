@@ -27,9 +27,22 @@ from selene.data.device import GeographyRepository
 class DeviceLocationEndpoint(PublicEndpoint):
 
     def __init__(self):
+        """
+        Initialize the device.
+
+        Args:
+            self: (todo): write your description
+        """
         super(DeviceLocationEndpoint, self).__init__()
 
     def get(self, device_id):
+        """
+        Get a single device.
+
+        Args:
+            self: (todo): write your description
+            device_id: (int): write your description
+        """
         self._authenticate(device_id)
         self._validate_etag(device_location_etag_key(device_id))
         location = GeographyRepository(self.db, None).get_location_by_device_id(device_id)

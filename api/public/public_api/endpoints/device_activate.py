@@ -49,6 +49,12 @@ class ActivationRequest(Model):
 
 class DeviceActivateEndpoint(PublicEndpoint):
     def post(self):
+        """
+        Perform post request.
+
+        Args:
+            self: (todo): write your description
+        """
         activation_request = self._validate_request()
         pairing_session = self._get_pairing_session()
         if pairing_session is not None:
@@ -63,6 +69,12 @@ class DeviceActivateEndpoint(PublicEndpoint):
         return response
 
     def _validate_request(self):
+        """
+        Validate the activation request.
+
+        Args:
+            self: (todo): write your description
+        """
         activation_request = ActivationRequest(self.request.json)
         activation_request.validate()
 

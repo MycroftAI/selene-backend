@@ -30,6 +30,12 @@ from selene.util.cache import DEVICE_LAST_CONTACT_KEY
 
 @then("the device's last contact time is updated")
 def check_device_last_contact(context):
+    """
+    Check if contact contact contact is valid.
+
+    Args:
+        context: (todo): write your description
+    """
     key = DEVICE_LAST_CONTACT_KEY.format(device_id=context.device_id)
     value = context.cache.get(key).decode()
     assert_that(value, not_none())
@@ -40,6 +46,12 @@ def check_device_last_contact(context):
 
 @then("the request will be successful")
 def check_request_success(context):
+    """
+    Check if the request was successful.
+
+    Args:
+        context: (todo): write your description
+    """
     assert_that(
         context.response.status_code, is_in([HTTPStatus.OK, HTTPStatus.NO_CONTENT])
     )
@@ -47,11 +59,24 @@ def check_request_success(context):
 
 @then('the request will succeed with a "not modified" return code')
 def check_request_success(context):
+    """
+    Check if the request was successful.
+
+    Args:
+        context: (todo): write your description
+    """
     assert_that(context.response.status_code, equal_to(HTTPStatus.NOT_MODIFIED))
 
 
 @then("the request will fail with {error_type} error")
 def check_for_bad_request(context, error_type):
+    """
+    Checks the bad bad bad response.
+
+    Args:
+        context: (todo): write your description
+        error_type: (todo): write your description
+    """
     if error_type == "a bad request":
         assert_that(context.response.status_code, equal_to(HTTPStatus.BAD_REQUEST))
     elif error_type == "an unauthorized":
@@ -62,6 +87,12 @@ def check_for_bad_request(context, error_type):
 
 @given("an authorized device")
 def build_request_header(context):
+    """
+    Builds the request context.
+
+    Args:
+        context: (todo): write your description
+    """
     context.request_header = dict(
         Authorization="Bearer {token}".format(token=context.access_token)
     )
@@ -69,6 +100,12 @@ def build_request_header(context):
 
 @given("an unauthorized device")
 def build_unauthorized_request_header(context):
+    """
+    Builds the request context.
+
+    Args:
+        context: (todo): write your description
+    """
     context.request_header = dict(
         Authorization="Bearer {token}".format(token="bogus_token")
     )
@@ -76,6 +113,12 @@ def build_unauthorized_request_header(context):
 
 @then("the account's last activity time is updated")
 def validate_account_last_activity(context):
+    """
+    Check if activity activity.
+
+    Args:
+        context: (todo): write your description
+    """
     account_repo = AccountRepository(context.db)
     account = account_repo.get_account_by_device_id(context.device_login["uuid"])
     assert_that(account.last_activity, not_none())
@@ -84,6 +127,12 @@ def validate_account_last_activity(context):
 
 @then("the account activity metrics will be updated")
 def validate_account_activity_metrics(context):
+    """
+    Validate activity activity activity.
+
+    Args:
+        context: (todo): write your description
+    """
     account_activity_repo = AccountActivityRepository(context.db)
     account_activity = account_activity_repo.get_activity_by_date(
         datetime.utcnow().date()

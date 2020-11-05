@@ -24,6 +24,12 @@ from ...repository_base import RepositoryBase
 
 
 def extract_family_from_global_id(skill_gid):
+    """
+    Extract family name from family id.
+
+    Args:
+        skill_gid: (str): write your description
+    """
     id_parts = skill_gid.split('|')
     if id_parts[0].startswith('@'):
         family_name = id_parts[1]
@@ -35,10 +41,24 @@ def extract_family_from_global_id(skill_gid):
 
 class SkillRepository(RepositoryBase):
     def __init__(self, db):
+        """
+        Initialize the database.
+
+        Args:
+            self: (todo): write your description
+            db: (todo): write your description
+        """
         self.db = db
         super(SkillRepository, self).__init__(db, __file__)
 
     def get_skills_for_account(self, account_id) -> List[SkillFamily]:
+        """
+        Returns a list of skills.
+
+        Args:
+            self: (todo): write your description
+            account_id: (str): write your description
+        """
         skills = []
         db_request = self._build_db_request(
             'get_skills_for_account.sql',
@@ -52,6 +72,13 @@ class SkillRepository(RepositoryBase):
         return skills
 
     def get_skill_by_global_id(self, skill_global_id) -> Skill:
+        """
+        Find skill by skill id
+
+        Args:
+            self: (todo): write your description
+            skill_global_id: (str): write your description
+        """
         return self._select_one_into_dataclass(
             dataclass=Skill,
             sql_file_name='get_skill_by_global_id.sql',
@@ -60,6 +87,12 @@ class SkillRepository(RepositoryBase):
 
     @staticmethod
     def _extract_settings(skill):
+        """
+        Extract skill settings.
+
+        Args:
+            skill: (dict): write your description
+        """
         settings = {}
         skill_metadata = skill.get('skillMetadata')
         if skill_metadata:
@@ -74,6 +107,13 @@ class SkillRepository(RepositoryBase):
         return result
 
     def ensure_skill_exists(self, skill_global_id: str) -> str:
+        """
+        Checks if a skill has a skill.
+
+        Args:
+            self: (todo): write your description
+            skill_global_id: (str): write your description
+        """
         skill = self.get_skill_by_global_id(skill_global_id)
         if skill is None:
             family_name = extract_family_from_global_id(skill_global_id)
@@ -84,6 +124,14 @@ class SkillRepository(RepositoryBase):
         return skill_id
 
     def _add_skill(self, skill_gid: str, name: str) -> str:
+        """
+        Adds a skill to the skill.
+
+        Args:
+            self: (todo): write your description
+            skill_gid: (str): write your description
+            name: (str): write your description
+        """
         db_request = self._build_db_request(
             sql_file_name='add_skill.sql',
             args=dict(skill_gid=skill_gid, family_name=name)
@@ -99,6 +147,13 @@ class SkillRepository(RepositoryBase):
         return skill_id
 
     def remove_by_gid(self, skill_gid):
+        """
+        Removes a skill by its id.
+
+        Args:
+            self: (todo): write your description
+            skill_gid: (int): write your description
+        """
         db_request = self._build_db_request(
             sql_file_name='remove_skill_by_gid.sql',
             args=dict(skill_gid=skill_gid)

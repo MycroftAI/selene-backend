@@ -35,10 +35,25 @@ defaults_dataclasses = dict(
 
 class DefaultsRepository(RepositoryBase):
     def __init__(self, db, account_id):
+        """
+        Initialize the db.
+
+        Args:
+            self: (todo): write your description
+            db: (todo): write your description
+            account_id: (str): write your description
+        """
         super(DefaultsRepository, self).__init__(db, __file__)
         self.account_id = account_id
 
     def upsert(self, defaults):
+        """
+        Update or update of the database.
+
+        Args:
+            self: (todo): write your description
+            defaults: (todo): write your description
+        """
         db_request_args = dict(account_id=self.account_id)
         db_request_args.update(defaults)
         db_request_args["wake_word"] = db_request_args["wake_word"]
@@ -48,6 +63,12 @@ class DefaultsRepository(RepositoryBase):
         self.cursor.insert(db_request)
 
     def get_account_defaults(self):
+        """
+        Returns the list of account accounts.
+
+        Args:
+            self: (todo): write your description
+        """
         db_request = self._build_db_request(
             sql_file_name="get_account_defaults.sql",
             args=dict(account_id=self.account_id),

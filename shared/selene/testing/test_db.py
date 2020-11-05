@@ -28,6 +28,11 @@ connection_config = dict(
 
 
 def create_test_db():
+    """
+    Create database.
+
+    Args:
+    """
     db = connect(**connection_config)
     db.autocommit = True
     cursor = db.cursor()
@@ -42,6 +47,11 @@ def create_test_db():
 
 
 def drop_test_db():
+    """
+    Drop the database.
+
+    Args:
+    """
     db = connect(**connection_config)
     db.autocommit = True
     cursor = db.cursor()

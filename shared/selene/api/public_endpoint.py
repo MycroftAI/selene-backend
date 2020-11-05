@@ -46,6 +46,11 @@ def track_account_activity(db, device_id: str):
 
 
 def check_oauth_token():
+    """
+    Check the oauth token is valid.
+
+    Args:
+    """
     global_context.url = request.url
     exclude_paths = [
         "/v1/device/code",
@@ -97,6 +102,13 @@ def generate_device_login(device_id: str, cache: SeleneCache) -> dict:
 
 
 def delete_device_login(device_id: str, cache: SeleneCache):
+    """
+    Delete a device.
+
+    Args:
+        device_id: (int): write your description
+        cache: (todo): write your description
+    """
     session = cache.get("device.session:{uuid}".format(uuid=device_id))
     if session is not None:
         session = json.loads(session)
@@ -111,6 +123,12 @@ class PublicEndpoint(MethodView):
     """Abstract class for all endpoints used by Mycroft devices"""
 
     def __init__(self):
+        """
+        Initialize the database.
+
+        Args:
+            self: (todo): write your description
+        """
         global_context.url = request.url
         self.config: dict = current_app.config
         self.request = request
@@ -121,6 +139,12 @@ class PublicEndpoint(MethodView):
 
     @property
     def db(self):
+        """
+        Return a global database.
+
+        Args:
+            self: (todo): write your description
+        """
         if "db" not in global_context:
             global_context.db = connect_to_db(
                 current_app.config["DB_CONNECTION_CONFIG"]
@@ -129,6 +153,13 @@ class PublicEndpoint(MethodView):
         return global_context.db
 
     def _authenticate(self, device_id: str = None):
+        """
+        Authenticates the request.
+
+        Args:
+            self: (todo): write your description
+            device_id: (int): write your description
+        """
         headers = self.request.headers
         if "Authorization" not in headers:
             raise AuthenticationError("Oauth token not found")
@@ -158,10 +189,23 @@ class PublicEndpoint(MethodView):
 
         @after_this_request
         def set_etag_header(response: Response):
+            """
+            Set the http header to the header.
+
+            Args:
+                response: (todo): write your description
+            """
             response.headers["ETag"] = etag
             return response
 
     def _validate_etag(self, key):
+        """
+        Validate an etag.
+
+        Args:
+            self: (todo): write your description
+            key: (str): write your description
+        """
         etag_from_request = self.request.headers.get("If-None-Match")
         if etag_from_request is not None:
             etag_from_cache = self.cache.get(key)

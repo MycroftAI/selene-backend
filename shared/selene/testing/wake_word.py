@@ -22,6 +22,12 @@ from selene.data.wake_word import WakeWord, WakeWordRepository
 
 
 def add_wake_word(db):
+    """
+    Add a word to the db.
+
+    Args:
+        db: (todo): write your description
+    """
     wake_word = WakeWord(name="hey selene", engine="precise")
     wake_word_repository = WakeWordRepository(db)
     wake_word.id = wake_word_repository.add(wake_word)
@@ -30,6 +36,13 @@ def add_wake_word(db):
 
 
 def remove_wake_word(db, wake_word):
+    """
+    Removes word from db
+
+    Args:
+        db: (todo): write your description
+        wake_word: (todo): write your description
+    """
     file_repository = WakeWordFileRepository(db)
     wake_word_repository = WakeWordRepository(db)
     if wake_word.id is None:

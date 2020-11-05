@@ -35,10 +35,22 @@ from selene.util.cache import SeleneCache, DEVICE_LAST_CONTACT_KEY
 
 class UpdateDeviceLastContact(SeleneScript):
     def __init__(self):
+        """
+        Initialize the device.
+
+        Args:
+            self: (todo): write your description
+        """
         super(UpdateDeviceLastContact, self).__init__(__file__)
         self.cache = SeleneCache()
 
     def _run(self):
+        """
+        Run all devices.
+
+        Args:
+            self: (todo): write your description
+        """
         device_repo = DeviceRepository(self.db)
         devices_updated = 0
         for device in device_repo.get_all_device_ids():
@@ -50,6 +62,13 @@ class UpdateDeviceLastContact(SeleneScript):
         self.log.info(str(devices_updated) + ' devices were active today')
 
     def _get_ts_from_cache(self, device_id):
+        """
+        Returns the cache for the given device.
+
+        Args:
+            self: (todo): write your description
+            device_id: (str): write your description
+        """
         last_contact_ts = None
         cache_key = DEVICE_LAST_CONTACT_KEY.format(device_id=device_id)
         value = self.cache.get(cache_key)

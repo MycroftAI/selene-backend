@@ -58,6 +58,12 @@ class SkillInstallEndpoint(SeleneEndpoint):
     _settings_repo = None
 
     def __init__(self):
+        """
+        Initialize the manager.
+
+        Args:
+            self: (todo): write your description
+        """
         super(SkillInstallEndpoint, self).__init__()
         self.installer_settings: List[AccountSkillSetting] = []
         self.skill_name = None
@@ -68,6 +74,12 @@ class SkillInstallEndpoint(SeleneEndpoint):
 
     @property
     def settings_repo(self):
+        """
+        Gets repo.
+
+        Args:
+            self: (todo): write your description
+        """
         if self._settings_repo is None:
             self._settings_repo = SkillSettingRepository(self.db)
 

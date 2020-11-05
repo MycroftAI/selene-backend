@@ -38,6 +38,15 @@ from selene.data.skill import SkillRepository
 
 class SkillManifestReconciler(object):
     def __init__(self, db, device_manifest, db_manifest):
+        """
+        Initialize the device.
+
+        Args:
+            self: (todo): write your description
+            db: (todo): write your description
+            device_manifest: (todo): write your description
+            db_manifest: (dict): write your description
+        """
         self.db = db
         self.skill_manifest_repo = DeviceSkillRepository(db)
         self.skill_repo = SkillRepository(self.db)
@@ -55,6 +64,12 @@ class SkillManifestReconciler(object):
         self._add_skills()
 
     def _update_skills(self):
+        """
+        Update the manifest.
+
+        Args:
+            self: (todo): write your description
+        """
         common_global_ids = self.device_manifest_global_ids.intersection(
             self.db_manifest_global_ids
         )
@@ -65,6 +80,12 @@ class SkillManifestReconciler(object):
                 )
 
     def _remove_skills(self):
+        """
+        Removes differences from the manifest.
+
+        Args:
+            self: (todo): write your description
+        """
         skills_to_remove = self.db_manifest_global_ids.difference(
             self.device_manifest_global_ids
         )
@@ -75,6 +96,12 @@ class SkillManifestReconciler(object):
                 self.skill_repo.remove_by_gid(gid)
 
     def _add_skills(self):
+        """
+        Add differences to the manifest.
+
+        Args:
+            self: (todo): write your description
+        """
         skills_to_add = self.device_manifest_global_ids.difference(
             self.db_manifest_global_ids
         )
@@ -112,16 +139,35 @@ class DeviceSkillManifestEndpoint(PublicEndpoint):
     _device_skill_repo = None
 
     def __init__(self):
+        """
+        Initialize the device.
+
+        Args:
+            self: (todo): write your description
+        """
         super(DeviceSkillManifestEndpoint, self).__init__()
 
     @property
     def device_skill_repo(self):
+        """
+        Return the skill skill skill skill.
+
+        Args:
+            self: (todo): write your description
+        """
         if self._device_skill_repo is None:
             self._device_skill_repo = DeviceSkillRepository(self.db)
 
         return self._device_skill_repo
 
     def put(self, device_id):
+        """
+        Updates the device.
+
+        Args:
+            self: (todo): write your description
+            device_id: (int): write your description
+        """
         self._authenticate(device_id)
         self._validate_put_request()
         self._update_skill_manifest(device_id)
@@ -129,10 +175,23 @@ class DeviceSkillManifestEndpoint(PublicEndpoint):
         return '', HTTPStatus.OK
 
     def _validate_put_request(self):
+        """
+        Validate request data request.
+
+        Args:
+            self: (todo): write your description
+        """
         request_data = SkillManifestRequest(self.request.json)
         request_data.validate()
 
     def _update_skill_manifest(self, device_id):
+        """
+        Updates the manifest.
+
+        Args:
+            self: (todo): write your description
+            device_id: (int): write your description
+        """
         db_skill_manifest = self.device_skill_repo.get_skill_manifest_for_device(
             device_id
         )
@@ -159,6 +218,12 @@ class DeviceSkillManifestEndpoint(PublicEndpoint):
 
     @staticmethod
     def _convert_manifest_timestamps(manifest_skill):
+        """
+        Convert manifest to manifest
+
+        Args:
+            manifest_skill: (str): write your description
+        """
         for key in ('installed', 'updated'):
             value = manifest_skill[key]
             if value:

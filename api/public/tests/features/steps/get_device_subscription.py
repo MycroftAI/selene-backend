@@ -31,6 +31,12 @@ from selene.util.db import connect_to_db
 
 @when('the subscription endpoint is called')
 def get_device_subscription(context):
+    """
+    Get a subscription details.
+
+    Args:
+        context: (todo): write your description
+    """
     login = context.device_login
     device_id = login['uuid']
     access_token = login['accessToken']
@@ -43,6 +49,12 @@ def get_device_subscription(context):
 
 @then('free type should be returned')
 def validate_response(context):
+    """
+    Validates the response.
+
+    Args:
+        context: (todo): write your description
+    """
     response = context.subscription_response
     assert_that(response.status_code, HTTPStatus.OK)
     subscription = json.loads(response.data)
@@ -51,6 +63,12 @@ def validate_response(context):
 
 @when('the subscription endpoint is called for a monthly account')
 def get_device_subscription(context):
+    """
+    Get list of the list of the users.
+
+    Args:
+        context: (todo): write your description
+    """
     membership = AccountMembership(
         start_date=date.today(),
         type='Monthly Membership',
@@ -72,6 +90,12 @@ def get_device_subscription(context):
 
 @then('monthly type should be returned')
 def validate_response_monthly(context):
+    """
+    Validate the subscription subscription.
+
+    Args:
+        context: (todo): write your description
+    """
     response = context.subscription_response
     assert_that(response.status_code, HTTPStatus.OK)
     subscription = json.loads(response.data)
@@ -80,6 +104,12 @@ def validate_response_monthly(context):
 
 @when('try to get the subscription for a nonexistent device')
 def get_subscription_nonexistent_device(context):
+    """
+    Get a list of a subscription.
+
+    Args:
+        context: (todo): write your description
+    """
     access_token = context.device_login['accessToken']
     headers = dict(Authorization='Bearer {token}'.format(token=access_token))
     context.invalid_subscription_response = context.client.get(
@@ -90,5 +120,11 @@ def get_subscription_nonexistent_device(context):
 
 @then('401 status code should be returned for the subscription endpoint')
 def validate_nonexistent_device(context):
+    """
+    Validates that the resource is valid.
+
+    Args:
+        context: (todo): write your description
+    """
     response = context.invalid_subscription_response
     assert_that(response.status_code, equal_to(HTTPStatus.UNAUTHORIZED))

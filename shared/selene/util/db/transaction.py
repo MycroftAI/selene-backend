@@ -32,6 +32,11 @@ def use_transaction(func):
     """
     @wraps(func)
     def execute_in_transaction(*args, **kwargs):
+        """
+        Execute a transaction.
+
+        Args:
+        """
         instance = args[0]
         return_value = None
         if hasattr(instance, "db"):

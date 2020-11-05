@@ -26,9 +26,22 @@ from selene.data.account import AccountRepository
 
 class PremiumVoiceEndpoint(PublicEndpoint):
     def __init__(self):
+        """
+        Initialize the next endpoint.
+
+        Args:
+            self: (todo): write your description
+        """
         super(PremiumVoiceEndpoint, self).__init__()
 
     def get(self, device_id):
+        """
+        Get link details.
+
+        Args:
+            self: (todo): write your description
+            device_id: (int): write your description
+        """
         self._authenticate(device_id)
         arch = self.request.args.get('arch')
         account = AccountRepository(self.db).get_account_by_device_id(device_id)
@@ -40,6 +53,13 @@ class PremiumVoiceEndpoint(PublicEndpoint):
         return response
 
     def _get_premium_voice_link(self, arch):
+        """
+        Returns the link link to the given arch.
+
+        Args:
+            self: (todo): write your description
+            arch: (todo): write your description
+        """
         if arch == 'arm':
             response = os.environ['URL_VOICE_ARM']
         elif arch == 'x86_64':

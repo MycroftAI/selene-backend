@@ -33,12 +33,24 @@ class AvailableSkillsEndpoint(SeleneEndpoint):
     authentication_required = False
 
     def __init__(self):
+        """
+        Initialize self.
+
+        Args:
+            self: (todo): write your description
+        """
         super(AvailableSkillsEndpoint, self).__init__()
         self.available_skills: List[SkillDisplay] = []
         self.response_skills: List[dict] = []
         self.skills_in_manifests = defaultdict(list)
 
     def get(self):
+        """
+        Returns a response object with the response.
+
+        Args:
+            self: (todo): write your description
+        """
         self._get_available_skills()
         self._build_response_data()
         self.response = (self.response_skills, HTTPStatus.OK)

@@ -39,9 +39,23 @@ DUMP_FILE_DIR = '/opt/selene/dump'
 
 class ApiMetricsRepository(RepositoryBase):
     def __init__(self, db):
+        """
+        Initialize database
+
+        Args:
+            self: (todo): write your description
+            db: (todo): write your description
+        """
         super(ApiMetricsRepository, self).__init__(db, __file__)
 
     def add(self, metric: ApiMetric):
+        """
+        Add a metric to the database.
+
+        Args:
+            self: (todo): write your description
+            metric: (str): write your description
+        """
         db_request = self._build_db_request(
             sql_file_name='add_api_metric.sql',
             args=asdict(metric)

@@ -54,6 +54,13 @@ from logging import (
 class LoggingConfig(object):
     """Configure a logger with a daily log file and a console log"""
     def __init__(self, logger_name):
+        """
+        Initialize a logger.
+
+        Args:
+            self: (todo): write your description
+            logger_name: (str): write your description
+        """
         self.logger = getLogger()
         self.logger.level = DEBUG
         self.file_log_level = DEBUG

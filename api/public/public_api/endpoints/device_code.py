@@ -54,6 +54,12 @@ class DeviceCodeEndpoint(PublicEndpoint):
     allowed_characters = "ACEFHJKLMNPRTUVWXY3479"
 
     def __init__(self):
+        """
+        !
+
+        Args:
+            self: (todo): write your description
+        """
         super(DeviceCodeEndpoint, self).__init__()
 
     def get(self):

@@ -101,4 +101,11 @@ def get_db_connection_from_pool(connection_pool, autocommit=True):
 
 
 def return_db_connection_to_pool(connection_pool, connection):
+    """
+    Return a connection pool pool.
+
+    Args:
+        connection_pool: (todo): write your description
+        connection: (todo): write your description
+    """
     connection_pool.putconn(connection)

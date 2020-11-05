@@ -25,6 +25,12 @@ from selene.data.geography import TimezoneRepository
 
 class TimezoneEndpoint(SeleneEndpoint):
     def get(self):
+        """
+        Get all zones.
+
+        Args:
+            self: (todo): write your description
+        """
         country_id = self.request.args['country']
         timezone_repository = TimezoneRepository(self.db)
         timezones = timezone_repository.get_timezones_by_country(country_id)

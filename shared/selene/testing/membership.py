@@ -40,6 +40,12 @@ yearly_membership = dict(
 
 
 def insert_memberships(db):
+    """
+    Insert a new membership into the database.
+
+    Args:
+        db: (todo): write your description
+    """
     monthly = Membership(**monthly_membership)
     yearly = Membership(**yearly_membership)
     membership_repository = MembershipRepository(db)
@@ -50,6 +56,13 @@ def insert_memberships(db):
 
 
 def delete_memberships(db, memberships):
+    """
+    Deletes a member from the database.
+
+    Args:
+        db: (todo): write your description
+        memberships: (todo): write your description
+    """
     membership_repository = MembershipRepository(db)
     for membership in memberships:
         membership_repository.remove(membership)

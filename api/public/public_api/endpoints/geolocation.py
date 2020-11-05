@@ -13,6 +13,12 @@ _log = getLogger()
 
 class GeolocationEndpoint(PublicEndpoint):
     def __init__(self):
+        """
+        Initialize request parameters.
+
+        Args:
+            self: (todo): write your description
+        """
         super().__init__()
         self.device_id = None
         self.request_geolocation = None

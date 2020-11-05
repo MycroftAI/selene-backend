@@ -35,6 +35,13 @@ email_request = dict(
 @when('an email message is sent to the email endpoint')
 @patch('smtplib.SMTP')
 def send_email(context, email_client):
+    """
+    Sends email.
+
+    Args:
+        context: (dict): write your description
+        email_client: (str): write your description
+    """
     context.client_config['EMAIL_CLIENT'] = email_client
     login = context.device_login
     device_id = login['uuid']
@@ -49,6 +56,12 @@ def send_email(context, email_client):
 
 @then('an email should be sent to the user\'s account that owns the device')
 def validate_response(context):
+    """
+    Validate response.
+
+    Args:
+        context: (todo): write your description
+    """
     response = context.email_response
     assert_that(response.status_code, equal_to(HTTPStatus.OK))
     email_client: MagicMock = context.client_config['EMAIL_CLIENT']
@@ -58,6 +71,13 @@ def validate_response(context):
 @when('the email endpoint is called by a not allowed device')
 @patch('smtplib.SMTP')
 def send_email_invalid_device(context, email_client):
+    """
+    Send an email address.
+
+    Args:
+        context: (todo): write your description
+        email_client: (todo): write your description
+    """
     context.client_config['EMAIL_CLIENT'] = email_client
     context.email_invalid_response = context.client.put(
         '/v1/device/{uuid}/email'.format(uuid=str(uuid.uuid4())),
@@ -68,6 +88,12 @@ def send_email_invalid_device(context, email_client):
 
 @then('401 status code should be returned by the email endpoint')
 def validate_response_invalid_device(context):
+    """
+    Validate the response payload.
+
+    Args:
+        context: (todo): write your description
+    """
     response = context.email_invalid_response
     assert_that(response.status_code, equal_to(HTTPStatus.UNAUTHORIZED))
     email_client: MagicMock = context.client_config['EMAIL_CLIENT']

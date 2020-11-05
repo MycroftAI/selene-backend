@@ -110,6 +110,12 @@ class RequestDeviceSkill(Model):
 
 class SkillSettingsMetaEndpoint(PublicEndpoint):
     def __init__(self):
+        """
+        Initialize the device settings.
+
+        Args:
+            self: (todo): write your description
+        """
         super().__init__()
         self.skill = None
         self.default_settings = None
@@ -119,12 +125,25 @@ class SkillSettingsMetaEndpoint(PublicEndpoint):
 
     @property
     def device_skill_repo(self):
+        """
+        Return the skill skill skill skill.
+
+        Args:
+            self: (todo): write your description
+        """
         if self._device_skill_repo is None:
             self._device_skill_repo = DeviceSkillRepository(self.db)
 
         return self._device_skill_repo
 
     def put(self, device_id):
+        """
+        Updates the device.
+
+        Args:
+            self: (todo): write your description
+            device_id: (int): write your description
+        """
         self._authenticate(device_id)
         self._validate_request()
         self._get_skill()

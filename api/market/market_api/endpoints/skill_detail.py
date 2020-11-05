@@ -31,6 +31,12 @@ class SkillDetailEndpoint(SeleneEndpoint):
     authentication_required = False
 
     def __init__(self):
+        """
+        Stub
+
+        Args:
+            self: (todo): write your description
+        """
         super(SkillDetailEndpoint, self).__init__()
         self.skill_display_id = None
         self.response_skill = None

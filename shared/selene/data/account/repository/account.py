@@ -32,6 +32,12 @@ _log = getLogger("selene.data.account")
 
 
 def _encrypt_password(password):
+    """
+    Encrypt a password using the provided password.
+
+    Args:
+        password: (str): write your description
+    """
     salt = environ["SALT"]
     hash_result = sha512_crypt.using(salt=salt, rounds=5000).hash(password)
     hashed_password_index = hash_result.rindex("$") + 1
@@ -41,11 +47,26 @@ def _encrypt_password(password):
 
 class AccountRepository(RepositoryBase):
     def __init__(self, db):
+        """
+        Initialize the database.
+
+        Args:
+            self: (todo): write your description
+            db: (todo): write your description
+        """
         super(AccountRepository, self).__init__(db, __file__)
         self.db = db
 
     @use_transaction
     def add(self, account: Account, password: str) -> str:
+        """
+        Add an account to the account.
+
+        Args:
+            self: (todo): write your description
+            account: (int): write your description
+            password: (str): write your description
+        """
         account_id = self._add_account(account, password)
         for agreement in account.agreements:
             self.add_agreement(account_id, agreement)
@@ -105,6 +126,13 @@ class AccountRepository(RepositoryBase):
         return self._get_account(request)
 
     def get_account_by_email(self, email_address: str) -> Account:
+        """
+        Returns account by email address
+
+        Args:
+            self: (todo): write your description
+            email_address: (str): write your description
+        """
         account_id_resolver = (
             "(SELECT id FROM account.account "
             "WHERE email_address = %(email_address)s)"
@@ -138,6 +166,13 @@ class AccountRepository(RepositoryBase):
         return self._get_account(request)
 
     def _get_account(self, db_request):
+        """
+        Return account accounts.
+
+        Args:
+            self: (todo): write your description
+            db_request: (todo): write your description
+        """
         account = None
         result = self.cursor.select_one(db_request)
 
@@ -167,6 +202,14 @@ class AccountRepository(RepositoryBase):
         return self._get_account(request)
 
     def change_password(self, account_id, password):
+        """
+        Change the password of the database.
+
+        Args:
+            self: (todo): write your description
+            account_id: (str): write your description
+            password: (str): write your description
+        """
         encrypted_password = _encrypt_password(password)
         db_request = self._build_db_request(
             sql_file_name="change_password.sql",
@@ -175,6 +218,14 @@ class AccountRepository(RepositoryBase):
         self.cursor.update(db_request)
 
     def update_username(self, account_id: str, username: str):
+        """
+        Updates the username.
+
+        Args:
+            self: (todo): write your description
+            account_id: (str): write your description
+            username: (str): write your description
+        """
         db_request = self._build_db_request(
             sql_file_name="update_username.sql",
             args=dict(account_id=account_id, username=username),
@@ -182,6 +233,13 @@ class AccountRepository(RepositoryBase):
         self.cursor.update(db_request)
 
     def expire_open_dataset_agreement(self, account_id: str):
+        """
+        Synchronously agreement.
+
+        Args:
+            self: (todo): write your description
+            account_id: (str): write your description
+        """
         db_request = self._build_db_request(
             sql_file_name="expire_account_agreement.sql",
             args=dict(account_id=account_id, agreement_type=OPEN_DATASET),
@@ -189,6 +247,13 @@ class AccountRepository(RepositoryBase):
         self.cursor.delete(db_request)
 
     def update_last_activity_ts(self, account_id):
+        """
+        Update the last activity timestamp.
+
+        Args:
+            self: (todo): write your description
+            account_id: (str): write your description
+        """
         db_request = self._build_db_request(
             sql_file_name="update_last_activity_ts.sql",
             args=dict(account_id=account_id, last_activity_ts=datetime.utcnow()),
@@ -197,6 +262,13 @@ class AccountRepository(RepositoryBase):
         self.cursor.update(db_request)
 
     def daily_report(self, date: datetime):
+        """
+        Generate daily daily daily report.
+
+        Args:
+            self: (todo): write your description
+            date: (todo): write your description
+        """
         base = date - timedelta(days=1)
         end_date = base.strftime("%Y-%m-%d")
         start_date_1_day = (base - timedelta(days=1)).strftime("%Y-%m-%d")
@@ -332,6 +404,13 @@ class AccountRepository(RepositoryBase):
         self.cursor.insert(request)
 
     def end_membership(self, membership: AccountMembership):
+        """
+        Endpoint to the database.
+
+        Args:
+            self: (todo): write your description
+            membership: (todo): write your description
+        """
         db_request = self._build_db_request(
             sql_file_name="end_membership.sql",
             args=dict(
@@ -344,6 +423,13 @@ class AccountRepository(RepositoryBase):
         self.cursor.update(db_request)
 
     def end_active_membership(self, customer_id):
+        """
+        Use this method for the membership of a user.
+
+        Args:
+            self: (todo): write your description
+            customer_id: (str): write your description
+        """
         db_request = self._build_db_request(
             sql_file_name="get_active_membership_by_payment_account_id.sql",
             args=dict(payment_account_id=customer_id),
@@ -355,6 +441,13 @@ class AccountRepository(RepositoryBase):
             self.end_membership(account_membership)
 
     def get_active_account_membership(self, account_id) -> AccountMembership:
+        """
+        Fetches the membership membership for the given account.
+
+        Args:
+            self: (todo): write your description
+            account_id: (str): write your description
+        """
         account_membership = None
         db_request = self._build_db_request(
             sql_file_name="get_active_membership_by_account_id.sql",

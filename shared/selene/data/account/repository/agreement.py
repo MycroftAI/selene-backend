@@ -38,12 +38,26 @@ _log = getLogger('selene.data.account')
 
 class AgreementRepository(object):
     def __init__(self, db):
+        """
+        Initialize the database.
+
+        Args:
+            self: (todo): write your description
+            db: (todo): write your description
+        """
         self.db = db
         self.cursor = Cursor(db)
         self.skip_no_agreement_error = False
 
     @use_transaction
     def add(self, agreement: Agreement) -> str:
+        """
+        Add a agreement.
+
+        Args:
+            self: (todo): write your description
+            agreement: (todo): write your description
+        """
         self.skip_no_agreement_error = True
         expire_date = agreement.effective_date - timedelta(days=1)
         self.expire(agreement, expire_date)
@@ -53,6 +67,13 @@ class AgreementRepository(object):
         return agreement_id
 
     def _add_agreement_content(self, content):
+        """
+        Add a agreement content object.
+
+        Args:
+            self: (todo): write your description
+            content: (str): write your description
+        """
         if content is None:
             agreement_oid = None
         else:
@@ -63,6 +84,14 @@ class AgreementRepository(object):
         return agreement_oid
 
     def _add_agreement(self, agreement: Agreement, content_id: int) -> str:
+        """
+        Add agreement.
+
+        Args:
+            self: (todo): write your description
+            agreement: (todo): write your description
+            content_id: (str): write your description
+        """
         date_range = DateRange(agreement.effective_date, None)
         request = DatabaseRequest(
             sql=get_sql_from_file(path.join(SQL_DIR, 'add_agreement.sql')),
@@ -83,6 +112,14 @@ class AgreementRepository(object):
         return result['id']
 
     def expire(self, agreement: Agreement, expire_date: date):
+        """
+        Expire the given agreement.
+
+        Args:
+            self: (todo): write your description
+            agreement: (str): write your description
+            expire_date: (bool): write your description
+        """
         active_agreement = self.get_active_for_type(agreement.type)
         if active_agreement is not None:
             date_range = DateRange(active_agreement.effective_date, expire_date)
@@ -117,6 +154,13 @@ class AgreementRepository(object):
             _log.info(log_msg.format(agreement.type, agreement.version))
 
     def _get_agreement_content_id(self, agreement_id: str) -> int:
+        """
+        Returns the agreement id for a agreement.
+
+        Args:
+            self: (todo): write your description
+            agreement_id: (str): write your description
+        """
         request = DatabaseRequest(
             sql=get_sql_from_file(
                 path.join(SQL_DIR, 'get_agreement_content_id.sql')
@@ -129,6 +173,12 @@ class AgreementRepository(object):
 
     @use_transaction
     def get_active(self):
+        """
+        Returns a list of active attachments.
+
+        Args:
+            self: (todo): write your description
+        """
         agreements = []
         request = DatabaseRequest(
             sql=get_sql_from_file(
@@ -153,6 +203,13 @@ class AgreementRepository(object):
         return agreements
 
     def get_active_for_type(self, agreement_type):
+        """
+        Gets the active : class : parameter.
+
+        Args:
+            self: (todo): write your description
+            agreement_type: (str): write your description
+        """
         agreement = None
         for active_agreement in self.get_active():
             if active_agreement.type == agreement_type:
@@ -161,6 +218,13 @@ class AgreementRepository(object):
         return agreement
 
     def _get_agreement_content(self, content_id):
+        """
+        Gets the content of an object.
+
+        Args:
+            self: (todo): write your description
+            content_id: (str): write your description
+        """
         content = None
         if content_id is not None:
             large_object = self.db.lobject(content_id, 'r')

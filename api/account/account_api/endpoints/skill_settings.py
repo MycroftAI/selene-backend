@@ -31,6 +31,12 @@ class SkillSettingsEndpoint(SeleneEndpoint):
     _setting_repository = None
 
     def __init__(self):
+        """
+        Initialize the manager.
+
+        Args:
+            self: (todo): write your description
+        """
         super(SkillSettingsEndpoint, self).__init__()
         self.account_skills = None
         self.family_settings = None

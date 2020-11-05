@@ -26,14 +26,34 @@ from selene.api import SeleneEndpoint
 
 class SkillOauthEndpoint(SeleneEndpoint):
     def __init__(self):
+        """
+        Initialize the oauth2 session.
+
+        Args:
+            self: (todo): write your description
+        """
         super(SkillOauthEndpoint, self).__init__()
         self.oauth_base_url = os.environ['OAUTH_BASE_URL']
 
     def get(self, oauth_id):
+        """
+        Returns the oauth by its id.
+
+        Args:
+            self: (todo): write your description
+            oauth_id: (int): write your description
+        """
         self._authenticate()
         return self._get_oauth_url(oauth_id)
 
     def _get_oauth_url(self, oauth_id):
+        """
+        Get oauth url for oauth. oauth.
+
+        Args:
+            self: (todo): write your description
+            oauth_id: (str): write your description
+        """
         url = '{base_url}/auth/{oauth_id}/auth_url?uuid={account_id}'.format(
             base_url=self.oauth_base_url,
             oauth_id=oauth_id,

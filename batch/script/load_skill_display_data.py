@@ -45,10 +45,22 @@ SKILL_DATA_FILE_NAME = 'skill-metadata.json'
 
 class SkillDisplayUpdater(SeleneScript):
     def __init__(self):
+        """
+        Initialize the data.
+
+        Args:
+            self: (todo): write your description
+        """
         super(SkillDisplayUpdater, self).__init__(__file__)
         self.skill_display_data = None
 
     def _define_args(self):
+        """
+        Define arguments.
+
+        Args:
+            self: (todo): write your description
+        """
         super(SkillDisplayUpdater, self)._define_args()
         self._arg_parser.add_argument(
             "--core-version",
@@ -78,6 +90,12 @@ class SkillDisplayUpdater(SeleneScript):
         self.skill_display_data = json.loads(file_contents)
 
     def _update_skill_display_table(self):
+        """
+        Update the skill table.
+
+        Args:
+            self: (todo): write your description
+        """
         skill_count = 0
         skill_repository = SkillRepository(self.db)
         display_repository = SkillDisplayRepository(self.db)

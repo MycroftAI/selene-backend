@@ -30,6 +30,12 @@ ONE_HOUR = 3600
 
 class PasswordResetEndpoint(SeleneEndpoint):
     def post(self):
+        """
+        Post / auth / token
+
+        Args:
+            self: (todo): write your description
+        """
         self._get_account_from_email()
         if self.account is None:
             self._send_account_not_found_email()
@@ -40,12 +46,24 @@ class PasswordResetEndpoint(SeleneEndpoint):
         return '', HTTPStatus.OK
 
     def _get_account_from_email(self):
+        """
+        Gets account data from account.
+
+        Args:
+            self: (todo): write your description
+        """
         acct_repository = AccountRepository(self.db)
         self.account = acct_repository.get_account_by_email(
             self.request.json['emailAddress']
         )
 
     def _generate_reset_token(self):
+        """
+        Generate a new token for use with the current user.
+
+        Args:
+            self: (todo): write your description
+        """
         reset_token = AuthenticationToken(
             self.config['RESET_SECRET'],
             ONE_HOUR
@@ -55,6 +73,13 @@ class PasswordResetEndpoint(SeleneEndpoint):
         return reset_token.jwt
 
     def _send_reset_email(self, reset_token):
+        """
+        Sends an email.
+
+        Args:
+            self: (todo): write your description
+            reset_token: (str): write your description
+        """
         url = '{base_url}/change-password?token={reset_token}'.format(
             base_url=os.environ['SSO_BASE_URL'],
             reset_token=reset_token
@@ -70,6 +95,12 @@ class PasswordResetEndpoint(SeleneEndpoint):
         mailer.send()
 
     def _send_account_not_found_email(self):
+        """
+        Send an account email notification.
+
+        Args:
+            self: (todo): write your description
+        """
         email = EmailMessage(
             recipient=self.request.json['emailAddress'],
             sender='Mycroft AI<no-reply@mycroft.ai>',

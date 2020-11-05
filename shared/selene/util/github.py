@@ -29,11 +29,27 @@ _log = getLogger(__package__)
 
 
 def log_into_github(user_name: str, user_password: str) -> Github:
+    """
+    Logs a github github github github.
+
+    Args:
+        user_name: (str): write your description
+        user_password: (str): write your description
+    """
     _log.info('logging into GitHub as "{}"'.format(user_name))
     return Github(user_name, user_password)
 
 
 def download_repository_file(github, repository_name, branch, file_path):
+    """
+    Download a github repository.
+
+    Args:
+        github: (todo): write your description
+        repository_name: (str): write your description
+        branch: (todo): write your description
+        file_path: (str): write your description
+    """
     organization = github.get_organization('MycroftAI')
     repository = organization.get_repo(repository_name)
     repository_contents = repository.get_contents(file_path, ref=branch)

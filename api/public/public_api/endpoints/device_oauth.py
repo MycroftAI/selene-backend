@@ -28,10 +28,25 @@ from selene.data.account import AccountRepository
 class OauthServiceEndpoint(PublicEndpoint):
 
     def __init__(self):
+        """
+        Initialize the oauth2 client.
+
+        Args:
+            self: (todo): write your description
+        """
         super(OauthServiceEndpoint, self).__init__()
         self.oauth_service_host = os.environ['OAUTH_BASE_URL']
 
     def get(self, device_id, credentials, oauth_path):
+        """
+        Fetch oauth 2.
+
+        Args:
+            self: (todo): write your description
+            device_id: (int): write your description
+            credentials: (str): write your description
+            oauth_path: (str): write your description
+        """
         account = AccountRepository(self.db).get_account_by_device_id(device_id)
         uuid = account.id
         url = '{host}/auth/{credentials}/{oauth_path}'.format(

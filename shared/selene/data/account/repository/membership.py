@@ -27,9 +27,22 @@ YEARLY_MEMBERSHIP = 'Yearly Membership'
 
 class MembershipRepository(RepositoryBase):
     def __init__(self, db):
+        """
+        Initialize database.
+
+        Args:
+            self: (todo): write your description
+            db: (todo): write your description
+        """
         super(MembershipRepository, self).__init__(db, __file__)
 
     def get_membership_types(self):
+        """
+        Returns a list of membership types.
+
+        Args:
+            self: (todo): write your description
+        """
         db_request = self._build_db_request(
             sql_file_name='get_membership_types.sql'
         )
@@ -38,6 +51,13 @@ class MembershipRepository(RepositoryBase):
         return [Membership(**row) for row in db_result]
 
     def get_membership_by_type(self, membership_type: str):
+        """
+        Gets membership types of the specified type
+
+        Args:
+            self: (todo): write your description
+            membership_type: (str): write your description
+        """
         db_request = self._build_db_request(
             sql_file_name='get_membership_by_type.sql',
             args=dict(type=membership_type)
@@ -46,6 +66,13 @@ class MembershipRepository(RepositoryBase):
         return Membership(**db_result)
 
     def add(self, membership: Membership):
+        """
+        Add a membership to the group.
+
+        Args:
+            self: (todo): write your description
+            membership: (todo): write your description
+        """
         db_request = self._build_db_request(
             'add_membership.sql',
             args=dict(
@@ -59,6 +86,13 @@ class MembershipRepository(RepositoryBase):
         return result['id']
 
     def remove(self, membership: Membership):
+        """
+        Removes the membership from the group.
+
+        Args:
+            self: (todo): write your description
+            membership: (todo): write your description
+        """
         db_request = self._build_db_request(
             sql_file_name='delete_membership.sql',
             args=dict(membership_id=membership.id)

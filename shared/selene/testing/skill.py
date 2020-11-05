@@ -26,6 +26,11 @@ from selene.data.skill import (
 
 
 def build_text_field():
+    """
+    Build a dictionary of the text field.
+
+    Args:
+    """
     return dict(
         name='textfield',
         type='text',
@@ -35,6 +40,11 @@ def build_text_field():
 
 
 def build_checkbox_field():
+    """
+    Build a checkbox field dictionary.
+
+    Args:
+    """
     return dict(
         name='checkboxfield',
         type='checkbox',
@@ -43,6 +53,11 @@ def build_checkbox_field():
 
 
 def build_label_field():
+    """
+    Build a dictionary of label fields.
+
+    Args:
+    """
     return dict(
         type='label',
         label='This is a section label.'
@@ -50,6 +65,13 @@ def build_label_field():
 
 
 def _build_display_data(skill_gid, fields):
+    """
+    Builds display data dictionary for display data.
+
+    Args:
+        skill_gid: (str): write your description
+        fields: (list): write your description
+    """
     gid_parts = skill_gid.split('|')
     if len(gid_parts) == 3:
         skill_name = gid_parts[1]
@@ -73,6 +95,14 @@ def _build_display_data(skill_gid, fields):
 
 
 def add_skill(db, skill_global_id, settings_fields=None):
+    """
+    Adds a skill to the database.
+
+    Args:
+        db: (todo): write your description
+        skill_global_id: (str): write your description
+        settings_fields: (str): write your description
+    """
     display_data = _build_display_data(skill_global_id, settings_fields)
     skill_repo = SkillRepository(db)
     skill_id = skill_repo.ensure_skill_exists(skill_global_id)
@@ -85,5 +115,12 @@ def add_skill(db, skill_global_id, settings_fields=None):
 
 
 def remove_skill(db, skill):
+    """
+    Removes skill from skill
+
+    Args:
+        db: (todo): write your description
+        skill: (bool): write your description
+    """
     skill_repo = SkillRepository(db)
     skill_repo.remove_by_gid(skill_gid=skill.skill_gid)

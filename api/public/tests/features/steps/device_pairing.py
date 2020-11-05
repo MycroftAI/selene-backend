@@ -31,6 +31,12 @@ ONE_MINUTE = 60
 
 @when('a device requests a pairing code')
 def get_device_pairing_code(context):
+    """
+    Get pairing pair.
+
+    Args:
+        context: (todo): write your description
+    """
     context.state = str(uuid.uuid4())
     response = context.client.get(
         '/v1/device/code?state={state}'.format(state=context.state))
@@ -58,6 +64,12 @@ def add_device(context):
 
 @when('the device is activated')
 def activate_device(context):
+    """
+    Activate a activation device.
+
+    Args:
+        context: (todo): write your description
+    """
     activation_request = dict(
         token=context.pairing_response.json['token'],
         state=context.pairing_response.json['state'],
@@ -75,6 +87,12 @@ def activate_device(context):
 
 @then('the pairing code request is successful')
 def check_pairing_code_response(context):
+    """
+    Checks : meth :
+
+    Args:
+        context: (todo): write your description
+    """
     response = context.pairing_response
     assert_that(response.status_code, equal_to(HTTPStatus.OK))
     assert_that(response.json, has_key('code'))
@@ -85,6 +103,12 @@ def check_pairing_code_response(context):
 
 @then('the device activation request is successful')
 def validate_activation_response(context):
+    """
+    Validate activation activation response.
+
+    Args:
+        context: (todo): write your description
+    """
     response = context.activation_response
     assert_that(response.status_code, equal_to(HTTPStatus.OK))
     assert_that(response.json['uuid'], equal_to(context.device_id))

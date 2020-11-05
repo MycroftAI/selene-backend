@@ -26,6 +26,14 @@ class DeviceMetricsEndpoint(PublicEndpoint):
     """Endpoint to communicate with the metric service"""
 
     def post(self, device_id, metric):
+        """
+        Post / activity.
+
+        Args:
+            self: (todo): write your description
+            device_id: (int): write your description
+            metric: (str): write your description
+        """
         self._authenticate(device_id)
         self._add_core_metric(metric)
         track_account_activity(self.db, self.device_id)
@@ -33,6 +41,13 @@ class DeviceMetricsEndpoint(PublicEndpoint):
         return "", HTTPStatus.NO_CONTENT
 
     def _add_core_metric(self, metric: str):
+        """
+        Add a metric metric to the device.
+
+        Args:
+            self: (todo): write your description
+            metric: (str): write your description
+        """
         core_metric = CoreMetric(
             device_id=self.device_id, metric_type=metric, metric_value=self.request.json
         )

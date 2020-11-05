@@ -21,6 +21,11 @@ from selene.data.device import DeviceRepository, TextToSpeech
 
 
 def _build_voice():
+    """
+    Build a voice voice.
+
+    Args:
+    """
     return TextToSpeech(
         setting_name='selene_test_voice',
         display_name='Selene Test Voice',
@@ -29,6 +34,12 @@ def _build_voice():
 
 
 def add_text_to_speech(db):
+    """
+    Add text to a voice.
+
+    Args:
+        db: (todo): write your description
+    """
     voice = _build_voice()
     device_repository = DeviceRepository(db)
     voice.id = device_repository.add_text_to_speech(voice)
@@ -37,5 +48,12 @@ def add_text_to_speech(db):
 
 
 def remove_text_to_speech(db, voice):
+    """
+    Remove text from a voice voice.
+
+    Args:
+        db: (todo): write your description
+        voice: (todo): write your description
+    """
     device_repository = DeviceRepository(db)
     device_repository.remove_text_to_speech(voice.id)

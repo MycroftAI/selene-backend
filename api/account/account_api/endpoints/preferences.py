@@ -42,12 +42,24 @@ class PreferencesRequest(Model):
 
 class PreferencesEndpoint(SeleneEndpoint):
     def __init__(self):
+        """
+        Initialize the manager.
+
+        Args:
+            self: (todo): write your description
+        """
         super(PreferencesEndpoint, self).__init__()
         self.preferences = None
         self.cache = self.config['SELENE_CACHE']
         self.etag_manager: ETagManager = ETagManager(self.cache, self.config)
 
     def get(self):
+        """
+        Fet preferences.
+
+        Args:
+            self: (todo): write your description
+        """
         self._authenticate()
         self._get_preferences()
         if self.preferences is None:
@@ -60,10 +72,22 @@ class PreferencesEndpoint(SeleneEndpoint):
         return response_data, response_code
 
     def _get_preferences(self):
+        """
+        Gets preferences for the preferences
+
+        Args:
+            self: (todo): write your description
+        """
         preference_repository = PreferenceRepository(self.db, self.account.id)
         self.preferences = preference_repository.get_account_preferences()
 
     def post(self):
+        """
+        Perform post request.
+
+        Args:
+            self: (todo): write your description
+        """
         self._authenticate()
         self._validate_request()
         self._upsert_preferences()
@@ -71,6 +95,12 @@ class PreferencesEndpoint(SeleneEndpoint):
         return '', HTTPStatus.NO_CONTENT
 
     def patch(self):
+        """
+        Patch the device authentication.
+
+        Args:
+            self: (todo): write your description
+        """
         self._authenticate()
         self._validate_request()
         self._upsert_preferences()
@@ -78,6 +108,12 @@ class PreferencesEndpoint(SeleneEndpoint):
         return '', HTTPStatus.NO_CONTENT
 
     def _validate_request(self):
+        """
+        Validate the preferences.
+
+        Args:
+            self: (todo): write your description
+        """
         self.preferences = PreferencesRequest()
         self.preferences.date_format = self.request.json['dateFormat']
         self.preferences.measurement_system = (
@@ -87,6 +123,12 @@ class PreferencesEndpoint(SeleneEndpoint):
         self.preferences.validate()
 
     def _upsert_preferences(self):
+        """
+        Preference preferences.
+
+        Args:
+            self: (todo): write your description
+        """
         preferences_repository = PreferenceRepository(self.db, self.account.id)
         preferences = AccountPreferences(**self.preferences.to_native())
         preferences_repository.upsert(preferences)

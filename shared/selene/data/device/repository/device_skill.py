@@ -33,11 +33,26 @@ from ...repository_base import RepositoryBase
 
 class DeviceSkillRepository(RepositoryBase):
     def __init__(self, db):
+        """
+        Initialize the database.
+
+        Args:
+            self: (todo): write your description
+            db: (todo): write your description
+        """
         super(DeviceSkillRepository, self).__init__(db, __file__)
 
     def get_skill_settings_for_account(
             self, account_id: str, skill_id: str
     ) -> List[AccountSkillSettings]:
+        """
+        Gets all settings for a particular account.
+
+        Args:
+            self: (todo): write your description
+            account_id: (str): write your description
+            skill_id: (str): write your description
+        """
         return self._select_all_into_dataclass(
             AccountSkillSettings,
             sql_file_name='get_skill_settings_for_account.sql',
@@ -45,6 +60,14 @@ class DeviceSkillRepository(RepositoryBase):
         )
 
     def get_skill_settings_for_device(self, device_id, skill_id=None):
+        """
+        Return the skill settings for skill.
+
+        Args:
+            self: (todo): write your description
+            device_id: (int): write your description
+            skill_id: (str): write your description
+        """
         device_skills = self._select_all_into_dataclass(
             DeviceSkillSettings,
             sql_file_name='get_skill_settings_for_device.sql',
@@ -64,6 +87,15 @@ class DeviceSkillRepository(RepositoryBase):
     def update_skill_settings(
             self, account_id: str, device_names: tuple, skill_name: str
     ):
+        """
+        Update skill settings.
+
+        Args:
+            self: (todo): write your description
+            account_id: (str): write your description
+            device_names: (str): write your description
+            skill_name: (str): write your description
+        """
         db_request = self._build_db_request(
             sql_file_name='update_skill_settings.sql',
             args=dict(
@@ -80,6 +112,15 @@ class DeviceSkillRepository(RepositoryBase):
             settings_display: SettingsDisplay,
             settings_values: dict,
     ):
+        """
+        Ups settings into device settings.
+
+        Args:
+            self: (todo): write your description
+            device_ids: (int): write your description
+            settings_display: (str): write your description
+            settings_values: (todo): write your description
+        """
         for device_id in device_ids:
             if settings_values is None:
                 db_settings_values = None
@@ -116,6 +157,13 @@ class DeviceSkillRepository(RepositoryBase):
     def get_skill_manifest_for_device(
             self, device_id: str
     ) -> List[ManifestSkill]:
+        """
+        Returns a device manifest for a manifest.
+
+        Args:
+            self: (todo): write your description
+            device_id: (int): write your description
+        """
         return self._select_all_into_dataclass(
             dataclass=ManifestSkill,
             sql_file_name='get_device_skill_manifest.sql',
@@ -125,6 +173,13 @@ class DeviceSkillRepository(RepositoryBase):
     def get_skill_manifest_for_account(
             self, account_id: str
     ) -> List[ManifestSkill]:
+        """
+        Gets a manifest for a given account.
+
+        Args:
+            self: (todo): write your description
+            account_id: (str): write your description
+        """
         return self._select_all_into_dataclass(
             dataclass=ManifestSkill,
             sql_file_name='get_skill_manifest_for_account.sql',
@@ -132,6 +187,13 @@ class DeviceSkillRepository(RepositoryBase):
         )
 
     def update_manifest_skill(self, manifest_skill: ManifestSkill):
+        """
+        Updates the manifest
+
+        Args:
+            self: (todo): write your description
+            manifest_skill: (todo): write your description
+        """
         db_request = self._build_db_request(
             sql_file_name='update_skill_manifest.sql',
             args=asdict(manifest_skill)
@@ -140,6 +202,13 @@ class DeviceSkillRepository(RepositoryBase):
         self.cursor.update(db_request)
 
     def add_manifest_skill(self, manifest_skill: ManifestSkill):
+        """
+        Adds a manifest to the manifest.
+
+        Args:
+            self: (todo): write your description
+            manifest_skill: (str): write your description
+        """
         db_request = self._build_db_request(
             sql_file_name='add_manifest_skill.sql',
             args=asdict(manifest_skill)
@@ -149,6 +218,13 @@ class DeviceSkillRepository(RepositoryBase):
         return db_result['id']
 
     def remove_manifest_skill(self, manifest_skill: ManifestSkill):
+        """
+        Removes the manifest from the manifest.
+
+        Args:
+            self: (todo): write your description
+            manifest_skill: (str): write your description
+        """
         db_request = self._build_db_request(
             sql_file_name='remove_manifest_skill.sql',
             args=dict(
@@ -159,6 +235,13 @@ class DeviceSkillRepository(RepositoryBase):
         self.cursor.delete(db_request)
 
     def get_settings_display_usage(self, settings_display_id: str) -> int:
+        """
+        Return the display usage for the database.
+
+        Args:
+            self: (todo): write your description
+            settings_display_id: (str): write your description
+        """
         db_request = self._build_db_request(
             sql_file_name='get_settings_display_usage.sql',
             args=dict(settings_display_id=settings_display_id)
@@ -168,6 +251,14 @@ class DeviceSkillRepository(RepositoryBase):
         return db_result['usage']
 
     def remove(self, device_id, skill_id):
+        """
+        Removes the skill.
+
+        Args:
+            self: (todo): write your description
+            device_id: (int): write your description
+            skill_id: (str): write your description
+        """
         db_request = self._build_db_request(
             sql_file_name='delete_device_skill.sql',
             args=dict(

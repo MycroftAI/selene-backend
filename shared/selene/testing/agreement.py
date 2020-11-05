@@ -34,6 +34,11 @@ from selene.data.account import (
 
 
 def _build_test_terms_of_use():
+    """
+    Build a test terms
+
+    Args:
+    """
     return Agreement(
         type=TERMS_OF_USE,
         version='Holy Grail',
@@ -46,6 +51,11 @@ def _build_test_terms_of_use():
 
 
 def _build_test_privacy_policy():
+    """
+    Generate the private policy for the given policy.
+
+    Args:
+    """
     return Agreement(
         type=PRIVACY_POLICY,
         version='Holy Grail',
@@ -63,6 +73,11 @@ def _build_test_privacy_policy():
 
 
 def _build_open_dataset():
+    """
+    Builds a open dataset.
+
+    Args:
+    """
     return Agreement(
         type=OPEN_DATASET,
         version='Holy Grail',
@@ -85,6 +100,13 @@ def add_agreements(context):
 
 
 def remove_agreements(db, agreements: List[Agreement]):
+    """
+    Removes agreement from db.
+
+    Args:
+        db: (todo): write your description
+        agreements: (todo): write your description
+    """
     for agreement in agreements:
         agreement_repository = AgreementRepository(db)
         agreement_repository.remove(agreement)
@@ -103,6 +125,13 @@ def get_agreements_from_api(context, agreement):
 
 
 def validate_agreement_response(context, agreement):
+    """
+    Validate a response context.
+
+    Args:
+        context: (todo): write your description
+        agreement: (todo): write your description
+    """
     response_data = json.loads(context.response.data)
     if agreement == PRIVACY_POLICY:
         expected_response = asdict(context.privacy_policy)

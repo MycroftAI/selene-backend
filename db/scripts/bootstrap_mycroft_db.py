@@ -68,6 +68,12 @@ schema_directory = "{}_schema"
 
 
 def get_sql_from_file(file_path: str) -> str:
+    """
+    Returns sqlite3.
+
+    Args:
+        file_path: (str): write your description
+    """
     with open(path.join(MYCROFT_DB_DIR, file_path)) as sql_file:
         sql = sql_file.read()
 
@@ -76,6 +82,14 @@ def get_sql_from_file(file_path: str) -> str:
 
 class PostgresDB(object):
     def __init__(self, db_name, user=None):
+        """
+        Initialize a database.
+
+        Args:
+            self: (todo): write your description
+            db_name: (str): write your description
+            user: (str): write your description
+        """
         db_host = environ.get("DB_HOST", "127.0.0.1")
         db_port = environ.get("DB_PORT", 5432)
         db_ssl_mode = environ.get("DB_SSLMODE")
@@ -100,27 +114,57 @@ class PostgresDB(object):
         self.db.autocommit = True
 
     def close_db(self):
+        """
+        Closes the database.
+
+        Args:
+            self: (todo): write your description
+        """
         self.db.close()
 
     def execute_sql(self, sql: str, args=None):
+        """
+        Executes a sql statement.
+
+        Args:
+            self: (todo): write your description
+            sql: (todo): write your description
+        """
         _cursor = self.db.cursor()
         _cursor.execute(sql, args)
         return _cursor
 
 
 def destroy_existing(db):
+    """
+    Destroy existing database.
+
+    Args:
+        db: (todo): write your description
+    """
     print("Destroying any objects we will be creating later.")
     for db_destroy_file in DB_DESTROY_FILES:
         db.execute_sql(get_sql_from_file(db_destroy_file))
 
 
 def create_anew(db):
+    """
+    Create an ansew database tables
+
+    Args:
+        db: (todo): write your description
+    """
     print("Creating the mycroft database")
     for db_setup_file in DB_CREATE_FILES:
         db.execute_sql(get_sql_from_file(db_setup_file))
 
 
 def _init_db():
+    """
+    Initialize db.
+
+    Args:
+    """
     postgres_db = PostgresDB(db_name="postgres")
     destroy_existing(postgres_db)
     create_anew(postgres_db)
@@ -128,6 +172,12 @@ def _init_db():
 
 
 def _setup_template_db(db):
+    """
+    Creates the database.
+
+    Args:
+        db: (todo): write your description
+    """
     print("Creating the extensions")
     db.execute_sql(get_sql_from_file(path.join("create_extensions.sql")))
     print("Creating user-defined data types")
@@ -140,6 +190,14 @@ def _setup_template_db(db):
 
 
 def _build_schema_tables(db, schema, tables):
+    """
+    Build the sqlite database
+
+    Args:
+        db: (todo): write your description
+        schema: (dict): write your description
+        tables: (list): write your description
+    """
     print(f"Creating the {schema} schema tables")
     for table in tables:
         create_table_file = path.join(schema + "_schema", "tables", table + ".sql")
@@ -147,12 +205,23 @@ def _build_schema_tables(db, schema, tables):
 
 
 def _grant_access(db):
+    """
+    Grants databases from db.
+
+    Args:
+        db: (todo): write your description
+    """
     print("Granting access to schemas and tables")
     for schema in SCHEMAS:
         db.execute_sql(get_sql_from_file(schema + "_schema/grants.sql"))
 
 
 def _build_template_db():
+    """
+    Builds a template.
+
+    Args:
+    """
     template_db = PostgresDB(db_name="mycroft_template")
     _setup_template_db(template_db)
     _build_schema_tables(template_db, "account", ACCOUNT_TABLE_ORDER)
@@ -167,6 +236,11 @@ def _build_template_db():
 
 
 def _create_mycroft_db_from_template():
+    """
+    Create mycroft database.
+
+    Args:
+    """
     print("Copying template to new database.")
     db = PostgresDB(db_name="postgres")
     db.execute_sql(get_sql_from_file("create_mycroft_db.sql"))
@@ -174,6 +248,14 @@ def _create_mycroft_db_from_template():
 
 
 def _apply_insert_file(db, schema_dir, file_name):
+    """
+    Apply the file to database.
+
+    Args:
+        db: (todo): write your description
+        schema_dir: (str): write your description
+        file_name: (str): write your description
+    """
     insert_file_path = path.join(schema_dir, "data", file_name)
     try:
         db.execute_sql(get_sql_from_file(insert_file_path))
@@ -182,6 +264,12 @@ def _apply_insert_file(db, schema_dir, file_name):
 
 
 def _populate_agreement_table(db):
+    """
+    Populate the database table.
+
+    Args:
+        db: (todo): write your description
+    """
     print("Populating account.agreement table")
     db.db.autocommit = False
     insert_sql = "insert into account.agreement VALUES (default, %s, '1', %s, %s)"
@@ -222,6 +310,12 @@ def _populate_agreement_table(db):
 
 
 def _populate_country_table(db):
+    """
+    Populate country table.
+
+    Args:
+        db: (todo): write your description
+    """
     print("Populating geography.country table")
     country_insert = """
     INSERT INTO
@@ -242,6 +336,12 @@ def _populate_country_table(db):
 
 
 def _populate_region_table(db):
+    """
+    Parse a table table.
+
+    Args:
+        db: (todo): write your description
+    """
     print("Populating geography.region table")
     region_insert = """
     INSERT INTO
@@ -267,6 +367,12 @@ def _populate_region_table(db):
 
 
 def _populate_timezone_table(db):
+    """
+    Populate the timezone tablezone
+
+    Args:
+        db: (todo): write your description
+    """
     print("Populating geography.timezone table")
     timezone_insert = """
     INSERT INTO
@@ -294,6 +400,12 @@ def _populate_timezone_table(db):
 
 
 def _populate_city_table(db):
+    """
+    Populate city table.
+
+    Args:
+        db: (todo): write your description
+    """
     print("Populating geography.city table")
     region_query = "SELECT id, region_code FROM geography.region"
     query_result = db.execute_sql(region_query)
@@ -349,6 +461,11 @@ def _populate_city_table(db):
 
 
 def _populate_db():
+    """
+    Stores the db file.
+
+    Args:
+    """
     mycroft_db = PostgresDB(db_name=MYCROFT_DB_NAME)
     _apply_insert_file(
         mycroft_db, schema_dir="account_schema", file_name="membership.sql"

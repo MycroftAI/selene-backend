@@ -29,11 +29,23 @@ class WolframAlphaSpokenEndpoint(PublicEndpoint):
     """Endpoint to communicate with the Wolfram Alpha Spoken API"""
 
     def __init__(self):
+        """
+        Initialize the variables.
+
+        Args:
+            self: (todo): write your description
+        """
         super(WolframAlphaSpokenEndpoint, self).__init__()
         self.wolfram_alpha_key = os.environ['WOLFRAM_ALPHA_KEY']
         self.wolfram_alpha_url = os.environ['WOLFRAM_ALPHA_URL']
 
     def get(self):
+        """
+        Gethttps : // developers object
+
+        Args:
+            self: (todo): write your description
+        """
         self._authenticate()
         params = dict(self.request.args)
         params['appid'] = self.wolfram_alpha_key

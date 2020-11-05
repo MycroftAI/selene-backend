@@ -30,10 +30,22 @@ class DeviceRefreshTokenEndpoint(PublicEndpoint):
     ONE_DAY = 86400
 
     def __init__(self):
+        """
+        Initialize the device.
+
+        Args:
+            self: (todo): write your description
+        """
         super(DeviceRefreshTokenEndpoint, self).__init__()
         self.sha512 = hashlib.sha512()
 
     def get(self):
+        """
+        Returns the access token.
+
+        Args:
+            self: (todo): write your description
+        """
         headers = self.request.headers
         if 'Authorization' not in headers:
             raise AuthenticationError('Oauth token not found')
@@ -60,6 +72,13 @@ class DeviceRefreshTokenEndpoint(PublicEndpoint):
         return response
 
     def _refresh_session_token(self, refresh: str):
+        """
+        Refresh a refresh token.
+
+        Args:
+            self: (todo): write your description
+            refresh: (bool): write your description
+        """
         refresh_key = 'device.token.refresh:{}'.format(refresh)
         session = self.cache.get(refresh_key)
         if session:
@@ -69,6 +88,13 @@ class DeviceRefreshTokenEndpoint(PublicEndpoint):
             return generate_device_login(device_id, self.cache)
 
     def _refresh_session_token_device(self, device: str):
+        """
+        Refresh a refresh token.
+
+        Args:
+            self: (todo): write your description
+            device: (todo): write your description
+        """
         refresh_key = 'device.session:{}'.format(device)
         session = self.cache.get(refresh_key)
         if session:

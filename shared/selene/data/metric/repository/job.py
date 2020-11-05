@@ -25,9 +25,23 @@ from ..entity.job import JobMetric
 
 class JobRepository(RepositoryBase):
     def __init__(self, db):
+        """
+        Initialize the job.
+
+        Args:
+            self: (todo): write your description
+            db: (todo): write your description
+        """
         super(JobRepository, self).__init__(db, __file__)
 
     def add(self, job: JobMetric):
+        """
+        Adds a job to the database.
+
+        Args:
+            self: (todo): write your description
+            job: (int): write your description
+        """
         db_request = self._build_db_request(
             sql_file_name="add_job_metric.sql", args=asdict(job)
         )

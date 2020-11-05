@@ -60,6 +60,14 @@ def coerce_response(response_data):
 class SeleneResponse(Response):
     @classmethod
     def force_type(cls, rv, environ=None):
+        """
+        Force a request type.
+
+        Args:
+            cls: (todo): write your description
+            rv: (todo): write your description
+            environ: (todo): write your description
+        """
         if isinstance(rv, dict) or isinstance(rv, list) or is_dataclass(rv):
             reformat = coerce_response(rv)
             rv = jsonify(reformat)

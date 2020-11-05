@@ -38,6 +38,13 @@ class SeleneScript(object):
     _job_name = None
 
     def __init__(self, job_file_path):
+        """
+        Initialize the job.
+
+        Args:
+            self: (todo): write your description
+            job_file_path: (str): write your description
+        """
         self._job_file_path = job_file_path
         self.log = configure_logger(self.job_name)
         self._arg_parser = ArgumentParser()
@@ -48,6 +55,12 @@ class SeleneScript(object):
 
     @property
     def job_name(self):
+        """
+        Returns the job name.
+
+        Args:
+            self: (todo): write your description
+        """
         if self._job_name is None:
             job_file_name = path.basename(self._job_file_path)
             self._job_name = job_file_name[:-3]

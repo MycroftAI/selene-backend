@@ -25,9 +25,22 @@ from selene.data.account import AccountRepository
 
 class DeviceSubscriptionEndpoint(PublicEndpoint):
     def __init__(self):
+        """
+        Initialize the device.
+
+        Args:
+            self: (todo): write your description
+        """
         super(DeviceSubscriptionEndpoint, self).__init__()
 
     def get(self, device_id):
+        """
+        Fetches account.
+
+        Args:
+            self: (todo): write your description
+            device_id: (int): write your description
+        """
         self._authenticate(device_id)
         account = AccountRepository(self.db).get_account_by_device_id(device_id)
         if account:

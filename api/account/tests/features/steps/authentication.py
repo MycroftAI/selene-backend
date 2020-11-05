@@ -34,6 +34,12 @@ EXPIRE_IMMEDIATELY = 0
 
 @given('an account with a valid access token')
 def use_account_with_valid_access_token(context):
+    """
+    Generate a new access token.
+
+    Args:
+        context: (dict): write your description
+    """
     context.username = 'foo'
     context.access_token = generate_access_token(context)
     set_access_token_cookie(context)
@@ -43,6 +49,12 @@ def use_account_with_valid_access_token(context):
 
 @given('an account with an expired access token')
 def generate_expired_access_token(context):
+    """
+    Generate a new access token.
+
+    Args:
+        context: (todo): write your description
+    """
     context.username = 'foo'
     context.access_token = generate_access_token(
         context,
@@ -56,6 +68,12 @@ def generate_expired_access_token(context):
 
 @given('an account with a refresh token but no access token')
 def generate_refresh_token_only(context):
+    """
+    Generate a refresh token.
+
+    Args:
+        context: (todo): write your description
+    """
     context.username = 'foo'
     context.refresh_token = generate_refresh_token(context)
     set_refresh_token_cookie(context)
@@ -64,6 +82,12 @@ def generate_refresh_token_only(context):
 
 @given('an account with expired access and refresh tokens')
 def expire_both_tokens(context):
+    """
+    Expire tokens. context.
+
+    Args:
+        context: (todo): write your description
+    """
     context.username = 'foo'
     context.access_token = generate_access_token(
         context,
@@ -79,12 +103,24 @@ def expire_both_tokens(context):
 
 @then('the authentication tokens will remain unchanged')
 def check_for_no_new_cookie(context):
+    """
+    Handles a cookie.
+
+    Args:
+        context: (todo): write your description
+    """
     cookies = context.response.headers.getlist('Set-Cookie')
     assert_that(cookies, equal_to([]))
 
 
 @then('the authentication tokens will be refreshed')
 def check_for_new_cookies(context):
+    """
+    Check the new access token.
+
+    Args:
+        context: (todo): write your description
+    """
     validate_token_cookies(context)
     assert_that(
         context.refresh_token,

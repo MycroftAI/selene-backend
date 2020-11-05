@@ -51,6 +51,12 @@ class ValidateFederatedRequest(Model):
 
 class ValidateFederatedEndpoint(SeleneEndpoint):
     def __init__(self):
+        """
+        Initialize the email_address.
+
+        Args:
+            self: (todo): write your description
+        """
         super(ValidateFederatedEndpoint, self).__init__()
         self.email_address = None
 
@@ -65,10 +71,22 @@ class ValidateFederatedEndpoint(SeleneEndpoint):
         return '', HTTPStatus.NO_CONTENT
 
     def _validate_request(self):
+        """
+        Validate the request.
+
+        Args:
+            self: (todo): write your description
+        """
         validator = ValidateFederatedRequest(self.request.json)
         validator.validate()
 
     def _get_email_address(self):
+        """
+        Get the email address for the account.
+
+        Args:
+            self: (todo): write your description
+        """
         if self.request.json['platform'] == 'Google':
             self.email_address = get_google_account_email(
                 self.request.json['token']

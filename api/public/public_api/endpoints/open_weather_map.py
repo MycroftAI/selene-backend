@@ -29,16 +29,36 @@ class OpenWeatherMapEndpoint(PublicEndpoint):
     """Proxy to the Open Weather Map API"""
 
     def __init__(self):
+        """
+        Initialize the environment.
+
+        Args:
+            self: (todo): write your description
+        """
         super(OpenWeatherMapEndpoint, self).__init__()
         self.owm_key = os.environ["OWM_KEY"]
         self.owm_url = os.environ["OWM_URL"]
 
     def get(self, path):
+        """
+        Get details of|
+
+        Args:
+            self: (todo): write your description
+            path: (str): write your description
+        """
         self._authenticate()
         track_account_activity(self.db, self.device_id)
         return self._get_weather(path)
 
     def _get_weather(self, path):
+        """
+        Request weather
+
+        Args:
+            self: (todo): write your description
+            path: (str): write your description
+        """
         params = dict(self.request.args)
         params["APPID"] = self.owm_key
         response = requests.get(self.owm_url + "/" + path, params=params)

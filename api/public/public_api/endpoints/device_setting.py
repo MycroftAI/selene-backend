@@ -26,9 +26,22 @@ from selene.data.device import SettingRepository
 class DeviceSettingEndpoint(PublicEndpoint):
     """Return the device's settings for the API v1 model"""
     def __init__(self):
+        """
+        Initialize the device.
+
+        Args:
+            self: (todo): write your description
+        """
         super(DeviceSettingEndpoint, self).__init__()
 
     def get(self, device_id):
+        """
+        Get device settings.
+
+        Args:
+            self: (todo): write your description
+            device_id: (int): write your description
+        """
         self._authenticate(device_id)
         self._validate_etag(device_setting_etag_key(device_id))
         setting = SettingRepository(self.db).get_device_settings(device_id)

@@ -65,6 +65,12 @@ class WakeWordFileUpload(PublicEndpoint):
     _wake_word = None
 
     def __init__(self):
+        """
+        Initialize a class.
+
+        Args:
+            self: (todo): write your description
+        """
         super(WakeWordFileUpload, self).__init__()
         self.request_data = None
 

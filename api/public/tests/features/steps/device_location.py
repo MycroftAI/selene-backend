@@ -28,6 +28,12 @@ from selene.api.etag import ETagManager, device_location_etag_key
 
 @when('a api call to get the location is done')
 def get_device_location(context):
+    """
+    Get the location of the context.
+
+    Args:
+        context: (todo): write your description
+    """
     login = context.device_login
     device_id = login['uuid']
     access_token = login['accessToken']
@@ -40,6 +46,12 @@ def get_device_location(context):
 
 @then('the location should be retrieved')
 def validate_location(context):
+    """
+    Check if a location.
+
+    Args:
+        context: (todo): write your description
+    """
     response = context.get_location_response
     assert_that(response.status_code, equal_to(HTTPStatus.OK))
     location = json.loads(response.data)
@@ -73,6 +85,12 @@ def validate_location(context):
 
 @given('an expired etag from a location entity')
 def expire_location_etag(context):
+    """
+    Expire the location of the iag.
+
+    Args:
+        context: (todo): write your description
+    """
     etag_manager: ETagManager = context.etag_manager
     device_id = context.device_login['uuid']
     context.expired_location_etag = etag_manager.get(device_location_etag_key(device_id))
@@ -81,6 +99,12 @@ def expire_location_etag(context):
 
 @when('try to get the location using the expired etag')
 def get_using_expired_etag(context):
+    """
+    Get an access token.
+
+    Args:
+        context: (todo): write your description
+    """
     login = context.device_login
     device_id = login['uuid']
     access_token = login['accessToken']
@@ -96,6 +120,12 @@ def get_using_expired_etag(context):
 
 @then('an etag associated with the location should be created')
 def validate_etag(context):
+    """
+    Validate the etag.
+
+    Args:
+        context: (todo): write your description
+    """
     response = context.get_location_response
     new_location_etag = response.headers.get('ETag')
     assert_that(new_location_etag, not_none())
@@ -104,6 +134,12 @@ def validate_etag(context):
 
 @given('a valid etag from a location entity')
 def valid_etag(context):
+    """
+    Check if the etag is valid.
+
+    Args:
+        context: (todo): write your description
+    """
     etag_manager = context.etag_manager
     device_id = context.device_login['uuid']
     context.valid_location_etag = etag_manager.get(device_location_etag_key(device_id))
@@ -111,6 +147,12 @@ def valid_etag(context):
 
 @when('try to get the location using a valid etag')
 def get_using_valid_etag(context):
+    """
+    Get an etag.
+
+    Args:
+        context: (todo): write your description
+    """
     login = context.device_login
     device_id = login['uuid']
     access_token = login['accessToken']
@@ -126,5 +168,11 @@ def get_using_valid_etag(context):
 
 @then('the location endpoint should return 304')
 def validate_response_valid_etag(context):
+    """
+    Validate response response.
+
+    Args:
+        context: (todo): write your description
+    """
     response = context.get_location_response
     assert_that(response.status_code, equal_to(HTTPStatus.NOT_MODIFIED))

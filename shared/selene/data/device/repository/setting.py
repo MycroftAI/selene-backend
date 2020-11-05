@@ -26,9 +26,23 @@ SQL_DIR = path.join(path.dirname(__file__), 'sql')
 
 class SettingRepository(object):
     def __init__(self, db):
+        """
+        Initialize the database.
+
+        Args:
+            self: (todo): write your description
+            db: (todo): write your description
+        """
         self.cursor = Cursor(db)
 
     def get_device_settings_by_device_id(self, device_id):
+        """
+        Get device settings.
+
+        Args:
+            self: (todo): write your description
+            device_id: (int): write your description
+        """
         query = DatabaseRequest(
             sql=get_sql_from_file(path.join(SQL_DIR, 'get_device_settings_by_device_id.sql')),
             args=dict(device_id=device_id)
@@ -49,6 +63,13 @@ class SettingRepository(object):
             return 'google', ''
 
     def _format_date_v1(self, date: str):
+        """
+        Format the date string.
+
+        Args:
+            self: (todo): write your description
+            date: (todo): write your description
+        """
         if date == 'DD/MM/YYYY':
             result = 'DMY'
         else:
@@ -56,6 +77,13 @@ class SettingRepository(object):
         return result
 
     def _format_time_v1(self, time: str):
+        """
+        Format time string representation.
+
+        Args:
+            self: (todo): write your description
+            time: (float): write your description
+        """
         if time == '24 Hour':
             result = 'full'
         else:
@@ -83,6 +111,13 @@ class SettingRepository(object):
             return response
 
     def _get_open_dataset_agreement_by_device_id(self, device_id: str):
+        """
+        Retrieve the dataset with the dataset.
+
+        Args:
+            self: (todo): write your description
+            device_id: (int): write your description
+        """
         query = DatabaseRequest(
             sql=get_sql_from_file(path.join(SQL_DIR, 'get_open_dataset_agreement_by_device_id.sql')),
             args=dict(device_id=device_id)

@@ -66,6 +66,13 @@ class DatabaseBatchRequest(object):
 
 class Cursor(object):
     def __init__(self, db):
+        """
+        Initialize database
+
+        Args:
+            self: (todo): write your description
+            db: (todo): write your description
+        """
         self.db = db
 
     def _fetch(self, db_request: DatabaseRequest, singleton=False):
@@ -119,6 +126,13 @@ class Cursor(object):
             return cursor.rowcount
 
     def _execute_batch(self, db_request: DatabaseBatchRequest):
+        """
+        Executes a batch.
+
+        Args:
+            self: (todo): write your description
+            db_request: (todo): write your description
+        """
         with self.db.cursor() as cursor:
             cursor.executemany(db_request.sql, db_request.args)
             #execute_batch(cursor, db_request.sql, db_request.args)
@@ -142,11 +156,26 @@ class Cursor(object):
         return updated_rows
 
     def batch_update(self, db_request: DatabaseBatchRequest):
+        """
+        Batch update request.
+
+        Args:
+            self: (todo): write your description
+            db_request: (todo): write your description
+        """
         self._execute_batch(db_request)
 
     def dump_query_result_to_file(
             self, db_request: DatabaseRequest, dump_file_path: str
     ) -> int:
+        """
+        Dump the result of a sql query.
+
+        Args:
+            self: (todo): write your description
+            db_request: (todo): write your description
+            dump_file_path: (str): write your description
+        """
         with self.db.cursor() as cursor:
             query = cursor.mogrify(db_request.sql, db_request.args).decode()
             copy_command = "COPY ({query}) TO STDOUT".format(query=query)
@@ -161,6 +190,14 @@ class Cursor(object):
             return cursor.rowcount
 
     def load_dump_file_to_table(self, table_name: str, dump_file_path: str):
+        """
+        : parametermine table from_file.
+
+        Args:
+            self: (todo): write your description
+            table_name: (str): write your description
+            dump_file_path: (str): write your description
+        """
         with self.db.cursor() as cursor:
             _log.debug('loading {file_path} into the {table} table'.format(
                 file_path=dump_file_path,

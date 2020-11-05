@@ -30,6 +30,12 @@ DEVICE_PAIRING_TOKEN_KEY = 'pairing.token:{pairing_token}'
 class SeleneCache(object):
 
     def __init__(self):
+        """
+        Initialize a redis connection.
+
+        Args:
+            self: (todo): write your description
+        """
         # should the variables host and port be in the config class?
         redis_host = os.environ['REDIS_HOST']
         redis_port = int(os.environ['REDIS_PORT'])

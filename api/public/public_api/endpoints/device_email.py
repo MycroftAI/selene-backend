@@ -40,9 +40,22 @@ class DeviceEmailEndpoint(PublicEndpoint):
     """Endpoint to send an email to the account associated to a device"""
 
     def __init__(self):
+        """
+        Initialize the device.
+
+        Args:
+            self: (todo): write your description
+        """
         super(DeviceEmailEndpoint, self).__init__()
 
     def put(self, device_id):
+        """
+        Sends a new account.
+
+        Args:
+            self: (todo): write your description
+            device_id: (int): write your description
+        """
         self._authenticate(device_id)
         payload = json.loads(self.request.data)
         send_email = SendEmail(payload)
@@ -63,6 +76,13 @@ class DeviceEmailEndpoint(PublicEndpoint):
         return response
 
     def _send_email(self, message: EmailMessage):
+        """
+        Sends email.
+
+        Args:
+            self: (str): write your description
+            message: (str): write your description
+        """
         email_client = self.config.get('EMAIL_CLIENT')
         if email_client is None:
             host = os.environ['EMAIL_SERVICE_HOST']

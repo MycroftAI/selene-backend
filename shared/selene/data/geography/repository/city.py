@@ -23,9 +23,23 @@ from ...repository_base import RepositoryBase
 
 class CityRepository(RepositoryBase):
     def __init__(self, db):
+        """
+        Initialize the database.
+
+        Args:
+            self: (todo): write your description
+            db: (todo): write your description
+        """
         super(CityRepository, self).__init__(db, __file__)
 
     def get_cities_by_region(self, region_id):
+        """
+        Returns a list of cities matching a region.
+
+        Args:
+            self: (todo): write your description
+            region_id: (str): write your description
+        """
         db_request = self._build_db_request(
             sql_file_name='get_cities_by_region.sql',
             args=dict(region_id=region_id)

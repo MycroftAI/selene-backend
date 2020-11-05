@@ -30,10 +30,22 @@ from selene.util.db import use_transaction
 
 class PartitionApiMetrics(SeleneScript):
     def __init__(self):
+        """
+        Initialize metrics
+
+        Args:
+            self: (todo): write your description
+        """
         super(PartitionApiMetrics, self).__init__(__file__)
 
     @use_transaction
     def _run(self):
+        """
+        Run the part
+
+        Args:
+            self: (todo): write your description
+        """
         api_metrics_repo = ApiMetricsRepository(self.db)
         api_metrics_repo.create_partition(self.args.date)
         api_metrics_repo.copy_to_partition(self.args.date)

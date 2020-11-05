@@ -62,6 +62,11 @@ default_wake_words = {
 
 
 def load_csv():
+    """
+    Load user config file.
+
+    Args:
+    """
     with open('users.csv') as user_csv:
         user_reader = csv.reader(user_csv)
         next(user_reader, None)
@@ -251,12 +256,24 @@ def load_csv():
 
 
 def format_date(value):
+    """
+    Format a datetime.
+
+    Args:
+        value: (todo): write your description
+    """
     value = int(value)
     value = datetime.datetime.fromtimestamp(value//1000)
     return f'{value:%Y-%m-%d}'
 
 
 def format_timestamp(value):
+    """
+    Format a timestamp.
+
+    Args:
+        value: (str): write your description
+    """
     value = int(value)
     value = datetime.datetime.fromtimestamp(value//1000)
     return f'{value:%Y-%m-%d %H:%M:%S}'
@@ -272,6 +289,12 @@ subscription_uuids = {}
 
 
 def get_subscription_uuid(subs):
+    """
+    Get the uuid for a given subscription.
+
+    Args:
+        subs: (str): write your description
+    """
     if subs in subscription_uuids:
         return subscription_uuids[subs]
     else:
@@ -286,6 +309,12 @@ tts_uuids = {}
 
 
 def get_tts_uuid(tts):
+    """
+    Return a list of the given tts
+
+    Args:
+        tts: (str): write your description
+    """
     if tts in tts_uuids:
         return tts_uuids[tts]
     else:
@@ -297,6 +326,11 @@ def get_tts_uuid(tts):
 
 
 def fill_account_table():
+    """
+    Fills the account table.
+
+    Args:
+    """
     query = 'insert into account.account(' \
             'id, ' \
             'email_address, ' \
@@ -308,6 +342,11 @@ def fill_account_table():
 
 
 def fill_account_agreement_table():
+    """
+    Fill the account agreement agreement.
+
+    Args:
+    """
     query = 'insert into account.account_agreement(account_id, agreement_id, accept_date)' \
             'values (%s, (select id from account.agreement where agreement = %s), %s)'
     with db.cursor() as cur:
@@ -318,6 +357,11 @@ def fill_account_agreement_table():
 
 
 def fill_default_wake_word():
+    """
+    Fill the default word.
+
+    Args:
+    """
     query1 = 'insert into device.wake_word (' \
              'id,' \
              'setting_name,' \
@@ -351,6 +395,11 @@ def fill_default_wake_word():
 
 
 def fill_wake_word_table():
+    """
+    Fills a word table.
+
+    Args:
+    """
     query = 'insert into device.wake_word (' \
             'id,' \
             'setting_name,' \
@@ -360,6 +409,12 @@ def fill_wake_word_table():
             'values (%s, %s, %s, %s, %s)'
 
     def map_wake_word(user_id):
+        """
+        Returns the username to the user id
+
+        Args:
+            user_id: (str): write your description
+        """
         wake_word_id = str(uuid.uuid4())
         wake_word = user_settings[user_id]['wake_word'].lower() if user_id in user_settings else 'hey mycroft'
         mycroft_wake_word = default_wake_words.get(wake_word)
@@ -375,6 +430,11 @@ def fill_wake_word_table():
 
 
 def fill_account_preferences_table():
+    """
+    Fill user preferences.
+
+    Args:
+    """
     query = 'insert into device.account_preferences(' \
             'account_id, ' \
             'date_format, ' \
@@ -383,6 +443,12 @@ def fill_account_preferences_table():
             'values (%s, %s, %s, %s)'
 
     def map_account_preferences(user_uuid):
+        """
+        Map user_preferences.
+
+        Args:
+            user_uuid: (str): write your description
+        """
         if user_uuid in user_settings:
             user_setting = user_settings[user_uuid]
             date_format = user_setting['date_format']
@@ -429,6 +495,11 @@ def fill_account_preferences_table():
 
 
 def fill_subscription_table():
+    """
+    Fills a new subscriptions for the given subscription.
+
+    Args:
+    """
     query = 'insert into account.account_membership(' \
             'account_id, ' \
             'membership_id, ' \
@@ -439,6 +510,12 @@ def fill_subscription_table():
             'values (%s, %s, %s, %s, %s, %s)'
 
     def map_subscription(user_uuid):
+        """
+        Map a subscription to a subscription.
+
+        Args:
+            user_uuid: (str): write your description
+        """
         subscr = subscription[user_uuid]
         stripe_customer_id = subscr['stripe_customer_id']
         start = format_timestamp(subscr['last_payment_ts'])
@@ -456,6 +533,11 @@ def fill_subscription_table():
 
 
 def fill_wake_word_settings_table():
+    """
+    Fills the most recent word settings table.
+
+    Args:
+    """
     query = 'insert into device.wake_word_settings(' \
             'wake_word_id,' \
             'sample_rate,' \
@@ -467,6 +549,12 @@ def fill_wake_word_settings_table():
             'values (%s, %s, %s, %s, %s, %s, %s)'
 
     def map_wake_word_settings(user_uuid):
+        """
+        Returns the word settings for the user.
+
+        Args:
+            user_uuid: (str): write your description
+        """
         user_setting = user_settings[user_uuid]
         wake_word_id = users[user_uuid]['wake_word_id']
         sample_rate = user_setting['sample_rate']
@@ -483,6 +571,11 @@ def fill_wake_word_settings_table():
 
 
 def change_device_name():
+    """
+    Change user name.
+
+    Args:
+    """
     for user in user_devices:
         if user in users:
             device_names = defaultdict(list)
@@ -498,6 +591,11 @@ def change_device_name():
 
 
 def fill_device_table():
+    """
+    Fetch the device table.
+
+    Args:
+    """
     query = 'insert into device.device(' \
             'id, ' \
             'account_id, ' \
@@ -538,6 +636,13 @@ def fill_device_table():
         city_default, region_default, country_default, timezone_default = cur.fetchone()
 
     def map_geography(account_id, device_id):
+        """
+        Map the geography to geography
+
+        Args:
+            account_id: (str): write your description
+            device_id: (int): write your description
+        """
         geography_id = str(uuid.uuid4())
         with db.cursor() as cur:
             query = """
@@ -573,6 +678,12 @@ def fill_device_table():
         return geography_id, account_id, country_default, region_default, city_default, timezone_default
 
     def map_device(device_id):
+        """
+        Map a device.
+
+        Args:
+            device_id: (int): write your description
+        """
         device = devices[device_id]
         account_id = device['user_uuid']
         name = device['name']
@@ -618,6 +729,11 @@ def fill_device_table():
 
 
 def fill_skills_table():
+    """
+    Fill out the skill table with skill table.
+
+    Args:
+    """
     skills_batch = []
     settings_display_batch = []
     device_skill_batch = []
@@ -663,6 +779,11 @@ def fill_skills_table():
 
 
 def analyze_locations():
+    """
+    Analyze country and region.
+
+    Args:
+    """
     matches = 0
     mismatches = 0
     g_mismatches = defaultdict(lambda: defaultdict(list))
@@ -707,6 +828,11 @@ def analyze_locations():
 
 
 def analyze_location_2():
+    """
+    Analyze location coordinates.
+
+    Args:
+    """
     aux = defaultdict(lambda: defaultdict(lambda: defaultdict(str)))
 
     locations_from_db = defaultdict(list)

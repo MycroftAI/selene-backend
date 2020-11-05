@@ -24,10 +24,22 @@ from selene.util.auth import AuthenticationToken
 
 class ValidateTokenEndpoint(SeleneEndpoint):
     def post(self):
+        """
+        Validate the token.
+
+        Args:
+            self: (todo): write your description
+        """
         response_data = self._validate_token()
         return response_data, HTTPStatus.OK
 
     def _validate_token(self):
+        """
+        Validate an access token.
+
+        Args:
+            self: (todo): write your description
+        """
         auth_token = AuthenticationToken(
             self.config['RESET_SECRET'],
             duration=0

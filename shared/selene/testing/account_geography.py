@@ -21,6 +21,14 @@ from selene.data.device import Geography, GeographyRepository
 
 
 def add_account_geography(db, account, **overrides):
+    """
+    Add account geography to an account.
+
+    Args:
+        db: (todo): write your description
+        account: (todo): write your description
+        overrides: (dict): write your description
+    """
     geography = Geography(
         country=overrides.get('country') or 'United States',
         region=overrides.get('region') or 'Missouri',

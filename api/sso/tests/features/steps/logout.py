@@ -50,4 +50,10 @@ def call_logout_endpoint(context):
 
 @then("response contains expired token cookies")
 def check_response_cookies(context):
+    """
+    Checks if the token.
+
+    Args:
+        context: (dict): write your description
+    """
     validate_token_cookies(context, expired=True)

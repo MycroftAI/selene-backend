@@ -37,27 +37,58 @@ class WakeWordSampleMover(SeleneScript):
     _file_repository = None
 
     def __init__(self):
+        """
+        Initialize a new directories.
+
+        Args:
+            self: (todo): write your description
+        """
         super(WakeWordSampleMover, self).__init__(__file__)
         self.new_directories = dict()
 
     def _run(self):
+        """
+        Run the move.
+
+        Args:
+            self: (todo): write your description
+        """
         wake_word_files = self._get_wake_word_file_info()
         self._move_files(wake_word_files)
 
     @property
     def file_repository(self):
+        """
+        Gets the file
+
+        Args:
+            self: (todo): write your description
+        """
         if self._file_repository is None:
             self._file_repository = WakeWordFileRepository(self.db)
 
         return self._file_repository
 
     def _get_wake_word_file_info(self):
+        """
+        Gets the submission info.
+
+        Args:
+            self: (todo): write your description
+        """
         wake_word_files = self.file_repository.get_by_submission_date(self.args.date)
         self.log.info(f"{len(wake_word_files)} wake word samples will be moved")
 
         return wake_word_files
 
     def _move_files(self, wake_word_file_info):
+        """
+        Move files to destination_word.
+
+        Args:
+            self: (todo): write your description
+            wake_word_file_info: (str): write your description
+        """
         self.log.info(f"moving wake word sample files to {self.precise_server}")
         for file_info in wake_word_file_info:
             destination_dir = self._ensure_remote_directory_exists(file_info)
@@ -68,6 +99,13 @@ class WakeWordSampleMover(SeleneScript):
             remove(str(Path(file_info.location.directory).joinpath(file_info.name)))
 
     def _ensure_remote_directory_exists(self, file_info) -> Path:
+        """
+        Ensure that the remote repository exists.
+
+        Args:
+            self: (todo): write your description
+            file_info: (str): write your description
+        """
         remote_directory = self.dest_base_dir.joinpath(
             file_info.wake_word.name.replace(" ", "-"), str(file_info.submission_date)
         )
@@ -77,6 +115,13 @@ class WakeWordSampleMover(SeleneScript):
         return remote_directory
 
     def _ensure_directory_exists_on_server(self, directory):
+        """
+        Ensure the given directory on the directory exists.
+
+        Args:
+            self: (todo): write your description
+            directory: (str): write your description
+        """
         cmd = f"ssh precise@{self.precise_server} "
         if self.precise_ssh_port:
             cmd += f"-p {self.precise_ssh_port} "
@@ -84,6 +129,13 @@ class WakeWordSampleMover(SeleneScript):
         run(shlex.split(cmd), check=True)
 
     def _ensure_directory_exists_on_db(self, new_directory):
+        """
+        Ensure that the db directory exists.
+
+        Args:
+            self: (todo): write your description
+            new_directory: (str): write your description
+        """
         file_location_repository = TaggingFileLocationRepository(self.db)
         if new_directory not in self.new_directories:
             new_location = file_location_repository.ensure_location_exists(
@@ -92,6 +144,14 @@ class WakeWordSampleMover(SeleneScript):
             self.new_directories[new_directory] = new_location.id
 
     def _copy_file(self, file_info, destination_dir):
+        """
+        Copy a file to a directory.
+
+        Args:
+            self: (todo): write your description
+            file_info: (str): write your description
+            destination_dir: (str): write your description
+        """
         source_path = Path(file_info.location.directory).joinpath(file_info.name)
         destination_path = destination_dir.joinpath(file_info.name)
         cmd = f"scp "

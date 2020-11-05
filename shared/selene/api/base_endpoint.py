@@ -50,6 +50,12 @@ class SeleneEndpoint(MethodView):
         -  override the _build_response_data method
     """
     def __init__(self):
+        """
+        Initialize a new access token.
+
+        Args:
+            self: (todo): write your description
+        """
         global_context.url = request.url
         self.config: dict = current_app.config
         self.request = request
@@ -60,6 +66,12 @@ class SeleneEndpoint(MethodView):
 
     @property
     def db(self):
+        """
+        Return a global database.
+
+        Args:
+            self: (todo): write your description
+        """
         if 'db' not in global_context:
             global_context.db = connect_to_db(
                 current_app.config['DB_CONNECTION_CONFIG']
@@ -68,12 +80,24 @@ class SeleneEndpoint(MethodView):
         return global_context.db
 
     def _init_access_token(self):
+        """
+        Create an access token.
+
+        Args:
+            self: (todo): write your description
+        """
         return AuthenticationToken(
             self.config['ACCESS_SECRET'],
             FIFTEEN_MINUTES
         )
 
     def _init_refresh_token(self):
+        """
+        Create a refresh token.
+
+        Args:
+            self: (todo): write your description
+        """
         return AuthenticationToken(
             self.config['REFRESH_SECRET'],
             ONE_MONTH
@@ -113,6 +137,12 @@ class SeleneEndpoint(MethodView):
         return self.access_token.account_id or self.refresh_token.account_id
 
     def _get_auth_tokens(self):
+        """
+        Get the access token from the request.
+
+        Args:
+            self: (todo): write your description
+        """
         self.access_token.jwt = self.request.cookies.get(
             ACCESS_TOKEN_COOKIE_NAME
         )

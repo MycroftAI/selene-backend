@@ -25,6 +25,12 @@ from selene.data.device import TextToSpeechRepository
 
 class VoiceEndpoint(SeleneEndpoint):
     def get(self):
+        """
+        Retrieve a list of repositories.
+
+        Args:
+            self: (todo): write your description
+        """
         tts_repository = TextToSpeechRepository(self.db)
         voices = tts_repository.get_voices()
 

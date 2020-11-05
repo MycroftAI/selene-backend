@@ -25,11 +25,23 @@ from selene.data.metric import AccountActivityRepository
 
 
 def get_account_activity(db):
+    """
+    Get account activity activity
+
+    Args:
+        db: (todo): write your description
+    """
     acct_activity_repository = AccountActivityRepository(db)
     return acct_activity_repository.get_activity_by_date(datetime.utcnow().date())
 
 
 def remove_account_activity(db):
+    """
+    Remove account activity
+
+    Args:
+        db: (todo): write your description
+    """
     acct_activity_repository = AccountActivityRepository(db)
     acct_activity_repository.delete_activity_by_date(datetime.utcnow().date())
 

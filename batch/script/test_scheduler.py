@@ -30,6 +30,12 @@ from selene.batch.base import SeleneScript
 
 class TestScheduler(SeleneScript):
     def __init__(self):
+        """
+        Initialize the manager.
+
+        Args:
+            self: (todo): write your description
+        """
         super(TestScheduler, self).__init__(__file__)
 
     def _define_args(self):
@@ -53,6 +59,12 @@ class TestScheduler(SeleneScript):
         )
 
     def _run(self):
+        """
+        Run the command.
+
+        Args:
+            self: (todo): write your description
+        """
         self.log.info('Running the scheduler test job')
         assert self.args.arg_no_value
         assert self.args.arg_with_value == 'test'

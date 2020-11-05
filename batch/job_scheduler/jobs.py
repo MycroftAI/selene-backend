@@ -38,11 +38,24 @@ _log = configure_logger('selene_job_scheduler')
 class JobRunner(object):
     """Build the command to run a batch job and run it via subprocess."""
     def __init__(self, script_name: str):
+        """
+        Initialize a job.
+
+        Args:
+            self: (todo): write your description
+            script_name: (str): write your description
+        """
         self.script_name = script_name
         self.job_args: str = None
         self.job_date: date = None
 
     def run_job(self):
+        """
+        Run the job.
+
+        Args:
+            self: (todo): write your description
+        """
         if self.job_date is not None:
             self._add_date_to_args()
         command = self._build_command()

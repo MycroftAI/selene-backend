@@ -31,6 +31,12 @@ from selene.util.cache import DEVICE_SKILL_ETAG_KEY
 
 @given('skill settings with a new value')
 def change_skill_setting_value(context):
+    """
+    Changes the current skills setting.
+
+    Args:
+        context: (todo): write your description
+    """
     _, bar_settings_display = context.skills['bar']
     section = bar_settings_display.display_data['skillMetadata']['sections'][0]
     field_with_value = section['fields'][1]
@@ -39,6 +45,12 @@ def change_skill_setting_value(context):
 
 @given('skill settings with a deleted field')
 def delete_field_from_settings(context):
+    """
+    Renders a field from the configuration.
+
+    Args:
+        context: (dict): write your description
+    """
     _, bar_settings_display = context.skills['bar']
     section = bar_settings_display.display_data['skillMetadata']['sections'][0]
     context.removed_field = section['fields'].pop(1)
@@ -47,6 +59,12 @@ def delete_field_from_settings(context):
 
 @given('a valid device skill E-tag')
 def set_skill_setting_etag(context):
+    """
+    Sets the usb setting for the usb device.
+
+    Args:
+        context: (dict): write your description
+    """
     context.device_skill_etag = context.etag_manager.get(
         DEVICE_SKILL_ETAG_KEY.format(device_id=context.device_id)
     )
@@ -54,6 +72,12 @@ def set_skill_setting_etag(context):
 
 @given('an expired device skill E-tag')
 def expire_skill_setting_etag(context):
+    """
+    Expire the usb device setting the current.
+
+    Args:
+        context: (todo): write your description
+    """
     valid_device_skill_etag = context.etag_manager.get(
         DEVICE_SKILL_ETAG_KEY.format(device_id=context.device_id)
     )
@@ -64,6 +88,12 @@ def expire_skill_setting_etag(context):
 
 @given('settings for a skill not assigned to the device')
 def add_skill_not_assigned_to_device(context):
+    """
+    Add skills skills to the skill.
+
+    Args:
+        context: (todo): write your description
+    """
     foobar_skill, foobar_settings_display = add_skill(
         context.db,
         skill_global_id='foobar-skill|19.02',
@@ -77,6 +107,12 @@ def add_skill_not_assigned_to_device(context):
 
 @when('a device requests the settings for its skills')
 def get_device_skill_settings(context):
+    """
+    Get skill settings.
+
+    Args:
+        context: (todo): write your description
+    """
     if hasattr(context, 'device_skill_etag'):
         context.request_header[ETAG_REQUEST_HEADER_KEY] = (
             context.device_skill_etag
@@ -90,6 +126,13 @@ def get_device_skill_settings(context):
 
 @when('the device sends a request to update the {skill} skill settings')
 def update_skill_settings(context, skill):
+    """
+    Update skill settings.
+
+    Args:
+        context: (todo): write your description
+        skill: (todo): write your description
+    """
     _, settings_display = context.skills[skill]
     context.response = context.client.put(
         '/v1/device/{device_id}/skill'.format(device_id=context.device_id),
@@ -101,6 +144,12 @@ def update_skill_settings(context, skill):
 
 @when('the device requests a skill to be deleted')
 def delete_skill(context):
+    """
+    Delete skill.
+
+    Args:
+        context: (dict): write your description
+    """
     foo_skill, _ = context.skills['foo']
     context.response = context.client.delete(
         '/v1/device/{device_id}/skill/{skill_gid}'.format(
@@ -113,6 +162,12 @@ def delete_skill(context):
 
 @then('the settings are returned')
 def validate_response(context):
+    """
+    Validate the response.
+
+    Args:
+        context: (todo): write your description
+    """
     response = context.response.json
     assert_that(len(response), equal_to(2))
     foo_skill, foo_settings_display = context.skills['foo']
@@ -164,6 +219,12 @@ def _get_device_skill_settings(context):
 
 @then('the skill settings are updated with the new value')
 def validate_updated_skill_setting_value(context):
+    """
+    Checks that the availability setting.
+
+    Args:
+        context: (todo): write your description
+    """
     _get_device_skill_settings(context)
     assert_that(len(context.device_skill_settings), equal_to(2))
     expected_settings_values = dict(
@@ -178,6 +239,12 @@ def validate_updated_skill_setting_value(context):
 
 @then('the skill is assigned to the device with the settings populated')
 def validate_updated_skill_setting_value(context):
+    """
+    Checks that the value of a stock setting.
+
+    Args:
+        context: (todo): write your description
+    """
     _get_device_skill_settings(context)
     assert_that(len(context.device_skill_settings), equal_to(3))
     expected_settings_values = dict(textfield='New skill text value')
@@ -189,6 +256,12 @@ def validate_updated_skill_setting_value(context):
 
 @then('an E-tag is generated for these settings')
 def get_skills_etag(context):
+    """
+    : param context : context context.
+
+    Args:
+        context: (todo): write your description
+    """
     response_headers = context.response.headers
     response_etag = response_headers['ETag']
     skill_etag = context.etag_manager.get(
@@ -199,6 +272,12 @@ def get_skills_etag(context):
 
 @then('the field is no longer in the skill settings')
 def validate_skill_setting_field_removed(context):
+    """
+    Validate that the skills settings.
+
+    Args:
+        context: (todo): write your description
+    """
     _get_device_skill_settings(context)
     assert_that(len(context.device_skill_settings), equal_to(2))
     # The removed field should no longer be in the settings values but the

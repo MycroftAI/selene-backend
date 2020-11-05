@@ -24,6 +24,14 @@ from selene.data.device import DeviceSkillRepository, ManifestSkill
 
 
 def add_device_skill(db, device_id, skill):
+    """
+    Add a skill to a skill.
+
+    Args:
+        db: (todo): write your description
+        device_id: (int): write your description
+        skill: (str): write your description
+    """
     manifest_skill = ManifestSkill(
         device_id=device_id,
         install_method='test_install_method',
@@ -40,6 +48,15 @@ def add_device_skill(db, device_id, skill):
 
 
 def add_device_skill_settings(db, device_id, settings_display, settings_values):
+    """
+    Add a trusted settings settings.
+
+    Args:
+        db: (todo): write your description
+        device_id: (int): write your description
+        settings_display: (todo): write your description
+        settings_values: (todo): write your description
+    """
     device_skill_repo = DeviceSkillRepository(db)
     device_skill_repo.upsert_device_skill_settings(
         [device_id],
@@ -49,5 +66,12 @@ def add_device_skill_settings(db, device_id, settings_display, settings_values):
 
 
 def remove_device_skill(db, manifest_skill):
+    """
+    Removes a skill from the manifest.
+
+    Args:
+        db: (todo): write your description
+        manifest_skill: (str): write your description
+    """
     device_skill_repo = DeviceSkillRepository(db)
     device_skill_repo.remove_manifest_skill(manifest_skill)

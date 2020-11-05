@@ -28,6 +28,13 @@ from selene.data.account import PRIVACY_POLICY, TERMS_OF_USE
 
 @when('API request for {agreement} is made')
 def call_agreement_endpoint(context, agreement):
+    """
+    Calls the context.
+
+    Args:
+        context: (todo): write your description
+        agreement: (todo): write your description
+    """
     if agreement == PRIVACY_POLICY:
         url = '/api/agreement/privacy-policy'
     elif agreement == TERMS_OF_USE:
@@ -40,6 +47,14 @@ def call_agreement_endpoint(context, agreement):
 
 @then('{agreement} version {version} is returned')
 def validate_response(context, agreement, version):
+    """
+    Validate the response.
+
+    Args:
+        context: (todo): write your description
+        agreement: (str): write your description
+        version: (str): write your description
+    """
     response_data = json.loads(context.response.data)
     if agreement == PRIVACY_POLICY:
         expected_response = asdict(context.privacy_policy)

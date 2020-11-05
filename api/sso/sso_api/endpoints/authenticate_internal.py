@@ -35,6 +35,12 @@ from selene.util.auth import AuthenticationError
 class AuthenticateInternalEndpoint(SeleneEndpoint):
     """Sign in a user with an email address and password."""
     def __init__(self):
+        """
+        Initialize the account.
+
+        Args:
+            self: (todo): write your description
+        """
         super(AuthenticateInternalEndpoint, self).__init__()
         self.account: Account = None
 

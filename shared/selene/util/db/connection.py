@@ -53,6 +53,13 @@ class DatabaseConnectionConfig(object):
     use_namedtuple_cursor: InitVar[bool] = False
 
     def __post_init__(self, use_namedtuple_cursor: bool):
+        """
+        Initialize the namedtuple.
+
+        Args:
+            self: (todo): write your description
+            use_namedtuple_cursor: (str): write your description
+        """
         if use_namedtuple_cursor:
             self.cursor_factory = NamedTupleCursor
 

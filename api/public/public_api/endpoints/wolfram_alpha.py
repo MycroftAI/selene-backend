@@ -30,16 +30,34 @@ class WolframAlphaEndpoint(PublicEndpoint):
     """Proxy to the Wolfram Alpha API"""
 
     def __init__(self):
+        """
+        Initialize this method.
+
+        Args:
+            self: (todo): write your description
+        """
         super(WolframAlphaEndpoint, self).__init__()
         self.wolfram_alpha_key = os.environ["WOLFRAM_ALPHA_KEY"]
         self.wolfram_alpha_url = os.environ["WOLFRAM_ALPHA_URL"]
 
     def get(self):
+        """
+        Gets activity.
+
+        Args:
+            self: (todo): write your description
+        """
         self._authenticate()
         track_account_activity(self.db, self.device_id)
         return self._query_wolfram_alpha()
 
     def _query_wolfram_alpha(self):
+        """
+        Perform an alpha alpha for a given alpha.
+
+        Args:
+            self: (todo): write your description
+        """
         query = self.request.args.get("input")
         if query:
             params = dict(appid=self.wolfram_alpha_key, input=query)

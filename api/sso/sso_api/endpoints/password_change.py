@@ -26,6 +26,12 @@ from selene.data.account import AccountRepository
 
 class PasswordChangeEndpoint(SeleneEndpoint):
     def put(self):
+        """
+        Put a password.
+
+        Args:
+            self: (todo): write your description
+        """
         account_id = self.request.json['accountId']
         coded_password = self.request.json['password']
         binary_password = a2b_base64(coded_password)

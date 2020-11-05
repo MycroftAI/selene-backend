@@ -30,6 +30,12 @@ from selene.data.account import (
 
 
 def build_test_account(**overrides):
+    """
+    Build an account account.
+
+    Args:
+        overrides: (dict): write your description
+    """
     test_agreements = [
         AccountAgreement(type=PRIVACY_POLICY, accept_date=date.today()),
         AccountAgreement(type=TERMS_OF_USE, accept_date=date.today()),
@@ -43,6 +49,13 @@ def build_test_account(**overrides):
 
 
 def add_account(db, **overrides):
+    """
+    Adds a membership to an existing team.
+
+    Args:
+        db: (todo): write your description
+        overrides: (dict): write your description
+    """
     acct_repository = AccountRepository(db)
     account = build_test_account(**overrides)
     password = overrides.get('password') or 'test_password'
@@ -54,11 +67,24 @@ def add_account(db, **overrides):
 
 
 def remove_account(db, account):
+    """
+    Removes a repository.
+
+    Args:
+        db: (todo): write your description
+        account: (todo): write your description
+    """
     account_repository = AccountRepository(db)
     account_repository.remove(account)
 
 
 def build_test_membership(**overrides):
+    """
+    Build a membership object.
+
+    Args:
+        overrides: (dict): write your description
+    """
     stripe_acct = 'test_stripe_acct_id'
     return AccountMembership(
         type=overrides.get('type') or 'Monthly Membership',
@@ -70,6 +96,14 @@ def build_test_membership(**overrides):
 
 
 def add_account_membership(db, account_id, **overrides):
+    """
+    Adds a membership to a project.
+
+    Args:
+        db: (todo): write your description
+        account_id: (str): write your description
+        overrides: (dict): write your description
+    """
     membership = build_test_membership(**overrides)
     acct_repository = AccountRepository(db)
     acct_repository.add_membership(account_id, membership)

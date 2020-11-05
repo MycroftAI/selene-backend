@@ -24,12 +24,24 @@ from selene.data.device import DeviceRepository
 
 class DeviceCountEndpoint(SeleneEndpoint):
     def get(self):
+        """
+        Get device authentication.
+
+        Args:
+            self: (todo): write your description
+        """
         self._authenticate()
         device_count = self._get_devices()
 
         return dict(deviceCount=device_count), HTTPStatus.OK
 
     def _get_devices(self):
+        """
+        Returns a list.
+
+        Args:
+            self: (todo): write your description
+        """
         device_repository = DeviceRepository(self.db)
         device_count = device_repository.get_account_device_count(
             self.account.id

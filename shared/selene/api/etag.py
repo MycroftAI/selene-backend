@@ -28,14 +28,32 @@ ETAG_REQUEST_HEADER_KEY = 'If-None-Match'
 
 
 def device_etag_key(device_id: str):
+    """
+    Generate a private key for a device.
+
+    Args:
+        device_id: (int): write your description
+    """
     return 'device.etag:{uuid}'.format(uuid=device_id)
 
 
 def device_setting_etag_key(device_id: str):
+    """
+    Returns the device key.
+
+    Args:
+        device_id: (int): write your description
+    """
     return 'device.setting.etag:{uuid}'.format(uuid=device_id)
 
 
 def device_location_etag_key(device_id: str):
+    """
+    Return the device key.
+
+    Args:
+        device_id: (int): write your description
+    """
     return 'device.location.etag:{uuid}'.format(uuid=device_id)
 
 
@@ -45,6 +63,14 @@ class ETagManager(object):
     etag_chars = string.ascii_letters + string.digits
 
     def __init__(self, cache: SeleneCache, config: dict):
+        """
+        Initialize the database.
+
+        Args:
+            self: (todo): write your description
+            cache: (todo): write your description
+            config: (todo): write your description
+        """
         self.cache: SeleneCache = cache
         self.db_connection_config = config['DB_CONNECTION_CONFIG']
 
@@ -103,6 +129,13 @@ class ETagManager(object):
         self.expire(DEVICE_SKILL_ETAG_KEY.format(device_id=device_id))
 
     def expire_skill_etag_by_account_id(self, account_id):
+        """
+        Expire a skill s skill id
+
+        Args:
+            self: (todo): write your description
+            account_id: (str): write your description
+        """
         db = connect_to_db(self.db_connection_config)
         devices = DeviceRepository(db).get_devices_by_account_id(account_id)
         for device in devices:
