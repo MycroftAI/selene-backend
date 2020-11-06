@@ -30,7 +30,7 @@ from schematics.types import StringType
 
 from selene.api import SeleneEndpoint
 from selene.data.tagging import (
-    WakeWordFileTag,
+    FileTag,
     FileTagRepository,
     SessionRepository,
     Tag,
@@ -194,7 +194,7 @@ class TagEndpoint(SeleneEndpoint):
         return session_id
 
     def _add_tag(self, session_id: str):
-        file_tag = WakeWordFileTag(
+        file_tag = FileTag(
             file_id=self.request.json["audioFileId"],
             session_id=session_id,
             tag_id=self.request.json["tagId"],

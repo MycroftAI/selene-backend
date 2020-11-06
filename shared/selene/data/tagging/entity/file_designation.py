@@ -16,16 +16,15 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-"""Data entities representing a tag applied to a wake word file."""
+"""Data entities representing a designation applied to a wake word file."""
 from dataclasses import dataclass
 
 
 @dataclass
-class WakeWordFileTag:
-    """Representation a tag applied to a wake word file and its possible values."""
+class FileDesignation:
+    """Representation a designation applied to a wake word file."""
 
     file_id: str
-    session_id: str
     tag_id: str
     tag_value_id: str
     id: str = None
