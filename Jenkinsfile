@@ -56,7 +56,7 @@ pipeline {
                         --build-arg github_api_key=${GITHUB_API_PSW} \
                         --build-arg api_name=public \
                         --target api-code-check --no-cache \
-                        --label branch=${BRANCH_ALIAS} \
+                        --label job=${JOB_NAME} \
                         -t selene-linter:${BRANCH_ALIAS} .
                 """
                 labelledShell label: 'Public API Check', script: """
@@ -77,7 +77,7 @@ pipeline {
                     docker build \
                         --target db-bootstrap \
                         --build-arg github_api_key=${GITHUB_API_PSW} \
-                        --label branch=${BRANCH_ALIAS} \
+                        --label job=${JOB_NAME} \
                         -t selene-db:${BRANCH_ALIAS} .
                 """
                 timeout(time: 5, unit: 'MINUTES')
@@ -101,7 +101,7 @@ pipeline {
                     docker build \
                         --build-arg stripe_api_key=${STRIPE_KEY} \
                         --target account-api-test \
-                        --label branch=${BRANCH_ALIAS} \
+                        --label job=${JOB_NAME}} \
                         -t selene-account:${BRANCH_ALIAS} .
                 """
                 timeout(time: 5, unit: 'MINUTES')
@@ -110,7 +110,7 @@ pipeline {
                         docker run \
                             --net selene-net \
                             -v '${HOME}/allure/selene/:/root/allure' \
-                            --label branch={$BRANCH_ALIAS} \
+                            --label job=${JOB_NAME} \
                             selene-account:${BRANCH_ALIAS}
                     """
                 }
@@ -130,7 +130,7 @@ pipeline {
                         --build-arg github_client_id=${GITHUB_CLIENT_ID} \
                         --build-arg github_client_secret=${GITHUB_CLIENT_SECRET} \
                         --target sso-api-test \
-                        --label branch=${BRANCH_ALIAS} \
+                        --label job=${JOB_NAME} \
                         -t selene-sso:${BRANCH_ALIAS} .
                 """
                 timeout(time: 2, unit: 'MINUTES')
@@ -158,7 +158,7 @@ pipeline {
                         --build-arg google_stt_key=${GOOGLE_STT_KEY} \
                         --build-arg wolfram_alpha_key=${WOLFRAM_ALPHA_KEY} \
                         --target public-api-test \
-                        --label branch=${BRANCH_ALIAS} \
+                        --label job=${JOB_NAME} \
                         -t selene-public:${BRANCH_ALIAS} .
                 """
                 timeout(time: 2, unit: 'MINUTES')
@@ -190,7 +190,7 @@ pipeline {
             sh(
                 label: 'Delete Docker Image on Success',
                 script: '''
-                    docker image prune --all --force --filter label=branch=${BRANCH_ALIAS};
+                    docker image prune --all --force --filter label=job=${JOB_NAME};
                 '''
             )
         }
