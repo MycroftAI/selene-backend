@@ -3,6 +3,7 @@ WITH file AS (
     -- Get all files for the specified wake word
     SELECT
         wwf.id AS file_id,
+        wwf.name AS file_name,
         fl.server,
         fl.directory
     FROM
@@ -43,6 +44,7 @@ file_tag AS (
 -- that is not fully designated and has not already been tagged in the specified session.
 SELECT
     f.file_id AS id,
+    f.file_name as name,
     f.server,
     f.directory,
     fd.designations,
@@ -52,8 +54,7 @@ FROM
     LEFT JOIN file_tag ft ON f.file_id = ft.file_id
     LEFT JOIN file_designation fd ON f.file_id = fd.file_id
 WHERE
-    fd.designations IS NULL
-    OR cardinality(fd.designations) < %(number_of_tags)s
+    (fd.designations IS NULL OR cardinality(fd.designations) < %(tag_count)s)
     AND array_position(ft.sessions, %(session_id)s) IS NULL
 ORDER BY
     cardinality(ft.sessions)
