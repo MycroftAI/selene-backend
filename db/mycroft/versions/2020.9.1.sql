@@ -215,8 +215,15 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA tagging TO selene;
 
 --  Populate the static data in tagging.tag and tagging.tag_values
 INSERT INTO
-    tagging.tag (name, title, instructions)
+    tagging.tag (name, title, instructions, priority)
 VALUES
+    (
+        'speaking',
+        'Do you hear someone',
+        'Indicate whether or not you hear someone talking in this sample or if all you hear is noise '
+        || '(static, machinery, etc.) or silence.',
+        1
+    ),
     (
         'wake word',
         'Do you hear the wake word',
@@ -224,28 +231,34 @@ VALUES
          || 'that sounds similar to the wake word (no, but similar); heard multiple occurrences of '
          || 'the wake word (yes, multiple); or heard a single occurrence of the full wake word (yes, '
          || 'once).  Using the "Hey Mycroft" wake word as an example, answer "no, but similar" if you '
-         || 'hear something like "Mycroft", "Microsoft", "Hey Minecraft" or "Hey Mike Ross".'
+         || 'hear something like "Mycroft", "Microsoft", "Hey Minecraft" or "Hey Mike Ross".',
+        2
     ),
     (
         'gender',
         'What is the perceived',
-        'For the speaker in this audio clip choose which category best describes the pitch and timbre.'
+        'For the speaker in this audio clip choose which category best describes the pitch and timbre.',
+        3
     ),
     (
         'age',
         'What is the perceived',
-        'For the speaker in this audio clip choose which category best describes the their age.'
+        'For the speaker in this audio clip choose which category best describes the their age.',
+        4
     ),
     (
         'background noise',
         'Do you hear any',
         'Besides the voice of the speaker, can you hear any background noise (e.g. fan, appliance, '
-        || 'vehicle, television or radio)?'
+        || 'vehicle, television or radio)?',
+        5
     )
 ;
 INSERT INTO
     tagging.tag_value (tag_id, value, display)
 VALUES
+    ((SELECT id FROM tagging.tag WHERE tag.name = 'speaking'), 'no', 'NO, JUST NOISE'),
+    ((SELECT id FROM tagging.tag WHERE tag.name = 'speaking'), 'yes', 'YES, SPEAKING'),
     ((SELECT id FROM tagging.tag WHERE tag.name = 'wake_word'), 'no', 'NO'),
     ((SELECT id FROM tagging.tag WHERE tag.name = 'wake_word'), 'similar', 'NO, BUT SIMILAR'),
     ((SELECT id FROM tagging.tag WHERE tag.name = 'wake_word'), 'multiple', 'YES, MULTIPLE'),
