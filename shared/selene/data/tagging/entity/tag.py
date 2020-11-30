@@ -31,4 +31,5 @@ class Tag:
     name: str
     title: str
     instructions: str
+    priority: str
     values: List[TagValue]

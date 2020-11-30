@@ -22,7 +22,6 @@ import getpass
 from http import HTTPStatus
 from os import environ
 from pathlib import Path
-from random import choice
 from typing import List
 
 from schematics import Model
@@ -61,6 +60,21 @@ class TagEndpoint(SeleneEndpoint):
     for a subsequent API call.
     """
 
+    _tags = None
+
+    @property
+    def tags(self) -> List[Tag]:
+        """Get all the possible tags.
+
+        :return a list of all tags and their values
+        """
+        if self._tags is None:
+            tag_repository = TagRepository(self.db)
+            tags = tag_repository.get_all()
+            self._tags = sorted(tags, key=lambda tag: tag.priority)
+
+        return self._tags
+
     def get(self):
         """Handle an HTTP GET request."""
         self._authenticate()
@@ -77,10 +91,10 @@ class TagEndpoint(SeleneEndpoint):
         """
         wake_word = self.request.args["wakeWord"].replace("-", " ")
         file_to_tag = self._get_taggable_file(wake_word)
-        tag = self._get_random_tag(file_to_tag)
         if file_to_tag is None:
             response_data = ""
         else:
+            tag = self._select_tag(file_to_tag)
             response_data = dict(
                 audioFileId=file_to_tag.id,
                 audioFileName=file_to_tag.name,
@@ -100,39 +114,32 @@ class TagEndpoint(SeleneEndpoint):
         :return: dataclass instance representing the file to be tagged
         """
         file_repository = WakeWordFileRepository(self.db)
-        file_to_tag = file_repository.get_taggable_file(wake_word)
+        file_to_tag = file_repository.get_taggable_file(
+            wake_word, len(self.tags), self.request.args.get("sessionId")
+        )
 
         return file_to_tag
 
-    def _get_random_tag(self, file_to_tag: TaggableFile) -> Tag:
-        """Get a random tag that has not yet been designated to the wake word sample.
+    def _select_tag(self, file_to_tag: TaggableFile) -> Tag:
+        """Determine which tag to return in the response.
 
-
-
-        :param file_to_tag: Attributes of the file that will be tagged by the user.
-        :return:
+        :param file_to_tag: Attributes of the file that will be tagged by the user
+        :return: the tag to put in the response
         """
-        all_tags = self._get_all_tags()
-        if None in file_to_tag.designations:
-            tags = {tag.name: tag for tag in all_tags}
-            random_tag = tags["wake word"]
+        selected_tag = None
+        if file_to_tag.designations is None:
+            designations = []
         else:
-            tags = {tag.id: tag for tag in all_tags}
-            for designation in file_to_tag.designations:
-                del tags[designation["tag_id"]]
-            random_tag = choice(list(tags.values()))
+            designations = file_to_tag.designations
+        for tag in self.tags:
+            if file_to_tag.tag is None:
+                if tag.id not in designations:
+                    selected_tag = tag
+            else:
+                if tag.id == file_to_tag.tag:
+                    selected_tag = tag
 
-        return random_tag
-
-    def _get_all_tags(self) -> List[Tag]:
-        """Randomly pick one of the tag types.
-
-        :return a dataclass instance representing the tag type
-        """
-        tag_repository = TagRepository(self.db)
-        tags = tag_repository.get_all()
-
-        return tags
+        return selected_tag or self.tags[0]
 
     @staticmethod
     def _copy_audio_file(file_to_tag: TaggableFile):

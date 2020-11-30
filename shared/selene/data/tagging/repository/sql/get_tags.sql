@@ -3,6 +3,7 @@ SELECT
     t.name,
     t.title,
     t.instructions,
+    t.priority,
     json_agg(
         json_build_object(
             'value', tv.value,
@@ -14,4 +15,8 @@ FROM
     tagging.tag t
     LEFT JOIN tagging.tag_value tv ON t.id = tv.tag_id
 GROUP BY
-    1, 2, 3, 4
+    t.id,
+    t.name,
+    t.title,
+    t.instructions,
+    t.priority
