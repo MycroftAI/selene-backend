@@ -1,6 +1,17 @@
 -- Select a single file to be presented to the wake word tagger.
-WITH file AS (
-    -- Get all files for the specified wake word
+WITH not_speaking AS (
+    SELECT
+        t.id as tag_id,
+        tv.id AS tag_value_id
+    FROM
+        tagging.tag t
+        INNER JOIN tagging.tag_value tv ON t.id = tv.tag_id
+    WHERE
+        t.name = 'speaking'
+        AND tv.value = 'no'
+),
+file AS (
+    -- Get all files for the specified wake word that have not been designated as noise
     SELECT
         wwf.id AS file_id,
         wwf.name AS file_name,
@@ -10,8 +21,18 @@ WITH file AS (
         tagging.wake_word_file wwf
         INNER JOIN wake_word.wake_word ww ON wwf.wake_word_id = ww.id
         INNER JOIN tagging.file_location fl ON fl.id = wwf.file_location_id
+        LEFT JOIN tagging.wake_word_file_designation wwfd ON wwf.id = wwfd.wake_word_file_id
     WHERE
         ww.name = %(wake_word)s
+        AND (
+            wwfd.tag_id IS NULL
+            OR wwfd.tag_id::TEXT || wwfd.tag_value_id::TEXT != (
+                SELECT
+                    tag_id::TEXT || tag_value_id::TEXT
+                FROM
+                    not_speaking
+           )
+        )
 ),
 file_designation AS (
     -- Get all the designations assigned to the files
