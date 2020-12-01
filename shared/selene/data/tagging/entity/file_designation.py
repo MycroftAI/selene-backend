@@ -28,3 +28,4 @@ class FileDesignation:
     tag_id: str
     tag_value_id: str
     id: str = None
+    file_name: str = None

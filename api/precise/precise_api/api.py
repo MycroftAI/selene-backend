@@ -22,7 +22,7 @@ from flask import Flask
 
 from selene.api import get_base_config, selene_api, SeleneResponse
 from selene.util.log import configure_logger
-from .endpoints import AudioFileEndpoint, TagEndpoint
+from .endpoints import AudioFileEndpoint, DesignationEndpoint, TagEndpoint
 
 _log = configure_logger("precise_api")
 
@@ -37,5 +37,11 @@ audio_file_endpoint = AudioFileEndpoint.as_view("audio_file_endpoint")
 precise.add_url_rule(
     "/api/audio/<string:file_name>", view_func=audio_file_endpoint, methods=["GET"]
 )
+
+designation_endpoint = DesignationEndpoint.as_view("designation_endpoint")
+precise.add_url_rule(
+    "/api/designation", view_func=designation_endpoint, methods=["GET"]
+)
+
 tag_endpoint = TagEndpoint.as_view("tag_endpoint")
 precise.add_url_rule("/api/tag", view_func=tag_endpoint, methods=["GET", "POST"])

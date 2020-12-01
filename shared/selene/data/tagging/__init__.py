@@ -23,6 +23,7 @@ from .entity.file_location import TaggingFileLocation
 from .entity.file_tag import FileTag
 from .entity.tag import Tag
 from .entity.tagger import Tagger
+from .entity.tag_value import TagValue
 from .entity.wake_word_file import TaggableFile, WakeWordFile
 from .repository.file_designation import FileDesignationRepository
 from .repository.file_location import TaggingFileLocationRepository
