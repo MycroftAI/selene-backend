@@ -212,7 +212,7 @@ class TagEndpoint(SeleneEndpoint):
 
     def _add_tag(self):
         """Add the tagging result to the database."""
-        file_tag = WakeWordFileTag(
+        file_tag = FileTag(
             file_id=self.request.json["audioFileId"],
             session_id=self.request.json["sessionId"],
             tag_id=self.request.json["tagId"],
