@@ -16,24 +16,25 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-"""Public API into the tagging data repository."""
+"""Data access and manipulation for the tagging.wake_word_file_tag table."""
+from dataclasses import asdict
 
-from .entity.file_designation import FileDesignation
-from .entity.file_location import TaggingFileLocation
-from .entity.file_tag import FileTag
-from .entity.tag import Tag
-from .entity.tagger import Tagger
-from .entity.wake_word_file import TaggableFile, WakeWordFile
-from .repository.file_designation import FileDesignationRepository
-from .repository.file_location import TaggingFileLocationRepository
-from .repository.file_tag import FileTagRepository
-from .repository.session import SessionRepository
-from .repository.tag import TagRepository
-from .repository.tagger import TaggerRepository
-from .repository.wake_word_file import (
-    build_tagging_file_name,
-    DELETED_STATUS,
-    PENDING_DELETE_STATUS,
-    UPLOADED_STATUS,
-    WakeWordFileRepository,
-)
+from ..entity.file_designation import FileDesignation
+from ...repository_base import RepositoryBase
+
+
+class FileDesignationRepository(
+    RepositoryBase
+):  # pylint: disable=too-few-public-methods
+    """Data access and manipulation for the tagging.wake_word_file_tag table."""
+
+    def __init__(self, db):
+        super().__init__(db, __file__)
+
+    def add(self, file_designation: FileDesignation):
+        """Add a tag to a wake word file."""
+        db_request = self._build_db_request(
+            sql_file_name="add_wake_word_file_designation.sql",
+            args=asdict(file_designation),
+        )
+        self.cursor.insert(db_request)
