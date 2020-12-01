@@ -30,7 +30,7 @@ from schematics.types import StringType
 
 from selene.api import SeleneEndpoint
 from selene.data.tagging import (
-    WakeWordFileTag,
+    FileTag,
     FileTagRepository,
     SessionRepository,
     Tag,
