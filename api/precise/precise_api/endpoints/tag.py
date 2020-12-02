@@ -22,9 +22,9 @@ import getpass
 from http import HTTPStatus
 from os import environ
 from pathlib import Path
-from random import choice
 from typing import List
 
+from flask import jsonify
 from schematics import Model
 from schematics.types import StringType
 
@@ -46,9 +46,10 @@ from selene.util.ssh import get_remote_file, SshClientConfig
 class TagPostRequest(Model):
     """Define the expected arguments to be passed in the POST request."""
 
-    tag_id = StringType()
-    tag_value = StringType()
-    file_name = StringType()
+    tag_id = StringType(required=True)
+    tag_value = StringType(required=True)
+    file_name = StringType(required=True)
+    session_id = StringType(required=True)
 
 
 class TagEndpoint(SeleneEndpoint):
@@ -61,29 +62,65 @@ class TagEndpoint(SeleneEndpoint):
     for a subsequent API call.
     """
 
+    _tags = None
+
+    @property
+    def tags(self) -> List[Tag]:
+        """Get all the possible tags.
+
+        :return a list of all tags and their values
+        """
+        if self._tags is None:
+            tag_repository = TagRepository(self.db)
+            tags = tag_repository.get_all()
+            self._tags = sorted(tags, key=lambda tag: tag.priority)
+
+        return self._tags
+
     def get(self):
         """Handle an HTTP GET request."""
         self._authenticate()
-        response_data, file_to_tag = self._build_response_data()
+        session_id = self._ensure_session_exists()
+        response_data, file_to_tag = self._build_response_data(session_id)
         if response_data:
             self._copy_audio_file(file_to_tag)
 
         return response_data, HTTPStatus.OK if response_data else HTTPStatus.NO_CONTENT
 
-    def _build_response_data(self):
-        """Build the response from data retrieved from the database
+    def _ensure_session_exists(self):
+        """If no session ID is provided in the request, get it from the database."""
+        session_id = self.request.args.get("sessionId")
+        if session_id is None:
+            tagger = self._ensure_tagger_exists()
+            session_repository = SessionRepository(self.db)
+            session_id = session_repository.ensure_session_exists(tagger)
 
+        return session_id
+
+    def _ensure_tagger_exists(self):
+        """Get the tagger attributes for this account."""
+        tagger = Tagger(entity_type="account", entity_id=self.account.id)
+        tagger_repository = TaggerRepository(self.db)
+        tagger.id = tagger_repository.ensure_tagger_exists(tagger)
+
+        return tagger
+
+    def _build_response_data(self, session_id: str):
+        """Build the response from data retrieved from the database.
+
+        :param session_id: Identifier of the user's tagging session
         :return the response and the taggable file object
         """
         wake_word = self.request.args["wakeWord"].replace("-", " ")
-        file_to_tag = self._get_taggable_file(wake_word)
-        tag = self._get_random_tag(file_to_tag)
+        file_to_tag = self._get_taggable_file(wake_word, session_id)
         if file_to_tag is None:
             response_data = ""
         else:
+            tag = self._select_tag(file_to_tag)
             response_data = dict(
                 audioFileId=file_to_tag.id,
                 audioFileName=file_to_tag.name,
+                sessionId=session_id,
                 tagId=tag.id,
                 tagInstructions=tag.instructions,
                 tagName=(wake_word if tag.name == "wake word" else tag.name).title(),
@@ -93,46 +130,40 @@ class TagEndpoint(SeleneEndpoint):
 
         return response_data, file_to_tag
 
-    def _get_taggable_file(self, wake_word: str) -> TaggableFile:
+    def _get_taggable_file(self, wake_word: str, session_id: str) -> TaggableFile:
         """Get a file that has still requires some tagging for a specified tag type.
 
         :param wake_word: the wake word being tagged by the user
+        :param session_id: identifier of the user's tagging session
         :return: dataclass instance representing the file to be tagged
         """
         file_repository = WakeWordFileRepository(self.db)
-        file_to_tag = file_repository.get_taggable_file(wake_word)
+        file_to_tag = file_repository.get_taggable_file(
+            wake_word, len(self.tags), session_id
+        )
 
         return file_to_tag
 
-    def _get_random_tag(self, file_to_tag: TaggableFile) -> Tag:
-        """Get a random tag that has not yet been designated to the wake word sample.
+    def _select_tag(self, file_to_tag: TaggableFile) -> Tag:
+        """Determine which tag to return in the response.
 
-
-
-        :param file_to_tag: Attributes of the file that will be tagged by the user.
-        :return:
+        :param file_to_tag: Attributes of the file that will be tagged by the user
+        :return: the tag to put in the response
         """
-        all_tags = self._get_all_tags()
-        if None in file_to_tag.designations:
-            tags = {tag.name: tag for tag in all_tags}
-            random_tag = tags["wake word"]
-        else:
-            tags = {tag.id: tag for tag in all_tags}
-            for designation in file_to_tag.designations:
-                del tags[designation["tag_id"]]
-            random_tag = choice(list(tags.values()))
+        selected_tag = None
+        for tag in self.tags:
+            if file_to_tag.designations is None:
+                selected_tag = tag
+            elif file_to_tag.tag is None:
+                if tag.id not in file_to_tag.designations:
+                    selected_tag = tag
+            else:
+                if tag.id == file_to_tag.tag:
+                    selected_tag = tag
+            if selected_tag is not None:
+                break
 
-        return random_tag
-
-    def _get_all_tags(self) -> List[Tag]:
-        """Randomly pick one of the tag types.
-
-        :return a dataclass instance representing the tag type
-        """
-        tag_repository = TagRepository(self.db)
-        tags = tag_repository.get_all()
-
-        return tags
+        return selected_tag or self.tags[0]
 
     @staticmethod
     def _copy_audio_file(file_to_tag: TaggableFile):
@@ -163,40 +194,27 @@ class TagEndpoint(SeleneEndpoint):
         """Process HTTP POST request for an account."""
         self._authenticate()
         self._validate_post_request()
-        tagger = self._ensure_tagger_exists()
-        session_id = self._ensure_session_exists(tagger)
-        self._add_tag(session_id)
+        self._add_tag()
 
-        return dict(sessionId=session_id), HTTPStatus.OK
+        return jsonify("File tagged successfully"), HTTPStatus.OK
 
     def _validate_post_request(self):
         """Validate the contents of the request object for a POST request."""
         post_request = TagPostRequest(
             dict(
+                session_id=self.request.json.get("sessionId"),
                 tag_id=self.request.json.get("tagId"),
-                tag_value=self.request.json.get("tagValue"),
+                tag_value=self.request.json.get("tagValueId"),
                 file_name=self.request.json.get("audioFileId"),
             )
         )
         post_request.validate()
 
-    def _ensure_tagger_exists(self):
-        tagger = Tagger(entity_type="account", entity_id=self.account.id)
-        tagger_repository = TaggerRepository(self.db)
-        tagger.id = tagger_repository.ensure_tagger_exists(tagger)
-
-        return tagger
-
-    def _ensure_session_exists(self, tagger):
-        session_repository = SessionRepository(self.db)
-        session_id = session_repository.ensure_session_exists(tagger)
-
-        return session_id
-
-    def _add_tag(self, session_id: str):
+    def _add_tag(self):
+        """Add the tagging result to the database."""
         file_tag = FileTag(
             file_id=self.request.json["audioFileId"],
-            session_id=session_id,
+            session_id=self.request.json["sessionId"],
             tag_id=self.request.json["tagId"],
             tag_value_id=self.request.json["tagValueId"],
         )

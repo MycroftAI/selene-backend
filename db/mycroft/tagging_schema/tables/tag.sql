@@ -4,5 +4,6 @@ CREATE TABLE tagging.tag (
     name            text        NOT NULL UNIQUE,
     title           text        NOT NULL,
     instructions    text        NOT NULL,
+    priority        INTEGER     NOT NULL,
     insert_ts       TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP
 );

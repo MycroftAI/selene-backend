@@ -173,15 +173,20 @@ class WakeWordFileRepository(RepositoryBase):
 
         return wake_word_files
 
-    def get_taggable_file(self, wake_word: str) -> TaggableFile:
+    def get_taggable_file(
+        self, wake_word: str, tag_count: int, session_id: str
+    ) -> TaggableFile:
         """Retrieve a file that needs to be tagged from the database.
 
         :param wake_word: the wake word being tagged
+        :param tag_count: the number of tag types defined in the database
+        :param session_id: identifier of the current tagging session
         :return: an object containing the result of the query
         """
         taggable_file = None
         db_request = self._build_db_request(
-            sql_file_name="get_file_for_tagging.sql", args=dict(wake_word=wake_word),
+            sql_file_name="get_taggable_wake_word_file.sql",
+            args=dict(wake_word=wake_word, tag_count=tag_count, session_id=session_id),
         )
         result = self.cursor.select_one(db_request)
         if result is not None:
@@ -193,6 +198,7 @@ class WakeWordFileRepository(RepositoryBase):
                 name=result["name"],
                 location=file_location,
                 designations=result["designations"],
+                tag=result["tag"],
             )
 
         return taggable_file

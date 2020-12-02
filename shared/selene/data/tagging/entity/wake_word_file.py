@@ -47,3 +47,4 @@ class TaggableFile:
     name: str
     location: TaggingFileLocation
     designations: List
+    tag: str
