@@ -7,4 +7,4 @@ FROM
     tagging.wake_word_file_designation wwfd
     INNER JOIN tagging.wake_word_file wwf ON wwf.id = wwfd.wake_word_file_id
 WHERE
-    wwfd.insert_ts::date >= %(start_date)
+    wwfd.insert_ts::date >= %(start_date)s
