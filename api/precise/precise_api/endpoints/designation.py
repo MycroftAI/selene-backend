@@ -62,7 +62,6 @@ class DesignationEndpoint(SeleneEndpoint):
 
     def get(self):
         """Handle an HTTP GET request."""
-        self._authenticate()
         response_data = self._build_response_data()
 
         return response_data, HTTPStatus.OK
