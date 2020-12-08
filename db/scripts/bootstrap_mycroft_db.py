@@ -60,7 +60,14 @@ DEVICE_TABLE_ORDER = (
     "device_skill",
 )
 GEOGRAPHY_TABLE_ORDER = ("country", "timezone", "region", "city")
-METRIC_TABLE_ORDER = ("api", "api_history", "job", "core", "account_activity")
+METRIC_TABLE_ORDER = (
+    "api",
+    "api_history",
+    "job",
+    "core",
+    "account_activity",
+    "device_activity",
+)
 TAGGING_TABLE_ORDER = (
     "file_location",
     "wake_word_file",
