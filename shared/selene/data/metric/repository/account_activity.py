@@ -32,7 +32,7 @@ class AccountActivityRepository(RepositoryBase):
     """Query and maintain the account_activity table."""
 
     def __init__(self, db):
-        super(AccountActivityRepository, self).__init__(db, __file__)
+        super().__init__(db, __file__)
 
     def increment_accounts_added(self):
         """Increment the accounts added metric on the account activity table."""
@@ -79,7 +79,7 @@ class AccountActivityRepository(RepositoryBase):
             agreements = [agreement.type for agreement in account.agreements]
             open_dataset_increment = 1 if OPEN_DATASET in agreements else 0
             request = self._build_db_request(
-                sql_file_name="increment_activity.sql",
+                sql_file_name="increment_account_activity.sql",
                 args=dict(
                     member_increment=member_increment,
                     open_dataset_increment=open_dataset_increment,
