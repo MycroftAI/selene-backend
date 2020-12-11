@@ -16,6 +16,8 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
+"""Public API into the Precise API endpoint package."""
 
 from .audio_file import AudioFileEndpoint
+from .designation import DesignationEndpoint
 from .tag import TagEndpoint
