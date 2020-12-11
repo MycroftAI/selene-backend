@@ -45,6 +45,7 @@ from selene.testing.skill import (
     build_text_field,
     remove_skill,
 )
+from selene.testing.tagging import remove_wake_word_files
 from selene.testing.text_to_speech import add_text_to_speech, remove_text_to_speech
 from selene.testing.wake_word import add_wake_word, remove_wake_word
 from selene.util.cache import SeleneCache
@@ -119,6 +120,8 @@ def before_scenario(context, _):
     _add_skills(context)
     _add_device(context)
     _add_device_skills(context)
+    context.wake_word_files = []
+    context.duplicate_hash = False
 
 
 def after_scenario(context, _):
@@ -134,6 +137,8 @@ def after_scenario(context, _):
     remove_text_to_speech(context.db, context.voice)
     for skill in context.skills.values():
         remove_skill(context.db, skill[0])
+    for wake_word_file in context.wake_word_files:
+        remove_wake_word_files(context.db, wake_word_file)
 
 
 def _add_account(context):
