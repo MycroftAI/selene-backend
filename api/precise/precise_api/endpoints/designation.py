@@ -25,6 +25,7 @@ sample file are.
 from collections import defaultdict
 from datetime import datetime
 from http import HTTPStatus
+from pathlib import Path
 from typing import List
 
 from selene.api import SeleneEndpoint
@@ -79,7 +80,10 @@ class DesignationEndpoint(SeleneEndpoint):
             if self._include_in_result(tag, tag_value):
                 if tag.name not in response_data:
                     response_data[tag.name] = defaultdict(list)
-                response_data[tag.name][tag_value.value].append(designation.file_name)
+                file_path = Path(designation.file_directory).joinpath(
+                    designation.file_name
+                )
+                response_data[tag.name][tag_value.value].append(str(file_path))
 
         return response_data
 

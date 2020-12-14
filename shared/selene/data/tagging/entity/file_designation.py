@@ -29,3 +29,4 @@ class FileDesignation:
     tag_value_id: str
     id: str = None
     file_name: str = None
+    file_directory: str = None
