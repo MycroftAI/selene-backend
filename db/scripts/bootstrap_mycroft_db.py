@@ -183,7 +183,7 @@ def _create_mycroft_db_from_template():
 
 
 def _apply_insert_file(db, schema_dir, file_name):
-    insert_file_path = path.join(schema_dir, "data", file_name)
+    insert_file_path = path.join("schema", schema_dir, "data", file_name)
     try:
         db.execute_sql(get_sql_from_file(insert_file_path))
     except FileNotFoundError:
