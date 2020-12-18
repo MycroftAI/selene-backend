@@ -28,7 +28,7 @@ WITH
         SELECT id FROM geography.timezone WHERE name = %(timezone)s
     ),
     wake_word AS (
-        SELECT id FROM device.wake_word WHERE display_name = %(wake_word)s
+        SELECT id FROM wake_word.wake_word WHERE name = %(wake_word)s
     ),
     text_to_speech AS (
         SELECT id FROM device.text_to_speech WHERE display_name = %(voice)s
