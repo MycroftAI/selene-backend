@@ -16,12 +16,17 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-
+"""Testing helper functions for wake words."""
 from selene.data.tagging import WakeWordFileRepository
 from selene.data.wake_word import WakeWord, WakeWordRepository
 
 
-def add_wake_word(db):
+def add_wake_word(db) -> WakeWord:
+    """Add a wake word for use in testing.
+
+    :param db: Database connection to the Mycroft DB
+    :return:
+    """
     wake_word = WakeWord(name="hey selene", engine="precise")
     wake_word_repository = WakeWordRepository(db)
     wake_word.id = wake_word_repository.add(wake_word)
@@ -29,10 +34,16 @@ def add_wake_word(db):
     return wake_word
 
 
-def remove_wake_word(db, wake_word):
+def remove_wake_word(db, wake_word: WakeWord):
+    """Remove a wake word and any related sample files from the database
+
+    :param db: Database connection to the Mycroft DB
+    :param wake_word: the wake word to delete
+    """
     file_repository = WakeWordFileRepository(db)
     wake_word_repository = WakeWordRepository(db)
     if wake_word.id is None:
         wake_word.id = wake_word_repository.get_id(wake_word)
-    file_repository.remove_by_wake_word(wake_word)
+    for wake_word_file in file_repository.get_by_wake_word(wake_word):
+        file_repository.remove(wake_word_file)
     wake_word_repository.remove(wake_word)

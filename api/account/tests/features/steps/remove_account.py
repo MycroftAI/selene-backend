@@ -21,23 +21,56 @@ import os
 from datetime import datetime
 
 import stripe
-from behave import then, when  # pylint: disable=no-name-in-module
-from hamcrest import assert_that, equal_to
+from behave import given, then, when  # pylint: disable=no-name-in-module
+from hamcrest import assert_that, equal_to, is_in, none
 from stripe.error import InvalidRequestError
 
 from selene.data.account import AccountRepository
 from selene.data.metric import AccountActivityRepository
+from selene.data.tagging import (
+    PENDING_DELETE_STATUS,
+    TaggingFileLocation,
+    TaggingFileLocationRepository,
+    WakeWordFile,
+    WakeWordFileRepository,
+)
 
 
-@when("the user's account is deleted")
+@given("a wake word sample contributed by the user")
+def add_wake_word_sample(context):
+    """Add a sample wake word file to the database to be queried by future steps."""
+    file_repository = WakeWordFileRepository(context.db)
+    location_repository = TaggingFileLocationRepository(context.db)
+    location = TaggingFileLocation(server="127.0.0.1", directory="/opt/selene/data")
+    location.id = location_repository.add(location)
+
+    wake_word_file = WakeWordFile(
+        wake_word=context.wake_word,
+        name="test.wav",
+        origin="mycroft",
+        submission_date=datetime.utcnow().date(),
+        account_id=context.accounts["foo"].id,
+        status="uploaded",
+        location=location,
+    )
+    file_repository.add(wake_word_file)
+    file_repository.change_file_status(wake_word_file, PENDING_DELETE_STATUS)
+    context.wake_word_file = wake_word_file
+
+
+@when("a user requests to delete their account")
+def call_account_endpoint(context):
+    """Issue API call to delete an account."""
+    context.response = context.client.delete("/api/account")
+
+
+@then("the user's account is deleted")
 def account_deleted(context):
     """Ensure account no longer exists in database."""
     acct_repository = AccountRepository(context.db)
-    membership = acct_repository.get_active_account_membership(
-        context.accounts["foo"].id
-    )
-    context.accounts["foo"].membership = membership
-    context.response = context.client.delete("/api/account")
+    deleted_account = context.accounts["foo"]
+    account_in_db = acct_repository.get_account_by_id(deleted_account.id)
+    assert_that(account_in_db, none())
 
 
 @then("the membership is removed from stripe")
@@ -67,3 +100,12 @@ def check_db_for_account_metrics(context):
             account_activity.accounts_deleted,
             equal_to(context.account_activity.accounts_deleted + 1),
         )
+
+
+@then("the wake word contributions are flagged for deletion")
+def check_wake_word_file_status(context):
+    """An account that contributed wake word samples has those samples removed."""
+    deleted_account = context.accounts["foo"]
+    file_repository = WakeWordFileRepository(context.db)
+    files_pending_delete = file_repository.get_pending_delete()
+    assert_that(deleted_account.id, is_in(files_pending_delete))
