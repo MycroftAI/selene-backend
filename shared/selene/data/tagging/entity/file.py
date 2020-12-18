@@ -19,7 +19,6 @@
 """Data entities representing a wake word sample."""
 from dataclasses import dataclass
 from datetime import date
-from typing import List
 
 from selene.data.wake_word import WakeWord
 from .file_location import TaggingFileLocation
@@ -27,24 +26,12 @@ from .file_location import TaggingFileLocation
 
 @dataclass
 class WakeWordFile:
-    """Data representation of a wake word sample."""
+    """Data representation of a wake word sample that has not been classified."""
 
     wake_word: WakeWord
     name: str
     origin: str
     submission_date: date
     location: TaggingFileLocation
-    status: str
     account_id: str = None
     id: str = None
-
-
-@dataclass
-class TaggableFile:
-    """Data representation of a wake word file that requires further tagging."""
-
-    id: str
-    name: str
-    location: TaggingFileLocation
-    designations: List
-    tag: str

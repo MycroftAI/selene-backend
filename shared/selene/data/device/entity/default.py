@@ -16,18 +16,16 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-"""Define data entities for the device.account_defaults table"""
+
 from dataclasses import dataclass
 
 from selene.data.geography import City, Country, Region, Timezone
-from selene.data.wake_word.entity.wake_word import WakeWord
 from .text_to_speech import TextToSpeech
+from data.wake_word.entity.wake_word import WakeWord
 
 
 @dataclass
-class AccountDefaults:
-    """Data representation of the device.account_defaults table."""
-
+class AccountDefaults(object):
     city: City = None
     country: Country = None
     region: Region = None

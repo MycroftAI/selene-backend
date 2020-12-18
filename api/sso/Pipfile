@@ -6,7 +6,6 @@ name = "pypi"
 [packages]
 flask = "*"
 certifi = "*"
-pyjwt = "<=1.7.1"
 selene = {editable = true,path = "./../../shared"}
 uwsgi = "*"
 
@@ -19,6 +18,3 @@ allure-behave = "*"
 
 [requires]
 python_version = "3.7"
-
-[pipenv]
-allow_prereleases = true
