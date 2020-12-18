@@ -20,7 +20,7 @@
 from selene.data.geography import City, Country, Region, Timezone
 from ..entity.default import AccountDefaults
 from ..entity.text_to_speech import TextToSpeech
-from data.wake_word.entity.wake_word import WakeWord
+from selene.data.wake_word.entity.wake_word import WakeWord
 from ...repository_base import RepositoryBase
 
 defaults_dataclasses = dict(

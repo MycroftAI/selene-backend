@@ -22,7 +22,7 @@ from datetime import datetime
 
 from selene.data.geography import City, Country, Region, Timezone
 from .text_to_speech import TextToSpeech
-from data.wake_word.entity.wake_word import WakeWord
+from selene.data.wake_word.entity.wake_word import WakeWord
 
 
 @dataclass
