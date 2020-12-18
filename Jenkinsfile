@@ -29,6 +29,7 @@ pipeline {
             // Run PyLint and Black to check code quality.
             when {
                 changeRequest target: 'dev'
+                changeRequest target: 'master'
             }
             steps {
                 labelledShell label: 'Account API Setup', script: """
@@ -69,6 +70,7 @@ pipeline {
                     branch 'dev'
                     branch 'master'
                     changeRequest target: 'dev'
+                    changeRequest target: 'master'
                 }
             }
             steps {
@@ -92,6 +94,7 @@ pipeline {
                     branch 'dev'
                     branch 'master'
                     changeRequest target: 'dev'
+                    changeRequest target: 'master'
                 }
             }
             steps {
@@ -118,6 +121,7 @@ pipeline {
                     branch 'dev'
                     branch 'master'
                     changeRequest target: 'dev'
+                    changeRequest target: 'master'
                 }
             }
             steps {
@@ -145,6 +149,7 @@ pipeline {
                     branch 'dev'
                     branch 'master'
                     changeRequest target: 'dev'
+                    changeRequest target: 'master'
                 }
             }
             steps {
