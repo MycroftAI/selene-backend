@@ -41,8 +41,6 @@ RUN mkdir -p /opt/mycroft
 WORKDIR /opt/mycroft
 RUN git clone https://$github_api_key@github.com/MycroftAI/devops.git
 WORKDIR /opt/mycroft/devops/jenkins
-# TODO: remove when the pull-request-identifier branch is merged.
-RUN git checkout bug/pull-request-identifier
 RUN pipenv install
 
 # Run a linter and code formatter against the API specified in the build argument
