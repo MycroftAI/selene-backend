@@ -8,10 +8,12 @@ SET
         SELECT
             id
         FROM
-            device.wake_word
+            wake_word.wake_word
         WHERE
-            display_name = %(wake_word)s
-            AND (account_id IS NULL OR account_id = %(account_id)s)
+            name = %(wake_word)s
+        ORDER BY
+            engine DESC
+        LIMIT 1
     ),
     text_to_speech_id = (
         SELECT

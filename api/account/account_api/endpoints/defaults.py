@@ -65,7 +65,7 @@ class AccountDefaultsEndpoint(SeleneEndpoint):
         """Get the account defaults from the database."""
         default_repository = DefaultsRepository(self.db, self.account.id)
         self.defaults = default_repository.get_account_defaults()
-        if self.defaults is not None:
+        if self.defaults is not None and self.defaults.wake_word.name is not None:
             self.defaults.wake_word.name = self.defaults.wake_word.name.title()
 
     def post(self):
@@ -101,5 +101,7 @@ class AccountDefaultsEndpoint(SeleneEndpoint):
     def _upsert_defaults(self, defaults: dict):
         """Apply the changes in the request to the database."""
         defaults_repository = DefaultsRepository(self.db, self.account.id)
-        defaults["wake_word"] = defaults["wake_word"].lower()
+        wake_word_default = defaults.get("wake_word")
+        if wake_word_default is not None:
+            defaults["wake_word"] = defaults["wake_word"].lower()
         defaults_repository.upsert(defaults)
