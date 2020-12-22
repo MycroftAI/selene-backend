@@ -16,7 +16,9 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
+"""Exposed API into the device data access layer."""
 
+from .entity.device import Device
 from .entity.device_skill import ManifestSkill, AccountSkillSettings
 from .entity.geography import Geography
 from .entity.preference import AccountPreferences
