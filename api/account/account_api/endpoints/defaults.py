@@ -65,7 +65,8 @@ class AccountDefaultsEndpoint(SeleneEndpoint):
         """Get the account defaults from the database."""
         default_repository = DefaultsRepository(self.db, self.account.id)
         self.defaults = default_repository.get_account_defaults()
-        self.defaults.wake_word.name = self.defaults.wake_word.name.title()
+        if self.defaults is not None:
+            self.defaults.wake_word.name = self.defaults.wake_word.name.title()
 
     def post(self):
         """Process a HTTP POST request."""
