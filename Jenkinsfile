@@ -29,6 +29,7 @@ pipeline {
             // Run PyLint and Black to check code quality.
             when {
                 changeRequest target: 'dev'
+                changeRequest target: 'master'
             }
             steps {
                 labelledShell label: 'Account API Setup', script: """
@@ -56,7 +57,6 @@ pipeline {
                         --build-arg github_api_key=${GITHUB_API_PSW} \
                         --build-arg api_name=public \
                         --target api-code-check --no-cache \
-                        --label job=${JOB_NAME} \
                         -t selene-linter:${BRANCH_ALIAS} .
                 """
                 labelledShell label: 'Public API Check', script: """
@@ -70,6 +70,7 @@ pipeline {
                     branch 'dev'
                     branch 'master'
                     changeRequest target: 'dev'
+                    changeRequest target: 'master'
                 }
             }
             steps {
@@ -77,7 +78,6 @@ pipeline {
                     docker build \
                         --target db-bootstrap \
                         --build-arg github_api_key=${GITHUB_API_PSW} \
-                        --label job=${JOB_NAME} \
                         -t selene-db:${BRANCH_ALIAS} .
                 """
                 timeout(time: 5, unit: 'MINUTES')
@@ -94,6 +94,7 @@ pipeline {
                     branch 'dev'
                     branch 'master'
                     changeRequest target: 'dev'
+                    changeRequest target: 'master'
                 }
             }
             steps {
@@ -101,7 +102,6 @@ pipeline {
                     docker build \
                         --build-arg stripe_api_key=${STRIPE_KEY} \
                         --target account-api-test \
-                        --label job=${JOB_NAME}} \
                         -t selene-account:${BRANCH_ALIAS} .
                 """
                 timeout(time: 5, unit: 'MINUTES')
@@ -110,7 +110,6 @@ pipeline {
                         docker run \
                             --net selene-net \
                             -v '${HOME}/allure/selene/:/root/allure' \
-                            --label job=${JOB_NAME} \
                             selene-account:${BRANCH_ALIAS}
                     """
                 }
@@ -122,6 +121,7 @@ pipeline {
                     branch 'dev'
                     branch 'master'
                     changeRequest target: 'dev'
+                    changeRequest target: 'master'
                 }
             }
             steps {
@@ -130,7 +130,6 @@ pipeline {
                         --build-arg github_client_id=${GITHUB_CLIENT_ID} \
                         --build-arg github_client_secret=${GITHUB_CLIENT_SECRET} \
                         --target sso-api-test \
-                        --label job=${JOB_NAME} \
                         -t selene-sso:${BRANCH_ALIAS} .
                 """
                 timeout(time: 2, unit: 'MINUTES')
@@ -150,6 +149,7 @@ pipeline {
                     branch 'dev'
                     branch 'master'
                     changeRequest target: 'dev'
+                    changeRequest target: 'master'
                 }
             }
             steps {
@@ -158,7 +158,6 @@ pipeline {
                         --build-arg google_stt_key=${GOOGLE_STT_KEY} \
                         --build-arg wolfram_alpha_key=${WOLFRAM_ALPHA_KEY} \
                         --target public-api-test \
-                        --label job=${JOB_NAME} \
                         -t selene-public:${BRANCH_ALIAS} .
                 """
                 timeout(time: 2, unit: 'MINUTES')
@@ -171,28 +170,6 @@ pipeline {
                     """
                 }
             }
-        }
-    }
-    post {
-        always {
-            sh(
-                label: 'Cleanup lingering docker containers and images.',
-                script: """
-                    docker container prune --force;
-                    docker image prune --force;
-                """
-            )
-        }
-        success {
-            // Docker images should remain upon failure for troubleshooting purposes.  However,
-            // if the stage is successful, there is no reason to look back at the Docker image.  In theory
-            // broken builds will eventually be fixed so this step should run eventually for every PR
-            sh(
-                label: 'Delete Docker Image on Success',
-                script: '''
-                    docker image prune --all --force --filter label=job=${JOB_NAME};
-                '''
-            )
         }
     }
 }

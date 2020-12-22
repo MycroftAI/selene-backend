@@ -44,7 +44,7 @@ class DeviceRepository(RepositoryBase):
         if db_result is None:
             device = None
         else:
-            device = Device(**db_result)
+            device = self._build_device_from_row(db_result)
 
         return device
 
@@ -62,15 +62,21 @@ class DeviceRepository(RepositoryBase):
 
         devices = []
         for row in db_results:
-            row["city"] = City(**row["city"])
-            row["country"] = Country(**row["country"])
-            row["region"] = Region(**row["region"])
-            row["timezone"] = Timezone(**row["timezone"])
-            row["wake_word"] = WakeWord(**row["wake_word"])
-            row["text_to_speech"] = TextToSpeech(**row["text_to_speech"])
-            devices.append(Device(**row))
+            device = self._build_device_from_row(row)
+            devices.append(device)
 
         return devices
+
+    @staticmethod
+    def _build_device_from_row(row):
+        row["city"] = City(**row["city"])
+        row["country"] = Country(**row["country"])
+        row["region"] = Region(**row["region"])
+        row["timezone"] = Timezone(**row["timezone"])
+        row["wake_word"] = WakeWord(**row["wake_word"])
+        row["text_to_speech"] = TextToSpeech(**row["text_to_speech"])
+
+        return Device(**row)
 
     def get_account_device_count(self, account_id):
         db_request = self._build_db_request(
