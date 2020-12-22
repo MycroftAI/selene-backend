@@ -19,7 +19,9 @@ SELECT
     ) AS city,
     json_build_object(
         'id', tz.id,
-        'name', tz.name
+        'name', tz.name,
+        'dst_offset', tz.dst_offset,
+        'gmt_offset', tz.gmt_offset
     ) AS timezone,
     json_build_object(
         'id', ww.id,
