@@ -25,7 +25,7 @@ class TaggingFileLocationRepository(RepositoryBase):
     """Data access and manipulation for the wake_word.sample table."""
 
     def __init__(self, db):
-        super().__init__(db, __file__)
+        super(TaggingFileLocationRepository, self).__init__(db, __file__)
 
     def ensure_location_exists(
         self, server: str, directory: str
@@ -69,10 +69,3 @@ class TaggingFileLocationRepository(RepositoryBase):
         result = self.cursor.select_one(db_request)
 
         return None if result is None else result["id"]
-
-    def remove(self, file_location: TaggingFileLocation):
-        """Delete a row from the file_location table."""
-        db_request = self._build_db_request(
-            sql_file_name="remove_file_location.sql", args=dict(id=file_location.id),
-        )
-        self.cursor.delete(db_request)

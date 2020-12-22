@@ -65,11 +65,6 @@ def add_membership_to_account(context):
     context.refresh_token = generate_refresh_token(context)
     set_refresh_token_cookie(context)
     _add_membership_via_api(context)
-    acct_repository = AccountRepository(context.db)
-    membership = acct_repository.get_active_account_membership(
-        context.accounts["foo"].id
-    )
-    context.accounts["foo"].membership = membership
 
 
 @given("an account without a membership")
