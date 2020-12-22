@@ -332,8 +332,8 @@ def _populate_city_table(db):
                     city_fields = city.decode().split("\t")
                     city_region = city_fields[8] + "." + city_fields[10]
                     region_id = region_lookup.get(city_region)
-                    timezone_id = timezone_lookup[city_fields[17]]
-                    if region_id is not None:
+                    timezone_id = timezone_lookup.get(city_fields[17])
+                    if region_id is not None and timezone_id is not None:
                         dump_file.write(
                             "\t".join(
                                 [

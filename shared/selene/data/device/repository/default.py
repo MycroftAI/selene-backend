@@ -16,32 +16,23 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-"""Data access and manipulation for account defaults."""
+"""Data access and manipulation code for account defaults."""
 from selene.data.geography import City, Country, Region, Timezone
 from selene.data.wake_word.entity.wake_word import WakeWord
 from ..entity.default import AccountDefaults
 from ..entity.text_to_speech import TextToSpeech
 from ...repository_base import RepositoryBase
 
-defaults_dataclasses = dict(
-    city=City,
-    country=Country,
-    region=Region,
-    timezone=Timezone,
-    voice=TextToSpeech,
-    wake_word=WakeWord,
-)
-
 
 class DefaultsRepository(RepositoryBase):
-    """Data access and manipulation for account defaults."""
+    """Methods to access and manipulate account defaults."""
 
     def __init__(self, db, account_id):
         super().__init__(db, __file__)
         self.account_id = account_id
 
     def upsert(self, defaults):
-        """Update account defaults if they exist, otherwise, add them"""
+        """Attempt to update the defaults and insert them if no row exists"""
         db_request_args = dict(account_id=self.account_id)
         db_request_args.update(defaults)
         db_request_args["wake_word"] = db_request_args["wake_word"]
@@ -50,8 +41,8 @@ class DefaultsRepository(RepositoryBase):
         )
         self.cursor.insert(db_request)
 
-    def get_account_defaults(self):
-        """Get the device defaults for an account."""
+    def get_account_defaults(self) -> AccountDefaults:
+        """Build an instance of the AccountDefaults dataclass"""
         db_request = self._build_db_request(
             sql_file_name="get_account_defaults.sql",
             args=dict(account_id=self.account_id),
@@ -60,6 +51,12 @@ class DefaultsRepository(RepositoryBase):
         if db_result is None:
             defaults = None
         else:
+            db_result["city"] = City(**db_result["city"])
+            db_result["country"] = Country(**db_result["country"])
+            db_result["region"] = Region(**db_result["region"])
+            db_result["timezone"] = Timezone(**db_result["timezone"])
+            db_result["voice"] = TextToSpeech(**db_result["voice"])
+            db_result["wake_word"] = WakeWord(**db_result["wake_word"])
             defaults = AccountDefaults(**db_result)
 
         return defaults

@@ -5,7 +5,7 @@ name = "pypi"
 
 [packages]
 facebook-sdk = "*"
-pyjwt = "<=1.7.1"
+pyjwt = "*"
 pygithub = "*"
 psycopg2-binary = "*"
 passlib = "*"
@@ -14,11 +14,9 @@ redis = "*"
 sendgrid = "*"
 stripe = "*"
 schedule = "*"
-paramiko = "*"
 
 [dev-packages]
 pyhamcrest = "*"
-pylint = "*"
 
 [requires]
 python_version = "3.7"
