@@ -60,8 +60,24 @@ DEVICE_TABLE_ORDER = (
     "device_skill",
 )
 GEOGRAPHY_TABLE_ORDER = ("country", "timezone", "region", "city")
-METRIC_TABLE_ORDER = ("api", "api_history", "job", "core", "account_activity")
-TAGGING_TABLE_ORDER = ("file_location", "file", "wake_word_file")
+METRIC_TABLE_ORDER = (
+    "api",
+    "api_history",
+    "job",
+    "core",
+    "account_activity",
+    "device_activity",
+)
+TAGGING_TABLE_ORDER = (
+    "file_location",
+    "wake_word_file",
+    "tag",
+    "tag_value",
+    "tagger",
+    "session",
+    "wake_word_file_tag",
+    "wake_word_file_designation",
+)
 WAKE_WORD_TABLE_ORDER = ("wake_word", "pocketsphinx_settings")
 
 schema_directory = "{}_schema"

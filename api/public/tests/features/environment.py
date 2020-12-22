@@ -146,10 +146,11 @@ def _add_account(context):
 def _add_device(context):
     """Add a device object to the context for use in step code."""
     context.voice = add_text_to_speech(context.db)
-    device_id = add_device(context.db, context.account.id, context.geography_id)
-    context.device_id = device_id
+    device = add_device(context.db, context.account.id, context.geography_id)
+    context.device = device
+    context.device_id = device["id"]
     context.device_name = "Selene Test Device"
-    context.device_login = generate_device_login(device_id, context.cache)
+    context.device_login = generate_device_login(device["id"], context.cache)
     context.access_token = context.device_login["accessToken"]
 
 

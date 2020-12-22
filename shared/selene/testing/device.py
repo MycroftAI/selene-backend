@@ -16,11 +16,12 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-
+"""Common test code for devices."""
 from selene.data.device import DeviceRepository
 
 
 def add_device(db, account_id, geography_id):
+    """Add a device to the database for testing."""
     device = dict(
         name="Selene Test Device",
         pairing_code="ABC123",
@@ -34,6 +35,11 @@ def add_device(db, account_id, geography_id):
         voice="Selene Test Voice",
     )
     device_repository = DeviceRepository(db)
-    device_id = device_repository.add(account_id, device)
+    device["id"] = device_repository.add(account_id, device)
+    core_data = dict(
+        platform="picroft", core_version="18.8.0", enclosure_version="1.4.0"
+    )
+    device_repository.update_device_from_core(device["id"], core_data)
+    device.update(core_data)
 
-    return device_id
+    return device
