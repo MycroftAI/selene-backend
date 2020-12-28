@@ -136,20 +136,20 @@ def _setup_template_db(db):
         db.execute_sql(get_sql_from_file(path.join(type_directory, type_file)))
     print("Create the schemas and grant access")
     for schema in SCHEMAS:
-        db.execute_sql(get_sql_from_file(schema + "_schema/create_schema.sql"))
+        db.execute_sql(get_sql_from_file(f"schema/{schema}/create_schema.sql"))
 
 
 def _build_schema_tables(db, schema, tables):
     print(f"Creating the {schema} schema tables")
     for table in tables:
-        create_table_file = path.join(schema + "_schema", "tables", table + ".sql")
+        create_table_file = path.join("schema", schema, "tables", table + ".sql")
         db.execute_sql(get_sql_from_file(create_table_file))
 
 
 def _grant_access(db):
     print("Granting access to schemas and tables")
     for schema in SCHEMAS:
-        db.execute_sql(get_sql_from_file(schema + "_schema/grants.sql"))
+        db.execute_sql(get_sql_from_file(f"schema/{schema}/grants.sql"))
 
 
 def _build_template_db():
@@ -174,7 +174,7 @@ def _create_mycroft_db_from_template():
 
 
 def _apply_insert_file(db, schema_dir, file_name):
-    insert_file_path = path.join(schema_dir, "data", file_name)
+    insert_file_path = path.join("schema", schema_dir, "data", file_name)
     try:
         db.execute_sql(get_sql_from_file(insert_file_path))
     except FileNotFoundError:
@@ -350,12 +350,8 @@ def _populate_city_table(db):
 
 def _populate_db():
     mycroft_db = PostgresDB(db_name=MYCROFT_DB_NAME)
-    _apply_insert_file(
-        mycroft_db, schema_dir="account_schema", file_name="membership.sql"
-    )
-    _apply_insert_file(
-        mycroft_db, schema_dir="device_schema", file_name="text_to_speech.sql"
-    )
+    _apply_insert_file(mycroft_db, schema_dir="account", file_name="membership.sql")
+    _apply_insert_file(mycroft_db, schema_dir="device", file_name="text_to_speech.sql")
     _populate_agreement_table(mycroft_db)
     _populate_country_table(mycroft_db)
     _populate_region_table(mycroft_db)
