@@ -16,7 +16,7 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-"""Data access and manipulation code for account defaults."""
+"""Data access and manipulation for account defaults."""
 from selene.data.geography import City, Country, Region, Timezone
 from selene.data.wake_word.entity.wake_word import WakeWord
 from ..entity.default import AccountDefaults
@@ -32,7 +32,7 @@ class DefaultsRepository(RepositoryBase):
         self.account_id = account_id
 
     def upsert(self, defaults):
-        """Attempt to update the defaults and insert them if no row exists"""
+        """Update account defaults if they exist, otherwise, add them"""
         db_request_args = dict(account_id=self.account_id)
         db_request_args.update(defaults)
         db_request_args["wake_word"] = db_request_args["wake_word"]

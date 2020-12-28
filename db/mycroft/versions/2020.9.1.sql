@@ -133,10 +133,15 @@ ALTER TABLE device.account_defaults ADD CONSTRAINT account_defaults_wake_word_id
 DROP TABLE device.wake_word_settings;
 DROP TABLE device.wake_word;
 
--- Create the tagging schema and the first two tables to reside within it.
--- More tagging tables will be added in the next iteration.
+-- Create the tagging schema
 CREATE SCHEMA tagging;
 CREATE TYPE tagging_file_origin_enum AS ENUM ('mycroft', 'selene', 'manual');
+CREATE TYPE tagging_file_status_enum AS ENUM (
+    'uploaded',
+    'stored',
+    'pending delete',
+    'deleted'
+);
 CREATE TABLE tagging.file_location (
     id              uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
     server          inet        NOT NULL,
@@ -144,19 +149,127 @@ CREATE TABLE tagging.file_location (
     insert_ts       TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
     UNIQUE (server, directory)
 );
-CREATE TABLE tagging.file (
+CREATE TABLE tagging.wake_word_file (
     id                  uuid                        PRIMARY KEY DEFAULT gen_random_uuid(),
     name                text                        NOT NULL UNIQUE,
+    wake_word_id        uuid                        NOT NULL REFERENCES wake_word.wake_word,
     origin              tagging_file_origin_enum    NOT NULL,
     submission_date     date                        NOT NULL DEFAULT CURRENT_DATE,
-    file_location_id    uuid                        REFERENCES tagging.file_location,
+    file_location_id    uuid                        NOT NULL REFERENCES tagging.file_location,
     account_id          uuid,
+    status              tagging_file_status_enum    NOT NULL DEFAULT 'uploaded'::tagging_file_status_enum,
     insert_ts           TIMESTAMP                   NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+CREATE TABLE tagging.tagger (
+    id              uuid                PRIMARY KEY DEFAULT gen_random_uuid(),
+    entity_type     tagger_type_enum    NOT NULL,
+    entity_id       text                NOT NULL,
+    insert_ts       TIMESTAMP           NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (entity_type, entity_id)
+);
+CREATE TABLE tagging.session (
+    id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+    tagger_id           text        NOT NULL,
+    session_ts_range    tsrange     NOT NULL,
+    note                text,
+    insert_ts           timestamp   NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    EXCLUDE USING gist (tagger_id WITH =, session_ts_range with &&),
+    UNIQUE (tagger_id, session_ts_range)
+);
+CREATE TABLE tagging.tag (
+    id              uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+    name            text        NOT NULL UNIQUE,
+    title           text        NOT NULL,
+    instructions    text        NOT NULL,
+    insert_ts       TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE tagging.tag_value (
+    id              uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+    tag_id          uuid        NOT NULL REFERENCES tagging.tag,
+    value           text        NOT NULL,
+    display         text        NOT NULL,
+    insert_ts       TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (tag_id, value)
+);
+CREATE TABLE tagging.wake_word_file_tag (
+    id              uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+    wake_word_file_id   uuid    NOT NULL REFERENCES tagging.wake_word_file,
+    session_id      uuid        NOT NULL REFERENCES tagging.session,
+    tag_id          uuid        NOT NULL REFERENCES tagging.tag,
+    tag_value_id    uuid        NOT NULL REFERENCES tagging.tag_value,
+    insert_ts       TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (wake_word_file_id, session_id, tag_id)
+);
+CREATE TABLE tagging.wake_word_file_designation (
+    id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+    wake_word_file_id   uuid        NOT NULL REFERENCES tagging.wake_word_file,
+    tag_id              uuid        NOT NULL REFERENCES tagging.tag,
+    tag_value_id        uuid        NOT NULL REFERENCES tagging.tag_value,
+    insert_ts           TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (wake_word_file_id, tag_id)
+);
 
-CREATE TABLE tagging.wake_word_file (
-    wake_word_id    uuid    NOT NULL REFERENCES wake_word.wake_word
-)
-INHERITS (tagging.file);
-GRANT USAGE ON SCHEMA wake_word TO selene;
-GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA wake_word TO selene;
+-- Give the selene user access to the schema and its tables
+GRANT USAGE ON SCHEMA tagging TO selene;
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA tagging TO selene;
+
+--  Populate the static data in tagging.tag and tagging.tag_values
+INSERT INTO
+    tagging.tag (name, title, instructions, priority)
+VALUES
+    (
+        'speaking',
+        'Do you hear someone',
+        'Indicate whether or not you hear someone talking in this sample or if all you hear is noise '
+        || '(static, machinery, etc.) or silence.',
+        1
+    ),
+    (
+        'wake word',
+        'Do you hear the wake word',
+        'Indicate if you did not hear the wake word (no); heard a partial wake word or something '
+         || 'that sounds similar to the wake word (no, but similar); heard multiple occurrences of '
+         || 'the wake word (yes, multiple); or heard a single occurrence of the full wake word (yes, '
+         || 'once).  Using the "Hey Mycroft" wake word as an example, answer "no, but similar" if you '
+         || 'hear something like "Mycroft", "Microsoft", "Hey Minecraft" or "Hey Mike Ross".',
+        2
+    ),
+    (
+        'gender',
+        'What is the perceived',
+        'For the speaker in this audio clip choose which category best describes the pitch and timbre.',
+        3
+    ),
+    (
+        'age',
+        'What is the perceived',
+        'For the speaker in this audio clip choose which category best describes the their age.',
+        4
+    ),
+    (
+        'background noise',
+        'Do you hear any',
+        'Besides the voice of the speaker, can you hear any background noise (e.g. fan, appliance, '
+        || 'vehicle, television or radio)?',
+        5
+    )
+;
+INSERT INTO
+    tagging.tag_value (tag_id, value, display)
+VALUES
+    ((SELECT id FROM tagging.tag WHERE tag.name = 'speaking'), 'no', 'NO, JUST NOISE'),
+    ((SELECT id FROM tagging.tag WHERE tag.name = 'speaking'), 'yes', 'YES, SPEAKING'),
+    ((SELECT id FROM tagging.tag WHERE tag.name = 'wake_word'), 'no', 'NO'),
+    ((SELECT id FROM tagging.tag WHERE tag.name = 'wake_word'), 'similar', 'NO, BUT SIMILAR'),
+    ((SELECT id FROM tagging.tag WHERE tag.name = 'wake_word'), 'multiple', 'YES, MULTIPLE'),
+    ((SELECT id FROM tagging.tag WHERE tag.name = 'wake_word'), 'yes', 'YES, SINGLE'),
+    ((SELECT id FROM tagging.tag WHERE name = 'gender'), 'male', 'MASCULINE'),
+    ((SELECT id FROM tagging.tag WHERE name = 'gender'), 'neutral', 'NEUTRAL'),
+    ((SELECT id FROM tagging.tag WHERE name = 'gender'), 'female', 'FEMININE'),
+    ((SELECT id FROM tagging.tag WHERE name = 'age'), 'child', 'CHILD'),
+    ((SELECT id FROM tagging.tag WHERE name = 'age'), 'unsure', 'UNSURE'),
+    ((SELECT id FROM tagging.tag WHERE name = 'age'), 'adult', 'ADULT'),
+    ((SELECT id FROM tagging.tag WHERE name = 'background noise'), 'no', 'NO NOISE'),
+    ((SELECT id FROM tagging.tag WHERE name = 'background noise'), 'some', 'SOME NOISE'),
+    ((SELECT id FROM tagging.tag WHERE name = 'background noise'), 'yes', 'ADULT')
+;
