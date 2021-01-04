@@ -138,9 +138,7 @@ class TagEndpoint(SeleneEndpoint):
         :return: dataclass instance representing the file to be tagged
         """
         file_repository = WakeWordFileRepository(self.db)
-        file_to_tag = file_repository.get_taggable_file(
-            wake_word, len(self.tags), session_id
-        )
+        file_to_tag = file_repository.get_taggable_file(wake_word, session_id)
 
         return file_to_tag
 
