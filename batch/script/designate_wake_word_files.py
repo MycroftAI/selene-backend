@@ -27,6 +27,7 @@ from selene.data.tagging import (
     FileTag,
     FileTagRepository,
     TagRepository,
+    WakeWordFileRepository,
 )
 
 
@@ -65,6 +66,7 @@ class WakeWordFileDesignator(SeleneScript):
             self.wake_word_tags = len(file_tags)
             self._assign_designations(file_tags)
             self._log_designation_stats(wake_word)
+            self._refresh_materialized_view(wake_word)
 
     def _get_designation_candidates(self) -> dict:
         """Get file tags that have not yet been converted to designations
@@ -171,6 +173,12 @@ class WakeWordFileDesignator(SeleneScript):
         if "Tag: " not in log_msg:
             log_msg = log_msg.replace("Designations", "No designations")
         self.log.info(log_msg)
+
+    def _refresh_materialized_view(self, wake_word):
+        """Refresh the materialized view for tagging with the latest designations."""
+        self.log.info("refreshing materialized view for {} files".format(wake_word))
+        wake_word_file_repo = WakeWordFileRepository(self.db)
+        wake_word_file_repo.refresh_view(wake_word)
 
 
 if __name__ == "__main__":
