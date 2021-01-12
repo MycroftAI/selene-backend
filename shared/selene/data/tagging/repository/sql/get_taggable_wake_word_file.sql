@@ -26,6 +26,8 @@ SELECT
 FROM
     tagging.{wake_word}_file AS f
         LEFT JOIN file_tag ft ON f.id = ft.id
+WHERE
+    array_position(ft.sessions, %(session_id)s) IS NULL
 ORDER BY
     case when f.designations is null then 0 else cardinality(f.designations) end desc,
     case when ft.sessions is null then 0 else cardinality(ft.sessions) end desc
