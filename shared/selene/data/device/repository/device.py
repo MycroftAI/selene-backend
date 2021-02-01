@@ -17,11 +17,12 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+from dataclasses import asdict
 from typing import List
 
 from selene.data.geography import City, Country, Region, Timezone
 from selene.data.wake_word import WakeWord
-from ..entity.device import Device
+from ..entity.device import Device, PantacorConfig
 from ..entity.text_to_speech import TextToSpeech
 from ...repository_base import RepositoryBase
 
@@ -75,6 +76,7 @@ class DeviceRepository(RepositoryBase):
         row["timezone"] = Timezone(**row["timezone"])
         row["wake_word"] = WakeWord(**row["wake_word"])
         row["text_to_speech"] = TextToSpeech(**row["text_to_speech"])
+        row["pantacor_config"] = PantacorConfig(**row["pantacor_config"])
 
         return Device(**row)
 
@@ -172,6 +174,25 @@ class DeviceRepository(RepositoryBase):
         db_request_args.update(updates)
         db_request = self._build_db_request(
             sql_file_name="update_device_from_account.sql", args=db_request_args
+        )
+
+        self.cursor.update(db_request)
+
+    def add_pantacor_config(self, device_id: str, pantacor_id: str):
+        """Add Pantacor configuration to a device that uses this update mechanism"""
+        db_request_args = dict(device_id=device_id, pantacor_id=pantacor_id)
+        db_request = self._build_db_request(
+            sql_file_name="add_pantacor_config.sql", args=db_request_args
+        )
+
+        self.cursor.insert(db_request)
+
+    def update_pantacor_config(self, device_id: str, pantacor_config: PantacorConfig):
+        """Updates a device with data sent to the API from account.mycroft.ai"""
+        db_request_args = dict(device_id=device_id)
+        db_request_args.update(**asdict(pantacor_config))
+        db_request = self._build_db_request(
+            sql_file_name="update_pantacor_config.sql", args=db_request_args
         )
 
         self.cursor.update(db_request)

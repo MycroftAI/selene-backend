@@ -41,7 +41,13 @@ SELECT
         'name',tz.name,
         'dst_offset', tz.dst_offset,
         'gmt_offset', tz.gmt_offset
-    ) AS timezone
+    ) AS timezone,
+    json_build_object(
+        'pantacor_id', pc.pantacor_id,
+        'auto_update', pc.auto_update,
+        'release', pc.release,
+        'ssh_public_key', pc.ssh_public_key
+    ) AS pantacor_config
 FROM
     device.device d
     INNER JOIN wake_word.wake_word ww ON d.wake_word_id = ww.id
@@ -51,5 +57,6 @@ FROM
     INNER JOIN geography.city cty ON g.city_id = cty.id
     INNER JOIN geography.region r ON g.region_id = r.id
     INNER JOIN geography.timezone tz ON g.timezone_id = tz.id
+    LEFT OUTER JOIN device.pantacor_config pc on pc.device_id = d.id
 WHERE
     d.id = %(device_id)s
