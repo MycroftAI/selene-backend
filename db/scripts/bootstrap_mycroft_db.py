@@ -58,6 +58,7 @@ DEVICE_TABLE_ORDER = (
     "account_defaults",
     "device",
     "device_skill",
+    "pantacor_config",
 )
 GEOGRAPHY_TABLE_ORDER = ("country", "timezone", "region", "city")
 METRIC_TABLE_ORDER = ("api", "api_history", "job", "core", "account_activity")
