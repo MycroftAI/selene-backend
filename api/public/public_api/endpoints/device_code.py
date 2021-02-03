@@ -16,7 +16,6 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-
 """Endpoint to generate a pairing code and return it to the device.
 
 The response returned to the device consists of:
@@ -43,18 +42,16 @@ from logging import getLogger
 from selene.api import PublicEndpoint
 from selene.util.cache import DEVICE_PAIRING_CODE_KEY
 
+# Avoid using ambiguous characters in the pairing code, like 0 and O, that
+# are hard to distinguish on a device display.
+ALLOWED_CHARACTERS = "ACEFHJKLMNPRTUVWXY3479"
 ONE_DAY = 86400
 
 _log = getLogger(__package__)
 
 
 class DeviceCodeEndpoint(PublicEndpoint):
-    # Avoid using ambiguous characters in the pairing code, like 0 and O, that
-    # are hard to distinguish on a device display.
-    allowed_characters = "ACEFHJKLMNPRTUVWXY3479"
-
-    def __init__(self):
-        super(DeviceCodeEndpoint, self).__init__()
+    """Endpoint to generate a pairing code and send it back to the device."""
 
     def get(self):
         """Return a pairing code to the requesting device.
@@ -75,22 +72,15 @@ class DeviceCodeEndpoint(PublicEndpoint):
         exist is created.
         """
         response_data = dict(
-            state=self.request.args['state'],
+            state=self.request.args["state"],
             token=self._generate_token(),
-            expiration=ONE_DAY
+            expiration=ONE_DAY,
         )
-        pairing_code_added = False
-        while not pairing_code_added:
+        added_to_cache = False
+        while not added_to_cache:
             pairing_code = self._generate_pairing_code()
-            _log.debug('Generated pairing code ' + pairing_code)
             response_data.update(code=pairing_code)
-            pairing_code_added = self.cache.set_if_not_exists_with_expiration(
-                DEVICE_PAIRING_CODE_KEY.format(pairing_code=pairing_code),
-                value=json.dumps(response_data),
-                expiration=ONE_DAY
-            )
-            log_msg = 'Pairing code {pairing_code} exists, generating new code'
-            _log.debug(log_msg.format(pairing_code=pairing_code))
+            added_to_cache = self._add_pairing_code_to_cache(response_data)
 
         return response_data
 
@@ -98,9 +88,32 @@ class DeviceCodeEndpoint(PublicEndpoint):
     def _generate_token():
         """Generate the token used by this API to identify pairing session"""
         sha512 = hashlib.sha512()
-        sha512.update(bytes(str(uuid.uuid4()), 'utf-8'))
+        sha512.update(bytes(str(uuid.uuid4()), "utf-8"))
+
         return sha512.hexdigest()
 
-    def _generate_pairing_code(self):
+    @staticmethod
+    def _generate_pairing_code():
         """Generate the pairing code that will be spoken by the device."""
-        return ''.join(random.choice(self.allowed_characters) for _ in range(6))
+        pairing_code = "".join(random.choice(ALLOWED_CHARACTERS) for _ in range(6))
+        _log.debug("Generated pairing code {}".format(pairing_code))
+
+        return pairing_code
+
+    def _add_pairing_code_to_cache(self, response_data):
+        """Add data necessary to activate the device to cache for retrieval."""
+        cache_key = DEVICE_PAIRING_CODE_KEY.format(
+            pairing_code=response_data["pairing_code"]
+        )
+        cache_value = dict(**response_data)
+        core_packaging_type = self.request.args.get("packaging")
+        if core_packaging_type is not None:
+            cache_value.update(packaging_type=core_packaging_type)
+        added_to_cache = self.cache.set_if_not_exists_with_expiration(
+            cache_key, value=json.dumps(cache_value), expiration=ONE_DAY
+        )
+        if not added_to_cache:
+            log_msg = "Pairing code {pairing_code} exists, generating new code"
+            _log.debug(log_msg.format(pairing_code=response_data["pairing_code"]))
+
+        return added_to_cache
