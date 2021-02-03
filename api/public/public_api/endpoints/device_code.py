@@ -102,9 +102,7 @@ class DeviceCodeEndpoint(PublicEndpoint):
 
     def _add_pairing_code_to_cache(self, response_data):
         """Add data necessary to activate the device to cache for retrieval."""
-        cache_key = DEVICE_PAIRING_CODE_KEY.format(
-            pairing_code=response_data["pairing_code"]
-        )
+        cache_key = DEVICE_PAIRING_CODE_KEY.format(pairing_code=response_data["code"])
         cache_value = dict(**response_data)
         core_packaging_type = self.request.args.get("packaging")
         if core_packaging_type is not None:

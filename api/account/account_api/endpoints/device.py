@@ -33,7 +33,12 @@ from selene.api.etag import ETagManager
 from selene.api.pantacor import get_pantacor_device_id
 from selene.api.public_endpoint import delete_device_login
 from selene.data.device import Device, DeviceRepository, Geography, GeographyRepository
-from selene.util.cache import DEVICE_LAST_CONTACT_KEY, SeleneCache
+from selene.util.cache import (
+    DEVICE_LAST_CONTACT_KEY,
+    DEVICE_PAIRING_CODE_KEY,
+    DEVICE_PAIRING_TOKEN_KEY,
+    SeleneCache,
+)
 
 ONE_DAY = 86400
 CONNECTED = "Connected"
@@ -45,7 +50,7 @@ _log = getLogger()
 
 def validate_pairing_code(pairing_code):
     """Ensure the pairing code exists in the cache of valid pairing codes."""
-    cache_key = "pairing.code:" + pairing_code
+    cache_key = DEVICE_PAIRING_CODE_KEY.format(pairing_code)
     cache = SeleneCache()
     pairing_cache = cache.get(cache_key)
 
@@ -248,7 +253,7 @@ class DeviceEndpoint(SeleneEndpoint):
             pairing_data = self._get_pairing_data(device["pairing_code"])
             device_id = self._add_device(device)
             pairing_data["uuid"] = device_id
-            self.cache.delete("pairing.code:{}".format(device["pairing_code"]))
+            self.cache.delete(DEVICE_PAIRING_CODE_KEY.format(device["pairing_code"]))
             self._build_pairing_token(pairing_data)
         except Exception:
             self.db.rollback()
@@ -268,7 +273,7 @@ class DeviceEndpoint(SeleneEndpoint):
         :param pairing_code: the six character pairing code
         :return: the pairing code information from the Redis database
         """
-        cache_key = "pairing.code:" + pairing_code
+        cache_key = DEVICE_PAIRING_CODE_KEY.format(pairing_code)
         pairing_cache = self.cache.get(cache_key)
         pairing_data = json.loads(pairing_cache)
 
@@ -311,7 +316,7 @@ class DeviceEndpoint(SeleneEndpoint):
         :param pairing_data: the pairing data retrieved from Redis
         """
         self.cache.set_with_expiration(
-            key="pairing.token:" + pairing_data["token"],
+            key=DEVICE_PAIRING_TOKEN_KEY.format(pairing_data["token"]),
             value=json.dumps(pairing_data),
             expiration=ONE_DAY,
         )
