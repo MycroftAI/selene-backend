@@ -30,6 +30,7 @@ from schematics.types import StringType
 
 from selene.api import SeleneEndpoint
 from selene.api.etag import ETagManager
+from selene.api.pantacor import get_pantacor_device_id
 from selene.api.public_endpoint import delete_device_login
 from selene.data.device import Device, DeviceRepository, Geography, GeographyRepository
 from selene.util.cache import DEVICE_LAST_CONTACT_KEY, SeleneCache
@@ -74,11 +75,21 @@ class NewDeviceRequest(UpdateDeviceRequest):
 class DeviceEndpoint(SeleneEndpoint):
     """Retrieve and maintain device information for the Account API"""
 
+    _device_repository = None
+
     def __init__(self):
         super().__init__()
         self.devices = None
         self.cache = self.config["SELENE_CACHE"]
         self.etag_manager: ETagManager = ETagManager(self.cache, self.config)
+
+    @property
+    def device_repository(self):
+        """Lazily instantiate the device repository."""
+        if self._device_repository is None:
+            self._device_repository = DeviceRepository(self.db)
+
+        return self._device_repository
 
     def get(self, device_id: str):
         """Process an HTTP GET request."""
@@ -95,8 +106,7 @@ class DeviceEndpoint(SeleneEndpoint):
 
         :return: list of devices to be returned to the UI.
         """
-        device_repository = DeviceRepository(self.db)
-        devices = device_repository.get_devices_by_account_id(self.account.id)
+        devices = self.device_repository.get_devices_by_account_id(self.account.id)
         response_data = []
         for device in devices:
             response_device = self._format_device_for_response(device)
@@ -110,8 +120,7 @@ class DeviceEndpoint(SeleneEndpoint):
         :param device_id: Identifier of the device to retrieve
         :return: device information to return to the UI
         """
-        device_repository = DeviceRepository(self.db)
-        device = device_repository.get_device_by_id(device_id)
+        device = self.device_repository.get_device_by_id(device_id)
         response_data = self._format_device_for_response(device)
 
         return response_data
@@ -212,7 +221,7 @@ class DeviceEndpoint(SeleneEndpoint):
 
         return device_id, HTTPStatus.OK
 
-    def _validate_request(self):
+    def _validate_request(self) -> dict:
         """Validate the contents of the HTTP POST request."""
         request_data = json.loads(self.request.data)
         if self.request.method == "POST":
@@ -230,22 +239,26 @@ class DeviceEndpoint(SeleneEndpoint):
         device.voice = request_data["voice"]
         device.validate()
 
-        return device
+        return device.to_native()
 
-    def _pair_device(self, device: NewDeviceRequest):
+    def _pair_device(self, device: dict) -> str:
         """Add the paired device to the database."""
         self.db.autocommit = False
         try:
-            pairing_data = self._get_pairing_data(device.pairing_code)
+            pairing_data = self._get_pairing_data(device["pairing_code"])
             device_id = self._add_device(device)
             pairing_data["uuid"] = device_id
-            self.cache.delete("pairing.code:{}".format(device.pairing_code))
+            self.cache.delete("pairing.code:{}".format(device["pairing_code"]))
             self._build_pairing_token(pairing_data)
         except Exception:
             self.db.rollback()
             raise
         else:
             self.db.commit()
+
+        core_packaging = pairing_data.get("packaging_type")
+        if core_packaging is not None and core_packaging == "pantacor":
+            self._add_pantacor_config(device_id, device["pairing_code"])
 
         return device_id
 
@@ -261,17 +274,15 @@ class DeviceEndpoint(SeleneEndpoint):
 
         return pairing_data
 
-    def _add_device(self, device: NewDeviceRequest) -> str:
+    def _add_device(self, device: dict) -> str:
         """Creates a device and associate it to a pairing session.
 
         :param device: Schematic containing the request data
         :return: the database identifier of the new device
         """
-        device_dict = device.to_native()
-        geography_id = self._ensure_geography_exists(device_dict)
-        device_dict.update(geography_id=geography_id)
-        device_repository = DeviceRepository(self.db)
-        device_id = device_repository.add(self.account.id, device_dict)
+        geography_id = self._ensure_geography_exists(device)
+        device.update(geography_id=geography_id)
+        device_id = self.device_repository.add(self.account.id, device)
 
         return device_id
 
@@ -305,6 +316,15 @@ class DeviceEndpoint(SeleneEndpoint):
             expiration=ONE_DAY,
         )
 
+    def _add_pantacor_config(self, device_id: str, pairing_code: str):
+        """The software updates are managed by Pantacor, get their ID and add to DB
+
+        :param device_id: internal identifier of the device
+        :param pairing_code: six character code used to register the device
+        """
+        pantacor_id = get_pantacor_device_id(pairing_code)
+        self.device_repository.add_pantacor_config(device_id, pantacor_id)
+
     def delete(self, device_id: str):
         """Handle an HTTP DELETE request.
 
@@ -323,12 +343,11 @@ class DeviceEndpoint(SeleneEndpoint):
 
         :param device_id: database identifier of a device
         """
-        device_repository = DeviceRepository(self.db)
-        device_repository.remove(device_id)
+        self.device_repository.remove(device_id)
         delete_device_login(device_id, self.cache)
 
     def patch(self, device_id: str):
-        """Handle a HTTP PATCH reqeust.
+        """Handle a HTTP PATCH request.
 
         :param device_id: database identifier of a device
         """
@@ -341,17 +360,14 @@ class DeviceEndpoint(SeleneEndpoint):
 
         return "", HTTPStatus.NO_CONTENT
 
-    def _update_device(self, device_id: str, updates: UpdateDeviceRequest):
+    def _update_device(self, device_id: str, updates: dict):
         """Update the device attributes on the database based on the request.
 
         :param device_id: database identifier of a device
         :param updates: The new values of the device attributes
-        :return:
         """
-        device_updates = updates.to_native()
-        geography_id = self._ensure_geography_exists(device_updates)
-        device_updates.update(geography_id=geography_id)
-        device_repository = DeviceRepository(self.db)
-        device_repository.update_device_from_account(
-            self.account.id, device_id, device_updates
+        geography_id = self._ensure_geography_exists(updates)
+        updates.update(geography_id=geography_id)
+        self.device_repository.update_device_from_account(
+            self.account.id, device_id, updates
         )
