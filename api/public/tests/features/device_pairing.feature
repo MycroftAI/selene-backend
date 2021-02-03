@@ -1,9 +1,14 @@
 Feature: Pair a device
   Test the device pairing workflow
 
-  Scenario: Device activation
+  Scenario: Pairing code generation
     When a device requests a pairing code
-    And the device is added to an account using the pairing code
-    And the device is activated
-    Then the pairing code request is successful
-    And the device activation request is successful
+    Then the request will be successful
+    And the pairing data is stored in Redis
+    And the pairing data is sent to the device
+
+  Scenario: Device Activation
+    Given the user completes the pairing process on the web application
+    When the device requests to be activated
+    Then the request will be successful
+    And the activation data is sent to the device
