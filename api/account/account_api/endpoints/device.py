@@ -50,7 +50,7 @@ _log = getLogger()
 
 def validate_pairing_code(pairing_code):
     """Ensure the pairing code exists in the cache of valid pairing codes."""
-    cache_key = DEVICE_PAIRING_CODE_KEY.format(pairing_code)
+    cache_key = DEVICE_PAIRING_CODE_KEY.format(pairing_code=pairing_code)
     cache = SeleneCache()
     pairing_cache = cache.get(cache_key)
 
@@ -253,17 +253,16 @@ class DeviceEndpoint(SeleneEndpoint):
             pairing_data = self._get_pairing_data(device["pairing_code"])
             device_id = self._add_device(device)
             pairing_data["uuid"] = device_id
-            self.cache.delete(DEVICE_PAIRING_CODE_KEY.format(device["pairing_code"]))
+            self.cache.delete(
+                DEVICE_PAIRING_CODE_KEY.format(pairing_code=device["pairing_code"])
+            )
             self._build_pairing_token(pairing_data)
+            self._add_pantacor_config(device_id, pairing_data)
         except Exception:
             self.db.rollback()
             raise
         else:
             self.db.commit()
-
-        core_packaging = pairing_data.get("packaging_type")
-        if core_packaging is not None and core_packaging == "pantacor":
-            self._add_pantacor_config(device_id, device["pairing_code"])
 
         return device_id
 
@@ -273,7 +272,7 @@ class DeviceEndpoint(SeleneEndpoint):
         :param pairing_code: the six character pairing code
         :return: the pairing code information from the Redis database
         """
-        cache_key = DEVICE_PAIRING_CODE_KEY.format(pairing_code)
+        cache_key = DEVICE_PAIRING_CODE_KEY.format(pairing_code=pairing_code)
         pairing_cache = self.cache.get(cache_key)
         pairing_data = json.loads(pairing_cache)
 
@@ -316,19 +315,22 @@ class DeviceEndpoint(SeleneEndpoint):
         :param pairing_data: the pairing data retrieved from Redis
         """
         self.cache.set_with_expiration(
-            key=DEVICE_PAIRING_TOKEN_KEY.format(pairing_data["token"]),
+            key=DEVICE_PAIRING_TOKEN_KEY.format(pairing_token=pairing_data["token"]),
             value=json.dumps(pairing_data),
             expiration=ONE_DAY,
         )
 
-    def _add_pantacor_config(self, device_id: str, pairing_code: str):
+    def _add_pantacor_config(self, device_id: str, pairing_data: dict):
         """The software updates are managed by Pantacor, get their ID and add to DB
 
         :param device_id: internal identifier of the device
-        :param pairing_code: six character code used to register the device
+        :param pairing_data: data retrieved from the Redis cache for pairing
         """
-        pantacor_id = get_pantacor_device_id(pairing_code)
-        self.device_repository.add_pantacor_config(device_id, pantacor_id)
+        core_packaging = pairing_data.get("packaging_type")
+        pairing_code = pairing_data["code"]
+        if core_packaging is not None and core_packaging == "pantacor":
+            pantacor_id = get_pantacor_device_id(pairing_code)
+            self.device_repository.add_pantacor_config(device_id, pantacor_id)
 
     def delete(self, device_id: str):
         """Handle an HTTP DELETE request.

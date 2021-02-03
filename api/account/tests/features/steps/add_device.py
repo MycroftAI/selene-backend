@@ -16,21 +16,28 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-
+"""Python code to support the add device feature."""
 import json
+from unittest.mock import patch, Mock
 
-from behave import given, when, then
+from behave import given, when, then  # pylint: disable=no-name-in-module
 from hamcrest import assert_that, equal_to, none, not_none
 
 from selene.data.device import DeviceRepository
-from selene.util.cache import SeleneCache
+from selene.util.cache import (
+    DEVICE_PAIRING_CODE_KEY,
+    DEVICE_PAIRING_TOKEN_KEY,
+    SeleneCache,
+)
 from selene.util.db import connect_to_db
 
 
 @given("a device pairing code")
 def set_device_pairing_code(context):
+    """Add dummy data to the Redis cache for the test."""
     pairing_data = dict(
         code="ABC123",
+        packaging_type="pantacor",
         state="this is a state",
         token="this is a token",
         expiration=84600,
@@ -45,6 +52,7 @@ def set_device_pairing_code(context):
 
 @when("an API request is sent to add a device")
 def add_device(context):
+    """Call the endpoint to add a device based on user input."""
     device = dict(
         city="Kansas City",
         country="United States",
@@ -56,21 +64,30 @@ def add_device(context):
         wakeWord="hey selene",
         voice="Selene Test Voice",
     )
-    response = context.client.post(
-        "/api/devices", data=json.dumps(device), content_type="application_json"
-    )
+    with patch("selene.api.pantacor.requests.get") as pantacor_patch:
+        pantacor_data = dict(items=[dict(id="test_pantacor_id")])
+        pantacor_patch.return_value = Mock(
+            ok=True, content=json.dumps(pantacor_data).encode()
+        )
+        response = context.client.post(
+            "/api/devices", data=json.dumps(device), content_type="application_json"
+        )
     context.response = response
 
 
 @then("the pairing code is removed from cache")
 def validate_pairing_code_removal(context):
+    """Ensure that the endpoint removed the pairing code entry from the cache."""
     cache = SeleneCache()
-    pairing_data = cache.get("pairing.code:ABC123")
+    pairing_data = cache.get(
+        DEVICE_PAIRING_CODE_KEY.format(pairing_code=context.pairing_code)
+    )
     assert_that(pairing_data, none())
 
 
 @then("the device is added to the database")
 def validate_response(context):
+    """Ensure that the database was updated as expected."""
     device_id = context.response.data.decode()
     account = context.accounts["foo"]
     db = connect_to_db(context.client_config["DB_CONNECTION_CONFIG"])
@@ -81,13 +98,20 @@ def validate_response(context):
     assert_that(device.name, equal_to("Selene Test Device"))
     assert_that(device.placement, equal_to("Mycroft Offices"))
     assert_that(device.account_id, equal_to(account.id))
+    assert_that(device.pantacor_config.pantacor_id, equal_to("test_pantacor_id"))
+    assert_that(device.pantacor_config.auto_update, equal_to(False))
+    assert_that(device.pantacor_config.ssh_public_key, none())
+    assert_that(device.pantacor_config.release, equal_to("stable"))
 
 
 @then("the pairing token is added to cache")
 def validate_pairing_token(context):
+    """Validate the pairing token data was added to the cache as expected."""
     device_id = context.response.data.decode()
     cache = SeleneCache()
-    pairing_data = cache.get("pairing.token:this is a token")
+    pairing_data = cache.get(
+        DEVICE_PAIRING_TOKEN_KEY.format(pairing_token="this is a token")
+    )
     pairing_data = json.loads(pairing_data)
 
     assert_that(pairing_data["uuid"], equal_to(device_id))
