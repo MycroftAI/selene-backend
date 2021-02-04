@@ -45,7 +45,7 @@ SELECT
     json_build_object(
         'pantacor_id', pc.pantacor_id,
         'auto_update', pc.auto_update,
-        'release', pc.release,
+        'release_channel', pc.release_channel,
         'ssh_public_key', pc.ssh_public_key,
         'ip_address', pc.ip_address
     ) AS pantacor_config

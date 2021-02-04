@@ -4,7 +4,7 @@ CREATE TABLE device.pantacor_config (
     pantacor_id     text        UNIQUE NOT NULL,
     ip_address      inet        NOT NULL,
     ssh_public_key  text,
-    auto_update     bool        NOT NULL DEFAULT false,
-    release         text        NOT NULL DEFAULT 'stable',
+    auto_update     bool        NOT NULL,
+    release_channel text        NOT NULL,
     insert_ts   TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP
 );

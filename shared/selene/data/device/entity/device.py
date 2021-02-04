@@ -32,7 +32,7 @@ class PantacorConfig:
     auto_update: bool
     ip_address: str
     pantacor_id: str
-    release: str
+    release_channel: str
     ssh_public_key: str = None
 
 
