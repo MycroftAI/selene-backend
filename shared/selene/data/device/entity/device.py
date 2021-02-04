@@ -29,10 +29,11 @@ from .text_to_speech import TextToSpeech
 class PantacorConfig:
     """Data representation of Pantacor configuration for devices that use it."""
 
-    pantacor_id: str
-    ssh_public_key: str
     auto_update: bool
+    ip_address: str
+    pantacor_id: str
     release: str
+    ssh_public_key: str = None
 
 
 @dataclass
