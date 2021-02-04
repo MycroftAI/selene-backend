@@ -178,9 +178,11 @@ class DeviceRepository(RepositoryBase):
 
         self.cursor.update(db_request)
 
-    def add_pantacor_config(self, device_id: str, pantacor_id: str):
+    def add_pantacor_config(self, device_id: str, pantacor_id: str, ip_address: str):
         """Add Pantacor configuration to a device that uses this update mechanism"""
-        db_request_args = dict(device_id=device_id, pantacor_id=pantacor_id)
+        db_request_args = dict(
+            device_id=device_id, pantacor_id=pantacor_id, ip_address=ip_address
+        )
         db_request = self._build_db_request(
             sql_file_name="add_pantacor_config.sql", args=db_request_args
         )
