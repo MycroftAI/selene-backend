@@ -26,11 +26,16 @@ from typing import List
 from flask import json
 from schematics import Model
 from schematics.exceptions import ValidationError
-from schematics.types import StringType
+from schematics.types import BooleanType, StringType
 
 from selene.api import SeleneEndpoint
 from selene.api.etag import ETagManager
-from selene.api.pantacor import get_pantacor_device_id
+from selene.api.pantacor import (
+    change_pantacor_release_channel,
+    change_pantacor_ssh_key,
+    change_pantacor_update_policy,
+    get_pantacor_device,
+)
 from selene.api.public_endpoint import delete_device_login
 from selene.data.device import Device, DeviceRepository, Geography, GeographyRepository
 from selene.util.cache import (
@@ -69,6 +74,9 @@ class UpdateDeviceRequest(Model):
     timezone = StringType(required=True)
     wake_word = StringType(required=True)
     voice = StringType(required=True)
+    auto_update = BooleanType()
+    ssh_public_key = StringType()
+    release_channel = StringType()
 
 
 class NewDeviceRequest(UpdateDeviceRequest):
@@ -143,6 +151,10 @@ class DeviceEndpoint(SeleneEndpoint):
         else:
             disconnect_duration = None
         device.wake_word.name = device.wake_word.name.title()
+        if device.pantacor_config.release_channel is not None:
+            device.pantacor_config.release_channel = (
+                device.pantacor_config.release_channel.title()
+            )
         device_dict = asdict(device)
         device_dict["status"] = device_status
         device_dict["disconnect_duration"] = disconnect_duration
@@ -242,6 +254,9 @@ class DeviceEndpoint(SeleneEndpoint):
         device.timezone = request_data["timezone"]
         device.wake_word = request_data["wakeWord"].lower()
         device.voice = request_data["voice"]
+        device.auto_update = request_data["autoUpdate"]
+        device.release_channel = request_data["releaseChannel"]
+        device.ssh_public_key = request_data["sshPublicKey"]
         device.validate()
 
         return device.to_native()
@@ -329,8 +344,8 @@ class DeviceEndpoint(SeleneEndpoint):
         core_packaging = pairing_data.get("packaging_type")
         pairing_code = pairing_data["code"]
         if core_packaging is not None and core_packaging == "pantacor":
-            pantacor_id = get_pantacor_device_id(pairing_code)
-            self.device_repository.add_pantacor_config(device_id, pantacor_id)
+            pantacor_config = get_pantacor_device(pairing_code)
+            self.device_repository.add_pantacor_config(device_id, pantacor_config)
 
     def delete(self, device_id: str):
         """Handle an HTTP DELETE request.
@@ -375,6 +390,32 @@ class DeviceEndpoint(SeleneEndpoint):
         """
         geography_id = self._ensure_geography_exists(updates)
         updates.update(geography_id=geography_id)
+        pantacor_updates = dict(
+            auto_update=updates.pop("auto_update"),
+            release_channel=updates.pop("release_channel"),
+            ssh_public_key=updates.pop("ssh_public_key"),
+        )
         self.device_repository.update_device_from_account(
             self.account.id, device_id, updates
         )
+        self._update_pantacor_config(device_id, pantacor_updates)
+
+    def _update_pantacor_config(self, device_id: str, updates: dict):
+        """Update the Pantacor configuration on the database based on the request.
+
+        :param device_id: database identifier of a device
+        :param updates: The new values of the pantacor configuration attributes
+        """
+        device = self.device_repository.get_device_by_id(device_id)
+        if device.pantacor_config.pantacor_id is not None:
+            self.device_repository.update_pantacor_config(device_id, updates)
+            pantacor_update_functions = dict(
+                auto_update=change_pantacor_update_policy,
+                release_channel=change_pantacor_release_channel,
+                ssh_public_key=change_pantacor_ssh_key,
+            )
+            current_config = asdict(device.pantacor_config)
+            for config_name in ("auto_update", "release_channel", "ssh_public_key"):
+                if current_config[config_name] != updates[config_name]:
+                    update_function = pantacor_update_functions[config_name]
+                    update_function(current_config["pantacor_id"], updates[config_name])

@@ -18,12 +18,12 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 """Python code to support the add device feature."""
 import json
-from unittest.mock import patch, Mock
+from unittest.mock import patch
 
 from behave import given, when, then  # pylint: disable=no-name-in-module
 from hamcrest import assert_that, equal_to, none, not_none
 
-from selene.data.device import DeviceRepository
+from selene.data.device import DeviceRepository, PantacorConfig
 from selene.util.cache import (
     DEVICE_PAIRING_CODE_KEY,
     DEVICE_PAIRING_TOKEN_KEY,
@@ -64,10 +64,12 @@ def add_device(context):
         wakeWord="hey selene",
         voice="Selene Test Voice",
     )
-    with patch("selene.api.pantacor.requests.get") as pantacor_patch:
-        pantacor_data = dict(items=[dict(id="test_pantacor_id")])
-        pantacor_patch.return_value = Mock(
-            ok=True, content=json.dumps(pantacor_data).encode()
+    with patch("selene.api.pantacor.get_pantacor_device") as device_patch:
+        device_patch.return_value = PantacorConfig(
+            pantacor_id="test_pantacor_id",
+            ip_address="192.168.1.1",
+            auto_update=True,
+            release_channel="stable",
         )
         response = context.client.post(
             "/api/devices", data=json.dumps(device), content_type="application_json"
@@ -99,9 +101,10 @@ def validate_response(context):
     assert_that(device.placement, equal_to("Mycroft Offices"))
     assert_that(device.account_id, equal_to(account.id))
     assert_that(device.pantacor_config.pantacor_id, equal_to("test_pantacor_id"))
-    assert_that(device.pantacor_config.auto_update, equal_to(False))
+    assert_that(device.pantacor_config.ip_address, equal_to("192.168.1.1"))
+    assert_that(device.pantacor_config.auto_update, equal_to(True))
     assert_that(device.pantacor_config.ssh_public_key, none())
-    assert_that(device.pantacor_config.release, equal_to("stable"))
+    assert_that(device.pantacor_config.release_channel, equal_to("stable"))
 
 
 @then("the pairing token is added to cache")
