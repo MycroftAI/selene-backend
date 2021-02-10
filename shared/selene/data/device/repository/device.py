@@ -16,19 +16,22 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-
+"""Data retrieval and maintenance routines for devices."""
+from datetime import datetime
 from typing import List
 
 from selene.data.geography import City, Country, Region, Timezone
 from selene.data.wake_word import WakeWord
-from ..entity.device import Device
+from ..entity.device import Device, PantacorConfig
 from ..entity.text_to_speech import TextToSpeech
 from ...repository_base import RepositoryBase
 
 
 class DeviceRepository(RepositoryBase):
+    """Data retrieval and maintenance routines for devices."""
+
     def __init__(self, db):
-        super(DeviceRepository, self).__init__(db, __file__)
+        super().__init__(db, __file__)
 
     def get_device_by_id(self, device_id: str) -> Device:
         """Fetch a device using a given device id
@@ -68,17 +71,20 @@ class DeviceRepository(RepositoryBase):
         return devices
 
     @staticmethod
-    def _build_device_from_row(row):
+    def _build_device_from_row(row: dict) -> Device:
+        """Build a Device dataclass instance from query results."""
         row["city"] = City(**row["city"])
         row["country"] = Country(**row["country"])
         row["region"] = Region(**row["region"])
         row["timezone"] = Timezone(**row["timezone"])
         row["wake_word"] = WakeWord(**row["wake_word"])
         row["text_to_speech"] = TextToSpeech(**row["text_to_speech"])
+        row["pantacor_config"] = PantacorConfig(**row["pantacor_config"])
 
         return Device(**row)
 
-    def get_account_device_count(self, account_id):
+    def get_account_device_count(self, account_id: str) -> int:
+        """Returns the number of devices assigned to a specified account."""
         db_request = self._build_db_request(
             sql_file_name="get_account_device_count.sql",
             args=dict(account_id=account_id),
@@ -87,15 +93,18 @@ class DeviceRepository(RepositoryBase):
 
         return db_results["device_count"]
 
-    def get_all_device_ids(self):
+    def get_all_device_ids(self) -> List:
+        """Return a list of all the device IDs on the device table."""
         db_request = self._build_db_request(sql_file_name="get_all_device_ids.sql")
 
         return self.cursor.select_all(db_request)
 
-    def get_subscription_type_by_device_id(self, device_id):
+    def get_subscription_type_by_device_id(self, device_id: str):
         """Return the type of subscription of device's owner
+
         :param device_id: device uuid
         """
+        subscription_type = None
         db_request = self._build_db_request(
             sql_file_name="get_subscription_type_by_device_id.sql",
             args=dict(device_id=device_id),
@@ -104,7 +113,11 @@ class DeviceRepository(RepositoryBase):
         if db_result:
             rate_period = db_result["rate_period"]
             # TODO: Remove the @ in the API v2
-            return {"@type": "free" if rate_period is None else rate_period}
+            subscription_type = {
+                "@type": "free" if rate_period is None else rate_period
+            }
+
+        return subscription_type
 
     def add(self, account_id: str, device: dict) -> str:
         """Insert a row on the device table"""
@@ -159,15 +172,26 @@ class DeviceRepository(RepositoryBase):
         )
         self.cursor.delete(db_request)
 
-    def remove(self, device_id):
+    def remove(self, device_id: str):
+        """Remove a row from the device tables and any related child tables.
+
+        :param device_id: UUID identifying a device.
+        """
         db_request = self._build_db_request(
             sql_file_name="remove_device.sql", args=dict(device_id=device_id)
         )
 
         self.cursor.delete(db_request)
 
-    def update_device_from_account(self, account_id, device_id, updates):
-        """Updates a device with data sent to the API from account.mycroft.ai"""
+    def update_device_from_account(
+        self, account_id: str, device_id: str, updates: dict
+    ):
+        """Updates a device with data sent to the API from account.mycroft.ai
+
+        :param account_id: UUID identifying the user's account
+        :param device_id: UUID identifying a device
+        :param updates: fields updated and the new values of those fields
+        """
         db_request_args = dict(account_id=account_id, device_id=device_id)
         db_request_args.update(updates)
         db_request = self._build_db_request(
@@ -176,7 +200,45 @@ class DeviceRepository(RepositoryBase):
 
         self.cursor.update(db_request)
 
-    def update_last_contact_ts(self, device_id, last_contact_ts):
+    def add_pantacor_config(self, device_id: str, pantacor_config: PantacorConfig):
+        """Add Pantacor configuration to a device that uses this update mechanism
+
+        :param device_id: UUID identifying a device
+        :param pantacor_config: dataclass object containing Pantacor-specific data.
+        """
+        db_request_args = dict(
+            device_id=device_id,
+            pantacor_id=pantacor_config.pantacor_id,
+            ip_address=pantacor_config.ip_address,
+            auto_update=pantacor_config.auto_update,
+            release_channel=pantacor_config.release_channel,
+        )
+        db_request = self._build_db_request(
+            sql_file_name="add_pantacor_config.sql", args=db_request_args
+        )
+
+        self.cursor.insert(db_request)
+
+    def update_pantacor_config(self, device_id: str, updates: dict):
+        """Updates a device with data sent to the API from account.mycroft.ai
+
+        :param device_id: UUID identifying a device
+        :param updates: Pantacor configuration values being updated.
+        """
+        db_request_args = dict(device_id=device_id)
+        db_request_args.update(updates)
+        db_request = self._build_db_request(
+            sql_file_name="update_pantacor_config.sql", args=db_request_args
+        )
+
+        self.cursor.update(db_request)
+
+    def update_last_contact_ts(self, device_id: str, last_contact_ts: datetime):
+        """Update the timestamp indicating the last time the device was heard from.
+
+        :param device_id: UUID identifying a device
+        :param last_contact_ts: timestamp representing last time device was seen.
+        """
         db_request = self._build_db_request(
             sql_file_name="update_last_contact_ts.sql",
             args=dict(device_id=device_id, last_contact_ts=last_contact_ts),

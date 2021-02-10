@@ -31,7 +31,7 @@ from selene.data.metric import AccountActivityRepository
 from selene.util.auth import AuthenticationError
 from selene.util.db import connect_to_db
 from selene.util.exceptions import NotModifiedException
-from ..util.cache import SeleneCache
+from selene.util.cache import SeleneCache
 
 ONE_DAY = 86400
 
