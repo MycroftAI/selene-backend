@@ -254,9 +254,9 @@ class DeviceEndpoint(SeleneEndpoint):
         device.timezone = request_data["timezone"]
         device.wake_word = request_data["wakeWord"].lower()
         device.voice = request_data["voice"]
-        device.auto_update = request_data["autoUpdate"]
-        device.release_channel = request_data["releaseChannel"]
-        device.ssh_public_key = request_data["sshPublicKey"]
+        device.auto_update = request_data.get("autoUpdate")
+        device.release_channel = request_data.get("releaseChannel")
+        device.ssh_public_key = request_data.get("sshPublicKey")
         device.validate()
 
         return device.to_native()
