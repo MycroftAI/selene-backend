@@ -27,8 +27,6 @@ from selene.data.device import PantacorConfig
 class PantacorError(Exception):
     """Custom exception for unexpected occurrences in a Pantacor APi calls."""
 
-    pass
-
 
 def _get_release_channels():
     """Use the API to get the list of available software release channels."""
@@ -68,6 +66,33 @@ def get_pantacor_device(pairing_code: str) -> PantacorConfig:
     )
 
 
+def get_pantacor_pending_deployment(device_id: str):
+    """Use the API to search for a device based on the pairing code.
+
+    :param device_id: Pantacor device ID
+    :raises PantacorError: raised when multiple devices match a pairing code
+    """
+    update_id = None
+    params = dict(device_id=device_id, fields="-step")
+    response_data = _call_pantacor_api(
+        "GET", endpoint="deployment-actions/pending", params=params
+    )
+    if response_data["items"]:
+        pending_update = response_data["items"][0]
+        update_id = pending_update["id"]
+
+    return update_id
+
+
+def apply_pantacor_update(deployment_id: str):
+    """Use the API to change the update policy of the device.
+
+    :param deployment_id: identifier of a Pantacor deployment to a device.
+    """
+    endpoint = f"deployment-actions/{deployment_id}/play"
+    _call_pantacor_api("PATCH", endpoint=endpoint)
+
+
 def change_pantacor_update_policy(device_id: str, auto_update: bool):
     """Use the API to change the update policy of the device.
 
@@ -96,7 +121,7 @@ def change_pantacor_release_channel(device_id: str, release_channel: str):
         if release_channel == value:
             new_channel_id = key
     if new_channel_id is None:
-        raise PantacorError("Could not find release channel ".format(release_channel))
+        raise PantacorError("Could not find release channel " + release_channel)
     data = dict(channel_id=new_channel_id)
     _call_pantacor_api("PATCH", endpoint="devices/" + device_id, data=data)
 

@@ -16,6 +16,7 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
+"""Public API into the endpoints package."""
 
 from .preferences import PreferencesEndpoint
 from .city import CityEndpoint
@@ -30,6 +31,7 @@ from .region import RegionEndpoint
 from .skills import SkillsEndpoint
 from .skill_oauth import SkillOauthEndpoint
 from .skill_settings import SkillSettingsEndpoint
+from .software_update import SoftwareUpdateEndpoint
 from .timezone import TimezoneEndpoint
 from .voice_endpoint import VoiceEndpoint
 from .wake_word_endpoint import WakeWordEndpoint

@@ -35,6 +35,7 @@ from selene.api.pantacor import (
     change_pantacor_ssh_key,
     change_pantacor_update_policy,
     get_pantacor_device,
+    get_pantacor_pending_deployment,
 )
 from selene.api.public_endpoint import delete_device_login
 from selene.data.device import Device, DeviceRepository, Geography, GeographyRepository
@@ -144,6 +145,11 @@ class DeviceEndpoint(SeleneEndpoint):
         :param device: the device data retrieved from the database.
         :return: device information formatted for the UI
         """
+        pantacor_update_id = None
+        if device.pantacor_config and not device.pantacor_config.auto_update:
+            pantacor_update_id = get_pantacor_pending_deployment(
+                device.pantacor_config.pantacor_id
+            )
         last_contact_age = self._get_device_last_contact(device)
         device_status = self._determine_device_status(last_contact_age)
         if device_status == DISCONNECTED:
@@ -159,6 +165,7 @@ class DeviceEndpoint(SeleneEndpoint):
         device_dict["status"] = device_status
         device_dict["disconnect_duration"] = disconnect_duration
         device_dict["voice"] = device_dict.pop("text_to_speech")
+        device_dict["pantacor_update_id"] = pantacor_update_id
 
         return device_dict
 

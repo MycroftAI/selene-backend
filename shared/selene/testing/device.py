@@ -16,11 +16,12 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-
-from selene.data.device import DeviceRepository
+"""Testing helper functions for testing devices."""
+from selene.data.device import DeviceRepository, PantacorConfig
 
 
 def add_device(db, account_id, geography_id):
+    """Add a row to the device table for testing."""
     device = dict(
         name="Selene Test Device",
         pairing_code="ABC123",
@@ -37,3 +38,15 @@ def add_device(db, account_id, geography_id):
     device_id = device_repository.add(account_id, device)
 
     return device_id
+
+
+def add_pantacor_config(db, device_id):
+    """Add a row to the pantacor_config table for testing Pantacor capabilities."""
+    device_repository = DeviceRepository(db)
+    pantacor_config = PantacorConfig(
+        pantacor_id="test_pantacor_id",
+        ip_address="192.168.1.2",
+        auto_update=False,
+        release_channel="latest",
+    )
+    device_repository.add_pantacor_config(device_id, pantacor_config)
