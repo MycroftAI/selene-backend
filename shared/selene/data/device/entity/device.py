@@ -16,7 +16,7 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-
+"""Data representation of a device running Mycroft Core."""
 from dataclasses import dataclass
 from datetime import datetime
 
@@ -26,7 +26,18 @@ from .text_to_speech import TextToSpeech
 
 
 @dataclass
-class Device(object):
+class PantacorConfig:
+    """Data representation of Pantacor configuration for devices that use it."""
+
+    auto_update: bool
+    ip_address: str
+    pantacor_id: str
+    release_channel: str
+    ssh_public_key: str = None
+
+
+@dataclass
+class Device:
     """Representation of a Device"""
 
     account_id: str
@@ -44,3 +55,4 @@ class Device(object):
     last_contact_ts: datetime = None
     placement: str = None
     add_ts: datetime = None
+    pantacor_config: PantacorConfig = None
