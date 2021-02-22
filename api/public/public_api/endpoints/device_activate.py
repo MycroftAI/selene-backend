@@ -28,14 +28,17 @@ is complete.
 """
 import json
 from http import HTTPStatus
+from logging import getLogger
 
 from schematics import Model
 from schematics.types import StringType
 
 from selene.api import generate_device_login, PublicEndpoint
-from selene.api.pantacor import get_pantacor_device
+from selene.api.pantacor import get_pantacor_device, PantacorError
 from selene.data.device import DeviceRepository
 from selene.util.cache import DEVICE_PAIRING_TOKEN_KEY
+
+_log = getLogger(__package__)
 
 
 class ActivationRequest(Model):
@@ -125,5 +128,9 @@ class DeviceActivateEndpoint(PublicEndpoint):
         :param device_id: internal identifier of the device
         :param pantacor_device_id: identifier of a device on the Pantacor system
         """
-        pantacor_config = get_pantacor_device(pantacor_device_id)
-        self.device_repository.add_pantacor_config(device_id, pantacor_config)
+        try:
+            pantacor_config = get_pantacor_device(pantacor_device_id)
+        except PantacorError:
+            _log.exception("Pantacor device ID not found on PantaHub")
+        else:
+            self.device_repository.add_pantacor_config(device_id, pantacor_config)
