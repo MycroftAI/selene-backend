@@ -10,6 +10,7 @@ psycopg2-binary = "*"
 markdown = "*"
 prompt-toolkit = "==1.0.15"
 ipython = "==5"
+pylint = "*"
 
 [requires]
 python_version = "3.7"
