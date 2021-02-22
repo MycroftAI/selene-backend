@@ -34,7 +34,6 @@ from selene.api.pantacor import (
     change_pantacor_release_channel,
     change_pantacor_ssh_key,
     change_pantacor_update_policy,
-    get_pantacor_device,
     get_pantacor_pending_deployment,
 )
 from selene.api.public_endpoint import delete_device_login
@@ -279,7 +278,6 @@ class DeviceEndpoint(SeleneEndpoint):
                 DEVICE_PAIRING_CODE_KEY.format(pairing_code=device["pairing_code"])
             )
             self._build_pairing_token(pairing_data)
-            self._add_pantacor_config(device_id, pairing_data)
         except Exception:
             self.db.rollback()
             raise
@@ -341,18 +339,6 @@ class DeviceEndpoint(SeleneEndpoint):
             value=json.dumps(pairing_data),
             expiration=ONE_DAY,
         )
-
-    def _add_pantacor_config(self, device_id: str, pairing_data: dict):
-        """The software updates are managed by Pantacor, get their ID and add to DB
-
-        :param device_id: internal identifier of the device
-        :param pairing_data: data retrieved from the Redis cache for pairing
-        """
-        core_packaging = pairing_data.get("packaging_type")
-        pairing_code = pairing_data["code"]
-        if core_packaging is not None and core_packaging == "pantacor":
-            pantacor_config = get_pantacor_device(pairing_code)
-            self.device_repository.add_pantacor_config(device_id, pantacor_config)
 
     def delete(self, device_id: str):
         """Handle an HTTP DELETE request.
