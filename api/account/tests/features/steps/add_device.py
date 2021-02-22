@@ -18,7 +18,6 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 """Python code to support the add device feature."""
 import json
-from unittest.mock import MagicMock, patch
 
 from behave import given, when, then  # pylint: disable=no-name-in-module
 from hamcrest import assert_that, equal_to, none, not_none
@@ -64,32 +63,9 @@ def add_device(context):
         wakeWord="hey selene",
         voice="Selene Test Voice",
     )
-    with patch("requests.request") as request_patch:
-        get_channel_content = dict(
-            items=[dict(id="test_channel_id", name="test_channel_name")]
-        )
-        get_channel_response = MagicMock(spec=["ok", "content"])
-        get_channel_response.ok = True
-        get_channel_response.content = json.dumps(get_channel_content).encode()
-
-        get_device_content = dict(
-            items=[
-                dict(
-                    id="test_device_id",
-                    channel_id="test_channel_id",
-                    update_policy="auto",
-                    labels=["device-meta/interfaces.wlan0.ipv4.0=192.168.1.2"],
-                )
-            ]
-        )
-        get_device_response = MagicMock(spec=["ok", "content"])
-        get_device_response.ok = True
-        get_device_response.content = json.dumps(get_device_content).encode()
-
-        request_patch.side_effect = [get_channel_response, get_device_response]
-        response = context.client.post(
-            "/api/devices", data=json.dumps(device), content_type="application_json"
-        )
+    response = context.client.post(
+        "/api/devices", data=json.dumps(device), content_type="application/json"
+    )
     context.response = response
 
 
@@ -116,11 +92,6 @@ def validate_response(context):
     assert_that(device.name, equal_to("Selene Test Device"))
     assert_that(device.placement, equal_to("Mycroft Offices"))
     assert_that(device.account_id, equal_to(account.id))
-    assert_that(device.pantacor_config.pantacor_id, equal_to("test_device_id"))
-    assert_that(device.pantacor_config.ip_address, equal_to("192.168.1.2"))
-    assert_that(device.pantacor_config.auto_update, equal_to(True))
-    assert_that(device.pantacor_config.ssh_public_key, none())
-    assert_that(device.pantacor_config.release_channel, equal_to("test_channel_name"))
 
 
 @then("the pairing token is added to cache")
