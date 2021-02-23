@@ -144,7 +144,6 @@ def _call_pantacor_api(method: str, endpoint: str, **kwargs):
     :param method: HTTP request method (i.e. GET, PUT, etc.)
     :param endpoint: portion of URL indicating which endpoint to hit.
     """
-    response_data = None
     access_token = environ["PANTACOR_API_TOKEN"]
     headers = {
         "Authorization": "Bearer " + access_token,
@@ -161,5 +160,10 @@ def _call_pantacor_api(method: str, endpoint: str, **kwargs):
 
     if response.ok:
         response_data = json.loads(response.content.decode())
+    else:
+        raise PantacorError(
+            f"{method} {url} failed.  Status code: {response.status_code}  "
+            f"Content: {response.content.decode()}"
+        )
 
     return response_data
