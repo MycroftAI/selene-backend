@@ -399,7 +399,7 @@ class DeviceEndpoint(SeleneEndpoint):
         updates.update(geography_id=geography_id)
         pantacor_updates = dict(
             auto_update=updates.pop("auto_update"),
-            release_channel=updates.pop("release_channel"),
+            release_channel=updates.pop("release_channel").lower(),
             ssh_public_key=updates.pop("ssh_public_key"),
         )
         self.device_repository.update_device_from_account(
@@ -415,7 +415,6 @@ class DeviceEndpoint(SeleneEndpoint):
         """
         device = self.device_repository.get_device_by_id(device_id)
         if device.pantacor_config.pantacor_id is not None:
-            self.device_repository.update_pantacor_config(device_id, updates)
             pantacor_update_functions = dict(
                 auto_update=change_pantacor_update_policy,
                 release_channel=change_pantacor_release_channel,
@@ -426,3 +425,4 @@ class DeviceEndpoint(SeleneEndpoint):
                 if current_config[config_name] != updates[config_name]:
                     update_function = pantacor_update_functions[config_name]
                     update_function(current_config["pantacor_id"], updates[config_name])
+            self.device_repository.update_pantacor_config(device_id, updates)
