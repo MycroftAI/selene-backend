@@ -38,20 +38,18 @@ def _get_release_channels():
     return release_channels
 
 
-def get_pantacor_device(pairing_code: str) -> PantacorConfig:
+def get_pantacor_device(pantacor_device_id: str) -> PantacorConfig:
     """Use the API to search for a device based on the pairing code.
 
-    :param pairing_code: six character code used to pair a device to Selene
+    :param pantacor_device_id: six character code used to pair a device to Selene
     :raises PantacorError: raised when multiple devices match a pairing code
     """
-    params = dict(labels="device-meta/mycroft.pairing_code=" + pairing_code)
     release_channels = _get_release_channels()
-    response_data = _call_pantacor_api("GET", endpoint="devices", params=params)
-    if len(response_data["items"]) > 1:
-        raise PantacorError("Multiple devices returned for a pairing code")
-    device = response_data["items"][0]
+    response_data = _call_pantacor_api("GET", endpoint=f"devices/{pantacor_device_id}")
+    if not response_data:
+        raise PantacorError("Pantacor device ID not found.")
     ip_address = None
-    for label in device["labels"]:
+    for label in response_data["labels"]:
         if label.startswith("device-meta"):
             key, value = label.split("=")
             if key == "device-meta/interfaces.wlan0.ipv4.0":
@@ -59,10 +57,10 @@ def get_pantacor_device(pairing_code: str) -> PantacorConfig:
                 break
 
     return PantacorConfig(
-        pantacor_id=device["id"],
+        pantacor_id=pantacor_device_id,
         ip_address=ip_address,
-        release_channel=release_channels[device["channel_id"]],
-        auto_update=device["update_policy"] == "auto",
+        release_channel=release_channels[response_data["channel_id"]],
+        auto_update=response_data["update_policy"] == "auto",
     )
 
 

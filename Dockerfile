@@ -100,6 +100,8 @@ FROM selene-base as public-api-test
 RUN mkdir -p /opt/selene/data
 ARG google_stt_key
 ARG wolfram_alpha_key
+ENV PANTACOR_API_TOKEN pantacor-token
+ENV PANTACOR_API_BASE_URL pantacor.test.url
 ENV PYTHONPATH=$PYTHONPATH:/opt/selene/selene-backend/api/public
 ENV GOOGLE_STT_KEY $google_stt_key
 ENV WOLFRAM_ALPHA_KEY $wolfram_alpha_key
