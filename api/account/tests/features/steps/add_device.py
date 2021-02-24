@@ -82,28 +82,30 @@ def validate_pairing_code_removal(context):
 @then("the device is added to the database")
 def validate_response(context):
     """Ensure that the database was updated as expected."""
-    device_id = context.response.data.decode()
     account = context.accounts["foo"]
     db = connect_to_db(context.client_config["DB_CONNECTION_CONFIG"])
     device_repository = DeviceRepository(db)
-    device = device_repository.get_device_by_id(device_id)
-
+    devices = device_repository.get_devices_by_account_id(account.id)
+    device = None
+    for device in devices:
+        if device.name == "Selene Test Device":
+            break
     assert_that(device, not_none())
     assert_that(device.name, equal_to("Selene Test Device"))
     assert_that(device.placement, equal_to("Mycroft Offices"))
     assert_that(device.account_id, equal_to(account.id))
+    context.device_id = device.id
 
 
 @then("the pairing token is added to cache")
 def validate_pairing_token(context):
     """Validate the pairing token data was added to the cache as expected."""
-    device_id = context.response.data.decode()
     cache = SeleneCache()
     pairing_data = cache.get(
         DEVICE_PAIRING_TOKEN_KEY.format(pairing_token="this is a token")
     )
     pairing_data = json.loads(pairing_data)
 
-    assert_that(pairing_data["uuid"], equal_to(device_id))
+    assert_that(pairing_data["uuid"], equal_to(context.device_id))
     assert_that(pairing_data["state"], equal_to(context.pairing_data["state"]))
     assert_that(pairing_data["token"], equal_to(context.pairing_data["token"]))

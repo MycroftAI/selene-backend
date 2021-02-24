@@ -145,7 +145,8 @@ class DeviceEndpoint(SeleneEndpoint):
         :return: device information formatted for the UI
         """
         pantacor_update_id = None
-        if device.pantacor_config and not device.pantacor_config.auto_update:
+        auto_update = device.pantacor_config.auto_update
+        if auto_update is not None and not auto_update:
             pantacor_update_id = get_pantacor_pending_deployment(
                 device.pantacor_config.pantacor_id
             )
@@ -240,9 +241,9 @@ class DeviceEndpoint(SeleneEndpoint):
         """Handle a HTTP POST request."""
         self._authenticate()
         device = self._validate_request()
-        device_id = self._pair_device(device)
+        self._pair_device(device)
 
-        return device_id, HTTPStatus.OK
+        return "", HTTPStatus.NO_CONTENT
 
     def _validate_request(self) -> dict:
         """Validate the contents of the HTTP POST request."""
@@ -267,7 +268,7 @@ class DeviceEndpoint(SeleneEndpoint):
 
         return device.to_native()
 
-    def _pair_device(self, device: dict) -> str:
+    def _pair_device(self, device: dict):
         """Add the paired device to the database."""
         self.db.autocommit = False
         try:
@@ -283,8 +284,6 @@ class DeviceEndpoint(SeleneEndpoint):
             raise
         else:
             self.db.commit()
-
-        return device_id
 
     def _get_pairing_data(self, pairing_code: str) -> dict:
         """Checking if there's one pairing session for the pairing code.
@@ -385,7 +384,7 @@ class DeviceEndpoint(SeleneEndpoint):
         updates.update(geography_id=geography_id)
         pantacor_updates = dict(
             auto_update=updates.pop("auto_update"),
-            release_channel=updates.pop("release_channel"),
+            release_channel=updates.pop("release_channel").lower(),
             ssh_public_key=updates.pop("ssh_public_key"),
         )
         self.device_repository.update_device_from_account(
@@ -401,7 +400,6 @@ class DeviceEndpoint(SeleneEndpoint):
         """
         device = self.device_repository.get_device_by_id(device_id)
         if device.pantacor_config.pantacor_id is not None:
-            self.device_repository.update_pantacor_config(device_id, updates)
             pantacor_update_functions = dict(
                 auto_update=change_pantacor_update_policy,
                 release_channel=change_pantacor_release_channel,
@@ -412,3 +410,4 @@ class DeviceEndpoint(SeleneEndpoint):
                 if current_config[config_name] != updates[config_name]:
                     update_function = pantacor_update_functions[config_name]
                     update_function(current_config["pantacor_id"], updates[config_name])
+            self.device_repository.update_pantacor_config(device_id, updates)
