@@ -240,9 +240,9 @@ class DeviceEndpoint(SeleneEndpoint):
         """Handle a HTTP POST request."""
         self._authenticate()
         device = self._validate_request()
-        device_id = self._pair_device(device)
+        self._pair_device(device)
 
-        return device_id, HTTPStatus.OK
+        return "", HTTPStatus.NO_CONTENT
 
     def _validate_request(self) -> dict:
         """Validate the contents of the HTTP POST request."""
@@ -267,7 +267,7 @@ class DeviceEndpoint(SeleneEndpoint):
 
         return device.to_native()
 
-    def _pair_device(self, device: dict) -> str:
+    def _pair_device(self, device: dict):
         """Add the paired device to the database."""
         self.db.autocommit = False
         try:
@@ -283,8 +283,6 @@ class DeviceEndpoint(SeleneEndpoint):
             raise
         else:
             self.db.commit()
-
-        return device_id
 
     def _get_pairing_data(self, pairing_code: str) -> dict:
         """Checking if there's one pairing session for the pairing code.
