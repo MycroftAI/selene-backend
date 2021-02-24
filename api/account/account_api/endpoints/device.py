@@ -145,7 +145,8 @@ class DeviceEndpoint(SeleneEndpoint):
         :return: device information formatted for the UI
         """
         pantacor_update_id = None
-        if device.pantacor_config and not device.pantacor_config.auto_update:
+        auto_update = device.pantacor_config.auto_update
+        if auto_update is not None and not auto_update:
             pantacor_update_id = get_pantacor_pending_deployment(
                 device.pantacor_config.pantacor_id
             )
