@@ -81,6 +81,15 @@ class DeviceActivateEndpoint(PublicEndpoint):
 
     def _validate_request(self) -> dict:
         """Validate the contents of the API request against the data model."""
+        # TODO: remove this hack when mycroft-core mark-2 branch is merged into dev
+        if "coreVersion" in self.request.json:
+            self.request.json["core_version"] = self.request.json["coreVersion"]
+            del self.request.json["coreVersion"]
+        if "enclosureVersion" in self.request.json:
+            self.request.json["enclosure_version"] = self.request.json[
+                "enclosureVersion"
+            ]
+            del self.request.json["enclosureVersion"]
         activation_request = ActivationRequest(self.request.json)
         activation_request.validate()
 
