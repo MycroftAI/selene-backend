@@ -1,11 +1,13 @@
-Feature: Send email to a to the account that owns a device
-  Test the email endpoint
+Feature: Device requests email sent to the account holder
+  Some skills have the ability to send email upon request.  One example of
+  this is the support skill, which emails device diagnostics.
 
-  Scenario: an email payload is passed to the email endpoint
-    When an email message is sent to the email endpoint
-    Then an email should be sent to the user's account that owns the device
+  Scenario: Email sent to account holder
+    When a user interaction with a device causes an email to be sent
+    Then the request will be successful
+    And an email should be sent to the account that owns the device
     And the device's last contact time is updated
 
-  Scenario: an email payload is passed to the the email endpoint using a not allowed device
-    When the email endpoint is called by a not allowed device
-    Then 401 status code should be returned by the email endpoint
+  Scenario: Email request sent by unauthorized device
+    When an unpaired or unauthenticated device attempts to send an email
+    Then the request will fail with an unauthorized error
