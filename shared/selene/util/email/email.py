@@ -44,6 +44,8 @@ class EmailMessage:
     def __post_init__(self):
         if self.body is not None and self.template_file_name is not None:
             raise ValueError("Specify body or template file name, not both.")
+        if self.body is None and self.template_file_name is None:
+            raise ValueError("One of body or template file name must be supplied.")
 
 
 class SeleneMailer:
