@@ -16,11 +16,7 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-
-import json
-import os
-import smtplib
-from email.message import EmailMessage
+"""Device API endpoint to send an email as specified by the device."""
 from http import HTTPStatus
 
 from schematics import Model
@@ -28,9 +24,12 @@ from schematics.types import StringType
 
 from selene.api import PublicEndpoint
 from selene.data.account import AccountRepository
+from selene.util.email import EmailMessage, SeleneMailer
 
 
 class SendEmail(Model):
+    """Data model of the incoming PUT request."""
+
     title = StringType(required=True)
     sender = StringType(required=True)
     body = StringType(required=True)
@@ -39,37 +38,27 @@ class SendEmail(Model):
 class DeviceEmailEndpoint(PublicEndpoint):
     """Endpoint to send an email to the account associated to a device"""
 
-    def __init__(self):
-        super(DeviceEmailEndpoint, self).__init__()
-
     def put(self, device_id):
+        """Handle an HTTP PUT request."""
         self._authenticate(device_id)
-        payload = json.loads(self.request.data)
-        send_email = SendEmail(payload)
+        self._validate_request()
+        account = AccountRepository(self.db).get_account_by_device_id(device_id)
+        self._send_message(account)
+
+        return "", HTTPStatus.OK
+
+    def _validate_request(self):
+        """Validate that the request is well-formed."""
+        send_email = SendEmail(self.request.json)
         send_email.validate()
 
-        account = AccountRepository(self.db).get_account_by_device_id(device_id)
-
-        if account:
-            message = EmailMessage()
-            message['Subject'] = str(send_email.title)
-            message['From'] = str(send_email.sender)
-            message.set_content(str(send_email.body))
-            message['To'] = account.email_address
-            self._send_email(message)
-            response = '', HTTPStatus.OK
-        else:
-            response = '', HTTPStatus.NO_CONTENT
-        return response
-
-    def _send_email(self, message: EmailMessage):
-        email_client = self.config.get('EMAIL_CLIENT')
-        if email_client is None:
-            host = os.environ['EMAIL_SERVICE_HOST']
-            port = os.environ['EMAIL_SERVICE_PORT']
-            user = os.environ['EMAIL_SERVICE_USER']
-            password = os.environ['EMAIL_SERVICE_PASSWORD']
-            email_client = smtplib.SMTP(host, port)
-            email_client.login(user, password)
-        email_client.send_message(message)
-        email_client.quit()
+    def _send_message(self, account):
+        """Send an email to the account that owns the device that requested it."""
+        message = EmailMessage(
+            recipient=account.email_address,
+            sender=self.request.json["sender"],
+            subject=self.request.json["title"],
+            body=self.request.json["body"],
+        )
+        mailer = SeleneMailer(message)
+        mailer.send()

@@ -69,7 +69,10 @@ def get_device_geographies(cursor, city):
     request = DatabaseRequest(sql, args)
     result = cursor.select_all(request)
     if result:
-        print(f"found {len(result)} device geographies for {city['city_name']}")
+        print(
+            f"found {len(result)} device geographies for city: {city['city_name']}; "
+            f"region: {city['region_name']}; country: {city['country_name']}"
+        )
 
     return result
 
@@ -125,7 +128,7 @@ def check_account_defaults_for_dup_cities(cursor, duplicate_cities):
     return account_defaults_found
 
 
-def delete_duplicates(cursor, duplicate_cities):
+def delete_duplicates(cursor, city, used_cities):
     """Once all the checks are done, we can delete the rows from the database.
 
     Remove the first ID from the list so that one of the rows remains.
@@ -133,12 +136,20 @@ def delete_duplicates(cursor, duplicate_cities):
     deleted_rows = 0
     geography_dir = Path(MYCROFT_DB_DIR).joinpath("geography_schema")
     sql = get_sql_from_file(str(geography_dir.joinpath("delete_duplicate_cities.sql")))
-    for city in duplicate_cities:
-        cities_to_delete = city["city_ids"][1:]
-        args = dict(city_ids=tuple(cities_to_delete))
-        request = DatabaseRequest(sql, args)
-        result = cursor.delete(request)
-        deleted_rows += result
+    if used_cities:
+        sql += " and id not in %(used_cities)s"
+        args = dict(
+            city_ids=tuple(city["city_ids"]),
+            max_population=city["max_population"],
+            used_cities=tuple(used_cities),
+        )
+    else:
+        args = dict(
+            city_ids=tuple(city["city_ids"]), max_population=city["max_population"],
+        )
+    request = DatabaseRequest(sql, args)
+    result = cursor.delete(request)
+    deleted_rows += result
 
     print(f"Deleted {deleted_rows} from the geography.city table")
 
@@ -147,16 +158,21 @@ def main():
     """Make it so."""
     cursor = get_cursor()
     duplicate_cities = get_duplicate_cities(cursor)
-    device_geographies_found = check_device_geography_for_dup_cities(
-        cursor, duplicate_cities
-    )
     account_defaults_found = check_account_defaults_for_dup_cities(
         cursor, duplicate_cities
     )
-    if device_geographies_found or account_defaults_found:
+    if account_defaults_found:
         print("Great, now you need to write more code!")
     else:
-        delete_duplicates(cursor, duplicate_cities)
+        for city in duplicate_cities:
+            device_geographies = get_device_geographies(cursor, city)
+            if not device_geographies:
+                delete_duplicates(cursor, city, [])
+            else:
+                print(device_geographies)
+                used_cities = [geo["city_id"] for geo in device_geographies]
+                delete_duplicates(cursor, city, used_cities)
+                break
 
 
 if __name__ == "__main__":

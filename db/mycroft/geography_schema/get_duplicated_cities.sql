@@ -4,6 +4,7 @@ WITH duplicated_cities AS (
         c.name AS country_name,
         r.name AS region_name,
         y.name AS city_name,
+        max(population) as max_population,
         array_agg(y.id::text) as city_ids
     FROM
         geography.city y
