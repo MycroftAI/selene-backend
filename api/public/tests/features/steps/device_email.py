@@ -73,7 +73,7 @@ def _call_email_endpoint(context, device_id=None):
         request_headers = dict(Authorization=f"Bearer {login['accessToken']}")
     else:
         request_device_id = device_id
-        request_headers = dict()
+        request_headers = dict(Authorization=f"Bearer thisisadummybearertoken")
     request_data = dict(
         title="this is a test", sender="test@test.com", body="body message"
     )
