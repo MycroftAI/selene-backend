@@ -173,20 +173,18 @@ class WakeWordFileRepository(RepositoryBase):
 
         return wake_word_files
 
-    def get_taggable_file(
-        self, wake_word: str, tag_count: int, session_id: str
-    ) -> TaggableFile:
+    def get_taggable_file(self, wake_word: str, session_id: str) -> TaggableFile:
         """Retrieve a file that needs to be tagged from the database.
 
         :param wake_word: the wake word being tagged
-        :param tag_count: the number of tag types defined in the database
         :param session_id: identifier of the current tagging session
         :return: an object containing the result of the query
         """
         taggable_file = None
         db_request = self._build_db_request(
             sql_file_name="get_taggable_wake_word_file.sql",
-            args=dict(wake_word=wake_word, tag_count=tag_count, session_id=session_id),
+            args=dict(session_id=session_id),
+            sql_vars=dict(wake_word=wake_word.replace(" ", "_")),
         )
         result = self.cursor.select_one(db_request)
         if result is not None:
@@ -258,3 +256,14 @@ class WakeWordFileRepository(RepositoryBase):
             sql_file_name="remove_wake_word_file.sql", args=dict(id=wake_word_file.id),
         )
         self.cursor.delete(db_request)
+
+    def refresh_view(self, wake_word: str):
+        """Refresh the materialized view built to improve tagging performance.
+
+        :param wake_word: the wake word corresponding to the view.
+        """
+        request = self._build_db_request(
+            sql_file_name="refresh_wake_word_file_view.sql",
+            sql_vars=dict(wake_word=wake_word.replace(" ", "_")),
+        )
+        self.cursor.execute(request)

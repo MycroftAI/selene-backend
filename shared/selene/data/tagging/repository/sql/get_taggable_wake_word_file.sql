@@ -1,82 +1,34 @@
--- Select a single file to be presented to the wake word tagger.
-WITH not_speaking AS (
-    SELECT
-        t.id as tag_id,
-        tv.id AS tag_value_id
-    FROM
-        tagging.tag t
-        INNER JOIN tagging.tag_value tv ON t.id = tv.tag_id
-    WHERE
-        t.name = 'speaking'
-        AND tv.value = 'no'
-),
-file AS (
-    -- Get all files for the specified wake word that have not been designated as noise
-    SELECT
-        wwf.id AS file_id,
-        wwf.name AS file_name,
-        fl.server,
-        fl.directory
-    FROM
-        tagging.wake_word_file wwf
-        INNER JOIN wake_word.wake_word ww ON wwf.wake_word_id = ww.id
-        INNER JOIN tagging.file_location fl ON fl.id = wwf.file_location_id
-        LEFT JOIN tagging.wake_word_file_designation wwfd ON wwf.id = wwfd.wake_word_file_id
-    WHERE
-        ww.name = %(wake_word)s
-        AND (
-            wwfd.tag_id IS NULL
-            OR wwfd.tag_id::TEXT || wwfd.tag_value_id::TEXT != (
-                SELECT
-                    tag_id::TEXT || tag_value_id::TEXT
-                FROM
-                    not_speaking
-           )
-        )
-),
-file_designation AS (
-    -- Get all the designations assigned to the files
-    SELECT
-        f.file_id,
-        array_agg(wwfd.tag_id) AS designations
-    FROM
-        file f
-        INNER JOIN tagging.wake_word_file_designation wwfd ON f.file_id = wwfd.wake_word_file_id
-    GROUP BY
-        f.file_id
-),
-file_tag AS (
+WITH file_tag AS (
     -- Get all the file tags for tag types that have not been designated
     SELECT
-        f.file_id,
+        f.id,
         wwft.tag_id AS tag,
         array_agg(session_id) AS sessions
     FROM
-        file f
-        INNER JOIN tagging.wake_word_file_tag wwft ON f.file_id = wwft.wake_word_file_id
-        LEFT JOIN file_designation fd ON f.file_id = fd.file_id
+        tagging.{wake_word}_file f
+            INNER JOIN tagging.wake_word_file_tag wwft ON f.id = wwft.wake_word_file_id
     WHERE
-        array_position(fd.designations, wwft.tag_id) IS NULL
+        array_position(f.designations, wwft.tag_id) IS NULL
     GROUP BY
-        f.file_id,
+        f.id,
         wwft.tag_id
 )
 -- Use the results of the above nested table expressions to select a single file
 -- that is not fully designated and has not already been tagged in the specified session.
 SELECT
-    f.file_id AS id,
-    f.file_name as name,
+    f.id,
+    f.name,
     f.server,
     f.directory,
-    fd.designations,
-    ft.tag
+    f.designations,
+    ft.tag,
+    ft.sessions
 FROM
-    file AS f
-    LEFT JOIN file_tag ft ON f.file_id = ft.file_id
-    LEFT JOIN file_designation fd ON f.file_id = fd.file_id
+    tagging.{wake_word}_file AS f
+        LEFT JOIN file_tag ft ON f.id = ft.id
 WHERE
-    (fd.designations IS NULL OR cardinality(fd.designations) < %(tag_count)s)
-    AND array_position(ft.sessions, %(session_id)s) IS NULL
+    array_position(ft.sessions, %(session_id)s) IS NULL
 ORDER BY
-    cardinality(ft.sessions)
+    case when f.designations is null then 0 else cardinality(f.designations) end desc,
+    case when ft.sessions is null then 0 else cardinality(ft.sessions) end desc
 LIMIT 1

@@ -72,6 +72,7 @@ TAGGING_TABLE_ORDER = (
     "wake_word_file_tag",
     "wake_word_file_designation",
 )
+TAGGING_VIEW_ORDER = ("hey_mycroft_file",)
 WAKE_WORD_TABLE_ORDER = ("wake_word", "pocketsphinx_settings")
 
 schema_directory = "{}_schema"
@@ -156,6 +157,13 @@ def _build_schema_tables(db, schema, tables):
         db.execute_sql(get_sql_from_file(create_table_file))
 
 
+def _build_schema_views(db, schema, views):
+    print(f"Creating the {schema} schema tables")
+    for view in views:
+        create_view_file = path.join(schema + "_schema", "views", view + ".sql")
+        db.execute_sql(get_sql_from_file(create_view_file))
+
+
 def _grant_access(db):
     print("Granting access to schemas and tables")
     for schema in SCHEMAS:
@@ -171,6 +179,7 @@ def _build_template_db():
     _build_schema_tables(template_db, "wake_word", WAKE_WORD_TABLE_ORDER)
     _build_schema_tables(template_db, "device", DEVICE_TABLE_ORDER)
     _build_schema_tables(template_db, "tagging", TAGGING_TABLE_ORDER)
+    _build_schema_views(template_db, "tagging", TAGGING_VIEW_ORDER)
     _build_schema_tables(template_db, "metric", METRIC_TABLE_ORDER)
     _grant_access(template_db)
     template_db.close_db()
