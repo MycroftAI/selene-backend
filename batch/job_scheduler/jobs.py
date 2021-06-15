@@ -149,6 +149,8 @@ schedule.every().day.at('00:10').do(parse_core_metrics)
 schedule.every().day.at('00:15').do(load_skills, version='19.02')
 schedule.every().day.at('00:20').do(load_skills, version='19.08')
 schedule.every().day.at('00:25').do(load_skills, version='20.02')
+schedule.every().day.at('00:25').do(load_skills, version='20.08')
+schedule.every().day.at('00:25').do(load_skills, version='21.02')
 
 # Run the schedule
 while True:
