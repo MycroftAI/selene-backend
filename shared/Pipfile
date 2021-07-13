@@ -5,7 +5,7 @@ name = "pypi"
 
 [packages]
 facebook-sdk = "*"
-pyjwt = "<=1.7.1"
+pyjwt = "*"
 pygithub = "*"
 psycopg2-binary = "*"
 passlib = "*"
@@ -19,6 +19,10 @@ paramiko = "*"
 [dev-packages]
 pyhamcrest = "*"
 pylint = "*"
+black = "*"
 
 [requires]
 python_version = "3.7"
+
+[pipenv]
+allow_prereleases = true
