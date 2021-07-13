@@ -72,17 +72,21 @@ class UpdateDeviceRequest(Model):
     placement = StringType()
     region = StringType(required=True)
     timezone = StringType(required=True)
-    wake_word = StringType(required=True)
+    wake_word = StringType(required=True, deserialize_from="wakeWord")
     voice = StringType(required=True)
-    auto_update = BooleanType()
-    ssh_public_key = StringType()
-    release_channel = StringType()
+    auto_update = BooleanType(deserialize_from="autoUpdate")
+    ssh_public_key = StringType(deserialize_from="sshPublicKey")
+    release_channel = StringType(deserialize_from="releaseChannel")
 
 
 class NewDeviceRequest(UpdateDeviceRequest):
     """Schematic for a request to add a device."""
 
-    pairing_code = StringType(required=True, validators=[validate_pairing_code])
+    pairing_code = StringType(
+        required=True,
+        deserialize_from="pairingCode",
+        validators=[validate_pairing_code],
+    )
 
 
 class DeviceEndpoint(SeleneEndpoint):
@@ -247,23 +251,10 @@ class DeviceEndpoint(SeleneEndpoint):
 
     def _validate_request(self) -> dict:
         """Validate the contents of the HTTP POST request."""
-        request_data = json.loads(self.request.data)
         if self.request.method == "POST":
-            device = NewDeviceRequest()
-            device.pairing_code = request_data["pairingCode"]
+            device = NewDeviceRequest(self.request.json)
         else:
-            device = UpdateDeviceRequest()
-        device.city = request_data["city"]
-        device.country = request_data["country"]
-        device.name = request_data["name"]
-        device.placement = request_data["placement"]
-        device.region = request_data["region"]
-        device.timezone = request_data["timezone"]
-        device.wake_word = request_data["wakeWord"].lower()
-        device.voice = request_data["voice"]
-        device.auto_update = request_data.get("autoUpdate")
-        device.release_channel = request_data.get("releaseChannel")
-        device.ssh_public_key = request_data.get("sshPublicKey")
+            device = UpdateDeviceRequest(self.request.json)
         device.validate()
 
         return device.to_native()
