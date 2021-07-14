@@ -18,15 +18,18 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 """Logic for generating and validating JWT authentication tokens."""
-from datetime import datetime
-from http import HTTPStatus
 import json
 import os
+from datetime import datetime
+from http import HTTPStatus
+from logging import getLogger
 from time import time
 
 from facebook import GraphAPI
 import jwt
 import requests
+
+_log = getLogger(__package__)
 
 
 class AuthenticationError(Exception):
@@ -71,6 +74,7 @@ class AuthenticationToken:
             except jwt.ExpiredSignatureError:
                 self.is_expired = True
             except jwt.InvalidTokenError:
+                _log.exception("Invalid JWT")
                 self.is_valid = False
 
 
