@@ -88,6 +88,13 @@ sudo -u postgres psql -c "CREATE ROLE selene WITH LOGIN ENCRYPTED PASSWORD '$DB_
 cd /opt/selene/selene-backend/db/scripts
 pipenv run python bootstrap_mycroft_db.py
 ```
+  * Note: if you get an authentication error you can temporarily edit `/etc/postgresql/<version>/main/pg_hba.conf` replacing the following lines:
+  ```
+  # "local" is for Unix domain socket connections only
+  local   all             all                                     trust
+  # IPv4 local connections:
+  host    all             all             127.0.0.1/32            trust
+  ```
 * By default, Postgres only listens on localhost.  This will not do for a multi-server setup.  Change the 
 `listen_addresses` value in the `posgresql.conf` file to the private IP of the database server.  This file is owned by
 the `postgres` user so use the following command to edit it (substituting vi for your favorite editor)
