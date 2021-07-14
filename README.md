@@ -48,13 +48,13 @@ All Selene applications are time zone agnostic.  It is recommended that the time
 sudo apt-get install postgresql python3.7 python python3-pip
 ```
 * Set Postgres to start on boot  
-```
+``` 
 sudo systemctl enable postgresql
-```
+``` 
 * Clone the selene-backend and documentation repositories
 ```
 sudo mkdir -p /opt/selene
-sudo chown -R mycroft:users /opt/selene
+sudo chown -R $USER:users /opt/selene
 cd /opt/selene
 git clone https://github.com/MycroftAI/selene-backend.git
 ```
@@ -128,12 +128,12 @@ sudo python3.7 -m pip install pipenv
 * Setup the Backend Application Directory
 ```
 sudo mkdir -p /opt/selene
-sudo chown -R mycroft:users /opt/selene
+sudo chown -R $USER:users /opt/selene
 ```
 * Setup the Log Directory
 ```
 sudo mkdir -p /var/log/mycroft
-sudo chown -R mycroft:users /var/log/mycroft
+sudo chown -R $USER:users /var/log/mycroft
 ```
 * Clone the Selene Backend Repository
 ```
