@@ -30,12 +30,7 @@ from schematics.types import BooleanType, StringType
 
 from selene.api import SeleneEndpoint
 from selene.api.etag import ETagManager
-from selene.api.pantacor import (
-    change_pantacor_release_channel,
-    change_pantacor_ssh_key,
-    change_pantacor_update_policy,
-    get_pantacor_pending_deployment,
-)
+from selene.api.pantacor import get_pantacor_pending_deployment, update_pantacor_config
 from selene.api.public_endpoint import delete_device_login
 from selene.data.device import Device, DeviceRepository, Geography, GeographyRepository
 from selene.util.cache import (
@@ -44,6 +39,7 @@ from selene.util.cache import (
     DEVICE_PAIRING_TOKEN_KEY,
     SeleneCache,
 )
+from selene.util.db import use_transaction
 
 ONE_DAY = 86400
 CONNECTED = "Connected"
@@ -97,6 +93,7 @@ class DeviceEndpoint(SeleneEndpoint):
     def __init__(self):
         super().__init__()
         self.devices = None
+        self.validated_request = None
         self.cache = self.config["SELENE_CACHE"]
         self.etag_manager: ETagManager = ETagManager(self.cache, self.config)
 
@@ -244,80 +241,42 @@ class DeviceEndpoint(SeleneEndpoint):
     def post(self):
         """Handle a HTTP POST request."""
         self._authenticate()
-        device = self._validate_request()
-        self._pair_device(device)
+        self._validate_request()
+        self._pair_device()
 
         return "", HTTPStatus.NO_CONTENT
 
-    def _validate_request(self) -> dict:
-        """Validate the contents of the HTTP POST request."""
-        if self.request.method == "POST":
-            device = NewDeviceRequest(self.request.json)
-        else:
-            device = UpdateDeviceRequest(self.request.json)
-        device.validate()
-
-        return device.to_native()
-
-    def _pair_device(self, device: dict):
+    @use_transaction
+    def _pair_device(self):
         """Add the paired device to the database."""
-        self.db.autocommit = False
-        try:
-            pairing_data = self._get_pairing_data(device["pairing_code"])
-            device_id = self._add_device(device)
-            pairing_data["uuid"] = device_id
-            self.cache.delete(
-                DEVICE_PAIRING_CODE_KEY.format(pairing_code=device["pairing_code"])
-            )
-            self._build_pairing_token(pairing_data)
-        except Exception:
-            self.db.rollback()
-            raise
-        else:
-            self.db.commit()
+        cache_key = DEVICE_PAIRING_CODE_KEY.format(
+            pairing_code=self.validated_request["pairing_code"]
+        )
+        pairing_data = self._get_pairing_data(cache_key)
+        device_id = self._add_device()
+        pairing_data["uuid"] = device_id
+        self.cache.delete(cache_key)
+        self._build_pairing_token(pairing_data)
 
-    def _get_pairing_data(self, pairing_code: str) -> dict:
+    def _get_pairing_data(self, cache_key) -> dict:
         """Checking if there's one pairing session for the pairing code.
 
-        :param pairing_code: the six character pairing code
         :return: the pairing code information from the Redis database
         """
-        cache_key = DEVICE_PAIRING_CODE_KEY.format(pairing_code=pairing_code)
         pairing_cache = self.cache.get(cache_key)
         pairing_data = json.loads(pairing_cache)
 
         return pairing_data
 
-    def _add_device(self, device: dict) -> str:
+    def _add_device(self) -> str:
         """Creates a device and associate it to a pairing session.
 
-        :param device: Schematic containing the request data
         :return: the database identifier of the new device
         """
-        geography_id = self._ensure_geography_exists(device)
-        device.update(geography_id=geography_id)
-        device_id = self.device_repository.add(self.account.id, device)
+        self._ensure_geography_exists()
+        device_id = self.device_repository.add(self.account.id, self.validated_request)
 
         return device_id
-
-    def _ensure_geography_exists(self, device: dict) -> str:
-        """If the geography does not exist in the database, add it.
-
-        :param device: attributes of the device
-        :return: database identifier for the geography
-        """
-        geography = Geography(
-            city=device["city"],
-            country=device["country"],
-            region=device["region"],
-            time_zone=device["timezone"],
-        )
-        geography_repository = GeographyRepository(self.db, self.account.id)
-        geography_id = geography_repository.get_geography_id(geography)
-        if geography_id is None:
-            geography_id = geography_repository.add(geography)
-
-        return geography_id
 
     def _build_pairing_token(self, pairing_data: dict):
         """Add a pairing token to the Redis database.
@@ -357,48 +316,77 @@ class DeviceEndpoint(SeleneEndpoint):
         :param device_id: database identifier of a device
         """
         self._authenticate()
-        updates = self._validate_request()
-        self._update_device(device_id, updates)
+        self._validate_request()
+        self._update_device(device_id)
         self.etag_manager.expire_device_etag_by_device_id(device_id)
         self.etag_manager.expire_device_location_etag_by_device_id(device_id)
         self.etag_manager.expire_device_setting_etag_by_device_id(device_id)
 
         return "", HTTPStatus.NO_CONTENT
 
-    def _update_device(self, device_id: str, updates: dict):
+    def _validate_request(self):
+        """Validate the contents of the HTTP POST request."""
+        if self.request.method == "POST":
+            device = NewDeviceRequest(self.request.json)
+        else:
+            device = UpdateDeviceRequest(self.request.json)
+        device.validate()
+        self.validated_request = device.to_native()
+        self.validated_request.update(
+            wake_word=self.validated_request["wake_word"].lower()
+        )
+        if self.validated_request["release_channel"] is not None:
+            self.validated_request.update(
+                release_channel=self.validated_request["release_channel"].lower()
+            )
+        _log.info(self.validated_request["wake_word"])
+
+    def _ensure_geography_exists(self):
+        """If the geography does not exist in the database, add it.
+
+        :return: database identifier for the geography
+        """
+        geography = Geography(
+            city=self.validated_request.pop("city"),
+            country=self.validated_request.pop("country"),
+            region=self.validated_request.pop("region"),
+            time_zone=self.validated_request.pop("timezone"),
+        )
+        geography_repository = GeographyRepository(self.db, self.account.id)
+        geography_id = geography_repository.get_geography_id(geography)
+        if geography_id is None:
+            geography_id = geography_repository.add(geography)
+
+        self.validated_request.update(geography_id=geography_id)
+
+    @use_transaction
+    def _update_device(self, device_id: str):
         """Update the device attributes on the database based on the request.
 
-        :param device_id: database identifier of a device
-        :param updates: The new values of the device attributes
-        """
-        geography_id = self._ensure_geography_exists(updates)
-        updates.update(geography_id=geography_id)
-        pantacor_updates = dict(
-            auto_update=updates.pop("auto_update"),
-            release_channel=updates.pop("release_channel").lower(),
-            ssh_public_key=updates.pop("ssh_public_key"),
-        )
-        self.device_repository.update_device_from_account(
-            self.account.id, device_id, updates
-        )
-        self._update_pantacor_config(device_id, pantacor_updates)
-
-    def _update_pantacor_config(self, device_id: str, updates: dict):
-        """Update the Pantacor configuration on the database based on the request.
+        If the device's continuous delivery is managed by Pantacor, attempt the
+        Pantacor API calls first.  That way, if they fail, the database updates won't
+        happen and we won't get stuck in a half-updated state.
 
         :param device_id: database identifier of a device
-        :param updates: The new values of the pantacor configuration attributes
         """
         device = self.device_repository.get_device_by_id(device_id)
         if device.pantacor_config.pantacor_id is not None:
-            pantacor_update_functions = dict(
-                auto_update=change_pantacor_update_policy,
-                release_channel=change_pantacor_release_channel,
-                ssh_public_key=change_pantacor_ssh_key,
-            )
-            current_config = asdict(device.pantacor_config)
-            for config_name in ("auto_update", "release_channel", "ssh_public_key"):
-                if current_config[config_name] != updates[config_name]:
-                    update_function = pantacor_update_functions[config_name]
-                    update_function(current_config["pantacor_id"], updates[config_name])
-            self.device_repository.update_pantacor_config(device_id, updates)
+            self._update_pantacor_config(device)
+        self._ensure_geography_exists()
+        self.device_repository.update_device_from_account(
+            self.account.id, device_id, self.validated_request
+        )
+
+    def _update_pantacor_config(self, device: Device):
+        """Update the Pantacor configuration on the database based on the request.
+
+        :param device: data object representing a Mycroft-enabled device
+        """
+        new_pantacor_config = dict(
+            auto_update=self.validated_request.pop("auto_update"),
+            release_channel=self.validated_request.pop("release_channel"),
+            ssh_public_key=self.validated_request.pop("ssh_public_key"),
+        )
+        old_pantacor_config = asdict(device.pantacor_config)
+        update_pantacor_config(old_pantacor_config, new_pantacor_config)
+        self.device_repository.update_pantacor_config(device.id, new_pantacor_config)

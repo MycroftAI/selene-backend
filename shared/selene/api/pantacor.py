@@ -91,7 +91,7 @@ def apply_pantacor_update(deployment_id: str):
     _call_pantacor_api("PATCH", endpoint=endpoint)
 
 
-def change_pantacor_update_policy(device_id: str, auto_update: bool):
+def _change_pantacor_update_policy(device_id: str, auto_update: bool):
     """Use the API to change the update policy of the device.
 
     :param device_id: Pantacor device ID
@@ -102,7 +102,7 @@ def change_pantacor_update_policy(device_id: str, auto_update: bool):
     _call_pantacor_api("PATCH", endpoint="devices/" + device_id, data=data)
 
 
-def change_pantacor_release_channel(device_id: str, release_channel: str):
+def _change_pantacor_release_channel(device_id: str, release_channel: str):
     """Use the API to change the release channel the device is subscribed to.
 
     We know the names of the release channels, but not their IDs.  Make an extra
@@ -124,7 +124,7 @@ def change_pantacor_release_channel(device_id: str, release_channel: str):
     _call_pantacor_api("PATCH", endpoint="devices/" + device_id, data=data)
 
 
-def change_pantacor_ssh_key(device_id: str, ssh_key: str):
+def _change_pantacor_ssh_key(device_id: str, ssh_key: str):
     """Use the API to change the SSH key used to login to the device remotely.
 
     :param device_id: Pantacor device ID
@@ -165,3 +165,20 @@ def _call_pantacor_api(method: str, endpoint: str, **kwargs):
         )
 
     return response_data
+
+
+def update_pantacor_config(old_config: dict, new_config: dict):
+    """Make calls to the Pantacor API to update any values that have changed.
+
+    :param old_config: the config values before the update.
+    :param new_config: the new config values (which may be the same as the old values)
+    """
+    for config_name, new_value in new_config.items():
+        old_value = old_config[config_name]
+        if old_value != new_value:
+            if config_name == "auto_update":
+                _change_pantacor_update_policy(old_config["pantacor_id"], new_value)
+            elif config_name == "release_channel":
+                _change_pantacor_release_channel(old_config["pantacor_id"], new_value)
+            elif config_name == "ssh_public_key":
+                _change_pantacor_ssh_key(old_config["pantacor_id"], new_value)
