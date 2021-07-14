@@ -73,15 +73,15 @@ wget http://download.geonames.org/export/dump/timeZones.txt
 wget http://download.geonames.org/export/dump/admin1CodesASCII.txt
 wget http://download.geonames.org/export/dump/cities500.zip
 ```
-* Generate secure passwords for the postgres user and selene user on the database
-```
-sudo -u postgres psql -c "ALTER USER postgres PASSWORD '<new password>'"
-sudo -u postgres psql -c "CREATE ROLE selene WITH LOGIN ENCRYPTED PASSWORD '<password>'"
-```
 * Add environment variables containing these passwords for the bootstrap script
 ```
 export DB_PASSWORD=<selene user password>
 export POSTGRES_PASSWORD=<postgres user password>
+```
+* Generate secure passwords for the postgres user and selene user on the database
+```
+sudo -u postgres psql -c "ALTER USER postgres PASSWORD '$POSTGRES_PASSWORD'"
+sudo -u postgres psql -c "CREATE ROLE selene WITH LOGIN ENCRYPTED PASSWORD '$DB_PASSWORD'"
 ```
 * Run the bootstrap script
 ```
