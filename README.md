@@ -42,7 +42,7 @@ manual steps in this section that will eventually be replaced with an installati
 All Selene applications are time zone agnostic.  It is recommended that the time zone on any server running Selene be UTC.
 
 ## Postgres DB
-* Recommended server configuration: Ubuntu 18.04 LTS, 2 CPU, 4GB RAM, 50GB disk.
+* Recommended server configuration: [Ubuntu 18.04 LTS (server install)](https://releases.ubuntu.com/bionic/), 2 CPU, 4GB RAM, 50GB disk.
 * Use the package management system to install Python 3.7, Python 3 pip and PostgreSQL 10  
 ```
 sudo apt-get install postgresql python3.7 python python3-pip
