@@ -121,7 +121,7 @@ sudo systemctl restart postgresql
 * Recommended server configuration: Ubuntu 18.04 LTS, 1 CPU, 1GB RAM, 5GB disk.
 So as to not reinvent the wheel, here are some easy-to-follow instructions for 
 [installing Redis on Ubuntu 18.04](https://www.digitalocean.com/community/tutorials/how-to-install-and-secure-redis-on-ubuntu-18-04).
-* By default, Redis only listens for One additional step is to change the "bind" variable in /etc/redis/redis.conf to be the private IP of the Redis host.
+* By default, Redis only listens on local host. For multi-server setups, one additional step is to change the "bind" variable in `/etc/redis/redis.conf` to be the private IP of the Redis host.
 ## APIs
 The majority of the setup for each API is the same.  This section defines the steps common to all APIs. Steps specific
 to each API will be defined in their respective sections.
