@@ -176,6 +176,13 @@ pipenv install
 cd /opt/selene/selene-backend/api/public
 pipenv install
 ```
+## Precise API
+* Recommended server configuration: Ubuntu 18.04 LTS, 1 CPU, 1GB RAM, 5GB disk
+* Create the virtual environment and install the requirements for the application
+```
+cd /opt/selene/selene-backend/api/precise
+pipenv install
+```
 # Running the APIs
 Each API is configured to run on port 5000.  This is not a problem if each is running in its own VM but will be an
 issue if all APIs are running on the same server, or if port 5000 is already in use.  To address these scenarios, 
