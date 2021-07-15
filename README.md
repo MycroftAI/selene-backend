@@ -397,6 +397,38 @@ sudo systemctl start public_api.service
 sudo systemctl enable public_api.service
 ```
 
+### Testing the endpoints
+
+Before we continue, let's make sure that your endpoints are operational - for this we'll use the `public_api` endpoint as an example.
+
+1. As we do not yet have a http router configured, we must change the `uwsgi` configuration for the endpoint we want to test. This is contained in: `/opt/selene/selene-backend/api/public/uwsgi.ini`. Here we want to replace
+    ```
+    socket = :$PORT
+    ```
+    with
+    ```
+    http = :$PORT
+    ```
+    then restart the service:
+    ```
+    sudo systemctl restart public_api.service
+    ```
+
+2. Check the status of the systemd service:
+    ```
+    systemctl status public_api.service
+    ```
+    Should report the service as "active (running)"
+
+3. Send a GET request from a remote device:
+    ```
+    curl -v http://$IP_ADDRESS:$PORT/code?state=this-is-a-test
+    ```
+    You can also monitor this from the service logs by running:
+    ```
+    journalctl -u public_api.service -f
+    ```
+
 ## Other Considerations
 ### DNS
 There are multiple ways to setup DNS.  This document will not dictate how to do so for Selene.  However, here is an 
