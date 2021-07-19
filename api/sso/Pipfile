@@ -6,7 +6,6 @@ name = "pypi"
 [packages]
 flask = "*"
 certifi = "*"
-pyjwt = "<=1.7.1"
 selene = {editable = true,path = "./../../shared"}
 uwsgi = "*"
 
