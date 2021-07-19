@@ -39,6 +39,7 @@ from .endpoints import (
     SkillOauthEndpoint,
     SkillSettingsEndpoint,
     SoftwareUpdateEndpoint,
+    SshKeyValidatorEndpoint,
     TimezoneEndpoint,
     VoiceEndpoint,
     WakeWordEndpoint,
@@ -100,10 +101,10 @@ acct.add_url_rule("/api/geographies", view_func=geography_endpoint, methods=["GE
 membership_endpoint = MembershipEndpoint.as_view("membership_endpoint")
 acct.add_url_rule("/api/memberships", view_func=membership_endpoint, methods=["GET"])
 
-pairing_code_endpoint = PairingCodeEndpoint.as_view("pairing_code_endpoint")
+ssh_key_validation_endpoint = PairingCodeEndpoint.as_view("pairing_code_endpoint")
 acct.add_url_rule(
     "/api/pairing-code/<string:pairing_code>",
-    view_func=pairing_code_endpoint,
+    view_func=ssh_key_validation_endpoint,
     methods=["GET"],
 )
 
@@ -133,6 +134,15 @@ acct.add_url_rule(
 software_update_endpoint = SoftwareUpdateEndpoint.as_view("software_update_endpoint")
 acct.add_url_rule(
     "/api/software-update", view_func=software_update_endpoint, methods=["PATCH"]
+)
+
+ssh_key_validation_endpoint = SshKeyValidatorEndpoint.as_view(
+    "ssh_key_validation_endpoint"
+)
+acct.add_url_rule(
+    "/api/ssh-key/<string:ssh_key>",
+    view_func=ssh_key_validation_endpoint,
+    methods=["GET"],
 )
 
 timezone_endpoint = TimezoneEndpoint.as_view("timezone_endpoint")

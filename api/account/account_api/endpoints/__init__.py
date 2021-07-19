@@ -32,6 +32,7 @@ from .skills import SkillsEndpoint
 from .skill_oauth import SkillOauthEndpoint
 from .skill_settings import SkillSettingsEndpoint
 from .software_update import SoftwareUpdateEndpoint
+from .ssh_key_validator import SshKeyValidatorEndpoint
 from .timezone import TimezoneEndpoint
 from .voice_endpoint import VoiceEndpoint
 from .wake_word_endpoint import WakeWordEndpoint

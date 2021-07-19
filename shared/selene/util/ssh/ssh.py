@@ -17,13 +17,17 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 """Library for re-usable SFTP functions"""
-
+from base64 import b64decode
 from dataclasses import dataclass
 from logging import getLogger
 from pathlib import Path
+from struct import unpack
 
 from paramiko import AutoAddPolicy, RSAKey, SSHClient
 from paramiko.auth_handler import AuthenticationException, SSHException
+
+BIG_ENDIAN_UNSIGNED_INT = ">I"
+INTEGER_BYTES = 4
 
 _log = getLogger(__package__)
 
@@ -101,3 +105,32 @@ class SeleneSshClient:
     def disconnect(self):
         """Close ssh connection."""
         self.client.close()
+
+
+def validate_rsa_public_key(public_key: str) -> bool:
+    """Check the specified public key to determine if it is a well-formed RSA key.
+
+    According to the the specification, the first part of the key is a length-prefixed
+    string. The length is packed as a big-endian unsigned integer.  The expected value
+    is 7 because the following string, 'ssh-rsa', is 7 bytes long.
+
+    :param public_key: key to validate
+    :return: boolean indicating if validation check passed.
+    """
+    is_valid = False
+    public_key_parts = public_key.split()
+    if len(public_key_parts) == 3:
+        key_type, key, _ = public_key.split()
+        decoded_key = b64decode(key)
+        try:
+            unpack_result = unpack(BIG_ENDIAN_UNSIGNED_INT, decoded_key[:INTEGER_BYTES])
+        except Exception:
+            _log.exception("Failed to unpack first four bytes of public key")
+        else:
+            length_of_subsequent_string = unpack_result[0]
+            if length_of_subsequent_string == 7:
+                is_valid = decoded_key[4:11].decode() == key_type
+    else:
+        _log.error("Public key malformed")
+
+    return is_valid
