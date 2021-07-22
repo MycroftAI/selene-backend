@@ -101,10 +101,10 @@ acct.add_url_rule("/api/geographies", view_func=geography_endpoint, methods=["GE
 membership_endpoint = MembershipEndpoint.as_view("membership_endpoint")
 acct.add_url_rule("/api/memberships", view_func=membership_endpoint, methods=["GET"])
 
-ssh_key_validation_endpoint = PairingCodeEndpoint.as_view("pairing_code_endpoint")
+pairing_code_endpoint = PairingCodeEndpoint.as_view("pairing_code_endpoint")
 acct.add_url_rule(
     "/api/pairing-code/<string:pairing_code>",
-    view_func=ssh_key_validation_endpoint,
+    view_func=pairing_code_endpoint,
     methods=["GET"],
 )
 
