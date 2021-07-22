@@ -27,7 +27,7 @@ from hamcrest import assert_that, equal_to
 from selene.testing.device import add_device, add_pantacor_config
 
 
-@given("a device using Pantacor with manual updates enabled")
+@given("a device using Pantacor for continuous delivery")
 def add_pantacor_device(context):
     """Add a device with a Pantacor config and software update set to manual."""
     context.device_id = add_device(
@@ -63,6 +63,23 @@ def apply_software_update(context):
     context.response = response
 
 
+@when("the user enters a malformed RSA SSH key")
+def validate_invalid_ssh_key(context):
+    """Make an API call to check the validity of a RSA SSH key."""
+    response = context.client.get("/api/ssh-key/foo", content_type="application/json")
+    context.response = response
+
+
+@when("the user enters a well formed RSA SSH key")
+def validate_valid_ssh_key(context):
+    """Make an API call to check the validity of a RSA SSH key."""
+    response = context.client.get(
+        "/api/ssh-key/ssh-rsa%20AAAAB3NzaC1yc2EAAAADAQABAAACAQDEwmtmRho==%20foo",
+        content_type="application/json",
+    )
+    context.response = response
+
+
 @when("the user requests to view the device")
 def get_device(context):
     """Make an API call to get device data, including a software update ID.
@@ -87,3 +104,17 @@ def check_for_deployment_id(context):
     """Check the response of the device query to ensure the update ID is populated."""
     device_attributes = context.response.json
     assert_that(device_attributes["pantacorUpdateId"], equal_to("test_deployment_id"))
+
+
+@then("the response indicates that the SSH key is malformed")
+def check_for_malformed_ssh_key(context):
+    """Ensure the response indicates the SSH key passed on the URL is invalid"""
+    response = context.response
+    assert_that(response.json, equal_to(dict(isValid=False)))
+
+
+@then("the response indicates that the SSH key is properly formatted")
+def check_for_well_formed_ssh_key(context):
+    """Ensure the response indicates the SSH key passed on the URL is valid"""
+    response = context.response
+    assert_that(response.json, equal_to(dict(isValid=True)))
