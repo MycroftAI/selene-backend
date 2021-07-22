@@ -339,10 +339,9 @@ class DeviceEndpoint(SeleneEndpoint):
             self.validated_request.update(
                 release_channel=self.validated_request["release_channel"].lower()
             )
-        _log.info(self.validated_request["wake_word"])
 
     def _ensure_geography_exists(self):
-        """If the geography does not exist in the database, add it.
+        """If the requested geography is not linked to the account, add it.
 
         :return: database identifier for the geography
         """
