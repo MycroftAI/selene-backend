@@ -341,7 +341,7 @@ class DeviceEndpoint(SeleneEndpoint):
             )
 
     def _ensure_geography_exists(self):
-        """If the geography does not exist in the database, add it.
+        """If the requested geography is not linked to the account, add it.
 
         :return: database identifier for the geography
         """
