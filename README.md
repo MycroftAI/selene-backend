@@ -145,28 +145,28 @@ git clone https://github.com/MycroftAI/selene-backend.git
 Recommended server configuration: Ubuntu 18.04 LTS, 1 CPU, 1GB RAM, 5GB disk
 * Create the virtual environment and install the requirements for the application
 ```
-cd /opt/selene/selene-backend/sso
+cd /opt/selene/selene-backend/api/sso
 pipenv install
 ```
 ## Account API
 * Recommended server configuration: Ubuntu 18.04 LTS, 1 CPU, 1GB RAM, 5GB disk
 * Create the virtual environment and install the requirements for the application
 ```
-cd /opt/selene/selene-backend/account
+cd /opt/selene/selene-backend/api/account
 pipenv install
 ```
 ## Marketplace API
 * Recommended server configuration: Ubuntu 18.04 LTS, 1 CPU, 1GB RAM, 10GB disk
 * Create the virtual environment and install the requirements for the application
 ```
-cd /opt/selene/selene-backend/market
+cd /opt/selene/selene-backend/api/market
 pipenv install
 ```
 ## Device API
 * Recommended server configuration: Ubuntu 18.04 LTS, 2 CPU, 2GB RAM, 50GB disk
 * Create the virtual environment and install the requirements for the application
 ```
-cd /opt/selene/selene-backend/public
+cd /opt/selene/selene-backend/api/public
 pipenv install
 ```
 # Running the APIs
