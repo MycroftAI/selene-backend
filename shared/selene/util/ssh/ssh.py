@@ -22,6 +22,7 @@ from dataclasses import dataclass
 from logging import getLogger
 from pathlib import Path
 from struct import unpack
+from typing import Tuple
 
 from paramiko import AutoAddPolicy, RSAKey, SSHClient
 from paramiko.auth_handler import AuthenticationException, SSHException
@@ -118,9 +119,8 @@ def validate_rsa_public_key(public_key: str) -> bool:
     :return: boolean indicating if validation check passed.
     """
     is_valid = False
-    public_key_parts = public_key.split()
-    if len(public_key_parts) == 3:
-        key_type, key, _ = public_key.split()
+    key_type, key = _parse_public_key(public_key)
+    if key_type is not None and key is not None:
         decoded_key = b64decode(key)
         try:
             unpack_result = unpack(BIG_ENDIAN_UNSIGNED_INT, decoded_key[:INTEGER_BYTES])
@@ -130,7 +130,26 @@ def validate_rsa_public_key(public_key: str) -> bool:
             length_of_subsequent_string = unpack_result[0]
             if length_of_subsequent_string == 7:
                 is_valid = decoded_key[4:11].decode() == key_type
+
+    return is_valid
+
+
+def _parse_public_key(public_key: str) -> Tuple[str, str]:
+    """Assign the parts of the public key to variables.
+
+    An RSA key can have a comment at the end of it or not.  Both ways are valid.
+
+    :param public_key: key to validate
+    :return: they key type (e.g. ssh-rsa) and the key value
+    """
+    key_type = None
+    key = None
+    public_key_parts = public_key.split()
+    if len(public_key_parts) == 3:
+        key_type, key, _ = public_key.split()
+    elif len(public_key_parts) == 2:
+        key_type, key = public_key.split()
     else:
         _log.error("Public key malformed")
 
-    return is_valid
+    return key_type, key
