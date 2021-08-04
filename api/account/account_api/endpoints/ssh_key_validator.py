@@ -1,5 +1,5 @@
 # Mycroft Server - Backend
-# Copyright (C) 2020 Mycroft AI Inc
+# Copyright (C) 2021 Mycroft AI Inc
 # SPDX-License-Identifier: 	AGPL-3.0-or-later
 #
 # This file is part of the Mycroft Server.
@@ -16,6 +16,20 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-"""Public API into the ssh package."""
-from .sftp import get_remote_file
-from .ssh import SshClientConfig, validate_rsa_public_key
+"""Endpoint to validate the contents of the SSH public key."""
+
+from http import HTTPStatus
+
+from selene.api import SeleneEndpoint
+from selene.util.ssh import validate_rsa_public_key
+
+
+class SshKeyValidatorEndpoint(SeleneEndpoint):
+    """Validate the contents of an SSH public key."""
+
+    def get(self, ssh_key):
+        """Handle and HTTP GET request."""
+        self._authenticate()
+        ssh_key_is_valid = validate_rsa_public_key(ssh_key)
+
+        return dict(isValid=ssh_key_is_valid), HTTPStatus.OK
