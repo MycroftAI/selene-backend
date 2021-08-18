@@ -66,7 +66,9 @@ def apply_software_update(context):
 @when("the user enters a malformed RSA SSH key")
 def validate_invalid_ssh_key(context):
     """Make an API call to check the validity of a RSA SSH key."""
-    response = context.client.get("/api/ssh-key/foo", content_type="application/json")
+    response = context.client.get(
+        "/api/ssh-key?key=foo", content_type="application/json"
+    )
     context.response = response
 
 
@@ -74,7 +76,7 @@ def validate_invalid_ssh_key(context):
 def validate_valid_ssh_key(context):
     """Make an API call to check the validity of a RSA SSH key."""
     response = context.client.get(
-        "/api/ssh-key/ssh-rsa%20AAAAB3NzaC1yc2EAAAADAQABAAACAQDEwmtmRho==%20foo",
+        "/api/ssh-key?key=ssh-rsa%20AAAAB3NzaC1yc2EAAAADAQABAAACAQDEwmtmRho==%20foo",
         content_type="application/json",
     )
     context.response = response

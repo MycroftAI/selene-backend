@@ -19,10 +19,18 @@ Feature: Interact with the Pantacor API
     When the user selects to apply the update
     Then the request will be successful
 
-  Scenario: User enters invalid SSH key
+  Scenario: User enters a valid SSH key
     Given an account
     And the account is authenticated
     And a device using Pantacor for continuous delivery
     When the user enters a well formed RSA SSH key
     Then the request will be successful
     And the response indicates that the SSH key is properly formatted
+
+  Scenario: User enters an invalid SSH key
+    Given an account
+    And the account is authenticated
+    And a device using Pantacor for continuous delivery
+    When the user enters a malformed RSA SSH key
+    Then the request will be successful
+    And the response indicates that the SSH key is malformed

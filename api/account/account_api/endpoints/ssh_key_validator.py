@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 """Endpoint to validate the contents of the SSH public key."""
-
+from urllib.parse import unquote_plus
 from http import HTTPStatus
 
 from selene.api import SeleneEndpoint
@@ -27,9 +27,14 @@ from selene.util.ssh import validate_rsa_public_key
 class SshKeyValidatorEndpoint(SeleneEndpoint):
     """Validate the contents of an SSH public key."""
 
-    def get(self, ssh_key):
-        """Handle and HTTP GET request."""
+    def get(self):
+        """Handle and HTTP GET request.
+
+        The SSH key is encoded in the UI because it can contain characters that are
+        reserved for URL delimiting.
+        """
         self._authenticate()
-        ssh_key_is_valid = validate_rsa_public_key(ssh_key)
+        decoded_ssh_key = unquote_plus(self.request.args["key"])
+        ssh_key_is_valid = validate_rsa_public_key(decoded_ssh_key)
 
         return dict(isValid=ssh_key_is_valid), HTTPStatus.OK

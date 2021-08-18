@@ -140,9 +140,7 @@ ssh_key_validation_endpoint = SshKeyValidatorEndpoint.as_view(
     "ssh_key_validation_endpoint"
 )
 acct.add_url_rule(
-    "/api/ssh-key/<string:ssh_key>",
-    view_func=ssh_key_validation_endpoint,
-    methods=["GET"],
+    "/api/ssh-key", view_func=ssh_key_validation_endpoint, methods=["GET"],
 )
 
 timezone_endpoint = TimezoneEndpoint.as_view("timezone_endpoint")
