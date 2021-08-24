@@ -41,6 +41,8 @@ manual steps in this section that will eventually be replaced with an installati
 
 All Selene applications are time zone agnostic.  It is recommended that the time zone on any server running Selene be UTC.
 
+It is recommended to create an application specific user. In these instructions this user will be `mycroft`.
+
 ### Postgres DB
 * Recommended server configuration: [Ubuntu 18.04 LTS (server install)](https://releases.ubuntu.com/bionic/), 2 CPU, 4GB RAM, 50GB disk.
 * Use the package management system to install Python 3.7, Python 3 pip and PostgreSQL 10  
@@ -54,7 +56,7 @@ sudo systemctl enable postgresql
 * Clone the selene-backend and documentation repositories
 ```
 sudo mkdir -p /opt/selene
-sudo chown -R $USER:users /opt/selene
+sudo chown -R mycroft:users /opt/selene
 cd /opt/selene
 git clone https://github.com/MycroftAI/selene-backend.git
 ```
@@ -139,12 +141,12 @@ sudo python3.7 -m pip install pipenv
 * Setup the Backend Application Directory
 ```
 sudo mkdir -p /opt/selene
-sudo chown -R $USER:users /opt/selene
+sudo chown -R mycroft:users /opt/selene
 ```
 * Setup the Log Directory
 ```
 sudo mkdir -p /var/log/mycroft
-sudo chown -R $USER:users /var/log/mycroft
+sudo chown -R mycroft:users /var/log/mycroft
 ```
 * Clone the Selene Backend Repository
 ```
