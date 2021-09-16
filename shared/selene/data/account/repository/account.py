@@ -152,8 +152,13 @@ class AccountRepository(RepositoryBase):
                     **result["account"]["membership"]
                 )
             if result["account"]["last_activity"] is not None:
+                no_milliseconds = len(result["account"]["last_activity"]) == 19
+                if no_milliseconds:
+                    parse_string = "%Y-%m-%dT%H:%M:%S"
+                else:
+                    parse_string = "%Y-%m-%dT%H:%M:%S.%f"
                 result["account"]["last_activity"] = datetime.strptime(
-                    result["account"]["last_activity"], "%Y-%m-%dT%H:%M:%S.%f"
+                    result["account"]["last_activity"], parse_string
                 )
             account = Account(**result["account"])
 
