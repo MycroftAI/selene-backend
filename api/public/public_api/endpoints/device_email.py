@@ -56,7 +56,7 @@ class DeviceEmailEndpoint(PublicEndpoint):
         """Send an email to the account that owns the device that requested it."""
         message = EmailMessage(
             recipient=account.email_address,
-            sender=self.request.json["sender"],
+            sender="reports@mycroft.ai",
             subject=self.request.json["title"],
             body=self.request.json["body"],
         )
