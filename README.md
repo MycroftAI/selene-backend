@@ -24,7 +24,7 @@ Each API is designed to run independently of the others. Code common to each of 
 can be found in the "shared" directory.  The shared code is an independent Python package required by each of the APIs. 
 Each API has its own Pipfile so that it can be run in its own virtual environment. 
 
-# Installation
+## Installation
 The Python code utilizes features introduced in Python 3.7, such as data classes. 
 [Pipenv](https://pipenv.readthedocs.io/en/latest/) is used for virtual environment and package management.
 If you prefer to use pip and pyenv (or virtualenv), you can find the required libraries in the files named "Pipfile".
@@ -41,16 +41,18 @@ manual steps in this section that will eventually be replaced with an installati
 
 All Selene applications are time zone agnostic.  It is recommended that the time zone on any server running Selene be UTC.
 
-## Postgres DB
-* Recommended server configuration: Ubuntu 18.04 LTS, 2 CPU, 4GB RAM, 50GB disk.
+It is recommended to create an application specific user. In these instructions this user will be `mycroft`.
+
+### Postgres DB
+* Recommended server configuration: [Ubuntu 18.04 LTS (server install)](https://releases.ubuntu.com/bionic/), 2 CPU, 4GB RAM, 50GB disk.
 * Use the package management system to install Python 3.7, Python 3 pip and PostgreSQL 10  
 ```
 sudo apt-get install postgresql python3.7 python python3-pip
 ```
 * Set Postgres to start on boot  
-```
+``` 
 sudo systemctl enable postgresql
-```
+``` 
 * Clone the selene-backend and documentation repositories
 ```
 sudo mkdir -p /opt/selene
@@ -73,21 +75,28 @@ wget http://download.geonames.org/export/dump/timeZones.txt
 wget http://download.geonames.org/export/dump/admin1CodesASCII.txt
 wget http://download.geonames.org/export/dump/cities500.zip
 ```
-* Generate secure passwords for the postgres user and selene user on the database
-```
-sudo -u postgres psql -c "ALTER USER postgres PASSWORD '<new password>'"
-sudo -u postgres psql -c "CREATE ROLE selene WITH LOGIN ENCRYPTED PASSWORD '<password>'"
-```
 * Add environment variables containing these passwords for the bootstrap script
 ```
 export DB_PASSWORD=<selene user password>
 export POSTGRES_PASSWORD=<postgres user password>
+```
+* Generate secure passwords for the postgres user and selene user on the database
+```
+sudo -u postgres psql -c "ALTER USER postgres PASSWORD '$POSTGRES_PASSWORD'"
+sudo -u postgres psql -c "CREATE ROLE selene WITH LOGIN ENCRYPTED PASSWORD '$DB_PASSWORD'"
 ```
 * Run the bootstrap script
 ```
 cd /opt/selene/selene-backend/db/scripts
 pipenv run python bootstrap_mycroft_db.py
 ```
+  * Note: if you get an authentication error you can temporarily edit `/etc/postgresql/<version>/main/pg_hba.conf` replacing the following lines:
+  ```
+  # "local" is for Unix domain socket connections only
+  local   all             all                                     trust
+  # IPv4 local connections:
+  host    all             all             127.0.0.1/32            trust
+  ```
 * By default, Postgres only listens on localhost.  This will not do for a multi-server setup.  Change the 
 `listen_addresses` value in the `posgresql.conf` file to the private IP of the database server.  This file is owned by
 the `postgres` user so use the following command to edit it (substituting vi for your favorite editor)
@@ -110,12 +119,16 @@ host    mycroft         selene          <private IP address>/32          md5
 ```
 sudo systemctl restart postgresql
 ```
-## Redis DB
+
+### Redis DB
+
 * Recommended server configuration: Ubuntu 18.04 LTS, 1 CPU, 1GB RAM, 5GB disk.
 So as to not reinvent the wheel, here are some easy-to-follow instructions for 
 [installing Redis on Ubuntu 18.04](https://www.digitalocean.com/community/tutorials/how-to-install-and-secure-redis-on-ubuntu-18-04).
-* By default, Redis only listens for One additional step is to change the "bind" variable in /etc/redis/redis.conf to be the private IP of the Redis host.
-## APIs
+* By default, Redis only listens on local host. For multi-server setups, one additional step is to change the "bind" variable in `/etc/redis/redis.conf` to be the private IP of the Redis host.
+
+### APIs
+
 The majority of the setup for each API is the same.  This section defines the steps common to all APIs. Steps specific
 to each API will be defined in their respective sections.
 * Add an application user to the VM. Either give this user sudo privileges or execute the sudo commands below as a user
@@ -141,39 +154,52 @@ cd /opt/selene
 git clone https://github.com/MycroftAI/selene-backend.git
 ```
 * If running in a test environment, be sure to checkout the "test" branch of the repository
-## Single Sign On API
+
+#### Single Sign On API
 Recommended server configuration: Ubuntu 18.04 LTS, 1 CPU, 1GB RAM, 5GB disk
 * Create the virtual environment and install the requirements for the application
 ```
 cd /opt/selene/selene-backend/api/sso
 pipenv install
 ```
-## Account API
+
+#### Account API
 * Recommended server configuration: Ubuntu 18.04 LTS, 1 CPU, 1GB RAM, 5GB disk
 * Create the virtual environment and install the requirements for the application
 ```
 cd /opt/selene/selene-backend/api/account
 pipenv install
 ```
-## Marketplace API
+
+#### Marketplace API
 * Recommended server configuration: Ubuntu 18.04 LTS, 1 CPU, 1GB RAM, 10GB disk
 * Create the virtual environment and install the requirements for the application
 ```
 cd /opt/selene/selene-backend/api/market
 pipenv install
 ```
-## Device API
+
+#### Device API
 * Recommended server configuration: Ubuntu 18.04 LTS, 2 CPU, 2GB RAM, 50GB disk
 * Create the virtual environment and install the requirements for the application
 ```
 cd /opt/selene/selene-backend/api/public
 pipenv install
 ```
-# Running the APIs
+
+#### Precise API
+* Recommended server configuration: Ubuntu 18.04 LTS, 1 CPU, 1GB RAM, 5GB disk
+* Create the virtual environment and install the requirements for the application
+```
+cd /opt/selene/selene-backend/api/precise
+pipenv install
+```
+### Running the APIs
 Each API is configured to run on port 5000.  This is not a problem if each is running in its own VM but will be an
 issue if all APIs are running on the same server, or if port 5000 is already in use.  To address these scenarios, 
 change the port numbering in the uwsgi.ini file for each API.
-## Single Sign On API
+
+#### Single Sign On API
 * The SSO application uses three JWTs for authentication. First is an access key, which is required to authenticate a
 user for API calls.  Second is a refresh key that automatically refreshes the access key when it expires.  Third is a
 reset key, which is used in a password reset scenario.  Generate a secret key for each JWT.
@@ -222,7 +248,8 @@ WantedBy=multi-user.target
 sudo systemctl start sso_api.service
 sudo systemctl enable sso_api.service
 ```
-## Account API
+
+#### Account API
 * The account API uses the same authentication mechanism as the single sign on API.  The JWT_ACCESS_SECRET, 
 JWT_REFRESH_SECRET and SALT environment variables must be the same values as those on the single sign on API.
 * This application uses the Redis database so the service needs to know where it resides.
@@ -264,7 +291,8 @@ WantedBy=multi-user.target
 sudo systemctl start account_api.service
 sudo systemctl enable account_api.service
 ```
-## Marketplace API
+
+#### Marketplace API
 * The marketplace API uses the same authentication mechanism as the single sign on API.  The JWT_ACCESS_SECRET, 
 JWT_REFRESH_SECRET and SALT environment variables must be the same values as those on the single sign on API.
 * This application uses the Redis database so the service needs to know where it resides.
@@ -316,7 +344,7 @@ pipenv install
 pipenv run python load_skill_display_data.py --core-version <specify core version, e.g. 19.02>
 ```
 
-## Device API
+#### Device API
 * The device API uses the same authentication mechanism as the single sign on API.  The JWT_ACCESS_SECRET, 
 JWT_REFRESH_SECRET and SALT environment variables must be the same values as those on the single sign on API.
 * This application uses the Redis database so the service needs to know where it resides.
@@ -370,6 +398,39 @@ WantedBy=multi-user.target
 sudo systemctl start public_api.service
 sudo systemctl enable public_api.service
 ```
+
+### Testing the endpoints
+
+Before we continue, let's make sure that your endpoints are operational - for this we'll use the `public_api` endpoint as an example.
+
+1. As we do not yet have a http router configured, we must change the `uwsgi` configuration for the endpoint we want to test. This is contained in: `/opt/selene/selene-backend/api/public/uwsgi.ini`. Here we want to replace
+    ```
+    socket = :$PORT
+    ```
+    with
+    ```
+    http = :$PORT
+    ```
+    then restart the service:
+    ```
+    sudo systemctl restart public_api.service
+    ```
+
+2. Check the status of the systemd service:
+    ```
+    systemctl status public_api.service
+    ```
+    Should report the service as "active (running)"
+
+3. Send a GET request from a remote device:
+    ```
+    curl -v http://$IP_ADDRESS:$PORT/code?state=this-is-a-test
+    ```
+    You can also monitor this from the service logs by running:
+    ```
+    journalctl -u public_api.service -f
+    ```
+
 ## Other Considerations
 ### DNS
 There are multiple ways to setup DNS.  This document will not dictate how to do so for Selene.  However, here is an 
@@ -385,24 +446,23 @@ The APIs that support the web applications are directories within the sub-domain
 the device API is externally facing, it is versioned.  It's subdirectory must be "v1".
 
 ### Reverse Proxy
-There are multiple tools available for setting up a reverse proxy that will point your DNS entries to your APIs.
-As such, the decision on how to set this up will be left to the user.
+There are multiple tools available for setting up a reverse proxy that will point your DNS entries to your APIs. As such, the decision on how to set this up will be left to the user.
 
 ### SSL
 It is recommended that Selene applications be run using HTTPS.  To do this an SSL certificate is necessary.  
+
 [Let's Encrypt](https://letsencrypt.org) is a great way to easily set up SSL certificates for free.
 
-
-# What About the GUI???
+## What About the GUI???
 Once the database and API setup is complete, the next step is to setup the GUI, The README file for the 
 [Selene UI](https://github.com/mycroftai/selene-ui) repository contains the instructions for setting up the web 
 applications.
 
-# Getting Involved
+## Getting Involved
 
 This is an open source project and we would love your help. We have prepared a [contributing](.github/CONTRIBUTING.md) 
 guide to help you get started.
 
 If this is your first PR or you're not sure where to get started,
-say hi in [Mycroft Chat](https://chat.mycroft.ai/) and a team member would be happy to mentor you.
+say hi in [Mycroft Chat](https://chat.mycroft.ai/) and a team member would be happy to guide you.
 Join the [Mycroft Forum](https://community.mycroft.ai/) for questions and answers.
