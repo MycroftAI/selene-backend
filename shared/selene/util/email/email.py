@@ -23,6 +23,7 @@ from os import environ
 from pathlib import Path
 
 from jinja2 import Template
+from python_http_client import HTTPError
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Content, Mail
 
@@ -65,15 +66,13 @@ class SeleneMailer:
             subject=self.message.subject,
             html_content=self._build_content(using_jinja),
         )
-        response = self.mailer.client.mail.send.post(request_body=message.get())
-
-        if response.status_code < 300:
-            _log.info("Email sent successfully")
+        try:
+            self.mailer.client.mail.send.post(request_body=message.get())
+        except HTTPError as exc:
+            _log.exception("Email failed to send: {}".format(exc.to_dict))
+            raise
         else:
-            _log.error(
-                "Email failed to send.  Status code: {}  "
-                "Status message: {}".format(response.status_code, response.body)
-            )
+            _log.info("Email sent successfully")
 
     def _build_content(self, using_jinja) -> Content:
         """Build the content of the email from a template or a predefined body."""
