@@ -33,6 +33,16 @@ def send_question(context):
     )
 
 
+@when("a question is sent to the wolfram alpha simple endpoint")
+def send_question(context):
+    login = context.device_login
+    access_token = login["accessToken"]
+    context.wolfram_response = context.client.get(
+        "/v1/wolframAlphaSimple?i=What+airplanes+are+flying+overhead%3F&background=F5F5F5&foreground=white&fontsize=16&width=400&units=Metric",
+        headers=dict(Authorization="Bearer {token}".format(token=access_token)),
+    )
+
+
 @when("a question is sent to the wolfram alpha spoken endpoint")
 def send_question(context):
     login = context.device_login

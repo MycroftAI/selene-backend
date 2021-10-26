@@ -11,6 +11,11 @@ Feature: Integration with Wolfram Alpha API
     And the account's last activity time is updated
     And the account activity metrics will be updated
 
+  Scenario: Question sent to the wolfram alpha simple endpoint
+    When a question is sent to the wolfram alpha simple endpoint
+    Then the answer provided by Wolfram Alpha is returned
+    And the device's last contact time is updated
+
   Scenario: Question sent to the wolfram alpha spoken endpoint
     When a question is sent to the wolfram alpha spoken endpoint
     Then the answer provided by Wolfram Alpha is returned
