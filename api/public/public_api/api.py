@@ -49,6 +49,7 @@ from .endpoints.stripe_webhook import StripeWebHookEndpoint
 from .endpoints.wake_word_file import WakeWordFileUpload
 from .endpoints.wolfram_alpha import WolframAlphaEndpoint
 from .endpoints.wolfram_alpha_spoken import WolframAlphaSpokenEndpoint
+from .endpoints.wolfram_alpha_v2 import WolframAlphaV2Endpoint
 
 _log = configure_logger("public_api")
 
@@ -139,6 +140,11 @@ public.add_url_rule(
 public.add_url_rule(
     "/v1/wolframAlphaSpoken",
     view_func=WolframAlphaSpokenEndpoint.as_view("wolfram_alpha_spoken_api"),
+    methods=["GET"],
+)
+public.add_url_rule(
+    "/v1/wolframAlphaFull",
+    view_func=WolframAlphaV2Endpoint.as_view("wolfram_alpha_v2_api"),
     methods=["GET"],
 )
 public.add_url_rule(
