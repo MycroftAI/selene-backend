@@ -48,6 +48,7 @@ from .endpoints.premium_voice import PremiumVoiceEndpoint
 from .endpoints.stripe_webhook import StripeWebHookEndpoint
 from .endpoints.wake_word_file import WakeWordFileUpload
 from .endpoints.wolfram_alpha import WolframAlphaEndpoint
+from .endpoints.wolfram_alpha_simple import WolframAlphaSimpleEndpoint
 from .endpoints.wolfram_alpha_spoken import WolframAlphaSpokenEndpoint
 
 _log = configure_logger("public_api")
@@ -134,6 +135,11 @@ public.add_url_rule(
 public.add_url_rule(
     "/v1/auth/token",
     view_func=DeviceRefreshTokenEndpoint.as_view("refresh_token_api"),
+    methods=["GET"],
+)
+public.add_url_rule(
+    "/v1/wolframAlphaSimple",
+    view_func=WolframAlphaSimpleEndpoint.as_view("wolfram_alpha_simple_api"),
     methods=["GET"],
 )
 public.add_url_rule(
