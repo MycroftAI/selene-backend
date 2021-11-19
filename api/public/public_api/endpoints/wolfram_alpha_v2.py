@@ -21,34 +21,26 @@ import os
 from http import HTTPStatus
 
 import requests
-from flask import Response
 
 from selene.api import PublicEndpoint, track_account_activity
 
 
-class WolframAlphaEndpoint(PublicEndpoint):
-    """Proxy to the Wolfram Alpha API.
+class WolframAlphaV2Endpoint(PublicEndpoint):
+    """Proxy to the Wolfram Alpha Full Results v2 API with JSON output.
 
-    WARNING: This Endpoint is deprecated in favor of WolframAlphaV2Endpoint.
-
-    The new endpoint allows for the usage of additional query params beyond
-    the 'input' such as output format to return JSON or XML.
+    https://products.wolframalpha.com/api/documentation/
     """
 
     def __init__(self):
-        super(WolframAlphaEndpoint, self).__init__()
+        super(WolframAlphaV2Endpoint, self).__init__()
         self.wolfram_alpha_key = os.environ["WOLFRAM_ALPHA_KEY"]
         self.wolfram_alpha_url = os.environ["WOLFRAM_ALPHA_URL"]
 
     def get(self):
         self._authenticate()
         track_account_activity(self.db, self.device_id)
-        return self._query_wolfram_alpha()
-
-    def _query_wolfram_alpha(self):
-        query = self.request.args.get("input")
-        if query:
-            params = dict(appid=self.wolfram_alpha_key, input=query)
-            response = requests.get(self.wolfram_alpha_url + "/v2/query", params=params)
-            if response.status_code == HTTPStatus.OK:
-                return Response(response.content, mimetype="text/xml")
+        params = dict(self.request.args)
+        params["appid"] = self.wolfram_alpha_key
+        params["output"] = "json"
+        response = requests.get(self.wolfram_alpha_url + "/v2/query", params=params)
+        return response.json(), response.status_code

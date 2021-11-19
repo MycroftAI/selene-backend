@@ -5,7 +5,7 @@ Feature: Integration with Wolfram Alpha API
   requests.
 
   Scenario: Mycroft Core fallback system sends query to the Wolfram Alpha
-    When a query is sent to the Wolfram Alpha fallback
+    When a question is sent to the Wolfram Alpha full results endpoint
     Then the answer provided by Wolfram Alpha is returned
     And the device's last contact time is updated
     And the account's last activity time is updated

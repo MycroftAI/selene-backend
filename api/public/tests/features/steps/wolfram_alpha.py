@@ -23,12 +23,12 @@ from behave import when, then
 from hamcrest import assert_that
 
 
-@when("a query is sent to the Wolfram Alpha fallback")
+@when("a question is sent to the Wolfram Alpha full results endpoint")
 def send_question(context):
     login = context.device_login
     access_token = login["accessToken"]
     context.wolfram_response = context.client.get(
-        "/v1/wa?input=what+is+the+capital+of+Brazil",
+        "/v1/wolframAlphaFull?input=what+is+the+capital+of+Brazil",
         headers=dict(Authorization="Bearer {token}".format(token=access_token)),
     )
 
