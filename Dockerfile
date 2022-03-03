@@ -42,7 +42,7 @@ ARG github_api_key
 ENV GITHUB_API_KEY=$github_api_key
 RUN mkdir -p /opt/mycroft
 WORKDIR /opt/mycroft
-RUN git clone https://$github_api_key@github.com/MycroftAI/devops.git
+RUN git clone https://github.com/MycroftAI/devops.git
 WORKDIR /opt/mycroft/devops/jenkins
 RUN pipenv install
 
