@@ -33,6 +33,7 @@ from .endpoints.device_email import DeviceEmailEndpoint
 from .endpoints.device_location import DeviceLocationEndpoint
 from .endpoints.device_metrics import DeviceMetricsEndpoint
 from .endpoints.device_oauth import OauthServiceEndpoint
+from .endpoints.device_pantacor import DevicePantacorEndpoint
 from .endpoints.device_refresh_token import DeviceRefreshTokenEndpoint
 from .endpoints.device_setting import DeviceSettingEndpoint
 from .endpoints.device_skill import SkillSettingsMetaEndpoint
@@ -121,6 +122,11 @@ public.add_url_rule(
 public.add_url_rule(
     "/v1/device/activate",
     view_func=DeviceActivateEndpoint.as_view("device_activate_api"),
+    methods=["POST"],
+)
+public.add_url_rule(
+    "/v1/device/pantacor",
+    view_func=DevicePantacorEndpoint.as_view("device_pantacor_api"),
     methods=["POST"],
 )
 public.add_url_rule(

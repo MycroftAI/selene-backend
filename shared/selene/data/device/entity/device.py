@@ -33,6 +33,7 @@ class PantacorConfig:
     ip_address: str
     pantacor_id: str
     release_channel: str
+    claimed: bool = None
     ssh_public_key: str = None
 
 
