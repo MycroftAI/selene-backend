@@ -108,6 +108,7 @@ class PostgresDB(object):
             sslmode=db_ssl_mode,
         )
         self.db.autocommit = True
+        self.db.set_client_encoding('UTF8')
 
     def close_db(self):
         self.db.close()
