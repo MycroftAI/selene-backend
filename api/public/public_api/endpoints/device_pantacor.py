@@ -17,14 +17,12 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-"""Endpoint to activate a device and finish the pairing process.
+"""Endpoint to determine if a device has registered with Pantacor.
 
-A device will call this endpoint every 10 seconds to determine if the user
-has completed the device activation process on home.mycroft.ai.  The account
-API will set a Redis entry with the a key of "pairing.token" and a value of
-the pairing token generated in the pairing code endpoint.  The device passes
-the same token in the request body.  When a match is found, the activation
-is complete.
+Device pairing with Selene is considered complete after the device/activate endpoint
+is successful, but there is one more step in the pairing process of a device that
+uses Pantacor for continuous deployment.  This endpoint calls the Pantacor Fleet API to
+determine if the device's registration is complete and reports back to the device.
 """
 from http import HTTPStatus
 from logging import getLogger
