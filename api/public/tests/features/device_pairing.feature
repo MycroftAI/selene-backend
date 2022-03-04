@@ -14,10 +14,15 @@ Feature: Pair a device
     And the activation data is sent to the device
     And the device attributes are stored in the database
 
-  Scenario: Pantacor device activation
-    Given the user completes the pairing process on the web application
-    When a device using Pantacor requests to be activated
+  Scenario: Pantacor device configuration sync
+    Given an authorized device
+    When Pantacor has claimed the device
+    And a device requests to sync with Pantacor
     Then the request will be successful
-    And the activation data is sent to the device
-    And the device attributes are stored in the database
     And the Pantacor device configuration is stored in the database
+
+  Scenario: Pantacor device not claimed
+    Given an authorized device
+    When Pantacor has not yet claimed the device
+    And a device requests to sync with Pantacor
+    Then the request will fail with a precondition required error

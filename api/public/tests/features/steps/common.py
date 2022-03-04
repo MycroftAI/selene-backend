@@ -56,6 +56,10 @@ def check_for_bad_request(context, error_type):
         assert_that(context.response.status_code, equal_to(HTTPStatus.BAD_REQUEST))
     elif error_type == "an unauthorized":
         assert_that(context.response.status_code, equal_to(HTTPStatus.UNAUTHORIZED))
+    elif error_type == "a precondition required":
+        assert_that(
+            context.response.status_code, equal_to(HTTPStatus.PRECONDITION_REQUIRED)
+        )
     else:
         raise ValueError("unsupported error_type")
 

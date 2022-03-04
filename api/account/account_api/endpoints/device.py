@@ -159,9 +159,11 @@ class DeviceEndpoint(SeleneEndpoint):
             disconnect_duration = None
         device.wake_word.name = device.wake_word.name.title()
         if device.pantacor_config.release_channel is not None:
-            device.pantacor_config.release_channel = (
-                device.pantacor_config.release_channel.title()
-            )
+            if device.pantacor_config.release_channel == "qa":
+                channel = device.pantacor_config.release_channel.upper()
+            else:
+                channel = device.pantacor_config.release_channel.title()
+            device.pantacor_config.release_channel = channel
         device_dict = asdict(device)
         device_dict["status"] = device_status
         device_dict["disconnect_duration"] = disconnect_duration

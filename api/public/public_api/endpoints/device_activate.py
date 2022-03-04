@@ -34,7 +34,6 @@ from schematics import Model
 from schematics.types import StringType
 
 from selene.api import generate_device_login, PublicEndpoint
-from selene.api.pantacor import get_pantacor_device, PantacorError
 from selene.data.device import DeviceRepository
 from selene.util.cache import DEVICE_PAIRING_TOKEN_KEY
 
@@ -125,21 +124,3 @@ class DeviceActivateEndpoint(PublicEndpoint):
             core_version=str(activation_request["core_version"]),
         )
         self.device_repository.update_device_from_core(device_id, updates)
-
-        if activation_request["pantacor_device_id"] is not None:
-            self._add_pantacor_config(
-                device_id, activation_request["pantacor_device_id"]
-            )
-
-    def _add_pantacor_config(self, device_id: str, pantacor_device_id: str):
-        """The software updates are managed by Pantacor, get their ID and add to DB
-
-        :param device_id: internal identifier of the device
-        :param pantacor_device_id: identifier of a device on the Pantacor system
-        """
-        try:
-            pantacor_config = get_pantacor_device(pantacor_device_id)
-        except PantacorError:
-            _log.exception("Pantacor device ID not found on PantaHub")
-        else:
-            self.device_repository.add_pantacor_config(device_id, pantacor_config)

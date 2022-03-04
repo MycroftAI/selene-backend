@@ -49,18 +49,23 @@ def get_pantacor_device(pantacor_device_id: str) -> PantacorConfig:
     if not response_data:
         raise PantacorError("Pantacor device ID not found.")
     ip_address = None
+    claimed = False
     for label in response_data["labels"]:
         if label.startswith("device-meta"):
+            label = label.replace("device-meta/", "")
             key, value = label.split("=")
-            if key == "device-meta/interfaces.wlan0.ipv4.0":
+            print(key, value)
+            if key == "interfaces.wlan0.ipv4.0":
                 ip_address = value
-                break
+            elif key == "pantahub.claimed":
+                claimed = True if value == "1" else False
 
     return PantacorConfig(
         pantacor_id=pantacor_device_id,
         ip_address=ip_address,
         release_channel=release_channels[response_data["channel_id"]],
         auto_update=response_data["update_policy"] == "auto",
+        claimed=claimed,
     )
 
 
