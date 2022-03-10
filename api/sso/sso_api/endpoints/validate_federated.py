@@ -25,7 +25,6 @@ so all we need to to to complete login is validate that the email address exists
 on our database and build JWTs for access and refresh.
 """
 from http import HTTPStatus
-from logging import getLogger
 
 from schematics import Model
 from schematics.types import StringType
@@ -36,22 +35,27 @@ from selene.util.auth import (
     AuthenticationError,
     get_facebook_account_email,
     get_google_account_email,
-    get_github_account_email
+    get_github_account_email,
 )
+from selene.util.log import get_selene_logger
 
-FEDERATED_PLATFORMS = ('Facebook', 'Google', 'GitHub')
+FEDERATED_PLATFORMS = ("Facebook", "Google", "GitHub")
 
-_log = getLogger()
+_log = get_selene_logger(__name__)
 
 
 class ValidateFederatedRequest(Model):
+    """Defines the request arguments for this endpoint; used for validation."""
+
     platform = StringType(required=True, choices=FEDERATED_PLATFORMS)
     token = StringType(required=True)
 
 
 class ValidateFederatedEndpoint(SeleneEndpoint):
+    """Single Sign On endpoint to validate a login via third party, such as Google."""
+
     def __init__(self):
-        super(ValidateFederatedEndpoint, self).__init__()
+        super().__init__()
         self.email_address = None
 
     def post(self):
@@ -62,35 +66,27 @@ class ValidateFederatedEndpoint(SeleneEndpoint):
         self._generate_tokens()
         self._set_token_cookies()
 
-        return '', HTTPStatus.NO_CONTENT
+        return "", HTTPStatus.NO_CONTENT
 
     def _validate_request(self):
         validator = ValidateFederatedRequest(self.request.json)
         validator.validate()
 
     def _get_email_address(self):
-        if self.request.json['platform'] == 'Google':
-            self.email_address = get_google_account_email(
-                self.request.json['token']
-            )
-        elif self.request.json['platform'] == 'Facebook':
-            self.email_address = get_facebook_account_email(
-                self.request.json['token']
-            )
-        elif self.request.json['platform'] == 'GitHub':
-            self.email_address = get_github_account_email(
-                self.request.json['token']
-            )
+        if self.request.json["platform"] == "Google":
+            self.email_address = get_google_account_email(self.request.json["token"])
+        elif self.request.json["platform"] == "Facebook":
+            self.email_address = get_facebook_account_email(self.request.json["token"])
+        elif self.request.json["platform"] == "GitHub":
+            self.email_address = get_github_account_email(self.request.json["token"])
 
     def _get_account_by_email(self):
         """Use email returned by the authentication platform for validation"""
         if self.email_address is None:
-            raise AuthenticationError('could not retrieve email from provider')
+            raise AuthenticationError("could not retrieve email from provider")
 
         acct_repository = AccountRepository(self.db)
-        self.account = acct_repository.get_account_by_email(
-            self.email_address
-        )
+        self.account = acct_repository.get_account_by_email(self.email_address)
 
         if self.account is None:
-            raise AuthenticationError('no account found for provided email')
+            raise AuthenticationError("no account found for provided email")
