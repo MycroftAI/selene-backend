@@ -30,18 +30,18 @@ from logging import getLogger
 
 from psycopg2 import connect
 from psycopg2.extras import RealDictCursor, NamedTupleCursor
-from psycopg2.extensions import cursor
 
-_log = getLogger(__package__)
+_log = getLogger(__name__)
 
 
 class DBConnectionError(Exception):
-    pass
+    """Raise this exception when an error occurs connecting to the Selene database."""
 
 
 @dataclass
-class DatabaseConnectionConfig(object):
-    """attributes required to connect to a Postgres database"""
+class DatabaseConnectionConfig:
+    """attributes required to connect to a Postgres database."""
+
     host: str
     db_name: str
     user: str
@@ -68,8 +68,8 @@ def connect_to_db(connection_config: DatabaseConnectionConfig):
     :param connection_config: data needed to establish a connection
     :return: database connection
     """
-    log_msg = 'establishing connection to the {db_name} database'
-    _log.info(log_msg.format(db_name=connection_config.db_name))
+    log_msg = "establishing connection to the {db_name} database"
+    _log.debug(log_msg.format(db_name=connection_config.db_name))
     db = connect(
         host=connection_config.host,
         dbname=connection_config.db_name,
@@ -77,7 +77,7 @@ def connect_to_db(connection_config: DatabaseConnectionConfig):
         password=connection_config.password,
         port=connection_config.port,
         cursor_factory=connection_config.cursor_factory,
-        sslmode=connection_config.sslmode
+        sslmode=connection_config.sslmode,
     )
     db.autocommit = connection_config.autocommit
 
