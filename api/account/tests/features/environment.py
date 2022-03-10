@@ -18,7 +18,6 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 """Setup the environment for the account API behavioral tests."""
 from datetime import datetime
-from logging import getLogger
 
 from behave import fixture, use_fixture
 
@@ -32,8 +31,6 @@ from selene.testing.text_to_speech import add_text_to_speech, remove_text_to_spe
 from selene.testing.wake_word import add_wake_word, remove_wake_word
 from selene.util.cache import SeleneCache
 from selene.util.db import connect_to_db
-
-_log = getLogger()
 
 
 @fixture

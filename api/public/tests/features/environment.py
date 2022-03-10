@@ -18,7 +18,6 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 """Environmental controls for the public API behavioral tests"""
 import os
-from logging import getLogger
 from pathlib import Path
 from tempfile import mkdtemp
 
@@ -50,8 +49,9 @@ from selene.testing.text_to_speech import add_text_to_speech, remove_text_to_spe
 from selene.testing.wake_word import add_wake_word, remove_wake_word
 from selene.util.cache import SeleneCache
 from selene.util.db import connect_to_db
+from selene.util.log import get_selene_logger
 
-_log = getLogger("public_api_behave_tests")
+_log = get_selene_logger("public_api.behave_tests")
 
 
 @fixture
