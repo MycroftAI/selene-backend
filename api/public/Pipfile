@@ -11,6 +11,8 @@ pylint = "*"
 
 [packages]
 flask = "<1.1"
+# version 2.1 of itsdangerous breaks a dependency on flask 1.0.
+itsdangerous = "<2.1"
 requests = "*"
 selene = {editable = true,path = "./../../shared"}
 SpeechRecognition = "*"
