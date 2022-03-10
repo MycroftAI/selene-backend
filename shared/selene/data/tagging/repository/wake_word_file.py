@@ -35,7 +35,7 @@ PENDING_DELETE_STATUS = "pending delete"
 UPLOADED_STATUS = "uploaded"
 UNIQUE_VIOLATION = "23505"
 
-_log = getLogger(__package__)
+_log = getLogger(__name__)
 
 
 def build_tagging_file_name(file_contents):

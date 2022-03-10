@@ -28,7 +28,7 @@ from ..entity.account import Account, AccountAgreement, AccountMembership
 from ..entity.agreement import OPEN_DATASET
 from ...repository_base import RepositoryBase
 
-_log = getLogger("selene.data.account")
+_log = getLogger(__name__)
 
 
 def _encrypt_password(password):

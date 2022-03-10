@@ -25,7 +25,7 @@ from selene.data.account import Account, OPEN_DATASET
 from ..entity.account_activity import AccountActivity
 from ...repository_base import RepositoryBase
 
-_log = getLogger(__package__)
+_log = getLogger(__name__)
 
 
 class AccountActivityRepository(RepositoryBase):
