@@ -28,7 +28,6 @@ is complete.
 """
 import json
 from http import HTTPStatus
-from logging import getLogger
 
 from schematics import Model
 from schematics.types import StringType
@@ -36,8 +35,6 @@ from schematics.types import StringType
 from selene.api import generate_device_login, PublicEndpoint
 from selene.data.device import DeviceRepository
 from selene.util.cache import DEVICE_PAIRING_TOKEN_KEY
-
-_log = getLogger(__package__)
 
 
 class ActivationRequest(Model):

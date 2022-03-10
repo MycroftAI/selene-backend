@@ -29,15 +29,9 @@ cannot send it's settings... right?  The skill and its relationship to the
 device should already be known when this endpoint is called.
 """
 from http import HTTPStatus
-from logging import getLogger
 
 from schematics import Model
-from schematics.types import (
-    BooleanType,
-    ListType,
-    ModelType,
-    StringType
-)
+from schematics.types import BooleanType, ListType, ModelType, StringType
 from schematics.exceptions import DataError
 
 from selene.api import PublicEndpoint
@@ -47,35 +41,38 @@ from selene.data.skill import (
     extract_family_from_global_id,
     SettingsDisplay,
     SettingsDisplayRepository,
-    SkillRepository
+    SkillRepository,
 )
 from selene.data.skill import SkillSettingRepository
+from selene.util.log import get_selene_logger
 
-_log = getLogger(__package__)
+_log = get_selene_logger(__name__)
 
 
 def _normalize_field_value(field):
     """The field values in skillMetadata are all strings, convert to native."""
-    normalized_value = field.get('value')
-    if field['type'].lower() == 'checkbox':
-        if field['value'] in ('false', 'False', '0'):
+    normalized_value = field.get("value")
+    if field["type"].lower() == "checkbox":
+        if field["value"] in ("false", "False", "0"):
             normalized_value = False
-        elif field['value'] in ('true', 'True', '1'):
+        elif field["value"] in ("true", "True", "1"):
             normalized_value = True
-    elif field['type'].lower() == 'number' and isinstance(field['value'], str):
-        if field['value']:
-            normalized_value = float(field['value'])
+    elif field["type"].lower() == "number" and isinstance(field["value"], str):
+        if field["value"]:
+            normalized_value = float(field["value"])
             if not normalized_value % 1:
-                normalized_value = int(field['value'])
+                normalized_value = int(field["value"])
             else:
                 normalized_value = 0
-    elif field['value'] == "[]":
+    elif field["value"] == "[]":
         normalized_value = []
 
     return normalized_value
 
 
 class RequestSkillField(Model):
+    """Representation of skill setting field for use in validation."""
+
     name = StringType()
     type = StringType()
     label = StringType()
@@ -87,20 +84,28 @@ class RequestSkillField(Model):
 
 
 class RequestSkillSection(Model):
+    """Representation of skill setting section for use in validation."""
+
     name = StringType(required=True)
     fields = ListType(ModelType(RequestSkillField))
 
 
 class RequestSkillMetadata(Model):
+    """Representation of skill setting metadata for use in validation."""
+
     sections = ListType(ModelType(RequestSkillSection))
 
 
 class RequestSkillIcon(Model):
+    """Representation of skill icon for use in validation."""
+
     color = StringType()
     icon = StringType()
 
 
 class RequestDeviceSkill(Model):
+    """Representation of the PUT request object for use in validation."""
+
     display_name = StringType(required=True)
     icon = ModelType(RequestSkillIcon)
     icon_img = StringType()
@@ -109,6 +114,8 @@ class RequestDeviceSkill(Model):
 
 
 class SkillSettingsMetaEndpoint(PublicEndpoint):
+    """Public API endpoint for maintaining skill settings."""
+
     def __init__(self):
         super().__init__()
         self.skill = None
@@ -118,13 +125,19 @@ class SkillSettingsMetaEndpoint(PublicEndpoint):
         self._device_skill_repo = None
 
     @property
-    def device_skill_repo(self):
+    def device_skill_repo(self) -> DeviceSkillRepository:
+        """Lazily instantiates an instance of the DeviceSkillRepository."""
         if self._device_skill_repo is None:
             self._device_skill_repo = DeviceSkillRepository(self.db)
 
         return self._device_skill_repo
 
-    def put(self, device_id):
+    def put(self, device_id: str):
+        """Handles a HTTP PUT request.
+
+        Args:
+            device_id: Mycroft identifier of a paired device.
+        """
         self._authenticate(device_id)
         self._validate_request()
         self._get_skill()
@@ -132,7 +145,7 @@ class SkillSettingsMetaEndpoint(PublicEndpoint):
         self._ensure_settings_definition_exists()
         self._update_device_skill(device_id)
 
-        return '', HTTPStatus.NO_CONTENT
+        return "", HTTPStatus.NO_CONTENT
 
     def _validate_request(self):
         """Ensure the request is well-formed."""
@@ -142,14 +155,9 @@ class SkillSettingsMetaEndpoint(PublicEndpoint):
     def _get_skill(self):
         """Retrieve the skill associated with the request."""
         skill_repo = SkillRepository(self.db)
-        self.skill = skill_repo.get_skill_by_global_id(
-            self.request.json['skill_gid']
-        )
+        self.skill = skill_repo.get_skill_by_global_id(self.request.json["skill_gid"])
         if self.skill is None:
-            err_msg = (
-                'No skill on database for skill ' +
-                self.request.json['skill_gid']
-            )
+            err_msg = "No skill on database for skill " + self.request.json["skill_gid"]
             _log.error(err_msg)
             raise DataError(dict(skill_gid=[err_msg]))
 
@@ -160,20 +168,18 @@ class SkillSettingsMetaEndpoint(PublicEndpoint):
         fields that should be boolean or numeric.  Ensure all fields are cast
         to the correct type before interacting with the database.
         """
-        self.skill_has_settings = 'skillMetadata' in self.request.json
+        self.skill_has_settings = "skillMetadata" in self.request.json
         if self.skill_has_settings:
-            skill_metadata = self.request.json['skillMetadata']
+            skill_metadata = self.request.json["skillMetadata"]
             self.default_settings = {}
             normalized_sections = []
-            for section in skill_metadata['sections']:
-                for field in section['fields']:
-                    if field['type'] != 'label':
-                        field['value'] = _normalize_field_value(field)
-                        self.default_settings[field['name']] = field['value']
+            for section in skill_metadata["sections"]:
+                for field in section["fields"]:
+                    if field["type"] != "label":
+                        field["value"] = _normalize_field_value(field)
+                        self.default_settings[field["name"]] = field["value"]
                 normalized_sections.append(section)
-            self.request.json['skillMetadata'].update(
-                sections=normalized_sections
-            )
+            self.request.json["skillMetadata"].update(sections=normalized_sections)
 
     def _ensure_settings_definition_exists(self):
         """Add a row to skill.settings_display if it doesn't already exist."""
@@ -197,12 +203,9 @@ class SkillSettingsMetaEndpoint(PublicEndpoint):
         """The settings definition does not exist on database so add it."""
         settings_def_repo = SettingsDisplayRepository(self.db)
         settings_definition = SettingsDisplay(
-            skill_id=self.skill.id,
-            display_data=self.request.json
+            skill_id=self.skill.id, display_data=self.request.json
         )
-        self.settings_definition_id = settings_def_repo.add(
-            settings_definition
-        )
+        self.settings_definition_id = settings_def_repo.add(settings_definition)
 
     def _update_device_skill(self, device_id):
         """Update device.device_skill to match the new settings definition.
@@ -215,29 +218,23 @@ class SkillSettingsMetaEndpoint(PublicEndpoint):
         device_skill.settings_display_id = self.settings_definition_id
         if self.skill_has_settings:
             if device_skill.settings_values is None:
-                new_settings_values = self._initialize_skill_settings(
-                    device_id
-                )
+                new_settings_values = self._initialize_skill_settings(device_id)
             else:
                 new_settings_values = self._reconcile_skill_settings(
                     device_skill.settings_values
                 )
             device_skill.settings_values = new_settings_values
-        self.device_skill_repo.update_device_skill_settings(
-            device_id,
-            device_skill
-        )
+        self.device_skill_repo.update_device_skill_settings(device_id, device_skill)
 
     def _get_device_skill(self, device_id):
         """Retrieve the device's skill entry from the database."""
         device_skill = self.device_skill_repo.get_skill_settings_for_device(
-            device_id,
-            self.skill.id
+            device_id, self.skill.id
         )
         if device_skill is None:
             error_msg = (
-                'Received skill setting definition before manifest for '
-                'skill ' + self.skill.skill_gid
+                "Received skill setting definition before manifest for "
+                "skill " + self.skill.skill_gid
             )
             _log.error(error_msg)
             raise DataError(dict(skill_gid=[error_msg]))
@@ -247,12 +244,12 @@ class SkillSettingsMetaEndpoint(PublicEndpoint):
     def _reconcile_skill_settings(self, settings_values):
         """Fix any new or removed settings."""
         new_settings_values = {}
-        for name, value in self.default_settings.items():
+        for name in self.default_settings:
             if name in settings_values:
                 new_settings_values[name] = settings_values[name]
             else:
                 new_settings_values[name] = self.default_settings[name]
-        for name, value in settings_values.items():
+        for name in settings_values:
             if name in self.default_settings:
                 new_settings_values[name] = settings_values[name]
 
@@ -260,14 +257,13 @@ class SkillSettingsMetaEndpoint(PublicEndpoint):
 
     def _initialize_skill_settings(self, device_id):
         """Use default settings or copy from another device in same account."""
-        _log.info('Initializing settings for skill ' + self.skill.skill_gid)
+        _log.info(f"Initializing settings for skill {self.skill.skill_gid}")
         account_repo = AccountRepository(self.db)
         account = account_repo.get_account_by_device_id(device_id)
         skill_settings_repo = SkillSettingRepository(self.db)
         skill_family = extract_family_from_global_id(self.skill.skill_gid)
         family_settings = skill_settings_repo.get_family_settings(
-            account.id,
-            skill_family
+            account.id, skill_family
         )
         new_settings_values = self.default_settings
         if family_settings is not None:
@@ -278,15 +274,12 @@ class SkillSettingsMetaEndpoint(PublicEndpoint):
                     field_names = settings.settings_values.keys()
                     if field_names == self.default_settings.keys():
                         _log.info(
-                            'Copying settings from another device for skill' +
-                            self.skill.skill_gid
+                            "Copying settings from another device for skill"
+                            f"{self.skill.skill_gid}"
                         )
                         new_settings_values = settings.settings_values
                         break
         else:
-            _log.info(
-                'Using default skill settings for skill ' +
-                self.skill.skill_gid
-            )
+            _log.info(f"Using default skill settings for skill {self.skill.skill_gid}")
 
         return new_settings_values
