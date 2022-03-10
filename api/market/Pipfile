@@ -3,6 +3,12 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 name = "pypi"
 
+[dev-packages]
+behave = "*"
+pyhamcrest = "*"
+allure-behave = "*"
+pylint = "*"
+
 [packages]
 flask = "<1.1"
 requests = "*"
@@ -11,7 +17,6 @@ uwsgi = "*"
 markdown = "*"
 selene = {editable = true, path = "./../../shared"}
 
-[dev-packages]
 
 [requires]
 python_version = "3.7"
