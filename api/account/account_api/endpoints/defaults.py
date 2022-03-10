@@ -18,16 +18,15 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 """Account API endpoint for account defaults."""
 from http import HTTPStatus
-from logging import getLogger
-
 from flask import json
 from schematics import Model
 from schematics.types import StringType
 
 from selene.api import SeleneEndpoint
 from selene.data.device import DefaultsRepository
+from selene.util.log import get_selene_logger
 
-_log = getLogger(__package__)
+_log = get_selene_logger(__name__)
 
 
 class DefaultsRequest(Model):
@@ -45,7 +44,7 @@ class AccountDefaultsEndpoint(SeleneEndpoint):
     """Handle account default HTTP requests."""
 
     def __init__(self):
-        super(AccountDefaultsEndpoint, self).__init__()
+        super().__init__()
         self.defaults = None
 
     def get(self):

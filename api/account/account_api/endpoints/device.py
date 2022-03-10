@@ -20,7 +20,6 @@
 from dataclasses import asdict
 from datetime import datetime, timedelta
 from http import HTTPStatus
-from logging import getLogger
 from typing import List
 
 from flask import json
@@ -40,13 +39,14 @@ from selene.util.cache import (
     SeleneCache,
 )
 from selene.util.db import use_transaction
+from selene.util.log import get_selene_logger
 
 ONE_DAY = 86400
 CONNECTED = "Connected"
 DISCONNECTED = "Disconnected"
 DORMANT = "Dormant"
 
-_log = getLogger()
+_log = get_selene_logger(__name__)
 
 
 def validate_pairing_code(pairing_code):
