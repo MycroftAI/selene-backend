@@ -53,9 +53,7 @@ class LoggingConfig:
         self.logger.level = DEBUG
         self.file_log_level = DEBUG
         self.console_log_level = INFO
-        self.log_file_path = path.join(
-            "/usr/local/var/log/mycroft", logger_name + ".log"
-        )
+        self.log_file_path = path.join("/var/log/mycroft", logger_name + ".log")
         self.log_msg_formatter = Formatter(
             "{asctime} | {levelname:8} | {process:5} | {name} | {message}", style="{"
         )
@@ -115,7 +113,7 @@ def _generate_log_config(service: str) -> dict:
     file_handler = {
         "class": "logging.handlers.TimedRotatingFileHandler",
         "formatter": "default",
-        "filename": f"/usr/local/var/log/mycroft/{service}.log",
+        "filename": f"/var/log/mycroft/{service}.log",
         "backupCount": 30,
         "when": "midnight",
     }
@@ -137,7 +135,7 @@ def configure_selene_logger(service):
     log_level = environ.get("SELENE_LOG_LEVEL", "INFO")
     log_config = _generate_log_config(service)
     selene_logger = {
-        "selene": {"level": log_level, "handlers": ["file"], "propagate": 0}
+        "selene": {"level": log_level, "handlers": ["console", "file"], "propagate": 0}
     }
     log_config["loggers"] = selene_logger
     logging.config.dictConfig(log_config)
