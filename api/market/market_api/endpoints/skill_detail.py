@@ -27,7 +27,8 @@ from selene.data.skill import SkillDisplay, SkillDisplayRepository
 
 
 class SkillDetailEndpoint(SeleneEndpoint):
-    """"Supply the data that will populate the skill detail page."""
+    """ "Supply the data that will populate the skill detail page."""
+
     authentication_required = False
 
     def __init__(self):
@@ -57,39 +58,37 @@ class SkillDetailEndpoint(SeleneEndpoint):
     def _build_response_data(self, skill_display: SkillDisplay):
         """Make some modifications to the response skill for the marketplace"""
         self.response_skill = dict(
-            categories=skill_display.display_data.get('categories'),
-            credits=skill_display.display_data.get('credits'),
+            categories=skill_display.display_data.get("categories"),
+            credits=skill_display.display_data.get("credits"),
             description=markdown(
-                skill_display.display_data.get('description'),
-                output_format='html5'
+                skill_display.display_data.get("description"), output_format="html5"
             ),
-            display_name=skill_display.display_data['display_name'],
-            icon=skill_display.display_data.get('icon'),
-            iconImage=skill_display.display_data.get('icon_img'),
+            display_name=skill_display.display_data["display_name"],
+            icon=skill_display.display_data.get("icon"),
+            iconImage=skill_display.display_data.get("icon_img"),
             isSystemSkill=False,
             worksOnMarkOne=(
-                'all' in skill_display.display_data['platforms'] or
-                'platform_mark1' in skill_display.display_data['platforms']
+                "all" in skill_display.display_data["platforms"]
+                or "platform_mark1" in skill_display.display_data["platforms"]
             ),
             worksOnMarkTwo=(
-                'all' in skill_display.display_data['platforms'] or
-                'platform_mark2' in skill_display.display_data['platforms']
+                "all" in skill_display.display_data["platforms"]
+                or "platform_mark2" in skill_display.display_data["platforms"]
             ),
             worksOnPicroft=(
-                'all' in skill_display.display_data['platforms'] or
-                'platform_picroft' in skill_display.display_data['platforms']
+                "all" in skill_display.display_data["platforms"]
+                or "platform_picroft" in skill_display.display_data["platforms"]
             ),
             worksOnKDE=(
-                'all' in skill_display.display_data['platforms'] or
-                'platform_plasmoid' in skill_display.display_data['platforms']
+                "all" in skill_display.display_data["platforms"]
+                or "platform_plasmoid" in skill_display.display_data["platforms"]
             ),
-            repositoryUrl=skill_display.display_data.get('repo'),
+            repositoryUrl=skill_display.display_data.get("repo"),
             summary=markdown(
-                skill_display.display_data['short_desc'],
-                output_format='html5'
+                skill_display.display_data["short_desc"], output_format="html5"
             ),
-            triggers=skill_display.display_data['examples']
+            triggers=skill_display.display_data["examples"],
         )
-        if skill_display.display_data['tags'] is not None:
-            if 'system' in skill_display.display_data['tags']:
-                self.response_skill['isSystemSkill'] = True
+        if skill_display.display_data["tags"] is not None:
+            if "system" in skill_display.display_data["tags"]:
+                self.response_skill["isSystemSkill"] = True

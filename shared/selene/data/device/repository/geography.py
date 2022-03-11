@@ -28,8 +28,8 @@ class GeographyRepository(RepositoryBase):
 
     def get_account_geographies(self):
         db_request = self._build_db_request(
-            sql_file_name='get_account_geographies.sql',
-            args=dict(account_id=self.account_id)
+            sql_file_name="get_account_geographies.sql",
+            args=dict(account_id=self.account_id),
         )
         db_response = self.cursor.select_all(db_request)
 
@@ -40,10 +40,10 @@ class GeographyRepository(RepositoryBase):
         acct_geographies = self.get_account_geographies()
         for acct_geography in acct_geographies:
             match = (
-                acct_geography.city == geography.city and
-                acct_geography.country == geography.country and
-                acct_geography.region == geography.region and
-                acct_geography.time_zone == geography.time_zone
+                acct_geography.city == geography.city
+                and acct_geography.country == geography.country
+                and acct_geography.region == geography.region
+                and acct_geography.time_zone == geography.time_zone
             )
             if match:
                 geography_id = acct_geography.id
@@ -53,22 +53,22 @@ class GeographyRepository(RepositoryBase):
 
     def add(self, geography: Geography):
         db_request = self._build_db_request(
-            sql_file_name='add_geography.sql',
+            sql_file_name="add_geography.sql",
             args=dict(
                 account_id=self.account_id,
                 city=geography.city,
                 country=geography.country,
                 region=geography.region,
-                timezone=geography.time_zone
-            )
+                timezone=geography.time_zone,
+            ),
         )
         db_result = self.cursor.insert_returning(db_request)
 
-        return db_result['id']
+        return db_result["id"]
 
     def get_location_by_device_id(self, device_id):
         db_request = self._build_db_request(
-            sql_file_name='get_location_by_device_id.sql',
-            args=dict(device_id=device_id)
+            sql_file_name="get_location_by_device_id.sql",
+            args=dict(device_id=device_id),
         )
         return self.cursor.select_one(db_request)

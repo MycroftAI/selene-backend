@@ -24,19 +24,19 @@ from selene.data.device import DeviceRepository
 from selene.util.cache import SeleneCache, DEVICE_SKILL_ETAG_KEY
 from selene.util.db import connect_to_db
 
-ETAG_REQUEST_HEADER_KEY = 'If-None-Match'
+ETAG_REQUEST_HEADER_KEY = "If-None-Match"
 
 
 def device_etag_key(device_id: str):
-    return 'device.etag:{uuid}'.format(uuid=device_id)
+    return "device.etag:{uuid}".format(uuid=device_id)
 
 
 def device_setting_etag_key(device_id: str):
-    return 'device.setting.etag:{uuid}'.format(uuid=device_id)
+    return "device.setting.etag:{uuid}".format(uuid=device_id)
 
 
 def device_location_etag_key(device_id: str):
-    return 'device.location.etag:{uuid}'.format(uuid=device_id)
+    return "device.location.etag:{uuid}".format(uuid=device_id)
 
 
 class ETagManager(object):
@@ -46,7 +46,7 @@ class ETagManager(object):
 
     def __init__(self, cache: SeleneCache, config: dict):
         self.cache: SeleneCache = cache
-        self.db_connection_config = config['DB_CONNECTION_CONFIG']
+        self.db_connection_config = config["DB_CONNECTION_CONFIG"]
 
     def get(self, key: str) -> str:
         """Generate a etag with 32 random chars and store it into a given key
@@ -54,14 +54,14 @@ class ETagManager(object):
         :return etag"""
         etag = self.cache.get(key)
         if etag is None:
-            etag = ''.join(random.choice(self.etag_chars) for _ in range(32))
+            etag = "".join(random.choice(self.etag_chars) for _ in range(32))
             self.cache.set(key, etag)
         return etag
 
     def expire(self, key):
         """Expires an existent etag
         :param key: key where the etag is stored"""
-        etag = ''.join(random.choice(self.etag_chars) for _ in range(32))
+        etag = "".join(random.choice(self.etag_chars) for _ in range(32))
         self.cache.set(key, etag)
 
     def expire_device_etag_by_device_id(self, device_id: str):

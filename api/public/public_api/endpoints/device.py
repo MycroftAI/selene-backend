@@ -29,14 +29,15 @@ from selene.data.device import DeviceRepository
 
 
 class UpdateDevice(Model):
-    coreVersion = StringType(default='unknown')
-    platform = StringType(default='unknown')
+    coreVersion = StringType(default="unknown")
+    platform = StringType(default="unknown")
     platform_build = StringType()
-    enclosureVersion = StringType(default='unknown')
+    enclosureVersion = StringType(default="unknown")
 
 
 class DeviceEndpoint(PublicEndpoint):
     """Return the device entity using the device_id"""
+
     def __init__(self):
         super(DeviceEndpoint, self).__init__()
 
@@ -53,13 +54,13 @@ class DeviceEndpoint(PublicEndpoint):
                 coreVersion=device.core_version,
                 enclosureVersion=device.enclosure_version,
                 platform=device.platform,
-                user=dict(uuid=device.account_id)
+                user=dict(uuid=device.account_id),
             )
             response = response_data, HTTPStatus.OK
 
             self._add_etag(device_etag_key(device_id))
         else:
-            response = '', HTTPStatus.NO_CONTENT
+            response = "", HTTPStatus.NO_CONTENT
 
         return response
 
@@ -69,10 +70,10 @@ class DeviceEndpoint(PublicEndpoint):
         update_device = UpdateDevice(payload)
         update_device.validate()
         updates = dict(
-            platform=payload.get('platform') or 'unknown',
-            enclosure_version=payload.get('enclosureVersion') or 'unknown',
-            core_version=payload.get('coreVersion') or 'unknown'
+            platform=payload.get("platform") or "unknown",
+            enclosure_version=payload.get("enclosureVersion") or "unknown",
+            core_version=payload.get("coreVersion") or "unknown",
         )
         DeviceRepository(self.db).update_device_from_core(device_id, updates)
 
-        return '', HTTPStatus.OK
+        return "", HTTPStatus.OK

@@ -24,8 +24,8 @@ from ...repository_base import RepositoryBase
 
 
 def extract_family_from_global_id(skill_gid):
-    id_parts = skill_gid.split('|')
-    if id_parts[0].startswith('@'):
+    id_parts = skill_gid.split("|")
+    if id_parts[0].startswith("@"):
         family_name = id_parts[1]
     else:
         family_name = id_parts[0]
@@ -41,8 +41,7 @@ class SkillRepository(RepositoryBase):
     def get_skills_for_account(self, account_id) -> List[SkillFamily]:
         skills = []
         db_request = self._build_db_request(
-            'get_skills_for_account.sql',
-            args=dict(account_id=account_id)
+            "get_skills_for_account.sql", args=dict(account_id=account_id)
         )
         db_result = self.cursor.select_all(db_request)
         if db_result is not None:
@@ -54,23 +53,23 @@ class SkillRepository(RepositoryBase):
     def get_skill_by_global_id(self, skill_global_id) -> Skill:
         return self._select_one_into_dataclass(
             dataclass=Skill,
-            sql_file_name='get_skill_by_global_id.sql',
-            args=dict(skill_global_id=skill_global_id)
+            sql_file_name="get_skill_by_global_id.sql",
+            args=dict(skill_global_id=skill_global_id),
         )
 
     @staticmethod
     def _extract_settings(skill):
         settings = {}
-        skill_metadata = skill.get('skillMetadata')
+        skill_metadata = skill.get("skillMetadata")
         if skill_metadata:
-            for section in skill_metadata['sections']:
-                for field in section['fields']:
-                    if 'name' in field and 'value' in field:
-                        settings[field['name']] = field['value']
-                    field.pop('value', None)
+            for section in skill_metadata["sections"]:
+                for field in section["fields"]:
+                    if "name" in field and "value" in field:
+                        settings[field["name"]] = field["value"]
+                    field.pop("value", None)
             result = settings, skill
         else:
-            result = '', ''
+            result = "", ""
         return result
 
     def ensure_skill_exists(self, skill_global_id: str) -> str:
@@ -85,14 +84,14 @@ class SkillRepository(RepositoryBase):
 
     def _add_skill(self, skill_gid: str, name: str) -> str:
         db_request = self._build_db_request(
-            sql_file_name='add_skill.sql',
-            args=dict(skill_gid=skill_gid, family_name=name)
+            sql_file_name="add_skill.sql",
+            args=dict(skill_gid=skill_gid, family_name=name),
         )
         db_result = self.cursor.insert_returning(db_request)
 
         # handle both dictionary cursors and namedtuple cursors
         try:
-            skill_id = db_result['id']
+            skill_id = db_result["id"]
         except TypeError:
             skill_id = db_result.id
 
@@ -100,7 +99,6 @@ class SkillRepository(RepositoryBase):
 
     def remove_by_gid(self, skill_gid):
         db_request = self._build_db_request(
-            sql_file_name='remove_skill_by_gid.sql',
-            args=dict(skill_gid=skill_gid)
+            sql_file_name="remove_skill_by_gid.sql", args=dict(skill_gid=skill_gid)
         )
         self.cursor.delete(db_request)

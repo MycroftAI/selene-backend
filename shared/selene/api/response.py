@@ -22,7 +22,7 @@ import re
 
 from flask import jsonify, Response
 
-snake_pattern = re.compile(r'_([a-z])')
+snake_pattern = re.compile(r"_([a-z])")
 
 
 def snake_to_camel(name):

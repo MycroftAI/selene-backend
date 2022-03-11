@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-from  dataclasses import asdict
+from dataclasses import asdict
 
 from ..entity.preference import AccountPreferences
 from ...repository_base import RepositoryBase
@@ -30,8 +30,8 @@ class PreferenceRepository(RepositoryBase):
 
     def get_account_preferences(self) -> AccountPreferences:
         db_request = self._build_db_request(
-            sql_file_name='get_account_preferences.sql',
-            args=dict(account_id=self.account_id)
+            sql_file_name="get_account_preferences.sql",
+            args=dict(account_id=self.account_id),
         )
 
         db_result = self.cursor.select_one(db_request)
@@ -46,7 +46,6 @@ class PreferenceRepository(RepositoryBase):
         db_request_args = dict(account_id=self.account_id)
         db_request_args.update(asdict(preferences))
         db_request = self._build_db_request(
-            sql_file_name='upsert_preferences.sql',
-            args=db_request_args
+            sql_file_name="upsert_preferences.sql", args=db_request_args
         )
         self.cursor.insert(db_request)

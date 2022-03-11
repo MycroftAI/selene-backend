@@ -22,7 +22,7 @@ from .entity.skill import Skill
 from .entity.skill_setting import (
     AccountSkillSetting,
     DeviceSkillSetting,
-    SettingsDisplay
+    SettingsDisplay,
 )
 from .repository.display import SkillDisplayRepository
 from .repository.setting import SkillSettingRepository

@@ -26,12 +26,12 @@ from selene.data.device import DeviceSkillRepository, ManifestSkill
 def add_device_skill(db, device_id, skill):
     manifest_skill = ManifestSkill(
         device_id=device_id,
-        install_method='test_install_method',
-        install_status='test_install_status',
+        install_method="test_install_method",
+        install_status="test_install_status",
         skill_id=skill.id,
         skill_gid=skill.skill_gid,
         install_ts=datetime.utcnow(),
-        update_ts=datetime.utcnow()
+        update_ts=datetime.utcnow(),
     )
     device_skill_repo = DeviceSkillRepository(db)
     manifest_skill.id = device_skill_repo.add_manifest_skill(manifest_skill)
@@ -42,9 +42,7 @@ def add_device_skill(db, device_id, skill):
 def add_device_skill_settings(db, device_id, settings_display, settings_values):
     device_skill_repo = DeviceSkillRepository(db)
     device_skill_repo.upsert_device_skill_settings(
-        [device_id],
-        settings_display,
-        settings_values
+        [device_id], settings_display, settings_values
     )
 
 

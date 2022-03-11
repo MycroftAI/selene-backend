@@ -29,7 +29,7 @@ from selene.util.db import (
     Cursor,
     DatabaseRequest,
     DatabaseBatchRequest,
-    get_sql_from_file
+    get_sql_from_file,
 )
 
 
@@ -52,10 +52,10 @@ class RepositoryBase(object):
     def __init__(self, db, repository_path):
         self.db = db
         self.cursor = Cursor(db)
-        self.sql_dir = path.join(path.dirname(repository_path), 'sql')
+        self.sql_dir = path.join(path.dirname(repository_path), "sql")
 
     def _build_db_request(
-            self, sql_file_name: str, args: dict = None, sql_vars: dict = None
+        self, sql_file_name: str, args: dict = None, sql_vars: dict = None
     ):
         """Build a DatabaseRequest object containing a query and args"""
         sql = get_sql_from_file(path.join(self.sql_dir, sql_file_name))
@@ -67,8 +67,7 @@ class RepositoryBase(object):
     def _build_db_batch_request(self, sql_file_name: str, args: List[dict]):
         """Build a DatabaseBatchRequest object containing a query and args"""
         return DatabaseBatchRequest(
-            sql=get_sql_from_file(path.join(self.sql_dir, sql_file_name)),
-            args=args
+            sql=get_sql_from_file(path.join(self.sql_dir, sql_file_name)), args=args
         )
 
     def _select_one_into_dataclass(self, dataclass, sql_file_name, args=None):

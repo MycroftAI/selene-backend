@@ -32,7 +32,7 @@ from decimal import Decimal
 from selene.batch import SeleneScript
 from selene.data.metric import CoreMetricRepository, CoreInteraction
 
-SKILL_HANDLERS_TO_SKIP = ('reset', 'notify', 'prime', 'stop_laugh')
+SKILL_HANDLERS_TO_SKIP = ("reset", "notify", "prime", "stop_laugh")
 
 
 class CoreMetricsParser(SeleneScript):
@@ -47,7 +47,7 @@ class CoreMetricsParser(SeleneScript):
     def _run(self):
         last_interaction_id = None
         for metric in self.core_metric_repo.get_metrics_by_date(self.args.date):
-            if metric.metric_value['id'] != last_interaction_id:
+            if metric.metric_value["id"] != last_interaction_id:
                 self._add_interaction_to_db()
                 self._start_new_interaction(metric)
                 last_interaction_id = self.interaction.core_id
@@ -57,48 +57,44 @@ class CoreMetricsParser(SeleneScript):
     def _start_new_interaction(self, metric):
         """Initialize the interaction object"""
         self.interaction = CoreInteraction(
-            core_id=metric.metric_value['id'],
+            core_id=metric.metric_value["id"],
             device_id=metric.device_id,
-            start_ts=datetime.utcfromtimestamp(
-                metric.metric_value['start_time']
-            ),
+            start_ts=datetime.utcfromtimestamp(metric.metric_value["start_time"]),
         )
         self.stt_start_ts = None
         self.playback_start_ts = None
 
     def _add_metric_to_interaction(self, metric_value):
         """Combine all the steps of an interaction into a single record"""
-        duration = Decimal(str(metric_value['time']))
-        duration = duration.quantize(Decimal('0.000001'))
-        if metric_value['system'] == 'stt':
-            self.interaction.stt_engine = metric_value['stt']
-            self.interaction.stt_transcription = metric_value['transcription']
+        duration = Decimal(str(metric_value["time"]))
+        duration = duration.quantize(Decimal("0.000001"))
+        if metric_value["system"] == "stt":
+            self.interaction.stt_engine = metric_value["stt"]
+            self.interaction.stt_transcription = metric_value["transcription"]
             self.interaction.stt_duration = duration
-            self.stt_start_ts = metric_value['start_time']
-        elif metric_value['system'] == 'intent_service':
-            self.interaction.intent_type = metric_value['intent_type']
+            self.stt_start_ts = metric_value["start_time"]
+        elif metric_value["system"] == "intent_service":
+            self.interaction.intent_type = metric_value["intent_type"]
             self.interaction.intent_duration = duration
-        elif metric_value['system'] == 'fallback_handler':
+        elif metric_value["system"] == "fallback_handler":
             self.interaction.fallback_handler_duration = duration
-        elif metric_value['system'] == 'skill_handler':
-            if metric_value['handler'] not in SKILL_HANDLERS_TO_SKIP:
-                self.interaction.skill_handler = metric_value['handler']
+        elif metric_value["system"] == "skill_handler":
+            if metric_value["handler"] not in SKILL_HANDLERS_TO_SKIP:
+                self.interaction.skill_handler = metric_value["handler"]
                 self.interaction.skill_duration = duration
-        elif metric_value['system'] == 'speech':
-            self.interaction.tts_engine = metric_value['tts']
-            self.interaction.tts_utterance = metric_value['utterance']
+        elif metric_value["system"] == "speech":
+            self.interaction.tts_engine = metric_value["tts"]
+            self.interaction.tts_utterance = metric_value["utterance"]
             self.interaction.tts_duration = duration
-        elif metric_value['system'] == 'speech_playback':
+        elif metric_value["system"] == "speech_playback":
             self.interaction.speech_playback_duration = duration
-            self.playback_start_ts = metric_value['start_time']
+            self.playback_start_ts = metric_value["start_time"]
 
         # The user-experienced latency is the time between when the user
         # finishes speaking their intent and when the device provides a voice
         # response.
         if self.stt_start_ts is not None and self.playback_start_ts is not None:
-            self.interaction.user_latency = (
-                    self.playback_start_ts - self.stt_start_ts
-            )
+            self.interaction.user_latency = self.playback_start_ts - self.stt_start_ts
 
     def _add_interaction_to_db(self):
         if self.interaction is not None:
@@ -107,5 +103,5 @@ class CoreMetricsParser(SeleneScript):
                 self.core_metric_repo.add_interaction(self.interaction)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     CoreMetricsParser().run()

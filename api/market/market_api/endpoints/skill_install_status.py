@@ -26,12 +26,7 @@ from selene.api import SeleneEndpoint
 from selene.data.device import DeviceSkillRepository, ManifestSkill
 from selene.util.auth import AuthenticationError
 
-VALID_STATUS_VALUES = (
-    'failed',
-    'installed',
-    'installing',
-    'uninstalling'
-)
+VALID_STATUS_VALUES = ("failed", "installed", "installing", "uninstalling")
 
 
 class SkillInstallStatusEndpoint(SeleneEndpoint):
@@ -45,7 +40,7 @@ class SkillInstallStatusEndpoint(SeleneEndpoint):
         try:
             self._authenticate()
         except AuthenticationError:
-            self.response = ('', HTTPStatus.NO_CONTENT)
+            self.response = ("", HTTPStatus.NO_CONTENT)
         else:
             self._get_installed_skills()
             response_data = self._build_response_data()
@@ -55,9 +50,7 @@ class SkillInstallStatusEndpoint(SeleneEndpoint):
 
     def _get_installed_skills(self):
         skill_repo = DeviceSkillRepository(self.db)
-        installed_skills = skill_repo.get_skill_manifest_for_account(
-            self.account.id
-        )
+        installed_skills = skill_repo.get_skill_manifest_for_account(self.account.id)
         for skill in installed_skills:
             self.installed_skills[skill.skill_id].append(skill)
 
@@ -67,18 +60,13 @@ class SkillInstallStatusEndpoint(SeleneEndpoint):
         for skill_id, skills in self.installed_skills.items():
             skill_aggregator = SkillManifestAggregator(skills)
             skill_aggregator.aggregate_skill_status()
-            if skill_aggregator.aggregate_skill.install_status == 'failed':
-                failure_reasons[skill_id] = (
-                    skill_aggregator.aggregate_skill.install_failure_reason
-                )
-            install_statuses[skill_id] = (
-                skill_aggregator.aggregate_skill.install_status
-            )
+            if skill_aggregator.aggregate_skill.install_status == "failed":
+                failure_reasons[
+                    skill_id
+                ] = skill_aggregator.aggregate_skill.install_failure_reason
+            install_statuses[skill_id] = skill_aggregator.aggregate_skill.install_status
 
-        return dict(
-            installStatuses=install_statuses,
-            failureReasons=failure_reasons
-        )
+        return dict(installStatuses=install_statuses, failureReasons=failure_reasons)
 
 
 class SkillManifestAggregator(object):
@@ -96,7 +84,7 @@ class SkillManifestAggregator(object):
         """
         self._validate_install_status()
         self._determine_install_status()
-        if self.aggregate_skill.install_status == 'failed':
+        if self.aggregate_skill.install_status == "failed":
             self._determine_failure_reason()
 
     def _validate_install_status(self):
@@ -104,7 +92,7 @@ class SkillManifestAggregator(object):
             if skill.install_status not in VALID_STATUS_VALUES:
                 raise ValueError(
                     '"{install_status}" is not a supported value of the '
-                    'installation field in the skill manifest'.format(
+                    "installation field in the skill manifest".format(
                         install_status=skill.install_status
                     )
                 )
@@ -120,33 +108,24 @@ class SkillManifestAggregator(object):
         If the install fails on any device, the install will be flagged as a
         failed install in the Marketplace.
         """
-        failed = [
-            skill.install_status == 'failed' for skill in self.installed_skills
-        ]
-        installing = [
-            s.install_status == 'installing' for s in self.installed_skills
-        ]
+        failed = [skill.install_status == "failed" for skill in self.installed_skills]
+        installing = [s.install_status == "installing" for s in self.installed_skills]
         uninstalling = [
-            skill.install_status == 'uninstalling' for skill in
-            self.installed_skills
+            skill.install_status == "uninstalling" for skill in self.installed_skills
         ]
-        installed = [
-            s.install_status == 'installed' for s in self.installed_skills
-        ]
+        installed = [s.install_status == "installed" for s in self.installed_skills]
         if any(failed):
-            self.aggregate_skill.install_status = 'failed'
+            self.aggregate_skill.install_status = "failed"
         elif any(installing):
-            self.aggregate_skill.install_status = 'installing'
+            self.aggregate_skill.install_status = "installing"
         elif any(uninstalling):
-            self.aggregate_skill.install_status = 'uninstalling'
+            self.aggregate_skill.install_status = "uninstalling"
         elif all(installed):
-            self.aggregate_skill.install_status = 'installed'
+            self.aggregate_skill.install_status = "installed"
 
     def _determine_failure_reason(self):
         """When a skill fails to install, determine the reason"""
         for skill in self.installed_skills:
-            if skill.install_status == 'failed':
-                self.aggregate_skill.failure_reason = (
-                    skill.install_failure_reason
-                )
+            if skill.install_status == "failed":
+                self.aggregate_skill.failure_reason = skill.install_failure_reason
                 break

@@ -25,6 +25,7 @@ from selene.data.device import SettingRepository
 
 class DeviceSettingEndpoint(PublicEndpoint):
     """Return the device's settings for the API v1 model"""
+
     def __init__(self):
         super(DeviceSettingEndpoint, self).__init__()
 
@@ -36,5 +37,5 @@ class DeviceSettingEndpoint(PublicEndpoint):
             response = (setting, HTTPStatus.OK)
             self._add_etag(device_setting_etag_key(device_id))
         else:
-            response = ('', HTTPStatus.NO_CONTENT)
+            response = ("", HTTPStatus.NO_CONTENT)
         return response

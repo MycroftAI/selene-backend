@@ -33,39 +33,37 @@ from selene.data.skill import (
     SettingsDisplayRepository,
     Skill,
     SkillRepository,
-    SkillSettingRepository
+    SkillSettingRepository,
 )
 from selene.util.cache import DEVICE_SKILL_ETAG_KEY
 
 # matches <submodule_name>|<branch>
-GLOBAL_ID_PATTERN = '^([^\|@]+)\|([^\|]+$)'
+GLOBAL_ID_PATTERN = "^([^\|@]+)\|([^\|]+$)"
 # matches @<device_id>|<submodule_name>|<branch>
-GLOBAL_ID_DIRTY_PATTERN = '^@(.*)\|(.*)\|(.*)$'
+GLOBAL_ID_DIRTY_PATTERN = "^@(.*)\|(.*)\|(.*)$"
 # matches @<device_id>|<folder_name>
-GLOBAL_ID_NON_MSM_PATTERN = '^@([^\|]+)\|([^\|]+$)'
-GLOBAL_ID_ANY_PATTERN = '(?:{})|(?:{})|(?:{})'.format(
-    GLOBAL_ID_PATTERN,
-    GLOBAL_ID_DIRTY_PATTERN,
-    GLOBAL_ID_NON_MSM_PATTERN
+GLOBAL_ID_NON_MSM_PATTERN = "^@([^\|]+)\|([^\|]+$)"
+GLOBAL_ID_ANY_PATTERN = "(?:{})|(?:{})|(?:{})".format(
+    GLOBAL_ID_PATTERN, GLOBAL_ID_DIRTY_PATTERN, GLOBAL_ID_NON_MSM_PATTERN
 )
 
 
 def _normalize_field_value(field):
     """The field values in skillMetadata are all strings, convert to native."""
-    normalized_value = field.get('value')
-    if field['type'].lower() == 'checkbox':
-        if field['value'] in ('false', 'False', '0'):
+    normalized_value = field.get("value")
+    if field["type"].lower() == "checkbox":
+        if field["value"] in ("false", "False", "0"):
             normalized_value = False
-        elif field['value'] in ('true', 'True', '1'):
+        elif field["value"] in ("true", "True", "1"):
             normalized_value = True
-    elif field['type'].lower() == 'number' and isinstance(field['value'], str):
-        if field['value']:
-            normalized_value = float(field['value'])
+    elif field["type"].lower() == "number" and isinstance(field["value"], str):
+        if field["value"]:
+            normalized_value = float(field["value"])
             if not normalized_value % 1:
-                normalized_value = int(field['value'])
+                normalized_value = int(field["value"])
             else:
                 normalized_value = 0
-    elif field['value'] == "[]":
+    elif field["value"] == "[]":
         normalized_value = []
 
     return normalized_value
@@ -78,6 +76,7 @@ class SkillSettingUpdater(object):
     request specifies a single device to update, all devices with
     the same skill must be updated as well.
     """
+
     _device_skill_repo = None
     _settings_display_repo = None
 
@@ -115,28 +114,27 @@ class SkillSettingUpdater(object):
         settings_meta.json file before sending the result to this API.  The
         settings values are stored separately from the metadata in the database.
         """
-        settings_definition = self.display_data.get('skillMetadata')
+        settings_definition = self.display_data.get("skillMetadata")
         if settings_definition is not None:
             self.settings_values = dict()
             sections_without_values = []
-            for section in settings_definition['sections']:
+            for section in settings_definition["sections"]:
                 section_without_values = dict(**section)
-                for field in section_without_values['fields']:
-                    field_name = field.get('name')
-                    field_value = field.get('value')
+                for field in section_without_values["fields"]:
+                    field_name = field.get("name")
+                    field_value = field.get("value")
                     if field_name is not None:
                         if field_value is not None:
                             field_value = _normalize_field_value(field)
-                            del(field['value'])
+                            del field["value"]
                         self.settings_values[field_name] = field_value
                 sections_without_values.append(section_without_values)
-            settings_definition['sections'] = sections_without_values
+            settings_definition["sections"] = sections_without_values
 
     def _get_skill_id(self):
         """Get the id of the skill in the request"""
-        skill_global_id = (
-                self.display_data.get('skill_gid') or
-                self.display_data.get('identifier')
+        skill_global_id = self.display_data.get("skill_gid") or self.display_data.get(
+            "identifier"
         )
         skill_repo = SkillRepository(self.db)
         skill_id = skill_repo.ensure_skill_exists(skill_global_id)
@@ -145,14 +143,9 @@ class SkillSettingUpdater(object):
     def _ensure_settings_display_exists(self) -> bool:
         """If the settings display changed, a new row needs to be added."""
         new_settings_display = False
-        self.settings_display = SettingsDisplay(
-            self.skill.id,
-            self.display_data
-        )
-        self.settings_display.id = (
-            self.settings_display_repo.get_settings_display_id(
-                self.settings_display
-            )
+        self.settings_display = SettingsDisplay(self.skill.id, self.display_data)
+        self.settings_display.id = self.settings_display_repo.get_settings_display_id(
+            self.settings_display
         )
         if self.settings_display.id is None:
             self.settings_display.id = self.settings_display_repo.add(
@@ -173,11 +166,8 @@ class SkillSettingUpdater(object):
         """Get all the permutations of settings for a skill"""
         account_repo = AccountRepository(self.db)
         account = account_repo.get_account_by_device_id(self.device_id)
-        skill_settings = (
-            self.device_skill_repo.get_skill_settings_for_account(
-                account.id,
-                self.skill.id
-            )
+        skill_settings = self.device_skill_repo.get_skill_settings_for_account(
+            account.id, self.skill.id
         )
 
         return skill_settings
@@ -187,14 +177,14 @@ class SkillSettingUpdater(object):
         for skill_setting in skill_settings:
             if self.device_id in skill_setting.device_ids:
                 device_skill_found = True
-                if skill_setting.install_method in ('voice', 'cli'):
+                if skill_setting.install_method in ("voice", "cli"):
                     devices_to_update = [self.device_id]
                 else:
                     devices_to_update = skill_setting.device_ids
                 self.device_skill_repo.upsert_device_skill_settings(
                     devices_to_update,
                     self.settings_display,
-                    self._merge_settings_values(skill_setting.settings_values)
+                    self._merge_settings_values(skill_setting.settings_values),
                 )
                 break
 
@@ -225,9 +215,7 @@ class SkillSettingUpdater(object):
         manifest endpoint in some cases.
         """
         self.device_skill_repo.upsert_device_skill_settings(
-            [self.device_id],
-            self.settings_display,
-            self._merge_settings_values()
+            [self.device_id], self.settings_display, self._merge_settings_values()
         )
 
 
@@ -267,15 +255,16 @@ class RequestSkill(Model):
     identifier = StringType()
 
     def validate_skill_gid(self, data, value):
-        if data['skill_gid'] is None and data['identifier'] is None:
+        if data["skill_gid"] is None and data["identifier"] is None:
             raise ValidationError(
-                'skill should have either skill_gid or identifier defined'
+                "skill should have either skill_gid or identifier defined"
             )
         return value
 
 
 class DeviceSkillSettingsEndpoint(PublicEndpoint):
     """Fetch all skills associated with a device using the API v1 format"""
+
     _device_skill_repo = None
     _skill_repo = None
     _skill_setting_repo = None
@@ -317,23 +306,19 @@ class DeviceSkillSettingsEndpoint(PublicEndpoint):
         """
         self._authenticate(device_id)
         self._validate_etag(DEVICE_SKILL_ETAG_KEY.format(device_id=device_id))
-        device_skills = self.skill_setting_repo.get_skill_settings_for_device(
-            device_id
-        )
+        device_skills = self.skill_setting_repo.get_skill_settings_for_device(device_id)
 
         if device_skills:
             response_data = self._build_response_data(device_skills)
             response = Response(
                 json.dumps(response_data),
                 status=HTTPStatus.OK,
-                content_type='application/json'
+                content_type="application/json",
             )
             self._add_etag(DEVICE_SKILL_ETAG_KEY.format(device_id=device_id))
         else:
             response = Response(
-                '',
-                status=HTTPStatus.NO_CONTENT,
-                content_type='application/json'
+                "", status=HTTPStatus.NO_CONTENT, content_type="application/json"
             )
         return response
 
@@ -341,7 +326,7 @@ class DeviceSkillSettingsEndpoint(PublicEndpoint):
         response_data = []
         for skill in device_skills:
             response_skill = dict(uuid=skill.skill_id)
-            settings_definition = skill.settings_display.get('skillMetadata')
+            settings_definition = skill.settings_display.get("skillMetadata")
             if settings_definition:
                 settings_sections = self._apply_settings_values(
                     settings_definition, skill.settings_values
@@ -350,10 +335,10 @@ class DeviceSkillSettingsEndpoint(PublicEndpoint):
                     response_skill.update(
                         skillMetadata=dict(sections=settings_sections)
                     )
-            skill_gid = skill.settings_display.get('skill_gid')
+            skill_gid = skill.settings_display.get("skill_gid")
             if skill_gid is not None:
                 response_skill.update(skill_gid=skill_gid)
-            identifier = skill.settings_display.get('identifier')
+            identifier = skill.settings_display.get("identifier")
             if identifier is None:
                 response_skill.update(identifier=skill_gid)
             else:
@@ -366,10 +351,10 @@ class DeviceSkillSettingsEndpoint(PublicEndpoint):
     def _apply_settings_values(settings_definition, settings_values):
         """Build a copy of the settings sections populated with values."""
         sections_with_values = []
-        for section in settings_definition['sections']:
+        for section in settings_definition["sections"]:
             section_with_values = dict(**section)
-            for field in section_with_values['fields']:
-                field_name = field.get('name')
+            for field in section_with_values["fields"]:
+                field_name = field.get("name")
                 if field_name is not None and field_name in settings_values:
                     field.update(value=str(settings_values[field_name]))
             sections_with_values.append(section_with_values)
@@ -380,9 +365,7 @@ class DeviceSkillSettingsEndpoint(PublicEndpoint):
         self._authenticate(device_id)
         self._validate_put_request()
         skill_id = self._update_skill_settings(device_id)
-        self.etag_manager.expire(
-            DEVICE_SKILL_ETAG_KEY.format(device_id=device_id)
-        )
+        self.etag_manager.expire(DEVICE_SKILL_ETAG_KEY.format(device_id=device_id))
 
         return dict(uuid=skill_id), HTTPStatus.OK
 
@@ -392,9 +375,7 @@ class DeviceSkillSettingsEndpoint(PublicEndpoint):
 
     def _update_skill_settings(self, device_id):
         skill_setting_updater = SkillSettingUpdater(
-            self.db,
-            device_id,
-            self.request.json
+            self.db, device_id, self.request.json
         )
         skill_setting_updater.update()
         self._delete_orphaned_settings_display(
@@ -418,6 +399,7 @@ class DeviceSkillSettingsEndpointV2(PublicEndpoint):
     with pre 19.08 versions of mycroft-core.  Once those versions are no
     longer supported, the older class can be deprecated.
     """
+
     def get(self, device_id):
         """
         Retrieve skills installed on device from the database.
@@ -433,9 +415,7 @@ class DeviceSkillSettingsEndpointV2(PublicEndpoint):
 
     def _build_response_data(self, device_id):
         device_skill_repo = DeviceSkillRepository(self.db)
-        device_skills = device_skill_repo.get_skill_settings_for_device(
-            device_id
-        )
+        device_skills = device_skill_repo.get_skill_settings_for_device(device_id)
         if device_skills is not None:
             response_data = {}
             for skill in device_skills:
@@ -446,15 +426,13 @@ class DeviceSkillSettingsEndpointV2(PublicEndpoint):
     def _build_response(self, device_id, response_data):
         if response_data is None:
             response = Response(
-                '',
-                status=HTTPStatus.NO_CONTENT,
-                content_type='application/json'
+                "", status=HTTPStatus.NO_CONTENT, content_type="application/json"
             )
         else:
             response = Response(
                 json.dumps(response_data),
                 status=HTTPStatus.OK,
-                content_type='application/json'
+                content_type="application/json",
             )
             self._add_etag(DEVICE_SKILL_ETAG_KEY.format(device_id=device_id))
 

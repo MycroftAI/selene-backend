@@ -33,10 +33,10 @@ class DeviceSubscriptionEndpoint(PublicEndpoint):
         if account:
             membership = account.membership
             response = (
-                {'@type': membership.type if membership is not None else 'free'},
-                HTTPStatus.OK
+                {"@type": membership.type if membership is not None else "free"},
+                HTTPStatus.OK,
             )
         else:
-            response = '', HTTPStatus.NO_CONTENT
+            response = "", HTTPStatus.NO_CONTENT
 
         return response

@@ -27,8 +27,7 @@ class RegionRepository(RepositoryBase):
 
     def get_regions_by_country(self, country_id):
         db_request = self._build_db_request(
-            sql_file_name='get_regions_by_country.sql',
-            args=dict(country_id=country_id)
+            sql_file_name="get_regions_by_country.sql", args=dict(country_id=country_id)
         )
         db_result = self.cursor.select_all(db_request)
 
