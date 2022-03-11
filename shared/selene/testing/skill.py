@@ -21,52 +21,41 @@ from selene.data.skill import (
     SettingsDisplay,
     SettingsDisplayRepository,
     Skill,
-    SkillRepository
+    SkillRepository,
 )
 
 
 def build_text_field():
     return dict(
-        name='textfield',
-        type='text',
-        label='Text Field',
-        placeholder='Text Placeholder'
+        name="textfield",
+        type="text",
+        label="Text Field",
+        placeholder="Text Placeholder",
     )
 
 
 def build_checkbox_field():
-    return dict(
-        name='checkboxfield',
-        type='checkbox',
-        label='Checkbox Field'
-    )
+    return dict(name="checkboxfield", type="checkbox", label="Checkbox Field")
 
 
 def build_label_field():
-    return dict(
-        type='label',
-        label='This is a section label.'
-    )
+    return dict(type="label", label="This is a section label.")
 
 
 def _build_display_data(skill_gid, fields):
-    gid_parts = skill_gid.split('|')
+    gid_parts = skill_gid.split("|")
     if len(gid_parts) == 3:
         skill_name = gid_parts[1]
 
     else:
         skill_name = gid_parts[0]
-    skill_identifier = skill_name + '-123456'
+    skill_identifier = skill_name + "-123456"
     settings_display = dict(
-        skill_gid=skill_gid,
-        identifier=skill_identifier,
-        display_name=skill_name,
+        skill_gid=skill_gid, identifier=skill_identifier, display_name=skill_name,
     )
     if fields is not None:
         settings_display.update(
-            skillMetadata=dict(
-                sections=[dict(name='Section Name', fields=fields)]
-            )
+            skillMetadata=dict(sections=[dict(name="Section Name", fields=fields)])
         )
 
     return settings_display

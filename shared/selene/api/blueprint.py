@@ -31,7 +31,7 @@ from selene.util.cache import DEVICE_LAST_CONTACT_KEY
 from selene.util.db import connect_to_db
 from selene.util.exceptions import NotModifiedException
 
-selene_api = Blueprint('selene_api', __name__)
+selene_api = Blueprint("selene_api", __name__)
 
 
 @selene_api.app_errorhandler(DataError)
@@ -46,7 +46,7 @@ def handle_data_error(error):
 
 @selene_api.app_errorhandler(NotModifiedException)
 def handle_not_modified(_):
-    return '', HTTPStatus.NOT_MODIFIED
+    return "", HTTPStatus.NOT_MODIFIED
 
 
 @selene_api.before_app_request
@@ -67,26 +67,26 @@ def add_api_metric(http_status):
     api = None
     # We are not logging metric for the public API until after the socket
     # implementation to avoid putting millions of rows a day on the table
-    for api_name in ('account', 'sso', 'market', 'public'):
+    for api_name in ("account", "sso", "market", "public"):
         if api_name in current_app.name:
             api = api_name
 
     if api is not None and int(http_status) != 304:
-        if 'db' not in global_context:
+        if "db" not in global_context:
             global_context.db = connect_to_db(
-                current_app.config['DB_CONNECTION_CONFIG']
+                current_app.config["DB_CONNECTION_CONFIG"]
             )
-        if 'account_id' in global_context:
+        if "account_id" in global_context:
             account_id = global_context.account_id
         else:
             account_id = None
 
-        if 'device_id' in global_context:
+        if "device_id" in global_context:
             device_id = global_context.device_id
         else:
             device_id = None
 
-        duration = (datetime.utcnow() - global_context.start_ts)
+        duration = datetime.utcnow() - global_context.start_ts
         api_metric = ApiMetric(
             access_ts=datetime.utcnow(),
             account_id=account_id,
@@ -95,7 +95,7 @@ def add_api_metric(http_status):
             duration=Decimal(str(duration.total_seconds())),
             http_method=request.method,
             http_status=int(http_status),
-            url=global_context.url
+            url=global_context.url,
         )
         metric_repository = ApiMetricsRepository(global_context.db)
         metric_repository.add(api_metric)
@@ -107,6 +107,6 @@ def update_device_last_contact():
     This should only be done on public API calls because we are tracking
     device activity only.
     """
-    if 'public' in current_app.name and 'device_id' in global_context:
+    if "public" in current_app.name and "device_id" in global_context:
         key = DEVICE_LAST_CONTACT_KEY.format(device_id=global_context.device_id)
         global_context.cache.set(key, str(datetime.utcnow()))

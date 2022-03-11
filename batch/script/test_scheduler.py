@@ -42,24 +42,24 @@ class TestScheduler(SeleneScript):
         super(TestScheduler, self)._define_args()
         self._arg_parser.add_argument(
             "--arg-with-value",
-            help='Argument to test passing a value with an argument',
+            help="Argument to test passing a value with an argument",
             required=True,
-            type=str
+            type=str,
         )
         self._arg_parser.add_argument(
             "--arg-no-value",
-            help='Argument to test passing a value with an argument',
-            action="store_true"
+            help="Argument to test passing a value with an argument",
+            action="store_true",
         )
 
     def _run(self):
-        self.log.info('Running the scheduler test job')
+        self.log.info("Running the scheduler test job")
         assert self.args.arg_no_value
-        assert self.args.arg_with_value == 'test'
+        assert self.args.arg_with_value == "test"
 
         # Tests the logic that overrides the default date in the scheduler.
         assert self.args.date == date.today() - timedelta(days=1)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     TestScheduler().run()

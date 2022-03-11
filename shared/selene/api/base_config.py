@@ -48,32 +48,33 @@ class APIConfigError(Exception):
 
 class BaseConfig(object):
     """Base configuration."""
-    ACCESS_SECRET = os.environ['JWT_ACCESS_SECRET']
+
+    ACCESS_SECRET = os.environ["JWT_ACCESS_SECRET"]
     DB_CONNECTION_POOL = None
     DEBUG = False
-    ENV = os.environ['SELENE_ENVIRONMENT']
-    REFRESH_SECRET = os.environ['JWT_REFRESH_SECRET']
+    ENV = os.environ["SELENE_ENVIRONMENT"]
+    REFRESH_SECRET = os.environ["JWT_REFRESH_SECRET"]
     DB_CONNECTION_CONFIG = DatabaseConnectionConfig(
-        host=os.environ['DB_HOST'],
-        db_name=os.environ['DB_NAME'],
-        password=os.environ['DB_PASSWORD'],
-        port=os.environ.get('DB_PORT', 5432),
-        user=os.environ['DB_USER'],
-        sslmode=os.environ.get('DB_SSLMODE')
+        host=os.environ["DB_HOST"],
+        db_name=os.environ["DB_NAME"],
+        password=os.environ["DB_PASSWORD"],
+        port=os.environ.get("DB_PORT", 5432),
+        user=os.environ["DB_USER"],
+        sslmode=os.environ.get("DB_SSLMODE"),
     )
 
 
 class DevelopmentConfig(BaseConfig):
     DEBUG = True
-    DOMAIN = '.mycroft.test'
+    DOMAIN = ".mycroft.test"
 
 
 class TestConfig(BaseConfig):
-    DOMAIN = '.mycroft-test.net'
+    DOMAIN = ".mycroft-test.net"
 
 
 class ProdConfig(BaseConfig):
-    DOMAIN = '.mycroft.ai'
+    DOMAIN = ".mycroft.ai"
 
 
 def get_base_config():
@@ -81,16 +82,12 @@ def get_base_config():
 
     :return: an object containing the configs for the API.
     """
-    environment_configs = dict(
-        dev=DevelopmentConfig,
-        test=TestConfig,
-        prod=ProdConfig
-    )
+    environment_configs = dict(dev=DevelopmentConfig, test=TestConfig, prod=ProdConfig)
 
     try:
-        environment_name = os.environ['SELENE_ENVIRONMENT']
+        environment_name = os.environ["SELENE_ENVIRONMENT"]
     except KeyError:
-        raise APIConfigError('the SELENE_ENVIRONMENT variable is not set')
+        raise APIConfigError("the SELENE_ENVIRONMENT variable is not set")
 
     try:
         app_config = environment_configs[environment_name]

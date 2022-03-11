@@ -20,9 +20,9 @@
 from dataclasses import dataclass
 from datetime import date
 
-TERMS_OF_USE = 'Terms of Use'
-PRIVACY_POLICY = 'Privacy Policy'
-OPEN_DATASET = 'Open Dataset'
+TERMS_OF_USE = "Terms of Use"
+PRIVACY_POLICY = "Privacy Policy"
+OPEN_DATASET = "Open Dataset"
 
 
 @dataclass

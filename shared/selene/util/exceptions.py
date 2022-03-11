@@ -25,4 +25,5 @@ class NotModifiedException(Exception):
 
     The Flask blueprint will catch this exception and return a HTTP 304 code.
     """
+
     pass

@@ -22,9 +22,9 @@ from selene.data.device import DeviceRepository, TextToSpeech
 
 def _build_voice():
     return TextToSpeech(
-        setting_name='selene_test_voice',
-        display_name='Selene Test Voice',
-        engine='mimic'
+        setting_name="selene_test_voice",
+        display_name="Selene Test Voice",
+        engine="mimic",
     )
 
 

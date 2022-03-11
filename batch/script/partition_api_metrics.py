@@ -40,5 +40,5 @@ class PartitionApiMetrics(SeleneScript):
         api_metrics_repo.remove_by_date(self.args.date)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     PartitionApiMetrics().run()

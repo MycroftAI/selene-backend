@@ -28,7 +28,7 @@ from schematics.types import (
     ListType,
     IntType,
     BooleanType,
-    TimestampType
+    TimestampType,
 )
 
 from selene.api import PublicEndpoint
@@ -43,9 +43,7 @@ class SkillManifestReconciler(object):
         self.skill_repo = SkillRepository(self.db)
         self.device_manifest = {sm.skill_gid: sm for sm in device_manifest}
         self.db_manifest = {ds.skill_gid: ds for ds in db_manifest}
-        self.device_manifest_global_ids = {
-            gid for gid in self.device_manifest.keys()
-        }
+        self.device_manifest_global_ids = {gid for gid in self.device_manifest.keys()}
         self.db_manifest_global_ids = {gid for gid in self.db_manifest}
 
     def reconcile(self):
@@ -82,16 +80,14 @@ class SkillManifestReconciler(object):
         for gid in skills_to_add:
             skill_id = self.skill_repo.ensure_skill_exists(gid)
             self.device_manifest[gid].skill_id = skill_id
-            self.skill_manifest_repo.add_manifest_skill(
-                self.device_manifest[gid]
-            )
+            self.skill_manifest_repo.add_manifest_skill(self.device_manifest[gid])
 
 
 class RequestManifestSkill(Model):
     name = StringType(required=True)
     origin = StringType(required=True)
     installation = StringType(required=True)
-    failure_message = StringType(default='')
+    failure_message = StringType(default="")
     status = StringType(required=True)
     beta = BooleanType(required=True)
     installed = TimestampType(required=True)
@@ -126,7 +122,7 @@ class DeviceSkillManifestEndpoint(PublicEndpoint):
         self._validate_put_request()
         self._update_skill_manifest(device_id)
 
-        return '', HTTPStatus.OK
+        return "", HTTPStatus.OK
 
     def _validate_put_request(self):
         request_data = SkillManifestRequest(self.request.json)
@@ -137,29 +133,27 @@ class DeviceSkillManifestEndpoint(PublicEndpoint):
             device_id
         )
         device_skill_manifest = []
-        for manifest_skill in self.request.json['skills']:
+        for manifest_skill in self.request.json["skills"]:
             self._convert_manifest_timestamps(manifest_skill)
             device_skill_manifest.append(
                 ManifestSkill(
                     device_id=device_id,
-                    install_method=manifest_skill['origin'],
-                    install_status=manifest_skill['installation'],
-                    install_failure_reason=manifest_skill.get('failure_message'),
-                    install_ts=manifest_skill['installed'],
-                    skill_gid=manifest_skill['skill_gid'],
-                    update_ts=manifest_skill['updated']
+                    install_method=manifest_skill["origin"],
+                    install_status=manifest_skill["installation"],
+                    install_failure_reason=manifest_skill.get("failure_message"),
+                    install_ts=manifest_skill["installed"],
+                    skill_gid=manifest_skill["skill_gid"],
+                    update_ts=manifest_skill["updated"],
                 )
             )
         reconciler = SkillManifestReconciler(
-            self.db,
-            device_skill_manifest,
-            db_skill_manifest
+            self.db, device_skill_manifest, db_skill_manifest
         )
         reconciler.reconcile()
 
     @staticmethod
     def _convert_manifest_timestamps(manifest_skill):
-        for key in ('installed', 'updated'):
+        for key in ("installed", "updated"):
             value = manifest_skill[key]
             if value:
                 manifest_skill[key] = datetime.fromtimestamp(value)

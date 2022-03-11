@@ -47,21 +47,18 @@ class UpdateDeviceLastContact(SeleneScript):
                 devices_updated += 1
                 device_repo.update_last_contact_ts(device.id, last_contact_ts)
 
-        self.log.info(str(devices_updated) + ' devices were active today')
+        self.log.info(str(devices_updated) + " devices were active today")
 
     def _get_ts_from_cache(self, device_id):
         last_contact_ts = None
         cache_key = DEVICE_LAST_CONTACT_KEY.format(device_id=device_id)
         value = self.cache.get(cache_key)
         if value is not None:
-            last_contact_ts = datetime.strptime(
-                value.decode(),
-                '%Y-%m-%d %H:%M:%S.%f'
-            )
+            last_contact_ts = datetime.strptime(value.decode(), "%Y-%m-%d %H:%M:%S.%f")
             self.cache.delete(cache_key)
 
         return last_contact_ts
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     UpdateDeviceLastContact().run()

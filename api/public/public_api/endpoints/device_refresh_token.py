@@ -35,44 +35,44 @@ class DeviceRefreshTokenEndpoint(PublicEndpoint):
 
     def get(self):
         headers = self.request.headers
-        if 'Authorization' not in headers:
-            raise AuthenticationError('Oauth token not found')
-        token_header = self.request.headers['Authorization']
-        if token_header.startswith('Bearer '):
-            refresh = token_header[len('Bearer '):]
+        if "Authorization" not in headers:
+            raise AuthenticationError("Oauth token not found")
+        token_header = self.request.headers["Authorization"]
+        if token_header.startswith("Bearer "):
+            refresh = token_header[len("Bearer ") :]
             session = self._refresh_session_token(refresh)
             # Trying to fetch a session using the refresh token
             if session:
                 response = session, HTTPStatus.OK
             else:
-                device = self.request.headers.get('Device')
+                device = self.request.headers.get("Device")
                 if device:
                     # trying to fetch a session using the device uuid
                     session = self._refresh_session_token_device(device)
                     if session:
                         response = session, HTTPStatus.OK
                     else:
-                        response = '', HTTPStatus.UNAUTHORIZED
+                        response = "", HTTPStatus.UNAUTHORIZED
                 else:
-                    response = '', HTTPStatus.UNAUTHORIZED
+                    response = "", HTTPStatus.UNAUTHORIZED
         else:
-            response = '', HTTPStatus.UNAUTHORIZED
+            response = "", HTTPStatus.UNAUTHORIZED
         return response
 
     def _refresh_session_token(self, refresh: str):
-        refresh_key = 'device.token.refresh:{}'.format(refresh)
+        refresh_key = "device.token.refresh:{}".format(refresh)
         session = self.cache.get(refresh_key)
         if session:
             old_login = json.loads(session)
-            device_id = old_login['uuid']
+            device_id = old_login["uuid"]
             self.cache.delete(refresh_key)
             return generate_device_login(device_id, self.cache)
 
     def _refresh_session_token_device(self, device: str):
-        refresh_key = 'device.session:{}'.format(device)
+        refresh_key = "device.session:{}".format(device)
         session = self.cache.get(refresh_key)
         if session:
             old_login = json.loads(session)
-            device_id = old_login['uuid']
+            device_id = old_login["uuid"]
             self.cache.delete(refresh_key)
             return generate_device_login(device_id, self.cache)

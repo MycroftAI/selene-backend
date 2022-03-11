@@ -31,8 +31,6 @@ class DeviceCountEndpoint(SeleneEndpoint):
 
     def _get_devices(self):
         device_repository = DeviceRepository(self.db)
-        device_count = device_repository.get_account_device_count(
-            self.account.id
-        )
+        device_count = device_repository.get_account_device_count(self.account.id)
 
         return device_count

@@ -1,41 +1,43 @@
-[![License](https://img.shields.io/badge/License-GNU_AGPL%203.0-blue.svg)](LICENSE) 
-[![CLA](https://img.shields.io/badge/CLA%3F-Required-blue.svg)](https://mycroft.ai/cla) 
-[![Team](https://img.shields.io/badge/Team-Mycroft_Backend-violetblue.svg)](https://github.com/MycroftAI/contributors/blob/master/team/Mycroft%20Backend.md) 
+[![License](https://img.shields.io/badge/License-GNU_AGPL%203.0-blue.svg)](LICENSE)
+[![CLA](https://img.shields.io/badge/CLA%3F-Required-blue.svg)](https://mycroft.ai/cla)
+[![Team](https://img.shields.io/badge/Team-Mycroft_Backend-violetblue.svg)](https://github.com/MycroftAI/contributors/blob/master/team/Mycroft%20Backend.md)
 ![Status](https://img.shields.io/badge/-Production_ready-green.svg)
 
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com)
 [![Join chat](https://img.shields.io/badge/Mattermost-join_chat-brightgreen.svg)](https://chat.mycroft.ai)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+
 
 
 Selene -- Mycroft's Server Backend
 ==========
 
 Selene provides the services used by [Mycroft Core](https://github.com/mycroftai/mycroft-core) to manage devices, skills
-and settings.  It consists of two repositories.  This one contains Python and SQL representing the database definition, 
-data access layer, APIs and scripts.  The second repository, [Selene UI](https://github.com/mycroftai/selene-ui), 
+and settings.  It consists of two repositories.  This one contains Python and SQL representing the database definition,
+data access layer, APIs and scripts.  The second repository, [Selene UI](https://github.com/mycroftai/selene-ui),
 contains Angular web applications that use the APIs defined in this repository.
 
 There are four APIs defined in this repository, account management, single sign on, skill marketplace and device.
-The first three support account.mycroft.ai (aka home.mycroft.ai), sso.mycroft.ai, and market.mycroft.ai, respectively. 
+The first three support account.mycroft.ai (aka home.mycroft.ai), sso.mycroft.ai, and market.mycroft.ai, respectively.
 The device API is how devices running Mycroft Core communicate with the server. Also included in this repository is
 a package containing batch scripts for maintenance and the definition of the database schema.
 
-Each API is designed to run independently of the others. Code common to each of the APIs, such as the Data Access Layer, 
-can be found in the "shared" directory.  The shared code is an independent Python package required by each of the APIs. 
-Each API has its own Pipfile so that it can be run in its own virtual environment. 
+Each API is designed to run independently of the others. Code common to each of the APIs, such as the Data Access Layer,
+can be found in the "shared" directory.  The shared code is an independent Python package required by each of the APIs.
+Each API has its own Pipfile so that it can be run in its own virtual environment.
 
 ## Installation
-The Python code utilizes features introduced in Python 3.7, such as data classes. 
+The Python code utilizes features introduced in Python 3.7, such as data classes.
 [Pipenv](https://pipenv.readthedocs.io/en/latest/) is used for virtual environment and package management.
 If you prefer to use pip and pyenv (or virtualenv), you can find the required libraries in the files named "Pipfile".
 These instructions will use pipenv commands.
 
-If the Selene applications will be servicing a large number of devices (enterprise usage, for example), it is 
+If the Selene applications will be servicing a large number of devices (enterprise usage, for example), it is
 recommended that each of the applications run on their own server or virtual machine. This configuration makes it
-easier to scale and monitor each application independently.  However, all applications can be run on a single server. 
-This configuration could be more practical for a household running a handful of devices. 
+easier to scale and monitor each application independently.  However, all applications can be run on a single server.
+This configuration could be more practical for a household running a handful of devices.
 
-These instructions will assume a multi-server setup for several thousand devices. To run on a single server servicing a 
+These instructions will assume a multi-server setup for several thousand devices. To run on a single server servicing a
 small number of devices, the recommended system requirements are 4 CPU, 8GB RAM and 100GB of disk.  There are a lot of
 manual steps in this section that will eventually be replaced with an installation script.
 
@@ -45,14 +47,14 @@ It is recommended to create an application specific user. In these instructions 
 
 ### Postgres DB
 * Recommended server configuration: [Ubuntu 18.04 LTS (server install)](https://releases.ubuntu.com/bionic/), 2 CPU, 4GB RAM, 50GB disk.
-* Use the package management system to install Python 3.7, Python 3 pip and PostgreSQL 10  
+* Use the package management system to install Python 3.7, Python 3 pip and PostgreSQL 10
 ```
 sudo apt-get install postgresql python3.7 python python3-pip
 ```
-* Set Postgres to start on boot  
-``` 
+* Set Postgres to start on boot
+```
 sudo systemctl enable postgresql
-``` 
+```
 * Clone the selene-backend and documentation repositories
 ```
 sudo mkdir -p /opt/selene
@@ -97,7 +99,7 @@ pipenv run python bootstrap_mycroft_db.py
   # IPv4 local connections:
   host    all             all             127.0.0.1/32            trust
   ```
-* By default, Postgres only listens on localhost.  This will not do for a multi-server setup.  Change the 
+* By default, Postgres only listens on localhost.  This will not do for a multi-server setup.  Change the
 `listen_addresses` value in the `posgresql.conf` file to the private IP of the database server.  This file is owned by
 the `postgres` user so use the following command to edit it (substituting vi for your favorite editor)
 ```
@@ -109,7 +111,7 @@ the `postgres` user so use the following command to edit it (substituting vi for
 ```
 sudo -u postgres vi /etc/postgres/10/main/pg_hba.conf
 ```
-* Instructions on how to update the `pg_hba.conf` file can be found in 
+* Instructions on how to update the `pg_hba.conf` file can be found in
 [Postgres' documentation](https://www.postgresql.org/docs/10/auth-pg-hba-conf.html).  Below is an example for reference.
 ```
 # IPv4 Selene connections
@@ -123,7 +125,7 @@ sudo systemctl restart postgresql
 ### Redis DB
 
 * Recommended server configuration: Ubuntu 18.04 LTS, 1 CPU, 1GB RAM, 5GB disk.
-So as to not reinvent the wheel, here are some easy-to-follow instructions for 
+So as to not reinvent the wheel, here are some easy-to-follow instructions for
 [installing Redis on Ubuntu 18.04](https://www.digitalocean.com/community/tutorials/how-to-install-and-secure-redis-on-ubuntu-18-04).
 * By default, Redis only listens on local host. For multi-server setups, one additional step is to change the "bind" variable in `/etc/redis/redis.conf` to be the private IP of the Redis host.
 
@@ -133,9 +135,9 @@ The majority of the setup for each API is the same.  This section defines the st
 to each API will be defined in their respective sections.
 * Add an application user to the VM. Either give this user sudo privileges or execute the sudo commands below as a user
 with sudo privileges.  These instructions will assume a user name of "mycroft"
-* Use the package management system to install Python 3.7, Python 3 pip and Python 3.7 Developer Tools 
+* Use the package management system to install Python 3.7, Python 3 pip and Python 3.7 Developer Tools
 ```
-sudo apt install python3.7 python3-pip python3.7-dev 
+sudo apt install python3.7 python3-pip python3.7-dev
 sudo python3.7 -m pip install pipenv
 ```
 * Setup the Backend Application Directory
@@ -196,7 +198,7 @@ pipenv install
 ```
 ### Running the APIs
 Each API is configured to run on port 5000.  This is not a problem if each is running in its own VM but will be an
-issue if all APIs are running on the same server, or if port 5000 is already in use.  To address these scenarios, 
+issue if all APIs are running on the same server, or if port 5000 is already in use.  To address these scenarios,
 change the port numbering in the uwsgi.ini file for each API.
 
 #### Single Sign On API
@@ -206,7 +208,7 @@ reset key, which is used in a password reset scenario.  Generate a secret key fo
 * Any data that can identify a user is encrypted.  Generate a salt that will be used with the encryption algorithm.
 * Access to the Github API is required to support logging in with your Github account.  Details can be found
 [here](https://developer.github.com/v3/guides/basics-of-authentication/).
-* The password reset functionality sends an email to the user with a link to reset their password.  Selene uses 
+* The password reset functionality sends an email to the user with a link to reset their password.  Selene uses
 SendGrid to send these emails so a SendGrid account and API key are required.
 * Define a systemd service to run the API.  The service defines environment variables that use the secret and API keys
 generated in previous steps.
@@ -250,7 +252,7 @@ sudo systemctl enable sso_api.service
 ```
 
 #### Account API
-* The account API uses the same authentication mechanism as the single sign on API.  The JWT_ACCESS_SECRET, 
+* The account API uses the same authentication mechanism as the single sign on API.  The JWT_ACCESS_SECRET,
 JWT_REFRESH_SECRET and SALT environment variables must be the same values as those on the single sign on API.
 * This application uses the Redis database so the service needs to know where it resides.
 * Define a systemd service to run the API.  The service defines environment variables that use the secret and API keys
@@ -293,7 +295,7 @@ sudo systemctl enable account_api.service
 ```
 
 #### Marketplace API
-* The marketplace API uses the same authentication mechanism as the single sign on API.  The JWT_ACCESS_SECRET, 
+* The marketplace API uses the same authentication mechanism as the single sign on API.  The JWT_ACCESS_SECRET,
 JWT_REFRESH_SECRET and SALT environment variables must be the same values as those on the single sign on API.
 * This application uses the Redis database so the service needs to know where it resides.
 * Define a systemd service to run the API.  The service defines environment variables that use the secret and API keys
@@ -345,7 +347,7 @@ pipenv run python load_skill_display_data.py --core-version <specify core versio
 ```
 
 #### Device API
-* The device API uses the same authentication mechanism as the single sign on API.  The JWT_ACCESS_SECRET, 
+* The device API uses the same authentication mechanism as the single sign on API.  The JWT_ACCESS_SECRET,
 JWT_REFRESH_SECRET and SALT environment variables must be the same values as those on the single sign on API.
 * This application uses the Redis database so the service needs to know where it resides.
 * The weather skill requires a key to the Open Weather Map API
@@ -433,7 +435,7 @@ Before we continue, let's make sure that your endpoints are operational - for th
 
 ## Other Considerations
 ### DNS
-There are multiple ways to setup DNS.  This document will not dictate how to do so for Selene.  However, here is an 
+There are multiple ways to setup DNS.  This document will not dictate how to do so for Selene.  However, here is an
 example, based on how DNS is setup at Mycroft AI...
 
 Each application runs on its own sub-domain.  Assuming a top level domain of "mycroft.ai" the subdomains are:
@@ -442,25 +444,25 @@ Each application runs on its own sub-domain.  Assuming a top level domain of "my
 * market.mycroft.ai
 * sso.mycroft.ai
 
-The APIs that support the web applications are directories within the sub-domain (e.g. account.mycroft.ai/api).  Since 
+The APIs that support the web applications are directories within the sub-domain (e.g. account.mycroft.ai/api).  Since
 the device API is externally facing, it is versioned.  It's subdirectory must be "v1".
 
 ### Reverse Proxy
 There are multiple tools available for setting up a reverse proxy that will point your DNS entries to your APIs. As such, the decision on how to set this up will be left to the user.
 
 ### SSL
-It is recommended that Selene applications be run using HTTPS.  To do this an SSL certificate is necessary.  
+It is recommended that Selene applications be run using HTTPS.  To do this an SSL certificate is necessary.
 
 [Let's Encrypt](https://letsencrypt.org) is a great way to easily set up SSL certificates for free.
 
 ## What About the GUI???
-Once the database and API setup is complete, the next step is to setup the GUI, The README file for the 
-[Selene UI](https://github.com/mycroftai/selene-ui) repository contains the instructions for setting up the web 
+Once the database and API setup is complete, the next step is to setup the GUI, The README file for the
+[Selene UI](https://github.com/mycroftai/selene-ui) repository contains the instructions for setting up the web
 applications.
 
 ## Getting Involved
 
-This is an open source project and we would love your help. We have prepared a [contributing](.github/CONTRIBUTING.md) 
+This is an open source project and we would love your help. We have prepared a [contributing](.github/CONTRIBUTING.md)
 guide to help you get started.
 
 If this is your first PR or you're not sure where to get started,

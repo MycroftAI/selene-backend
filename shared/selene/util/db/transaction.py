@@ -30,6 +30,7 @@ def use_transaction(func):
     :param func: function being decorated
     :return: decorated function
     """
+
     @wraps(func)
     def execute_in_transaction(*args, **kwargs):
         instance = args[0]

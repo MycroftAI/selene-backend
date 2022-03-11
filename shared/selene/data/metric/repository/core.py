@@ -31,33 +31,29 @@ class CoreMetricRepository(RepositoryBase):
 
     def add(self, metric: CoreMetric):
         db_request_args = asdict(metric)
-        db_request_args['metric_value'] = json.dumps(
-            db_request_args['metric_value']
-        )
+        db_request_args["metric_value"] = json.dumps(db_request_args["metric_value"])
         db_request = self._build_db_request(
-            sql_file_name='add_core_metric.sql',
-            args=db_request_args
+            sql_file_name="add_core_metric.sql", args=db_request_args
         )
         self.cursor.insert(db_request)
 
     def get_metrics_by_device(self, device_id):
         return self._select_all_into_dataclass(
             CoreMetric,
-            sql_file_name='get_core_metric_by_device.sql',
-            args=dict(device_id=device_id)
+            sql_file_name="get_core_metric_by_device.sql",
+            args=dict(device_id=device_id),
         )
 
     def get_metrics_by_date(self, metric_date: date) -> List[CoreMetric]:
         return self._select_all_into_dataclass(
             CoreMetric,
-            sql_file_name='get_core_timing_metrics_by_date.sql',
-            args=dict(metric_date=metric_date)
+            sql_file_name="get_core_timing_metrics_by_date.sql",
+            args=dict(metric_date=metric_date),
         )
 
     def add_interaction(self, interaction: CoreInteraction) -> str:
         db_request = self._build_db_request(
-            sql_file_name='add_core_interaction.sql',
-            args=asdict(interaction)
+            sql_file_name="add_core_interaction.sql", args=asdict(interaction)
         )
         db_result = self.cursor.insert_returning(db_request)
 
