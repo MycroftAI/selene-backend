@@ -21,22 +21,22 @@ import os
 
 from redis import Redis
 
-DEVICE_LAST_CONTACT_KEY = 'device:last_contact:{device_id}'
-DEVICE_SKILL_ETAG_KEY = 'device.skill.etag:{device_id}'
-DEVICE_PAIRING_CODE_KEY = 'pairing.code:{pairing_code}'
-DEVICE_PAIRING_TOKEN_KEY = 'pairing.token:{pairing_token}'
+DEVICE_LAST_CONTACT_KEY = "device:last_contact:{device_id}"
+DEVICE_SKILL_ETAG_KEY = "device.skill.etag:{device_id}"
+DEVICE_PAIRING_CODE_KEY = "pairing.code:{pairing_code}"
+DEVICE_PAIRING_TOKEN_KEY = "pairing.token:{pairing_token}"
+DEVICE_ACCESS_TOKEN_KEY = "device.token.access:{access}"
 
 
 class SeleneCache(object):
-
     def __init__(self):
         # should the variables host and port be in the config class?
-        redis_host = os.environ['REDIS_HOST']
-        redis_port = int(os.environ['REDIS_PORT'])
+        redis_host = os.environ["REDIS_HOST"]
+        redis_port = int(os.environ["REDIS_PORT"])
         self.redis = Redis(host=redis_host, port=redis_port)
 
     def set_if_not_exists_with_expiration(
-            self, key: str, value: str, expiration: int
+        self, key: str, value: str, expiration: int
     ) -> bool:
         """Sets a key only if it doesn't exist and using a given expiration time
 

@@ -29,9 +29,9 @@ from selene.api.etag import ETagManager
 from selene.data.account import AccountRepository
 from selene.data.metric import AccountActivityRepository
 from selene.util.auth import AuthenticationError
+from selene.util.cache import DEVICE_ACCESS_TOKEN_KEY, SeleneCache
 from selene.util.db import connect_to_db
 from selene.util.exceptions import NotModifiedException
-from selene.util.cache import SeleneCache
 
 ONE_DAY = 86400
 
@@ -130,27 +130,35 @@ class PublicEndpoint(MethodView):
         return global_context.db
 
     def _authenticate(self, device_id: str = None):
-        headers = self.request.headers
-        if "Authorization" not in headers:
-            raise AuthenticationError("Oauth token not found")
-        token_header = self.request.headers["Authorization"]
-        device_authenticated = False
-        if token_header.startswith("Bearer "):
-            token = token_header[len("Bearer ") :]
-            session = self.cache.get(
-                "device.token.access:{access}".format(access=token)
+        token = self._get_oauth_token_from_request()
+        self._get_device_id_from_token(token)
+        if device_id is not None:
+            self._validate_request_device_id(device_id)
+
+    def _get_oauth_token_from_request(self):
+        authorization_header = self.request.headers.get("Authorization", "")
+        if authorization_header.startswith("Bearer "):
+            token = authorization_header[len("Bearer ") :]
+        else:
+            raise AuthenticationError("Oauth token not found in request")
+
+        return token
+
+    def _get_device_id_from_token(self, token):
+        session = self.cache.get(DEVICE_ACCESS_TOKEN_KEY.format(access=token))
+        if session is None:
+            raise AuthenticationError("No device matches authentication token")
+        else:
+            session = json.loads(session)
+            global_context.device_id = session["uuid"]
+            self.device_id = session["uuid"]
+
+    def _validate_request_device_id(self, request_device_id):
+        if request_device_id != self.device_id:
+            raise AuthenticationError(
+                "Device ID specified in request does not match device ID for the Oauth "
+                "token found in the Authorization header"
             )
-            if session is not None:
-                session = json.loads(session)
-                device_uuid = session["uuid"]
-                global_context.device_id = device_uuid
-                self.device_id = device_uuid
-                if device_id is not None:
-                    device_authenticated = device_id == device_uuid
-                else:
-                    device_authenticated = True
-        if not device_authenticated:
-            raise AuthenticationError("device not authorized")
 
     def _add_etag(self, key):
         """Add a etag header to the response. We try to get the etag from the cache using the given key.
