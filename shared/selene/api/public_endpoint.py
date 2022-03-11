@@ -111,6 +111,7 @@ class PublicEndpoint(MethodView):
     """Abstract class for all endpoints used by Mycroft devices"""
 
     def __init__(self):
+        self.request_id = uuid.uuid4()
         global_context.url = request.url
         self.config: dict = current_app.config
         self.request = request

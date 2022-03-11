@@ -30,7 +30,7 @@ import sys
 
 from selene.data.metric import JobMetric, JobRepository
 from selene.util.db import DatabaseConnectionConfig, connect_to_db
-from selene.util.log import configure_logger
+from selene.util.log import configure_selene_logger, get_selene_logger
 
 
 class SeleneScript(object):
@@ -39,7 +39,8 @@ class SeleneScript(object):
 
     def __init__(self, job_file_path):
         self._job_file_path = job_file_path
-        self.log = configure_logger(self.job_name)
+        configure_selene_logger(self.job_name)
+        self.log = get_selene_logger(self.job_name)
         self._arg_parser = ArgumentParser()
         self.args = None
         self.start_ts = datetime.now()

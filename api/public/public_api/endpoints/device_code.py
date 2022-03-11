@@ -37,17 +37,17 @@ import json
 import random
 import uuid
 from http import HTTPStatus
-from logging import getLogger
 
 from selene.api import PublicEndpoint
 from selene.util.cache import DEVICE_PAIRING_CODE_KEY
+from selene.util.log import get_selene_logger
 
 # Avoid using ambiguous characters in the pairing code, like 0 and O, that
 # are hard to distinguish on a device display.
 ALLOWED_CHARACTERS = "ACEFHJKLMNPRTUVWXY3479"
 ONE_DAY = 86400
 
-_log = getLogger(__package__)
+_log = get_selene_logger(__name__)
 
 
 class DeviceCodeEndpoint(PublicEndpoint):
@@ -96,7 +96,7 @@ class DeviceCodeEndpoint(PublicEndpoint):
     def _generate_pairing_code():
         """Generate the pairing code that will be spoken by the device."""
         pairing_code = "".join(random.choice(ALLOWED_CHARACTERS) for _ in range(6))
-        _log.debug("Generated pairing code {}".format(pairing_code))
+        _log.info("Generated pairing code {}".format(pairing_code))
 
         return pairing_code
 

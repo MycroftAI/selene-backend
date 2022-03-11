@@ -20,14 +20,16 @@
 """Log a user out of Mycroft web sites"""
 
 from http import HTTPStatus
-from logging import getLogger
 
 from selene.api import SeleneEndpoint
+from selene.util.log import get_selene_logger
 
-_log = getLogger(__package__)
+_log = get_selene_logger(__name__)
 
 
 class LogoutEndpoint(SeleneEndpoint):
+    """Single Sign On endpoint to log a user out of the web application."""
+
     def get(self):
         self._authenticate()
         self._logout()
@@ -43,4 +45,4 @@ class LogoutEndpoint(SeleneEndpoint):
         self._generate_tokens()
         self._set_token_cookies(expire=True)
 
-        self.response = ('', HTTPStatus.NO_CONTENT)
+        self.response = ("", HTTPStatus.NO_CONTENT)

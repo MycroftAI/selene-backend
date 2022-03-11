@@ -1,17 +1,18 @@
 """Call this endpoint to retrieve the timezone for a given location"""
-from dataclasses import asdict
 from http import HTTPStatus
-from logging import getLogger
 
 from selene.api import PublicEndpoint
 from selene.data.geography import CityRepository
+from selene.util.log import get_selene_logger
 
 ONE_HUNDRED_MILES = 100
 
-_log = getLogger()
+_log = get_selene_logger(__name__)
 
 
 class GeolocationEndpoint(PublicEndpoint):
+    """Selene endpoint that will search for a geography give a city name."""
+
     def __init__(self):
         super().__init__()
         self.device_id = None
@@ -29,7 +30,7 @@ class GeolocationEndpoint(PublicEndpoint):
 
     def get(self):
         """Handle a HTTP GET request."""
-        self.request_geolocation = self.request.args['location'].lower()
+        self.request_geolocation = self.request.args["location"].lower()
         response_geolocation = self._get_geolocation()
 
         return dict(data=response_geolocation), HTTPStatus.OK
@@ -50,12 +51,8 @@ class GeolocationEndpoint(PublicEndpoint):
             )
 
         if selected_geolocation is not None:
-            selected_geolocation.latitude = float(
-                selected_geolocation.latitude
-            )
-            selected_geolocation.longitude = float(
-                selected_geolocation.longitude
-            )
+            selected_geolocation.latitude = float(selected_geolocation.latitude)
+            selected_geolocation.longitude = float(selected_geolocation.longitude)
 
         return selected_geolocation
 
@@ -74,8 +71,8 @@ class GeolocationEndpoint(PublicEndpoint):
         """
         possible_city_names = []
         geolocation_words = self.request_geolocation.split()
-        for index, word in enumerate(geolocation_words):
-            possible_city_name = ' '.join(geolocation_words[:index + 1])
+        for index, _ in enumerate(geolocation_words):
+            possible_city_name = " ".join(geolocation_words[: index + 1])
             possible_city_names.append(possible_city_name)
 
         self.cities = self.city_repo.get_geographic_location_by_city(
@@ -113,7 +110,7 @@ class GeolocationEndpoint(PublicEndpoint):
         """
         city_in_requested_region = None
         for city in self.cities:
-            location_without_city = self.request_geolocation[len(city.city):]
+            location_without_city = self.request_geolocation[len(city.city) :]
             if city.region.lower() in location_without_city.strip():
                 city_in_requested_region = city
                 break
@@ -129,7 +126,7 @@ class GeolocationEndpoint(PublicEndpoint):
         """
         selected_city = None
         for city in self.cities:
-            location_without_city = self.request_geolocation[len(city.city):]
+            location_without_city = self.request_geolocation[len(city.city) :]
             if city.country.lower() in location_without_city.strip():
                 selected_city = city
                 break

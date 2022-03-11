@@ -30,11 +30,7 @@ from logging import getLogger
 from os import path
 from typing import List
 
-_log = getLogger(__package__)
-
-
-class DBConnectionError(Exception):
-    pass
+_log = getLogger(__name__)
 
 
 def get_sql_from_file(file_path: str) -> str:
@@ -42,8 +38,10 @@ def get_sql_from_file(file_path: str) -> str:
 
     All the SQL to access relational databases will be written in .sql files
 
-    :param file_path: absolute file system of the .sql file.
-    :return: raw SQL for use in a database interface, such as psycopg
+    Args:
+        file_path: absolute file system of the .sql file.
+    Returns:
+        raw SQL for use in a database interface, such as psycopg
     """
     with open(path.join(file_path)) as sql_file:
         raw_sql = sql_file.read()
@@ -52,19 +50,24 @@ def get_sql_from_file(file_path: str) -> str:
 
 
 @dataclass
-class DatabaseRequest(object):
-    """Small data object for the sql and the args needed for a database req"""
+class DatabaseRequest:
+    """Small data object for the sql and the args needed for a database request"""
+
     sql: str
     args: dict = field(default=None)
 
 
 @dataclass
-class DatabaseBatchRequest(object):
+class DatabaseBatchRequest:
+    """Small data object for the arguments needed for a batch database request."""
+
     sql: str
     args: List[dict]
 
 
-class Cursor(object):
+class Cursor:
+    """Wrapper around the psycopg cursor offering convenience functions."""
+
     def __init__(self, db):
         self.db = db
 
@@ -83,7 +86,7 @@ class Cursor(object):
             else:
                 execution_result = cursor.fetchall()
 
-            _log.debug('query returned {} rows'.format(cursor.rowcount))
+            _log.debug("query returned {} rows".format(cursor.rowcount))
 
         return execution_result
 
@@ -115,13 +118,14 @@ class Cursor(object):
         with self.db.cursor() as cursor:
             _log.debug(cursor.mogrify(db_request.sql, db_request.args).decode())
             cursor.execute(db_request.sql, db_request.args)
-            _log.debug(str(cursor.rowcount) + ' rows affected')
+            _log.debug(f"{str(cursor.rowcount)} rows affected")
             return cursor.rowcount
 
     def _execute_batch(self, db_request: DatabaseBatchRequest):
+        """Execute a batch database request."""
         with self.db.cursor() as cursor:
             cursor.executemany(db_request.sql, db_request.args)
-            #execute_batch(cursor, db_request.sql, db_request.args)
+            # execute_batch(cursor, db_request.sql, db_request.args)
 
     def delete(self, db_request: DatabaseRequest):
         """Helper function for SQL delete statements"""
@@ -142,32 +146,29 @@ class Cursor(object):
         return updated_rows
 
     def batch_update(self, db_request: DatabaseBatchRequest):
+        """Executes a batch update."""
         self._execute_batch(db_request)
 
     def dump_query_result_to_file(
-            self, db_request: DatabaseRequest, dump_file_path: str
+        self, db_request: DatabaseRequest, dump_file_path: str
     ) -> int:
+        """Writes the results of the specified query into the specified file."""
         with self.db.cursor() as cursor:
             query = cursor.mogrify(db_request.sql, db_request.args).decode()
             copy_command = "COPY ({query}) TO STDOUT".format(query=query)
-            _log.debug('dumping results of "{query}" to {file_path}'.format(
-                query=query,
-                file_path=dump_file_path
-            ))
-            with open(dump_file_path, 'w') as dump_file:
+            _log.debug(f'dumping results of "{query}" to {dump_file_path}')
+            with open(dump_file_path, "w") as dump_file:
                 cursor.copy_expert(copy_command, dump_file)
-            _log.debug(str(cursor.rowcount) + ' rows copied to dump file')
+            _log.info(f"{str(cursor.rowcount)} rows copied to dump file")
 
             return cursor.rowcount
 
     def load_dump_file_to_table(self, table_name: str, dump_file_path: str):
+        """Loads the contents of a delimited file into a table on the Selene DB."""
         with self.db.cursor() as cursor:
-            _log.debug('loading {file_path} into the {table} table'.format(
-                file_path=dump_file_path,
-                table=table_name
-            ))
+            _log.info(f"loading {dump_file_path} into the {table_name} table")
             with open(dump_file_path) as dump_file:
                 cursor.copy_from(dump_file, table_name)
-            _log.debug(str(cursor.rowcount) + ' rows copied to table')
+            _log.info(f"{str(cursor.rowcount)} rows copied to table")
 
             return cursor.rowcount

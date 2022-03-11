@@ -18,37 +18,35 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 """Base class for Flask API endpoints"""
-from logging import getLogger
-
 from flask import after_this_request, current_app, request, g as global_context
 from flask.views import MethodView
 
 from selene.data.account import Account, AccountRepository
 from selene.util.auth import AuthenticationError, AuthenticationToken
 from selene.util.db import connect_to_db
+from selene.util.log import get_selene_logger
 
-ACCESS_TOKEN_COOKIE_NAME = 'seleneAccess'
+ACCESS_TOKEN_COOKIE_NAME = "seleneAccess"
 FIFTEEN_MINUTES = 900
 ONE_MONTH = 2628000
-REFRESH_TOKEN_COOKIE_NAME = 'seleneRefresh'
+REFRESH_TOKEN_COOKIE_NAME = "seleneRefresh"
 
-_log = getLogger(__package__)
+_log = get_selene_logger(__name__)
 
 
 class APIError(Exception):
     """Raise this exception whenever a non-successful response is built"""
-    pass
 
 
 class SeleneEndpoint(MethodView):
-    """
-    Abstract base class for Selene Flask Restful API calls.
+    """Abstract base class for Selene Flask Restful API calls.
 
     Subclasses must do the following:
         -  override the allowed_methods class attribute to a list of all allowed
            HTTP methods.  Each list member must be a HTTPMethod enum
         -  override the _build_response_data method
     """
+
     def __init__(self):
         global_context.url = request.url
         self.config: dict = current_app.config
@@ -60,24 +58,20 @@ class SeleneEndpoint(MethodView):
 
     @property
     def db(self):
-        if 'db' not in global_context:
+        """Returns an instance of the Selene database connection."""
+        if "db" not in global_context:
             global_context.db = connect_to_db(
-                current_app.config['DB_CONNECTION_CONFIG']
+                current_app.config["DB_CONNECTION_CONFIG"]
             )
 
         return global_context.db
 
     def _init_access_token(self):
-        return AuthenticationToken(
-            self.config['ACCESS_SECRET'],
-            FIFTEEN_MINUTES
-        )
+        """Returns an instantiated authentication token object."""
+        return AuthenticationToken(self.config["ACCESS_SECRET"], FIFTEEN_MINUTES)
 
     def _init_refresh_token(self):
-        return AuthenticationToken(
-            self.config['REFRESH_SECRET'],
-            ONE_MONTH
-        )
+        return AuthenticationToken(self.config["REFRESH_SECRET"], ONE_MONTH)
 
     def _authenticate(self):
         """
@@ -92,7 +86,7 @@ class SeleneEndpoint(MethodView):
             if self.access_token.is_expired:
                 self._refresh_auth_tokens()
         except Exception:
-            _log.exception('an exception occurred during authentication')
+            _log.exception("an exception occurred during authentication")
             raise
 
     def _validate_auth_tokens(self):
@@ -102,42 +96,39 @@ class SeleneEndpoint(MethodView):
         if self.access_token.is_expired:
             self._decode_refresh_token()
         account_not_found = (
-            self.access_token.account_id is None and
-            self.refresh_token.account_id is None
+            self.access_token.account_id is None
+            and self.refresh_token.account_id is None
         )
         if account_not_found:
             raise AuthenticationError(
-                'failed to retrieve account ID from authentication tokens'
+                "failed to retrieve account ID from authentication tokens"
             )
 
         return self.access_token.account_id or self.refresh_token.account_id
 
     def _get_auth_tokens(self):
-        self.access_token.jwt = self.request.cookies.get(
-            ACCESS_TOKEN_COOKIE_NAME
-        )
-        self.refresh_token.jwt = self.request.cookies.get(
-            REFRESH_TOKEN_COOKIE_NAME
-        )
+        """Extracts the JWTs used for authentication from the cookies."""
+        self.access_token.jwt = self.request.cookies.get(ACCESS_TOKEN_COOKIE_NAME)
+        self.refresh_token.jwt = self.request.cookies.get(REFRESH_TOKEN_COOKIE_NAME)
         if self.access_token.jwt is None and self.refresh_token.jwt is None:
-            raise AuthenticationError('no authentication tokens found')
+            raise AuthenticationError("no authentication tokens found")
 
     def _decode_access_token(self):
         """Decode the JWT to get the account ID and check for errors."""
         self.access_token.validate()
 
         if not self.access_token.is_valid:
-            raise AuthenticationError('invalid access token')
+            raise AuthenticationError("invalid access token")
 
     def _decode_refresh_token(self):
         """Decode the JWT to get the account ID and check for errors."""
         self.refresh_token.validate()
 
         if not self.refresh_token.is_valid:
-            raise AuthenticationError('invalid refresh token')
+            raise AuthenticationError("invalid refresh token")
 
         if self.refresh_token.is_expired:
-            raise AuthenticationError('authentication tokens expired')
+            raise AuthenticationError("authentication tokens expired")
 
     def _get_account(self, account_id):
         """Use account ID from decoded authentication token to get account."""
@@ -150,10 +141,9 @@ class SeleneEndpoint(MethodView):
         :raises: AuthenticationError
         """
         if self.account is None:
-            _log.error('account ID {} not on database'.format(account_id))
-            raise AuthenticationError('account not found')
-        else:
-            global_context.account_id = self.account.id
+            _log.error("account ID {} not on database".format(account_id))
+            raise AuthenticationError("account not found")
+        global_context.account_id = self.account.id
 
     def _refresh_auth_tokens(self):
         """Steps necessary to refresh the tokens used for authentication."""
@@ -178,24 +168,24 @@ class SeleneEndpoint(MethodView):
         :return:
         """
         access_token_cookie = dict(
-            key='seleneAccess',
+            key="seleneAccess",
             value=str(self.access_token.jwt),
-            domain=self.config['DOMAIN'],
+            domain=self.config["DOMAIN"],
             max_age=FIFTEEN_MINUTES,
         )
         refresh_token_cookie = dict(
-            key='seleneRefresh',
+            key="seleneRefresh",
             value=str(self.refresh_token.jwt),
-            domain=self.config['DOMAIN'],
+            domain=self.config["DOMAIN"],
             max_age=ONE_MONTH,
         )
 
         if expire:
             for cookie in (access_token_cookie, refresh_token_cookie):
-                cookie.update(value='', max_age=0)
+                cookie.update(value="", max_age=0)
 
         @after_this_request
-        def set_cookies(response):
+        def set_cookies(response):  # pylint: disable=unused-variable
             """Use Flask after request hook to reset token cookies"""
             response.set_cookie(**access_token_cookie)
             response.set_cookie(**refresh_token_cookie)

@@ -29,7 +29,7 @@ from facebook import GraphAPI
 import jwt
 import requests
 
-_log = getLogger(__package__)
+_log = getLogger(__name__)
 
 
 class AuthenticationError(Exception):

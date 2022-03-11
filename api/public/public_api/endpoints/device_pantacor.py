@@ -25,7 +25,6 @@ uses Pantacor for continuous deployment.  This endpoint calls the Pantacor Fleet
 determine if the device's registration is complete and reports back to the device.
 """
 from http import HTTPStatus
-from logging import getLogger
 
 from schematics import Model
 from schematics.types import StringType
@@ -33,8 +32,9 @@ from schematics.types import StringType
 from selene.api import PublicEndpoint
 from selene.api.pantacor import get_pantacor_device, PantacorError
 from selene.data.device import DeviceRepository
+from selene.util.log import get_selene_logger
 
-_log = getLogger(__package__)
+_log = get_selene_logger(__name__)
 
 
 class PantacorSyncRequest(Model):

@@ -27,7 +27,7 @@ from python_http_client import HTTPError
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Content, Mail
 
-_log = getLogger(__package__)
+_log = getLogger(__name__)
 
 
 @dataclass

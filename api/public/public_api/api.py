@@ -25,7 +25,7 @@ from selene.api import SeleneResponse, selene_api
 from selene.api.base_config import get_base_config
 from selene.api.public_endpoint import check_oauth_token
 from selene.util.cache import SeleneCache
-from selene.util.log import configure_logger
+from selene.util.log import configure_selene_logger
 from .endpoints.device import DeviceEndpoint
 from .endpoints.device_activate import DeviceActivateEndpoint
 from .endpoints.device_code import DeviceCodeEndpoint
@@ -53,7 +53,7 @@ from .endpoints.wolfram_alpha_simple import WolframAlphaSimpleEndpoint
 from .endpoints.wolfram_alpha_spoken import WolframAlphaSpokenEndpoint
 from .endpoints.wolfram_alpha_v2 import WolframAlphaV2Endpoint
 
-_log = configure_logger("public_api")
+configure_selene_logger("public_api")
 
 public = Flask(__name__)
 public.config.from_object(get_base_config())

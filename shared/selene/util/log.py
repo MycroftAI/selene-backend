@@ -40,61 +40,60 @@ attribute on the LoggingConfig class.  In general, this should not be done.
 Possible exceptions include increasing verbosity for debugging.
 """
 
-from os import path
-from logging import (
-    DEBUG,
-    Formatter,
-    getLogger,
-    handlers,
-    StreamHandler,
-    INFO
-)
+from os import environ
+import logging.config
 
 
-class LoggingConfig(object):
-    """Configure a logger with a daily log file and a console log"""
-    def __init__(self, logger_name):
-        self.logger = getLogger()
-        self.logger.level = DEBUG
-        self.file_log_level = DEBUG
-        self.console_log_level = INFO
-        self.log_file_path = path.join('/var/log/mycroft', logger_name + '.log')
-        self.log_msg_formatter = Formatter(
-            '{asctime} | {levelname:8} | {process:5} | {name} | {message}',
-            style='{'
-        )
+def _generate_log_config(service: str) -> dict:
+    """Uses Python's dictionary config for logging to setup Selene logs.
 
-    def _define_file_handler(self):
-        """build a file handler"""
-        handler = handlers.TimedRotatingFileHandler(
-            filename=self.log_file_path,
-            when='midnight',
-            utc=True
-        )
-        handler.setLevel(self.file_log_level)
-        handler.setFormatter(self.log_msg_formatter)
+    Args:
+        service: the name of the service initiating the log setup
 
-        return handler
+    Returns:
+        The logging configuration in dictionary format.
+    """
+    log_format = (
+        "{asctime} | {levelname:8} | {process:5} | {name}.{funcName} | {message}"
+    )
+    default_formatter = {"format": log_format, "style": "{"}
+    console_handler = {
+        "class": "logging.StreamHandler",
+        "formatter": "default",
+        "stream": "ext://sys.stdout",
+    }
+    file_handler = {
+        "class": "logging.handlers.TimedRotatingFileHandler",
+        "formatter": "default",
+        "filename": f"/var/log/mycroft/{service}.log",
+        "backupCount": 30,
+        "when": "midnight",
+    }
 
-    def _define_console_handler(self):
-        """build a console, or stream, handler"""
-        handler = StreamHandler()
-        handler.setLevel(self.console_log_level)
-        handler.setFormatter(self.log_msg_formatter)
-
-        return handler
-
-    def configure(self):
-        """Put it all together"""
-        file_handler = self._define_file_handler()
-        console_handler = self._define_console_handler()
-        self.logger.addHandler(file_handler)
-        self.logger.addHandler(console_handler)
+    return {
+        "version": 1,
+        "formatters": {"default": default_formatter},
+        "handlers": {"console": console_handler, "file": file_handler},
+        "root": {"level": "INFO", "handlers": ["file"]},
+    }
 
 
-def configure_logger(logger_name: str):
-    """helper function that returns a logger using the base config"""
-    logging_config = LoggingConfig(logger_name)
-    logging_config.configure()
+def configure_selene_logger(service):
+    """Configures the base logger for any Selene service or application.
 
-    return getLogger(logger_name)
+    Args:
+        service: the name of the service initiating the log setup
+    """
+    log_level = environ.get("SELENE_LOG_LEVEL", "INFO")
+    log_config = _generate_log_config(service)
+    selene_logger = {
+        "selene": {"level": log_level, "handlers": ["console", "file"], "propagate": 0}
+    }
+    log_config["loggers"] = selene_logger
+    logging.config.dictConfig(log_config)
+    logging.getLogger("selene")
+
+
+def get_selene_logger(module_name: str):
+    """Returns a logger instance based on the Selene logger."""
+    return logging.getLogger("selene." + module_name)

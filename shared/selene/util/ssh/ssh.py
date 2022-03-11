@@ -30,7 +30,7 @@ from paramiko.auth_handler import AuthenticationException, SSHException
 BIG_ENDIAN_UNSIGNED_INT = ">I"
 INTEGER_BYTES = 4
 
-_log = getLogger(__package__)
+_log = getLogger(__name__)
 
 
 @dataclass()

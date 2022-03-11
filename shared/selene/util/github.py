@@ -25,16 +25,27 @@ from urllib.request import urlopen
 
 from github import Github
 
-_log = getLogger(__package__)
+_log = getLogger(__name__)
 
 
 def log_into_github(user_name: str, user_password: str) -> Github:
+    """Uses the GitHub Python library to log a user in via this method."""
     _log.info('logging into GitHub as "{}"'.format(user_name))
     return Github(user_name, user_password)
 
 
-def download_repository_file(github, repository_name, branch, file_path):
-    organization = github.get_organization('MycroftAI')
+def download_repository_file(
+    github: Github, repository_name: str, branch: str, file_path: str
+):
+    """Downloads a file from a git repository in GitHub's MycroftAI organization.
+
+    Args:
+        github: instance of a GitHub API
+        repository_name: the name of the MycroftAI repository
+        branch: the repository branch
+        file_path: the location on the file system to save the downloaded file.
+    """
+    organization = github.get_organization("MycroftAI")
     repository = organization.get_repo(repository_name)
     repository_contents = repository.get_contents(file_path, ref=branch)
 

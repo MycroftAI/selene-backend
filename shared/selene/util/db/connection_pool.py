@@ -27,12 +27,11 @@ from psycopg2.pool import ThreadedConnectionPool
 
 from .connection import DatabaseConnectionConfig
 
-_log = getLogger(__package__)
+_log = getLogger(__name__)
 
 
 def allocate_db_connection_pool(
-        connection_config: DatabaseConnectionConfig,
-        max_connections: int = 20
+    connection_config: DatabaseConnectionConfig, max_connections: int = 20
 ) -> ThreadedConnectionPool:
     """
     Allocate a pool of database connections for an application
@@ -48,12 +47,13 @@ def allocate_db_connection_pool(
     :return: a pool of database connections to be used by the application
     """
     log_msg = (
-        'Allocating a pool of connections to the {db_name} database with '
-        'a maximum of {max_connections} connections.'
+        "Allocating a pool of connections to the {db_name} database with "
+        "a maximum of {max_connections} connections."
     )
-    _log.info(log_msg.format(
-        db_name=connection_config.db_name,
-        max_connections=max_connections)
+    _log.info(
+        log_msg.format(
+            db_name=connection_config.db_name, max_connections=max_connections
+        )
     )
     return ThreadedConnectionPool(
         minconn=1,
@@ -63,7 +63,7 @@ def allocate_db_connection_pool(
         password=connection_config.password,
         host=connection_config.host,
         port=connection_config.port,
-        cursor_factory=RealDictCursor
+        cursor_factory=RealDictCursor,
     )
 
 
@@ -101,4 +101,5 @@ def get_db_connection_from_pool(connection_pool, autocommit=True):
 
 
 def return_db_connection_to_pool(connection_pool, connection):
+    """Returns a connection to the connection pool when it is no longer needed."""
     connection_pool.putconn(connection)

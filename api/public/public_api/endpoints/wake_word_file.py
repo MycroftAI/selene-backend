@@ -21,7 +21,6 @@
 import json
 from datetime import datetime
 from http import HTTPStatus
-from logging import getLogger
 from os import environ
 from pathlib import Path
 
@@ -40,10 +39,11 @@ from selene.data.tagging import (
     WakeWordFileRepository,
 )
 from selene.data.wake_word import WakeWordRepository
+from selene.util.log import get_selene_logger
 
 LOCAL_IP = "127.0.0.1"
 
-_log = getLogger(__package__)
+_log = get_selene_logger(__name__)
 
 
 class UploadRequest(Model):
