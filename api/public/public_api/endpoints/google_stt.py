@@ -16,120 +16,138 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-
+"""Public API endpoint for transcribing audio using Google's STT API"""
 import os
 from http import HTTPStatus
 from io import BytesIO
 from time import time
 
-from speech_recognition import AudioFile, Recognizer
+from speech_recognition import (
+    AudioData,
+    AudioFile,
+    Recognizer,
+    RequestError,
+    UnknownValueError,
+)
 
 from selene.api import PublicEndpoint, track_account_activity
 from selene.data.account import AccountRepository, OPEN_DATASET
+from selene.util.log import get_selene_logger
+
+_log = get_selene_logger(__name__)
 
 SELENE_DATA_DIR = "/opt/selene/data"
 
 
 class GoogleSTTEndpoint(PublicEndpoint):
-    """Endpoint to send a flac audio file with voice and get back a utterance"""
-
-    _account_repo = None
+    """Endpoint to send a flac audio file with voice and get back a utterance."""
 
     def __init__(self):
-        super(GoogleSTTEndpoint, self).__init__()
-        self.google_stt_key = self.config["GOOGLE_STT_KEY"]
+        super().__init__()
         self.recognizer = Recognizer()
         self.account = None
         self.account_shares_data = False
 
-    @property
-    def account_repo(self):
-        if self._account_repo is None:
-            self._account_repo = AccountRepository(self.db)
-
-        return self._account_repo
-
     def post(self):
+        """Processes an HTTP Post request."""
+        _log.info(f"{self.request_id}: Google STT transcription requested")
         self._authenticate()
         self._get_account()
         self._check_for_open_dataset_agreement()
-        self._write_flac_audio_file()
-        stt_response = self._call_google_stt()
-        response = self._build_response(stt_response)
-        self._write_stt_result_file(response)
-        if response:
+        request_audio_data = self._extract_audio_from_request()
+        transcription = self._call_google_stt(request_audio_data)
+        if transcription is not None:
+            self._save_transcription(request_audio_data, transcription)
             track_account_activity(self.db, self.device_id)
 
-        return response, HTTPStatus.OK
+        return [transcription], HTTPStatus.OK
 
     def _get_account(self):
-        if self.device_id is not None:
-            self.account = self.account_repo.get_account_by_device_id(self.device_id)
+        """Retrieves the account associated with the device from the database."""
+        account_repo = AccountRepository(self.db)
+        self.account = account_repo.get_account_by_device_id(self.device_id)
 
     def _check_for_open_dataset_agreement(self):
-        for agreement in self.account.agreements:
-            if agreement.type == OPEN_DATASET:
-                self.account_shares_data = True
+        """Determines if the account is opted into the Open Dataset Agreement."""
+        if self.account is not None:
+            for agreement in self.account.agreements:
+                if agreement.type == OPEN_DATASET:
+                    self.account_shares_data = True
+                    break
 
-    def _write_flac_audio_file(self):
-        """Save the audio file for STT tagging"""
-        self._write_open_dataset_file(self.request.data, file_type="flac")
-
-    def _write_stt_result_file(self, stt_result):
-        """Save the STT results for tagging."""
-        file_contents = "\n".join(stt_result)
-        self._write_open_dataset_file(file_contents.encode(), file_type="stt")
-
-    def _write_open_dataset_file(self, content, file_type):
-        if self.account is not None and self.account_shares_data:
-            file_name = "{account_id}_{time}.{file_type}".format(
-                account_id=self.account.id, file_type=file_type, time=time()
-            )
-            file_path = os.path.join(SELENE_DATA_DIR, file_name)
-            with open(file_path, "wb") as flac_file:
-                flac_file.write(content)
-
-    def _call_google_stt(self):
-        """Use the audio data from the request to call the Google STT API
+    def _extract_audio_from_request(self) -> AudioData:
+        """Extracts the audio data from the request for use in Google STT API.
 
         We need to replicate the first 16 bytes in the audio due a bug with
         the Google speech recognition library that removes the first 16 bytes
         from the flac file we are sending.
+
+        Returns:
+            Object representing the audio data in a format that can be used to call
+            Google's STT API
         """
+        _log.info(f"{self.request_id}: Extracting audio data from request")
+        request_audio = self.request.data[:16] + self.request.data
+        with AudioFile(BytesIO(request_audio)) as source:
+            audio_data = self.recognizer.record(source)
+
+        return audio_data
+
+    def _call_google_stt(self, audio: AudioData) -> str:
+        """Uses the audio data from the request to call the Google STT API
+
+        Args:
+            audio: audio data representing the words spoken by the user
+
+        Returns:
+            text transcription of the audio data
+        """
+        _log.info(f"{self.request_id}: Transcribing audio with Google STT")
         lang = self.request.args["lang"]
-        audio = self.request.data
-        with AudioFile(BytesIO(audio[:16] + audio)) as source:
-            recording = self.recognizer.record(source)
-        response = self.recognizer.recognize_google(
-            recording, key=self.google_stt_key, language=lang, show_all=True
-        )
-
-        return response
-
-    def _build_response(self, stt_response):
-        """Build the response to return to the device.
-
-        Return n transcripts with the higher confidence. That is useful for
-        the case when send a ambiguous voice file and the correct utterance is
-        not the utterance with highest confidence and the API.
-        """
-        limit = int(self.request.args["limit"])
-        if isinstance(stt_response, dict):
-            alternative = stt_response.get("alternative")
-            if "confidence" in alternative:
-                # Sorting by confidence:
-                alternative = sorted(
-                    alternative, key=lambda alt: alt["confidence"], reverse=True
-                )
-                alternative = [alt["transcript"] for alt in alternative]
-                # client is interested in test the utterances found.
-                if len(alternative) <= limit:
-                    response = alternative
-                else:
-                    response = alternative[:limit]
-            else:
-                response = [alternative[0]["transcript"]]
+        transcription = None
+        try:
+            transcription = self.recognizer.recognize_google(
+                audio, key=self.config["GOOGLE_STT_KEY"], language=lang
+            )
+        except RequestError:
+            _log.exception("Request to Google TTS failed")
+        except UnknownValueError:
+            _log.exception("TTS transcription deemed unintelligible by Google")
         else:
-            response = []
+            log_message = "Google STT request successful"
+            if self.account_shares_data:
+                log_message += f": {transcription}"
+            _log.info(log_message)
 
-        return response
+        return transcription
+
+    def _save_transcription(self, audio: AudioData, transcription: str):
+        """Saves the STT results for tagging.
+
+        Args:
+            audio: the audio data sent to Google's STT API
+            transcription: the result of the STT transcription
+        """
+        if self.account_shares_data:
+            flac_audio = audio.get_flac_data()
+            file_time = time()
+            try:
+                self._write_open_dataset_file(flac_audio, file_time, file_type="flac")
+                self._write_open_dataset_file(
+                    transcription.encode(), file_time, file_type="stt"
+                )
+            except IOError:
+                _log.exception("Failed to write transcription to file system")
+
+    def _write_open_dataset_file(self, content: bytes, file_time: time, file_type: str):
+        """Writes one of the pair of transcription files.
+
+        Args:
+            content: the data to write to the file
+            file_time: the time of the transcription
+            file_type: the extension of the file
+        """
+        file_name = f"{self.account.id}_{file_time}.{file_type}"
+        file_path = os.path.join(SELENE_DATA_DIR, file_name)
+        with open(file_path, "wb") as stt_file:
+            stt_file.write(content)
