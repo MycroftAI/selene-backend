@@ -57,7 +57,7 @@ class AuthenticationToken:
         payload = dict(
             iat=datetime.utcnow(), exp=time() + self.duration, sub=account_id
         )
-        self.jwt = jwt.encode(payload, self.secret, algorithm="HS256")
+        self.jwt = jwt.encode(payload, self.secret, algorithm="HS256").decode("utf-8")
 
     def validate(self):
         """Decodes the auth token and performs some preliminary validation."""
