@@ -18,10 +18,13 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 """Interface with the Pantacor API for devices with software managed by them."""
 import json
+import logging
 import requests
 from os import environ
 
 from selene.data.device import PantacorConfig
+
+_log = logging.getLogger(__name__)
 
 
 class PantacorError(Exception):
@@ -44,6 +47,9 @@ def get_pantacor_device(pantacor_device_id: str) -> PantacorConfig:
     :param pantacor_device_id: six character code used to pair a device to Selene
     :raises PantacorError: raised when multiple devices match a pairing code
     """
+    _log.info(
+        f"Requesting device information for pantacor device ID {pantacor_device_id}"
+    )
     release_channels = _get_release_channels()
     response_data = _call_pantacor_api("GET", endpoint=f"devices/{pantacor_device_id}")
     if not response_data:
@@ -54,8 +60,9 @@ def get_pantacor_device(pantacor_device_id: str) -> PantacorConfig:
         if label.startswith("device-meta"):
             label = label.replace("device-meta/", "")
             key, value = label.split("=")
-            print(key, value)
-            if key == "interfaces.wlan0.ipv4.0":
+            if key == "interfaces.eth0.ipv4.0":
+                ip_address = value
+            if key == "interfaces.wlan0.ipv4.0" and ip_address is None:
                 ip_address = value
             elif key == "pantahub.claimed":
                 claimed = True if value == "1" else False
