@@ -92,6 +92,6 @@ class DevicePantacorEndpoint(PublicEndpoint):
     def _add_pantacor_config_to_db(self, pantacor_config):
         """Adds the software update configs to the database."""
         device_repository = DeviceRepository(self.db)
-        device_repository.add_pantacor_config(
+        device_repository.upsert_pantacor_config(
             self.request.json["mycroft_device_id"], pantacor_config
         )

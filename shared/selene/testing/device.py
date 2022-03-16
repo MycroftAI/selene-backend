@@ -49,4 +49,4 @@ def add_pantacor_config(db, device_id):
         auto_update=False,
         release_channel="latest",
     )
-    device_repository.add_pantacor_config(device_id, pantacor_config)
+    device_repository.upsert_pantacor_config(device_id, pantacor_config)

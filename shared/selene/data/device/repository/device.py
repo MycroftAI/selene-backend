@@ -200,8 +200,11 @@ class DeviceRepository(RepositoryBase):
 
         self.cursor.update(db_request)
 
-    def add_pantacor_config(self, device_id: str, pantacor_config: PantacorConfig):
-        """Add Pantacor configuration to a device that uses this update mechanism
+    def upsert_pantacor_config(self, device_id: str, pantacor_config: PantacorConfig):
+        """Add Pantacor configuration to a device that uses this update mechanism.
+
+        If a row already exists for this device on the table, just update the
+        IP address.
 
         :param device_id: UUID identifying a device
         :param pantacor_config: dataclass object containing Pantacor-specific data.
@@ -214,7 +217,7 @@ class DeviceRepository(RepositoryBase):
             release_channel=pantacor_config.release_channel,
         )
         db_request = self._build_db_request(
-            sql_file_name="add_pantacor_config.sql", args=db_request_args
+            sql_file_name="upsert_pantacor_config.sql", args=db_request_args
         )
 
         self.cursor.insert(db_request)
