@@ -4,20 +4,17 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-flask = "*"
 certifi = "*"
+flask = "*"
 selene = {editable = true,path = "./../../shared"}
 uwsgi = "*"
 
 [dev-packages]
-behave = "*"
-pyhamcrest = "*"
-black = "*"
-pylint = "*"
 allure-behave = "*"
+behave = "*"
+black = "*"
+pyhamcrest = "*"
+pylint = "*"
 
 [requires]
-python_version = "3.7"
-
-[pipenv]
-allow_prereleases = true
+python_version = "3.9"
