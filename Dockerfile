@@ -12,7 +12,7 @@
 #   "--net <network name>" argument.
 
 # Build steps that apply to all of the selene applications.
-FROM python:3.7-slim as base-build
+FROM python:3.9 as base-build
 RUN apt-get update && apt-get -y install gcc git
 RUN python3 -m pip install pipenv
 RUN mkdir -p /root/allure /opt/selene/selene-backend /root/code-quality /var/log/mycroft
