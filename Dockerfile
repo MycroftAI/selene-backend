@@ -42,7 +42,7 @@ ARG github_api_key
 ENV GITHUB_API_KEY=$github_api_key
 RUN mkdir -p /opt/mycroft
 WORKDIR /opt/mycroft
-RUN git clone https://devops@github.com/MycroftAI/devops.git
+RUN git clone https://devops-mycroft@github.com/MycroftAI/devops.git
 WORKDIR /opt/mycroft/devops/jenkins
 RUN pipenv install
 
@@ -58,7 +58,7 @@ WORKDIR /opt/mycroft/devops/jenkins
 ENTRYPOINT ["pipenv", "run", "python", "-m", "pipeline.code_check", "--repository", "selene-backend", "--base-dir", "/opt/selene"]
 
 # Bootstrap the Selene database as it will be needed to run any Selene applications.
-FROM selene-base as db-bootstrap
+FROM devops-build as db-bootstrap
 ENV POSTGRES_PASSWORD selene
 WORKDIR /opt/selene/selene-backend
 COPY db db
