@@ -77,6 +77,7 @@ pipeline {
             steps {
                 labelledShell label: 'Building Docker image', script: """
                     docker build \
+                        --no-cache \
                         --target db-bootstrap \
                         --build-arg github_api_key=${GITHUB_API} \
                         --label job=${JOB_NAME} \
@@ -85,7 +86,9 @@ pipeline {
                 timeout(time: 5, unit: 'MINUTES')
                 {
                     labelledShell label: 'Run database bootstrap script', script: """
-                        docker run --net selene-net selene-db:${BRANCH_ALIAS}
+                        docker run \
+                            -v '${HOME}/selene:/tmp/selene' \
+                            --net selene-net selene-db:${BRANCH_ALIAS}
                     """
                 }
             }

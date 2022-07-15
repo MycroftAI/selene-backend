@@ -64,7 +64,8 @@ WORKDIR /opt/selene/selene-backend
 COPY db db
 WORKDIR /opt/selene/selene-backend/db
 RUN pipenv install
-ENTRYPOINT ["pipenv", "run", "python", "scripts/bootstrap_mycroft_db.py"]
+RUN mkdir -p /tmp/selene
+ENTRYPOINT ["pipenv", "run", "python", "scripts/bootstrap_mycroft_db.py", "--ci"]
 
 # Run the tests defined in the Account API
 FROM selene-base as account-api-test
