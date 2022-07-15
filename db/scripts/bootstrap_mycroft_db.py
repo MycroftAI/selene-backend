@@ -342,20 +342,14 @@ def _populate_city_table(db):
                             )
                             + "\n"
                         )
-    with open("city.dump") as dump_file:
-        cursor = db.db.cursor()
-        cursor.copy_from(
-            dump_file,
-            "geography.city",
-            columns=(
-                "region_id",
-                "timezone_id",
-                "name",
-                "latitude",
-                "longitude",
-                "population",
-            ),
-        )
+    from pathlib import Path
+
+    city_file_path = Path(str(__file__)).parent.joinpath("city.dump")
+    city_copy = (
+        f"COPY geography.city (region_id, timezone_id, name, latitude, longitude, "
+        f"population) FROM '{city_file_path}'"
+    )
+    db.execute_sql(city_copy)
     remove("city.dump")
 
 
