@@ -78,7 +78,7 @@ pipeline {
                 labelledShell label: 'Building Docker image', script: """
                     docker build \
                         --target db-bootstrap \
-                        --build-arg github_api_key=${GITHUB_API_PSW} \
+                        --build-arg github_api_key=${GITHUB_API} \
                         --label job=${JOB_NAME} \
                         -t selene-db:${BRANCH_ALIAS} .
                 """
