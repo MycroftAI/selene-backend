@@ -77,7 +77,6 @@ pipeline {
             steps {
                 labelledShell label: 'Building Docker image', script: """
                     docker build \
-                        --no-cache \
                         --target db-bootstrap \
                         --build-arg github_api_key=${GITHUB_API} \
                         --label job=${JOB_NAME} \
