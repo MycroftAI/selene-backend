@@ -32,6 +32,7 @@ pipeline {
                     changeRequest target: 'dev'
                     changeRequest target: 'master'
                 }
+            }
             steps {
                 labelledShell label: 'Account API Setup', script: """
                      docker build \
