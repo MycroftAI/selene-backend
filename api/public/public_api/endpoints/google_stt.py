@@ -17,10 +17,8 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 """Public API endpoint for transcribing audio using Google's STT API"""
-import os
 from http import HTTPStatus
 from io import BytesIO
-from time import time
 
 from speech_recognition import (
     AudioData,
