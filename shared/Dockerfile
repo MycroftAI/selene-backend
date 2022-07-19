@@ -3,7 +3,7 @@
 # This Dockerfile contains the steps that are common to building all the
 # docker images for the Selene backend to Mycroft
 
-FROM python:3.7
+FROM python:3.9
 LABEL maintainer="Mycroft AI <devops@mycroft.ai>"
 
 # Install the software required for this image
