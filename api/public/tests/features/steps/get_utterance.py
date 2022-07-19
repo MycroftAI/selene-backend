@@ -16,20 +16,20 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-
+"""Step functions for the Google STT endpoint of the Device API."""
 import json
 import os
-from http import HTTPStatus
 from io import BytesIO
 
-from behave import When, Then
-from hamcrest import assert_that, equal_to, not_none
+from behave import when, then  # pylint: disable=no-name-in-module
+from hamcrest import assert_that, equal_to
 
 
-@When('A flac audio with the utterance "what time is it" is passed')
+@when('A flac audio with the utterance "what time is it" is passed')
 def call_google_stt_endpoint(context):
+    """Call the endpoint with an audio file known to contain a certain phrase."""
     access_token = context.device_login["accessToken"]
-    headers = dict(Authorization="Bearer {token}".format(token=access_token))
+    headers = dict(Authorization=f"Bearer {access_token}")
     resources_dir = os.path.join(os.path.dirname(__file__), "resources")
     with open(os.path.join(resources_dir, "test_stt.flac"), "rb") as flac:
         audio = BytesIO(flac.read())
@@ -38,8 +38,9 @@ def call_google_stt_endpoint(context):
         )
 
 
-@Then('return the utterance "what time is it"')
+@then('return the utterance "what time is it"')
 def validate_response(context):
+    """Check that the right phrase was returned by Google STT."""
     response_data = json.loads(context.response.data)
     expected_response = ["what time is it"]
     assert_that(response_data, equal_to(expected_response))
