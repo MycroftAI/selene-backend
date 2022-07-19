@@ -4,19 +4,26 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
+# Version 1.0 of flask required because later versions do not allow lists to be passed as API repsonses.  The Google
+# STT endpoint passes a list of transcriptions to the device.  Changing this to return a dictionary would break the
+# API's V1 contract with Mycroft Core.
+#
+# To make flask 1.0 work, older versions of itsdangerous, jinja2, markupsafe and werkszeug are required.
 flask = "<1.1"
-# version 2.1 of itsdangerous breaks a dependency on flask 1.0.
-itsdangerous = "<2.1"
-uwsgi = "*"
+itsdangerous = "<=2.0.1"
+jinja2 = "<=2.10.1"
+markupsafe = "<=2.0.1"
 schematics = "*"
 stripe = "*"
 selene = {editable = true,path = "./../../shared"}
+uwsgi = "*"
+werkzeug = "<=2.0.3"
 
 [dev-packages]
+allure-behave = "*"
 behave = "*"
 pyhamcrest = "*"
-allure-behave = "*"
 pylint = "*"
 
 [requires]
-python_version = "3.7"
+python_version = "3.9"

@@ -17,7 +17,7 @@ pipeline {
         ).trim()
         DOCKER_BUILDKIT=1
         //spawns GITHUB_USR and GITHUB_PSW environment variables
-        GITHUB_API=credentials('38b2e4a6-167a-40b2-be6f-d69be42c8190')
+        GITHUB_API_KEY=credentials('38b2e4a6-167a-40b2-be6f-d69be42c8190')
         GITHUB_CLIENT_ID=credentials('380f58b1-8a33-4a9d-a67b-354a9b0e792e')
         GITHUB_CLIENT_SECRET=credentials('71626c21-de59-4450-bfad-5034fd596fb2')
         GOOGLE_STT_KEY=credentials('287949f8-2ada-4450-8806-1fe2dd8e4c4d')
@@ -28,13 +28,15 @@ pipeline {
         stage('Lint & Format') {
             // Run PyLint and Black to check code quality.
             when {
-                changeRequest target: 'dev'
-                changeRequest target: 'master'
+                anyOf {
+                    changeRequest target: 'dev'
+                    changeRequest target: 'master'
+                }
             }
             steps {
                 labelledShell label: 'Account API Setup', script: """
                      docker build \
-                        --build-arg github_api_key=${GITHUB_API_PSW} \
+                        --build-arg github_api_key=${GITHUB_API_KEY} \
                         --build-arg api_name=account \
                         --target api-code-check --no-cache \
                         -t selene-linter:${BRANCH_ALIAS} .
@@ -44,7 +46,7 @@ pipeline {
                 """
                 labelledShell label: 'Single Sign On API Setup', script: """
                      docker build \
-                        --build-arg github_api_key=${GITHUB_API_PSW} \
+                        --build-arg github_api_key=${GITHUB_API_KEY} \
                         --build-arg api_name=sso \
                         --target api-code-check --no-cache \
                         -t selene-linter:${BRANCH_ALIAS} .
@@ -54,7 +56,7 @@ pipeline {
                 """
                 labelledShell label: 'Public API Setup', script: """
                      docker build \
-                        --build-arg github_api_key=${GITHUB_API_PSW} \
+                        --build-arg github_api_key=${GITHUB_API_KEY} \
                         --build-arg api_name=public \
                         --target api-code-check --no-cache \
                         --label job=${JOB_NAME} \
@@ -78,14 +80,16 @@ pipeline {
                 labelledShell label: 'Building Docker image', script: """
                     docker build \
                         --target db-bootstrap \
-                        --build-arg github_api_key=${GITHUB_API_PSW} \
+                        --build-arg github_api_key=${GITHUB_API_KEY} \
                         --label job=${JOB_NAME} \
                         -t selene-db:${BRANCH_ALIAS} .
                 """
                 timeout(time: 5, unit: 'MINUTES')
                 {
                     labelledShell label: 'Run database bootstrap script', script: """
-                        docker run --net selene-net selene-db:${BRANCH_ALIAS}
+                        docker run \
+                            -v '${HOME}/selene:/tmp/selene' \
+                            --net selene-net selene-db:${BRANCH_ALIAS}
                     """
                 }
             }
