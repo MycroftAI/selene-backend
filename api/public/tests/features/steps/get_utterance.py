@@ -43,30 +43,3 @@ def validate_response(context):
     response_data = json.loads(context.response.data)
     expected_response = ["what time is it"]
     assert_that(response_data, equal_to(expected_response))
-
-    resources_dir = os.path.join(os.path.dirname(__file__), "resources")
-    with open(os.path.join(resources_dir, "test_stt.flac"), "rb") as input_file:
-        input_file_content = input_file.read()
-    flac_file_path = _get_stt_result_file(context.account.id, ".flac")
-    assert_that(flac_file_path, not_none())
-    with open(flac_file_path, "rb") as output_file:
-        output_file_content = output_file.read()
-    assert_that(input_file_content, equal_to(output_file_content))
-
-    stt_file_path = _get_stt_result_file(context.account.id, ".stt")
-    assert_that(stt_file_path, not_none())
-    with open(stt_file_path, "rb") as output_file:
-        output_file_content = output_file.read()
-    assert_that(b"what time is it", equal_to(output_file_content))
-
-
-def _get_stt_result_file(account_id, file_suffix):
-    file_path = None
-    for stt_file_name in os.listdir("/opt/selene/data"):
-        file_name_match = stt_file_name.startswith(
-            account_id
-        ) and stt_file_name.endswith(file_suffix)
-        if file_name_match:
-            file_path = os.path.join("/opt/selene/data/", stt_file_name)
-
-    return file_path
