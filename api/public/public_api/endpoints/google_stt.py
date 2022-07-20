@@ -17,10 +17,8 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 """Public API endpoint for transcribing audio using Google's STT API"""
-import os
 from http import HTTPStatus
 from io import BytesIO
-from time import time
 
 from speech_recognition import (
     AudioData,
@@ -57,7 +55,6 @@ class GoogleSTTEndpoint(PublicEndpoint):
         request_audio_data = self._extract_audio_from_request()
         transcription = self._call_google_stt(request_audio_data)
         if transcription is not None:
-            self._save_transcription(request_audio_data, transcription)
             track_account_activity(self.db, self.device_id)
 
         return [transcription], HTTPStatus.OK
@@ -120,34 +117,3 @@ class GoogleSTTEndpoint(PublicEndpoint):
             _log.info(log_message)
 
         return transcription
-
-    def _save_transcription(self, audio: AudioData, transcription: str):
-        """Saves the STT results for tagging.
-
-        Args:
-            audio: the audio data sent to Google's STT API
-            transcription: the result of the STT transcription
-        """
-        if self.account_shares_data:
-            flac_audio = audio.get_flac_data()
-            file_time = time()
-            try:
-                self._write_open_dataset_file(flac_audio, file_time, file_type="flac")
-                self._write_open_dataset_file(
-                    transcription.encode(), file_time, file_type="stt"
-                )
-            except IOError:
-                _log.exception("Failed to write transcription to file system")
-
-    def _write_open_dataset_file(self, content: bytes, file_time: time, file_type: str):
-        """Writes one of the pair of transcription files.
-
-        Args:
-            content: the data to write to the file
-            file_time: the time of the transcription
-            file_type: the extension of the file
-        """
-        file_name = f"{self.account.id}_{file_time}.{file_type}"
-        file_path = os.path.join(SELENE_DATA_DIR, file_name)
-        with open(file_path, "wb") as stt_file:
-            stt_file.write(content)
