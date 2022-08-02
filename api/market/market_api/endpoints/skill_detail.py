@@ -27,12 +27,12 @@ from selene.data.skill import SkillDisplay, SkillDisplayRepository
 
 
 class SkillDetailEndpoint(SeleneEndpoint):
-    """ "Supply the data that will populate the skill detail page."""
+    """Supply the data that will populate the skill detail page."""
 
     authentication_required = False
 
     def __init__(self):
-        super(SkillDetailEndpoint, self).__init__()
+        super().__init__()
         self.skill_display_id = None
         self.response_skill = None
         self.manifest_skills = []
@@ -63,7 +63,7 @@ class SkillDetailEndpoint(SeleneEndpoint):
             description=markdown(
                 skill_display.display_data.get("description"), output_format="html5"
             ),
-            display_name=skill_display.display_data["display_name"],
+            displayName=skill_display.display_data["display_name"],
             icon=skill_display.display_data.get("icon"),
             iconImage=skill_display.display_data.get("icon_img"),
             isSystemSkill=False,
