@@ -16,8 +16,11 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
+"""Common test functions for accounts."""
 
 from datetime import date
+from typing import Any
+
 from selene.data.account import (
     Account,
     AccountAgreement,
@@ -29,7 +32,11 @@ from selene.data.account import (
 )
 
 
-def build_test_account(**overrides):
+def build_test_account(**overrides: Any):
+    """Builds and account object for use in testing.
+
+    :param overrides: keyword arguments that override default account attributes
+    """
     test_agreements = [
         AccountAgreement(type=PRIVACY_POLICY, accept_date=date.today()),
         AccountAgreement(type=TERMS_OF_USE, accept_date=date.today()),
@@ -37,12 +44,19 @@ def build_test_account(**overrides):
     ]
     return Account(
         email_address=overrides.get("email_address") or "foo@mycroft.ai",
+        federated_login=False,
         username=overrides.get("username") or "foobar",
         agreements=overrides.get("agreements") or test_agreements,
     )
 
 
-def add_account(db, **overrides):
+def add_account(db, **overrides: Any) -> Account:
+    """Adds an account to the database for use in testing.
+
+    :param db: instance of the Selene database
+    :param overrides: keyword arguments that override default account attributes
+    :return: An instance of an account object
+    """
     acct_repository = AccountRepository(db)
     account = build_test_account(**overrides)
     password = overrides.get("password") or "test_password"
@@ -53,12 +67,22 @@ def add_account(db, **overrides):
     return account
 
 
-def remove_account(db, account):
+def remove_account(db, account: Account):
+    """Removes a test account from the database.
+
+    :param db: Instance of the Selene database
+    :param account: Account used in testing
+    """
     account_repository = AccountRepository(db)
     account_repository.remove(account)
 
 
-def build_test_membership(**overrides):
+def build_test_membership(**overrides: Any) -> AccountMembership:
+    """Builds an instance of an account membership for testing purposes.
+
+    :param overrides: keyword arguments that override default account attributes
+    :return: An instance of the account membership for use in testing
+    """
     stripe_acct = "test_stripe_acct_id"
     return AccountMembership(
         type=overrides.get("type") or "Monthly Membership",
@@ -69,7 +93,14 @@ def build_test_membership(**overrides):
     )
 
 
-def add_account_membership(db, account_id, **overrides):
+def add_account_membership(db, account_id: str, **overrides: Any) -> AccountMembership:
+    """Adds a membership to a test account.
+
+    :param db: instance of the Selene database
+    :param account_id: identifier of the account
+    :param overrides: keyword arguments that override default account attributes
+    :return: the membership that was added to the database
+    """
     membership = build_test_membership(**overrides)
     acct_repository = AccountRepository(db)
     acct_repository.add_membership(account_id, membership)

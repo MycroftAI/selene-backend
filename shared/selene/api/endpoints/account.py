@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-"""API endpoint to return the a logged-in user's profile"""
+"""API endpoint to return the logged-in user's profile"""
 import os
 from binascii import a2b_base64
 from dataclasses import asdict
@@ -75,7 +75,7 @@ class Login(Model):
     email = EmailType()
     password = StringType()
 
-    def validate_email(self, data, value):  # pylint: disable=no-self-use
+    def validate_email(self, data, value):
         """If email address is used to login, it must be specified."""
         if data["federated_token"] is None:
             if value is None:
@@ -83,7 +83,7 @@ class Login(Model):
                     "either a federated login or an email address is required"
                 )
 
-    def validate_password(self, data, value):  # pylint: disable=no-self-use
+    def validate_password(self, data, value):
         """If email address is used to login, the password must be supplied."""
         if data.get("email") is not None:
             if value is None:
@@ -98,17 +98,17 @@ class UpdateMembershipRequest(Model):
     payment_method = StringType(choices=[STRIPE_PAYMENT])
     payment_token = StringType()
 
-    def validate_membership_type(self, data, value):  # pylint: disable=no-self-use
+    def validate_membership_type(self, data, value):
         """A new membership must have a membership type."""
         if data["new_membership"] and value is None:
             raise ValidationError("new memberships require a membership type")
 
-    def validate_payment_method(self, data, value):  # pylint: disable=no-self-use
+    def validate_payment_method(self, data, value):
         """A new membership must have a payment method."""
         if data["new_membership"] and value is None:
             raise ValidationError("new memberships require a payment method")
 
-    def validate_payment_token(self, data, value):  # pylint: disable=no-self-use
+    def validate_payment_token(self, data, value):
         """A new membership must have a payment token."""
         if data["new_membership"] and value is None:
             raise ValidationError("payment token required for new memberships")
@@ -193,9 +193,9 @@ class AccountEndpoint(SeleneEndpoint):
         months, _ = divmod(remaining_duration, one_month)
         membership_duration = []
         if years:
-            membership_duration.append("{} years".format(years))
+            membership_duration.append(f"{years} years")
         if months:
-            membership_duration.append(" {} months".format(str(months)))
+            membership_duration.append(f" {months} months")
 
         return " ".join(membership_duration) if membership_duration else None
 
@@ -266,6 +266,7 @@ class AccountEndpoint(SeleneEndpoint):
         """
         account = Account(
             email_address=email_address,
+            federated_login=password is None,
             agreements=[
                 AccountAgreement(type=PRIVACY_POLICY, accept_date=date.today()),
                 AccountAgreement(type=TERMS_OF_USE, accept_date=date.today()),
@@ -305,7 +306,7 @@ class AccountEndpoint(SeleneEndpoint):
             elif key == "openDataset":
                 self._update_open_dataset_agreement(value)
             else:
-                errors.append("update of {} not supported".format(key))
+                errors.append(f"update of {key} not supported")
 
         return errors
 

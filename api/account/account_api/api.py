@@ -29,6 +29,7 @@ from .endpoints import (
     CityEndpoint,
     CountryEndpoint,
     AccountDefaultsEndpoint,
+    PasswordChangeEndpoint,
     DeviceEndpoint,
     DeviceCountEndpoint,
     GeographyEndpoint,
@@ -108,6 +109,11 @@ acct.add_url_rule(
     methods=["GET"],
 )
 
+password_change_endpoint = PasswordChangeEndpoint.as_view("password_change_endpoint")
+acct.add_url_rule(
+    "/api/password-change", view_func=password_change_endpoint, methods=["PUT"]
+)
+
 preferences_endpoint = PreferencesEndpoint.as_view("preferences_endpoint")
 acct.add_url_rule(
     "/api/preferences", view_func=preferences_endpoint, methods=["GET", "PATCH", "POST"]
@@ -140,7 +146,9 @@ ssh_key_validation_endpoint = SshKeyValidatorEndpoint.as_view(
     "ssh_key_validation_endpoint"
 )
 acct.add_url_rule(
-    "/api/ssh-key", view_func=ssh_key_validation_endpoint, methods=["GET"],
+    "/api/ssh-key",
+    view_func=ssh_key_validation_endpoint,
+    methods=["GET"],
 )
 
 timezone_endpoint = TimezoneEndpoint.as_view("timezone_endpoint")

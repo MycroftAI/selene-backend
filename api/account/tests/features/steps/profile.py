@@ -19,7 +19,9 @@
 """Step functions for maintaining an account profile via the account API."""
 
 import json
+from binascii import b2a_base64
 from datetime import datetime
+from unittest.mock import patch
 
 from behave import given, then, when  # pylint: disable=no-name-in-module
 from hamcrest import (
@@ -29,6 +31,7 @@ from hamcrest import (
     has_item,
     is_in,
     none,
+    not_none,
     starts_with,
 )
 
@@ -86,6 +89,28 @@ def set_account_open_dataset(context, in_or_out):
         account = context.accounts["foo"]
         account_repo = AccountRepository(context.db)
         account_repo.expire_open_dataset_agreement(account.id)
+
+
+@given("a user who authenticates with a password")
+def setup_user(context):
+    """Set user context for use in other steps."""
+    context.username = "foo"
+    context.password = "barfoo"
+    context.change_password_request = dict(password=b2a_base64(b"barfoo").decode())
+
+
+@when("the user changes their password")
+def call_password_change_endpoint(context):
+    """Call the password change endpoint for the single sign on API."""
+    with patch("account_api.endpoints.password_change.SeleneMailer") as email_mock:
+        context.client.content_type = "application/json"
+        response = context.client.put(
+            "/api/password-change",
+            data=json.dumps(context.change_password_request),
+            content_type="application/json",
+        )
+        context.response = response
+        context.email_mock = email_mock
 
 
 @when("a user requests their profile")
@@ -227,7 +252,8 @@ def check_expired_member_account_metrics(context):
         # Membership was added in a previous step so rather than the membership being
         # decreased by one, it would net to being the same after the expiration.
         assert_that(
-            account_activity.members, equal_to(context.account_activity.members),
+            account_activity.members,
+            equal_to(context.account_activity.members),
         )
         assert_that(
             account_activity.members_expired,
@@ -259,3 +285,14 @@ def check_new_open_dataset_account_metrics(context):
 def check_deleted_open_dataset_account_metrics(context):
     """Ensure a new agreement is accurately reflected in the metrics."""
     check_account_metrics(context, "open_dataset", "open_dataset_deleted")
+
+
+@then("the password on the account will be changed")
+def check_new_password(context):
+    """Retrieves the account with the new password to verify it was changed."""
+    acct_repository = AccountRepository(context.db)
+    test_account = context.accounts["foo"]
+    account = acct_repository.get_account_from_credentials(
+        test_account.email_address, context.password
+    )
+    assert_that(account, not_none())

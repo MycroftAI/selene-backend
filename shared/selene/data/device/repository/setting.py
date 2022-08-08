@@ -81,10 +81,10 @@ class SettingRepository(object):
                 "module": tts_setting[0],
                 tts_setting[0]: {"voice": tts_setting[1]},
             }
-            response["tts_settings"] = tts_setting
-            response["date_format"] = self._format_date_v1(response["date_format"])
-            response["time_format"] = self._format_time_v1(response["time_format"])
-            response["system_unit"] = response["system_unit"].lower()
+            response["ttsSettings"] = tts_setting
+            response["dateFormat"] = self._format_date_v1(response["date_format"])
+            response["timeFormat"] = self._format_time_v1(response["time_format"])
+            response["systemUnit"] = response["system_unit"].lower()
             open_dataset = self._get_open_dataset_agreement_by_device_id(device_id)
             response["optIn"] = open_dataset is not None
             return response
