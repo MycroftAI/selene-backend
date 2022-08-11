@@ -37,4 +37,4 @@ class PasswordChangeEndpoint(CommonPasswordChangeEndpoint):
             template_file_name="password_change.html",
         )
         mailer = SeleneMailer(email)
-        mailer.send()
+        mailer.send(using_jinja=True)

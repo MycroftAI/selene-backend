@@ -63,7 +63,7 @@ class PasswordResetEndpoint(SeleneEndpoint):
             template_variables=dict(reset_password_url=url),
         )
         mailer = SeleneMailer(email)
-        mailer.send()
+        mailer.send(using_jinja=True)
 
     def _send_account_not_found_email(self):
         email = EmailMessage(

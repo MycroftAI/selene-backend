@@ -105,7 +105,7 @@ def call_password_change_endpoint(context):
     with patch("account_api.endpoints.password_change.SeleneMailer") as email_mock:
         context.client.content_type = "application/json"
         response = context.client.put(
-            "/api/password-change",
+            "/api/change-password",
             data=json.dumps(context.change_password_request),
             content_type="application/json",
         )

@@ -27,6 +27,11 @@ from selene.data.account import AccountRepository
 class PasswordChangeEndpoint(SeleneEndpoint):
     """Inherit this endpoint for password change endpoints."""
 
+    @property
+    def account_id(self):
+        """Returns account ID, which can be obtained in different ways."""
+        raise NotImplementedError
+
     def put(self):
         """Executes an HTTP PUT request."""
         self._authenticate()
@@ -38,11 +43,6 @@ class PasswordChangeEndpoint(SeleneEndpoint):
         self._send_email()
 
         return "", HTTPStatus.NO_CONTENT
-
-    @property
-    def account_id(self):
-        """Returns account ID, which can be obtained in different ways."""
-        raise NotImplementedError
 
     def _send_email(self):
         """Override in subclass to send a password changed email."""

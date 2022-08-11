@@ -22,7 +22,7 @@ from logging import getLogger
 from os import environ
 from pathlib import Path
 
-from jinja2 import Template
+from jinja2 import Environment, PackageLoader, select_autoescape
 from python_http_client import HTTPError
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Content, Mail
@@ -79,11 +79,14 @@ class SeleneMailer:
         if self.message.body:
             message_content = self.message.body
         else:
-            message_content = self._build_content_from_template(using_jinja)
+            if using_jinja:
+                message_content = self._build_content_from_jinja_template()
+            else:
+                message_content = self._build_content_from_html_template()
 
         return Content(self.message.content_type, message_content)
 
-    def _build_content_from_template(self, using_jinja):
+    def _build_content_from_html_template(self):
         """Format an HTML template that will be the email body."""
         template_path = self.template_directory.joinpath(
             self.message.template_file_name
@@ -91,10 +94,16 @@ class SeleneMailer:
         with open(template_path) as template_file:
             email_content = template_file.read()
         if self.message.template_variables is not None:
-            if using_jinja:
-                template = Template(email_content)
-                email_content = template.render(**self.message.template_variables)
-            else:
-                email_content = email_content.format(**self.message.template_variables)
+            email_content = email_content.format(**self.message.template_variables)
+
+        return email_content
+
+    def _build_content_from_jinja_template(self):
+        jinja_env = Environment(
+            loader=PackageLoader("selene.util.email", "templates"),
+            autoescape=select_autoescape(["html"]),
+        )
+        template = jinja_env.get_template(self.message.template_file_name)
+        email_content = template.render(self.message.template_variables or {})
 
         return email_content

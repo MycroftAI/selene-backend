@@ -19,6 +19,7 @@
 """Public API into the endpoints package."""
 
 from .preferences import PreferencesEndpoint
+from .change_password import PasswordChangeEndpoint
 from .city import CityEndpoint
 from .country import CountryEndpoint
 from .defaults import AccountDefaultsEndpoint
@@ -27,7 +28,6 @@ from .device_count import DeviceCountEndpoint
 from .geography import GeographyEndpoint
 from .membership import MembershipEndpoint
 from .pairing_code import PairingCodeEndpoint
-from .password_change import PasswordChangeEndpoint
 from .region import RegionEndpoint
 from .skills import SkillsEndpoint
 from .skill_oauth import SkillOauthEndpoint
