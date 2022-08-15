@@ -21,6 +21,7 @@
 import json
 from binascii import b2a_base64
 from datetime import datetime
+from os import environ
 from unittest.mock import patch
 
 from behave import given, then, when  # pylint: disable=no-name-in-module
@@ -50,6 +51,7 @@ from selene.testing.api import (
     set_refresh_token_cookie,
 )
 from selene.testing.membership import MONTHLY_MEMBERSHIP, YEARLY_MEMBERSHIP
+from selene.util.email import EmailMessage
 
 BAR_EMAIL_ADDRESS = "bar@mycroft.ai"
 STRIPE_METHOD = "Stripe"
@@ -96,21 +98,55 @@ def setup_user(context):
     """Set user context for use in other steps."""
     context.username = "foo"
     context.password = "barfoo"
-    context.change_password_request = dict(password=b2a_base64(b"barfoo").decode())
 
 
 @when("the user changes their password")
 def call_password_change_endpoint(context):
     """Call the password change endpoint for the single sign on API."""
-    with patch("account_api.endpoints.password_change.SeleneMailer") as email_mock:
-        context.client.content_type = "application/json"
+    change_password_request = dict(
+        password=b2a_base64(context.password.encode()).decode()
+    )
+    with patch("account_api.endpoints.change_password.SeleneMailer") as email_mock:
         response = context.client.put(
             "/api/change-password",
-            data=json.dumps(context.change_password_request),
+            data=json.dumps(change_password_request),
             content_type="application/json",
         )
         context.response = response
         context.email_mock = email_mock
+
+
+@when("the user changes their email address")
+def call_email_address_change_endpoint(context):
+    """Call the password change endpoint for the single sign on API."""
+    context.new_email_address = "bar@mycroft.ai"
+    encoded_email_address = context.new_email_address.encode()
+    context.email_verification_token = b2a_base64(
+        encoded_email_address, newline=False
+    ).decode()
+    change_email_request = dict(token=context.email_verification_token)
+    with patch("account_api.endpoints.change_email_address.SeleneMailer") as email_mock:
+        response = context.client.put(
+            "/api/change-email",
+            data=json.dumps(change_email_request),
+            content_type="application/json",
+        )
+        context.response = response
+        context.email_mock = email_mock
+
+
+@when("the user changes their email address to that of an existing account")
+def call_email_validation_endpoint(context):
+    """Call the email validation endpoint on the account API."""
+    existing_account = context.accounts["foo"]
+    email_address = existing_account.email_address.encode()
+    token = b2a_base64(email_address).decode()
+
+    context.client.content_type = "application/json"
+    response = context.client.get(
+        f"/api/validate-email?platform=Internal&token={token}"
+    )
+    context.response = response
 
 
 @when("a user requests their profile")
@@ -296,3 +332,66 @@ def check_new_password(context):
         test_account.email_address, context.password
     )
     assert_that(account, not_none())
+
+
+@then("a duplicate email address error is returned")
+def check_for_duplicate_account_error(context):
+    """Check the API response for an "account exists" error."""
+    response = context.response
+    assert_that(response.json["accountExists"], equal_to(True))
+
+
+@then("an password change notification will be sent")
+def check_password_change_notification_sent(context):
+    """Ensures the email change notification message was sent.
+
+    Using a mock for email as we don't want to be sending emails every time the tests
+    run.
+    """
+    email_mock = context.email_mock
+    notification_email = EmailMessage(
+        recipient=context.accounts["foo"].email_address,
+        sender="Mycroft AI<no-reply@mycroft.ai>",
+        subject="Password Changed",
+        template_file_name="password_change.html",
+    )
+    email_mock.assert_any_call(notification_email)
+
+
+@then("an email change notification will be sent to the old email address")
+def check_email_change_notification_sent(context):
+    """Ensures the email change notification message was sent.
+
+    Using a mock for email as we don't want to be sending emails every time the tests
+    run.
+    """
+    email_mock = context.email_mock
+    notification_email = EmailMessage(
+        recipient=context.accounts["foo"].email_address,
+        sender="Mycroft AI<no-reply@mycroft.ai>",
+        subject="Email Address Changed",
+        template_file_name="email_change.html",
+    )
+    email_mock.assert_any_call(notification_email)
+
+
+@then("an email change verification message will be sent to the new email address")
+def check_new_email_verification_sent(context):
+    """Ensures the new email verification message was sent.
+
+    Using a mock for email as we don't want to be sending emails every time the tests
+    run.
+    """
+    email_mock = context.email_mock
+    url = (
+        f"{environ['ACCOUNT_BASE_URL']}/verify-email?"
+        + f"token={context.email_verification_token}"
+    )
+    verification_email = EmailMessage(
+        recipient=context.new_email_address,
+        sender="Mycroft AI<no-reply@mycroft.ai>",
+        subject="Email Change Verification",
+        template_file_name="email_verification.html",
+        template_variables=dict(email_verification_url=url),
+    )
+    email_mock.assert_any_call(verification_email)

@@ -8,6 +8,10 @@ Feature: Add a new account
     And the account will be added to the system
     And the new account will be reflected in the account activity metrics
 
+  Scenario: User enters email address belonging to an existing account
+    When a user enters an email address already in use
+    Then a duplicate email address error is returned
+
   Scenario Outline: Request missing a required field
     Given a user completes new account setup
     And user does not include <required field>

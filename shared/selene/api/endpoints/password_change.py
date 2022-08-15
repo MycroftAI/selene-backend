@@ -17,6 +17,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 """Common parts of an endpoint to change a user's password."""
+
 from binascii import a2b_base64
 from http import HTTPStatus
 
@@ -39,7 +40,7 @@ class PasswordChangeEndpoint(SeleneEndpoint):
         binary_password = a2b_base64(coded_password)
         password = binary_password.decode()
         acct_repository = AccountRepository(self.db)
-        acct_repository.change_password(self.account_id, password)
+        acct_repository.update_password(self.account_id, password)
         self._send_email()
 
         return "", HTTPStatus.NO_CONTENT

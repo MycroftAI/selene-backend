@@ -23,7 +23,11 @@ import os
 from flask import Flask, request
 
 from selene.api import get_base_config, selene_api, SeleneResponse
-from selene.api.endpoints import AccountEndpoint, AgreementsEndpoint
+from selene.api.endpoints import (
+    AccountEndpoint,
+    AgreementsEndpoint,
+    ValidateEmailEndpoint,
+)
 from selene.util.log import configure_selene_logger
 from .endpoints import (
     AuthenticateInternalEndpoint,
@@ -31,7 +35,6 @@ from .endpoints import (
     LogoutEndpoint,
     PasswordChangeEndpoint,
     PasswordResetEndpoint,
-    ValidateEmailEndpoint,
     ValidateFederatedEndpoint,
     ValidateTokenEndpoint,
 )
