@@ -18,8 +18,8 @@
 #  along with this program. If not, see <https://www.gnu.org/licenses/>.
 #
 """Defines the password change endpoint for the account API."""
-
 from selene.api.endpoints import PasswordChangeEndpoint as CommonPasswordChangeEndpoint
+from selene.util.email import EmailMessage, SeleneMailer
 
 
 class PasswordChangeEndpoint(CommonPasswordChangeEndpoint):
@@ -27,8 +27,14 @@ class PasswordChangeEndpoint(CommonPasswordChangeEndpoint):
 
     @property
     def account_id(self):
-        """Returns the account passed to the endpoint in the PUT request"""
-        return self.request.json["accountId"]
+        return self.account.id
 
-    def _authenticate(self):
-        """Skips authentication because user is not logged in when this is called."""
+    def _send_email(self):
+        email = EmailMessage(
+            recipient=self.account.email_address,
+            sender="Mycroft AI<no-reply@mycroft.ai>",
+            subject="Password Changed",
+            template_file_name="password_change.html",
+        )
+        mailer = SeleneMailer(email)
+        mailer.send()

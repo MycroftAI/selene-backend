@@ -16,19 +16,23 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-
+"""Data access methods for the device settings."""
 from os import path
+from typing import Optional
 
 from selene.util.db import get_sql_from_file, Cursor, DatabaseRequest
 
 SQL_DIR = path.join(path.dirname(__file__), "sql")
 
 
-class SettingRepository(object):
+class SettingRepository:
+    """Data access methods for the device settings."""
+
     def __init__(self, db):
         self.cursor = Cursor(db)
 
-    def get_device_settings_by_device_id(self, device_id):
+    def get_device_settings_by_device_id(self, device_id: str):
+        """Retrieves device settings from database for a supplied device ID."""
         query = DatabaseRequest(
             sql=get_sql_from_file(
                 path.join(SQL_DIR, "get_device_settings_by_device_id.sql")
@@ -37,43 +41,69 @@ class SettingRepository(object):
         )
         return self.cursor.select_one(query)
 
-    def convert_text_to_speech_setting(self, setting_name, engine) -> (str, str):
-        """Convert the selene representation of TTS into the tartarus representation, for backward compatibility
-        with the API v1"""
+    def convert_text_to_speech_setting(
+        self, setting_name: str, engine: str
+    ) -> (str, str):
+        """Converts the Selene TTS engine into a value recognized by the device.
+
+        :param setting_name: Selene TTS setting name
+        :param engine: Selene TTS engine name
+        :return: TTS engine and setting name recognized by the device
+        """
         if engine == "mimic":
             if setting_name == "trinity":
-                return "mimic", "trinity"
+                tts_engine = "mimic"
+                voice = "trinity"
             elif setting_name == "kusal":
-                return "mimic2", "kusal"
+                tts_engine = "mimic2"
+                voice = "kusal"
             else:
-                return "mimic", "ap"
+                tts_engine = "mimic"
+                voice = "ap"
         else:
-            return "google", ""
+            tts_engine = "google"
+            voice = ""
 
-    def _format_date_v1(self, date: str):
+        return tts_engine, voice
+
+    def _format_date_v1(self, date: str) -> str:
+        """Converts Selene date format into value recognized by device.
+
+        :param date: date format recognized by Selene
+        :return: date format recognized by device
+        """
         if date == "DD/MM/YYYY":
-            result = "DMY"
+            date_format = "DMY"
         else:
-            result = "MDY"
-        return result
+            date_format = "MDY"
 
-    def _format_time_v1(self, time: str):
+        return date_format
+
+    def _format_time_v1(self, time: str) -> str:
+        """Converts Selene time format into value recognized by device.
+
+        :param time: time format recognized by Selene
+        :return: time format recognized by device
+        """
         if time == "24 Hour":
-            result = "full"
+            time_format = "full"
         else:
-            result = "half"
-        return result
+            time_format = "half"
 
-    def get_device_settings(self, device_id):
-        """Return the device settings aggregating the tables account preference, text to speech, wake word and
-        wake word settings
+        return time_format
+
+    def get_device_settings(self, device_id: str) -> Optional[dict]:
+        """Retrieves device settings from the database for a supplied device ID.
+
         :param device_id: device uuid
-        :return setting entity using the legacy format from the API v1"""
-        response = self.get_device_settings_by_device_id(device_id)
-        if response:
-            if response["listener_setting"]["uuid"] is None:
-                del response["listener_setting"]
-            tts_setting = response["tts_settings"]
+        :return setting entity using the legacy format from the API v1
+        """
+        settings = None
+        query_result = self.get_device_settings_by_device_id(device_id)
+        if query_result:
+            if query_result["listener_setting"]["uuid"] is None:
+                del query_result["listener_setting"]
+            tts_setting = query_result["tts_settings"]
             tts_setting = self.convert_text_to_speech_setting(
                 tts_setting["setting_name"], tts_setting["engine"]
             )
@@ -81,19 +111,29 @@ class SettingRepository(object):
                 "module": tts_setting[0],
                 tts_setting[0]: {"voice": tts_setting[1]},
             }
-            response["tts_settings"] = tts_setting
-            response["date_format"] = self._format_date_v1(response["date_format"])
-            response["time_format"] = self._format_time_v1(response["time_format"])
-            response["system_unit"] = response["system_unit"].lower()
             open_dataset = self._get_open_dataset_agreement_by_device_id(device_id)
-            response["optIn"] = open_dataset is not None
-            return response
+            settings = dict(
+                uuid=query_result["uuid"],
+                ttsSettings=tts_setting,
+                dateFormat=self._format_date_v1(query_result["date_format"]),
+                timeFormat=self._format_time_v1(query_result["time_format"]),
+                systemUnit=query_result["system_unit"].lower(),
+                optIn=open_dataset is not None,
+            )
 
-    def _get_open_dataset_agreement_by_device_id(self, device_id: str):
+        return settings
+
+    def _get_open_dataset_agreement_by_device_id(self, device_id: str) -> dict:
+        """Retrieves the open dataset agreement from the database, if there is one.
+
+        :param device_id: the device ID to use in the query
+        :return: the open dataset agreement.
+        """
         query = DatabaseRequest(
             sql=get_sql_from_file(
                 path.join(SQL_DIR, "get_open_dataset_agreement_by_device_id.sql")
             ),
             args=dict(device_id=device_id),
         )
+
         return self.cursor.select_one(query)

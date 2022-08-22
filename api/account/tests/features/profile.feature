@@ -44,3 +44,10 @@ Feature: Manage account profiles
     Then the request will be successful
     And the account will not have a open dataset agreement
     And the deleted agreement will be reflected in the account activity metrics
+
+  Scenario: User changes password
+    Given a user who authenticates with a password
+    And the account is authenticated
+    When the user changes their password
+    Then the request will be successful
+    And the password on the account will be changed
