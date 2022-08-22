@@ -113,6 +113,7 @@ class SettingRepository:
             }
             open_dataset = self._get_open_dataset_agreement_by_device_id(device_id)
             settings = dict(
+                uuid=query_result["uuid"],
                 ttsSettings=tts_setting,
                 dateFormat=self._format_date_v1(query_result["date_format"]),
                 timeFormat=self._format_time_v1(query_result["time_format"]),
