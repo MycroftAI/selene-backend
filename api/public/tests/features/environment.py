@@ -161,7 +161,8 @@ def _add_device(context):
 def _add_skills(context):
     """Add skill objects to the context for use in step code."""
     foo_skill, foo_settings_display = add_skill(
-        context.db, skill_global_id="foo-skill|19.02",
+        context.db,
+        skill_global_id="foo-skill|19.02",
     )
     bar_skill, bar_settings_display = add_skill(
         context.db,

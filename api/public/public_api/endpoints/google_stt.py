@@ -16,7 +16,12 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-"""Public API endpoint for transcribing audio using Google's STT API"""
+"""Public API endpoint for transcribing audio using Google's STT API
+
+DEPRECATION WARNING:
+    This endpoint is being replaced with the audio_transcription endpoint.  It will
+    remain in the V1 API for backwards compatibility.
+"""
 from http import HTTPStatus
 from io import BytesIO
 

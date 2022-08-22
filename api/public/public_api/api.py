@@ -26,6 +26,7 @@ from selene.api.base_config import get_base_config
 from selene.api.public_endpoint import check_oauth_token
 from selene.util.cache import SeleneCache
 from selene.util.log import configure_selene_logger
+from .endpoints.audio_transcription import AudioTranscriptionEndpoint
 from .endpoints.device import DeviceEndpoint
 from .endpoints.device_activate import DeviceActivateEndpoint
 from .endpoints.device_code import DeviceCodeEndpoint
@@ -61,6 +62,11 @@ public.config["GOOGLE_STT_KEY"] = os.environ["GOOGLE_STT_KEY"]
 public.config["SELENE_CACHE"] = SeleneCache()
 public.response_class = SeleneResponse
 public.register_blueprint(selene_api)
+public.add_url_rule(
+    "/v1/transcribe",
+    view_func=AudioTranscriptionEndpoint.as_view("audio_transcription_api"),
+    methods=["POST"],
+)
 public.add_url_rule(
     "/v1/device/<string:device_id>/skill/<string:skill_gid>",
     view_func=DeviceSkillSettingsEndpoint.as_view("device_skill_delete_api"),

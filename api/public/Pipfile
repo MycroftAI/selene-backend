@@ -26,6 +26,8 @@ SpeechRecognition = "*"
 stripe = "*"
 uwsgi = "*"
 werkzeug = "<=2.0.3"
+librosa = "*"
+numpy = "*"
 
 [requires]
 python_version = "3.9"
