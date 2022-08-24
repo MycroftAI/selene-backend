@@ -1,9 +1,12 @@
-[[source]]
-url = "https://pypi.org/simple"
-verify_ssl = true
-name = "pypi"
+[tool.poetry]
+name = "account"
+version = "0.1.0"
+description = "API to support account.mycroft.ai"
+authors = ["Chris Veilleux <veilleux.chris@gmail.com>"]
+license = "GNU AGPL 3.0"
 
-[packages]
+[tool.poetry.dependencies]
+python = "^3.9"
 # Version 1.0 of flask required because later versions do not allow lists to be passed as API repsonses.  The Google
 # STT endpoint passes a list of transcriptions to the device.  Changing this to return a dictionary would break the
 # API's V1 contract with Mycroft Core.
@@ -15,15 +18,16 @@ jinja2 = "<=2.10.1"
 markupsafe = "<=2.0.1"
 schematics = "*"
 stripe = "*"
-selene = {editable = true,path = "./../../shared"}
+selene = {path = "./../../shared",  develop = true}
 uwsgi = "*"
 werkzeug = "<=2.0.3"
 
-[dev-packages]
+[tool.poetry.dev-dependencies]
 allure-behave = "*"
 behave = "*"
 pyhamcrest = "*"
 pylint = "*"
 
-[requires]
-python_version = "3.9"
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

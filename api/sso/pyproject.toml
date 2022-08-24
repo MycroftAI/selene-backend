@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "sso"
+version = "0.1.0"
+description = "Single Sign on for all Selene applications"
+authors = ["Chris Veilleux <veilleux.chris@gmail.com>"]
+license = "GNU AGPL 3.0"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+certifi = "*"
+flask = "*"
+selene = {path = "./../../shared", develop = true}
+uwsgi = "*"
+
+[tool.poetry.dev-dependencies]
+allure-behave = "*"
+behave = "*"
+black = "*"
+pyhamcrest = "*"
+pylint = "*"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
