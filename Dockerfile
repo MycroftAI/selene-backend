@@ -14,7 +14,9 @@
 # Build steps that apply to all of the selene applications.
 FROM python:3.9 as base-build
 RUN apt-get update && apt-get -y install gcc git
-RUN python3 -m pip install pipenv
+RUN curl -sSL https://install.python-poetry.org | python3 -
+ENV PATH ${PATH}:/root/.local/bin
+RUN poetry --version
 RUN mkdir -p /root/allure /opt/selene/selene-backend /root/code-quality /var/log/mycroft
 WORKDIR /opt/selene/selene-backend
 ENV DB_HOST selene-db
@@ -44,7 +46,7 @@ RUN mkdir -p /opt/mycroft
 WORKDIR /opt/mycroft
 RUN git clone https://${github_api_key}@github.com/MycroftAI/devops.git
 WORKDIR /opt/mycroft/devops/jenkins
-RUN pipenv install
+RUN poetry install
 
 # Run a linter and code formatter against the API specified in the build argument
 FROM devops-build as api-code-check
@@ -52,10 +54,10 @@ ARG api_name
 WORKDIR /opt/selene/selene-backend
 COPY api/${api_name} api/${api_name}
 WORKDIR /opt/selene/selene-backend/api/${api_name}
-RUN pipenv install --dev
+RUN poetry install
 ENV PYTHONPATH=$PYTHONPATH:/opt/selene/selene-backend/api/${api_name}
 WORKDIR /opt/mycroft/devops/jenkins
-ENTRYPOINT ["pipenv", "run", "python", "-m", "pipeline.code_check", "--repository", "selene-backend", "--base-dir", "/opt/selene"]
+ENTRYPOINT ["poetry", "run", "python", "-m", "pipeline.code_check", "--repository", "selene-backend", "--base-dir", "/opt/selene"]
 
 # Bootstrap the Selene database as it will be needed to run any Selene applications.
 FROM devops-build as db-bootstrap
@@ -63,9 +65,9 @@ ENV POSTGRES_PASSWORD selene
 WORKDIR /opt/selene/selene-backend
 COPY db db
 WORKDIR /opt/selene/selene-backend/db
-RUN pipenv install
+RUN poetry install
 RUN mkdir -p /tmp/selene
-ENTRYPOINT ["pipenv", "run", "python", "scripts/bootstrap_mycroft_db.py", "--ci"]
+ENTRYPOINT ["poetry", "run", "python", "scripts/bootstrap_mycroft_db.py", "--ci"]
 
 # Run the tests defined in the Account API
 FROM selene-base as account-api-test
@@ -76,9 +78,9 @@ ENV PYTHONPATH=$PYTHONPATH:/opt/selene/selene-backend/api/account
 ENV STRIPE_PRIVATE_KEY $stripe_api_key
 COPY api/account api/account
 WORKDIR /opt/selene/selene-backend/api/account
-RUN pipenv install --dev
+RUN poetry install
 WORKDIR /opt/selene/selene-backend/api/account/tests
-ENTRYPOINT ["pipenv", "run", "behave", "-f", "allure_behave.formatter:AllureFormatter", "-o", "/root/allure/allure-result"]
+ENTRYPOINT ["poetry", "run", "behave", "-f", "allure_behave.formatter:AllureFormatter", "-o", "/root/allure/allure-result"]
 
 # Run the tests defined in the Single Sign On API
 FROM selene-base as sso-api-test
@@ -92,9 +94,9 @@ ENV GITHUB_CLIENT_ID $github_client_id
 ENV GITHUB_CLIENT_SECRET $github_client_secret
 COPY api/sso api/sso
 WORKDIR /opt/selene/selene-backend/api/sso
-RUN pipenv install --dev
+RUN poetry install
 WORKDIR /opt/selene/selene-backend/api/sso/tests
-ENTRYPOINT ["pipenv", "run", "behave", "-f", "allure_behave.formatter:AllureFormatter", "-o", "/root/allure/allure-result"]
+ENTRYPOINT ["poetry", "run", "behave", "-f", "allure_behave.formatter:AllureFormatter", "-o", "/root/allure/allure-result"]
 
 # Run the tests defined in the Public Device API
 FROM selene-base as public-api-test
@@ -110,6 +112,6 @@ ENV WOLFRAM_ALPHA_KEY $wolfram_alpha_key
 ENV WOLFRAM_ALPHA_URL https://api.wolframalpha.com
 COPY api/public api/public
 WORKDIR /opt/selene/selene-backend/api/public
-RUN pipenv install --dev
+RUN poetry install
 WORKDIR /opt/selene/selene-backend/api/public/tests
-ENTRYPOINT ["pipenv", "run", "behave", "-f", "allure_behave.formatter:AllureFormatter", "-o", "/root/allure/allure-result"]
+ENTRYPOINT ["poetry", "run", "behave", "-f", "allure_behave.formatter:AllureFormatter", "-o", "/root/allure/allure-result"]

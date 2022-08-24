@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "batch"
+version = "0.1.0"
+description = "Selene batch scripts and scheduler"
+authors = ["Chris Veilleux <veilleux.chris@gmail.com>"]
+license = "GNU AGPL 3.0"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+selene = {path = "./../shared", develop = true}
+
+[tool.poetry.dev-dependencies]
+black = "*"
+pylint = "*"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

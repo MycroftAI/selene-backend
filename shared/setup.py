@@ -21,12 +21,12 @@
 This is used to support pipenv installing the shared code to the virtual
 environments used in developement of Selene APIs and services.
 """
-from setuptools import setup, find_packages
+from setuptools import setup, find_namespace_packages
 
 setup(
     name="selene",
     version="0.0.0",
-    packages=find_packages(),
+    packages=find_namespace_packages(),
     include_package_data=True,
     install_requires=[
         "facebook-sdk",

@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "db"
+version = "0.1.0"
+description = "Database definition and related scripts"
+authors = ["Chris Veilleux <veilleux.chris@gmail.com>"]
+license = "GNU AGPL 3.0"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+psycopg2-binary = "*"
+Markdown = "^3.4.1"
+
+[tool.poetry.dev-dependencies]
+ipython = "==5"
+pylint = "*"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
