@@ -1,4 +1,4 @@
-Feature: Interact with the Pantacor API
+Feature: Account API -- Interact with the Pantacor API
   Devices that use Pantacor to manage the software running on them have a set of
   additional attributes that can be updated using the Pantacor API
 

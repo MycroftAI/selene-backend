@@ -1,4 +1,4 @@
-Feature: Manage account profiles
+Feature: Account API -- Manage account profiles
   Test the ability of the account API to retrieve and manage a user's profile
   settings.
 

@@ -1,4 +1,4 @@
-Feature: internal login
+Feature: Single Sign On API -- Internal login
   User signs into a selene web app with an email address and password (rather
   than signing in with a third party authenticator, like Google).
 

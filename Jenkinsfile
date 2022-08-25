@@ -5,6 +5,7 @@ pipeline {
         // building the Docker image.
         disableConcurrentBuilds()
         buildDiscarder(logRotator(numToKeepStr: '5'))
+        ansiColor('xterm')
     }
     environment {
         // Some branches have a "/" in their name (e.g. feature/new-and-cool)
@@ -108,18 +109,30 @@ pipeline {
                     docker build \
                         --build-arg stripe_api_key=${STRIPE_KEY} \
                         --target account-api-test \
-                        --label job=${JOB_NAME}} \
+                        --label job=${JOB_NAME} \
                         -t selene-account:${BRANCH_ALIAS} .
                 """
                 timeout(time: 5, unit: 'MINUTES')
                 {
+                    sh 'mkdir -p $HOME/selene/$BRANCH_ALIAS/allure'
                     labelledShell label: 'Running behave tests', script: """
                         docker run \
                             --net selene-net \
-                            -v '${HOME}/allure/selene/:/root/allure' \
+                            -v '$HOME/selene/$BRANCH_ALIAS/allure/:/root/allure' \
                             --label job=${JOB_NAME} \
                             selene-account:${BRANCH_ALIAS}
                     """
+                }
+            }
+            post {
+                always {
+                    sh 'docker run \
+                        -v "$HOME/selene/$BRANCH_ALIAS/allure:/root/allure" \
+                        --entrypoint=/bin/bash \
+                        --label build=${JOB_NAME} \
+                        selene-account:${BRANCH_ALIAS} \
+                        -x -c "chown $(id -u $USER):$(id -g $USER) \
+                        -R /root/allure/"'
                 }
             }
         }
@@ -146,9 +159,20 @@ pipeline {
                     labelledShell label: 'Running behave tests', script: """
                         docker run \
                             --net selene-net \
-                            -v '${HOME}/allure/selene/:/root/allure' \
+                            -v '$HOME/selene/$BRANCH_ALIAS/allure/:/root/allure' \
                             selene-sso:${BRANCH_ALIAS}
                     """
+                }
+            }
+            post {
+                always {
+                    sh 'docker run \
+                        -v "$HOME/selene/$BRANCH_ALIAS/allure:/root/allure" \
+                        --entrypoint=/bin/bash \
+                        --label build=${JOB_NAME} \
+                        selene-sso:${BRANCH_ALIAS} \
+                        -x -c "chown $(id -u $USER):$(id -g $USER) \
+                        -R /root/allure/"'
                 }
             }
         }
@@ -175,15 +199,39 @@ pipeline {
                     labelledShell label: 'Running behave tests', script: """
                         docker run \
                             --net selene-net \
-                            -v '$HOME/allure/selene/:/root/allure' \
+                            -v '$HOME/selene/$BRANCH_ALIAS/allure/:/root/allure' \
                             selene-public:${BRANCH_ALIAS}
                     """
+                }
+            }
+            post {
+                always {
+                    sh 'docker run \
+                        -v "$HOME/selene/$BRANCH_ALIAS/allure:/root/allure" \
+                        --entrypoint=/bin/bash \
+                        --label build=${JOB_NAME} \
+                        selene-account:${BRANCH_ALIAS} \
+                        -x -c "chown $(id -u $USER):$(id -g $USER) \
+                        -R /root/allure/"'
                 }
             }
         }
     }
     post {
         always {
+            sh 'rm -rf allure-result/*'
+            sh 'mv $HOME/selene/$BRANCH_ALIAS/allure/allure-result allure-result'
+            // This directory should now be empty, rmdir will intentionally fail if not.
+            sh 'rmdir $HOME/selene/$BRANCH_ALIAS/allure'
+            script {
+                allure([
+                    includeProperties: false,
+                    jdk: '',
+                    properties: [],
+                    reportBuildPolicy: 'ALWAYS',
+                    results: [[path: 'allure-result']]
+                ])
+            }
             sh(
                 label: 'Cleanup lingering docker containers and images.',
                 script: """

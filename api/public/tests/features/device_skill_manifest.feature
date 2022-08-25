@@ -1,4 +1,4 @@
-Feature: Device can upload and fetch skills manifest
+Feature: Device API -- Upload and fetch skills manifest
 
   Scenario: Device uploads an unchanged manifest
     Given an authorized device

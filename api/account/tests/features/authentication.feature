@@ -1,4 +1,4 @@
-Feature: Authentication with JWTs
+Feature: Account API - Authentication with JWTs
   Some of the API endpoints contain information that is specific to a user.
   To ensure that information is seen only by the user that owns it, we will
   use a login mechanism coupled with authentication tokens to securely identify

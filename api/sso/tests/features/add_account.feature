@@ -1,4 +1,4 @@
-Feature: Add a new account
+Feature: Single Sign On API -- Add a new account
   Test the API call to add an account to the database.
 
   Scenario: Successful account addition
