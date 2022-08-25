@@ -1,16 +1,12 @@
-[[source]]
-name = "pypi"
-url = "https://pypi.org/simple"
-verify_ssl = true
+[tool.poetry]
+name = "public"
+version = "0.1.0"
+description = "API for interactions between Selene and Mycroft devices"
+authors = ["Chris Veilleux <veilleux.chris@gmail.com>"]
+license = "GNU AGPL 3.0"
 
-[dev-packages]
-allure-behave = "*"
-behave = "*"
-black = "*"
-pyhamcrest = "*"
-pylint = "*"
-
-[packages]
+[tool.poetry.dependencies]
+python = "^3.9"
 # Version 1.0 of flask required because later versions do not allow lists to be passed as API repsonses.  The Google
 # STT endpoint passes a list of transcriptions to the device.  Changing this to return a dictionary would break the
 # API's V1 contract with Mycroft Core.
@@ -21,7 +17,7 @@ itsdangerous = "<=2.0.1"
 jinja2 = "<=2.10.1"
 markupsafe = "<=2.0.1"
 requests = "*"
-selene = {editable = true,path = "./../../shared"}
+selene = {path = "./../../shared", develop = true}
 SpeechRecognition = "*"
 stripe = "*"
 uwsgi = "*"
@@ -29,5 +25,14 @@ werkzeug = "<=2.0.3"
 librosa = "*"
 numpy = "*"
 
-[requires]
-python_version = "3.9"
+
+[tool.poetry.dev-dependencies]
+allure-behave = "*"
+black = "*"
+pyhamcrest = "*"
+pylint = "*"
+behave = "^1.2.6"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
