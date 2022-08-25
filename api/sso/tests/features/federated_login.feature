@@ -1,4 +1,4 @@
-Feature: federated login
+Feature: Single Sign On API -- Federated login
   User signs into a selene web app after authenticating with a 3rd party.
 
   Scenario: User with existing account signs in via Facebook

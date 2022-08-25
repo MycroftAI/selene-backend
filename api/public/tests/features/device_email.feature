@@ -1,4 +1,4 @@
-Feature: Device requests email sent to the account holder
+Feature: Device API -- Send email to the account holder
   Some skills have the ability to send email upon request.  One example of
   this is the support skill, which emails device diagnostics.
 

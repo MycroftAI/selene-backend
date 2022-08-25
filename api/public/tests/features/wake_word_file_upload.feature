@@ -1,4 +1,4 @@
-Feature: Upload wake word samples from a device
+Feature: Device API -- Upload wake word samples
   Users that opted in to the Open Dataset Agreement will have files containing the audio that
   activated the wake word recognizer uploaded to Mycroft servers for classification and tracking.
 

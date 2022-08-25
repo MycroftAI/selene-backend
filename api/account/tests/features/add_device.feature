@@ -1,4 +1,4 @@
-Feature: Pair a device
+Feature: Account API -- Pair a device
   Test the device add endpoint
 
   Scenario: Add a device

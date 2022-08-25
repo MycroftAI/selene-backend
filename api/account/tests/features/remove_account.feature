@@ -1,4 +1,4 @@
-Feature: Delete an account
+Feature: Account API -- Delete an account
   Test the API call to delete an account and all its related data from the database.
 
   Scenario: Successful account deletion

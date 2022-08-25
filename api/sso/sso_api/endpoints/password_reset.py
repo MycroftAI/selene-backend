@@ -16,7 +16,7 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-
+"""Single Sign On API endpoint to reset a user's password."""
 from http import HTTPStatus
 import os
 
@@ -29,7 +29,10 @@ ONE_HOUR = 3600
 
 
 class PasswordResetEndpoint(SeleneEndpoint):
+    """Defines an endpoint that will be called when a user resets their password."""
+
     def post(self):
+        """Handles an HTTP POST request."""
         self._get_account_from_email()
         if self.account is None:
             self._send_account_not_found_email()
@@ -40,21 +43,25 @@ class PasswordResetEndpoint(SeleneEndpoint):
         return "", HTTPStatus.OK
 
     def _get_account_from_email(self):
+        """Retrieves the account from the database using the email address on the db."""
         acct_repository = AccountRepository(self.db)
         self.account = acct_repository.get_account_by_email(
             self.request.json["emailAddress"]
         )
 
-    def _generate_reset_token(self):
+    def _generate_reset_token(self) -> str:
+        """Returns a reset token that will be included in the password reset email."""
         reset_token = AuthenticationToken(self.config["RESET_SECRET"], ONE_HOUR)
         reset_token.generate(self.account.id)
 
         return reset_token.jwt
 
-    def _send_reset_email(self, reset_token):
-        url = "{base_url}/change-password?token={reset_token}".format(
-            base_url=os.environ["SSO_BASE_URL"], reset_token=reset_token
-        )
+    def _send_reset_email(self, reset_token: str):
+        """Sends a password reset message to the email address provided by the user.
+
+        :param reset_token: JWT to authenticate the password reset
+        """
+        url = f"{os.environ['SSO_BASE_URL']}/change-password?token={reset_token}"
         email = EmailMessage(
             recipient=self.request.json["emailAddress"],
             sender="Mycroft AI<no-reply@mycroft.ai>",
@@ -66,6 +73,7 @@ class PasswordResetEndpoint(SeleneEndpoint):
         mailer.send(using_jinja=True)
 
     def _send_account_not_found_email(self):
+        """Sends an email indicating no account found for supplied email address."""
         email = EmailMessage(
             recipient=self.request.json["emailAddress"],
             sender="Mycroft AI<no-reply@mycroft.ai>",

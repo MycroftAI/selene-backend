@@ -1,4 +1,4 @@
-Feature: Get the active agreements
+Feature: Single Sign On API -- Get the active agreements
   We need to be able to retrieve an agreement and display it on the web app.
 
   Scenario: Retrieve Privacy Policy

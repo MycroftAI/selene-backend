@@ -1,4 +1,4 @@
-Feature: Retrieve device's settings
+Feature: Device API -- Request device settings
   Test the endpoint used to fetch the settings from a device
 
   Scenario: Device's setting is returned

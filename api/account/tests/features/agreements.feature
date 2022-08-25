@@ -1,4 +1,4 @@
-Feature: Get the active agreements
+Feature: Account API -- Get the active agreements
   We need to be able to retrieve an agreement and display it on the web app.
 
   Scenario: Multiple versions of an agreement exist
