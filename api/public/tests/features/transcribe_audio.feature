@@ -14,3 +14,4 @@ Feature: Transcribe audio data
     Then the request will be successful
     And the transcription will be returned to the device
     And the device's last contact time is updated
+    And the transcription metrics for will be added to the database

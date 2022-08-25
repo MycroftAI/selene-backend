@@ -23,6 +23,7 @@ stripe = "*"
 uwsgi = "*"
 werkzeug = "<=2.0.3"
 librosa = "^0.9.2"
+numpy = "<=1.22"
 
 
 [tool.poetry.dev-dependencies]

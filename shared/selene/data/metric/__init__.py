@@ -16,11 +16,14 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
+"""Public API for the selene.data.metric package."""
 
 from .entity.api import ApiMetric
 from .entity.core import CoreMetric, CoreInteraction
 from .entity.job import JobMetric
+from .entity.stt import SttTranscriptionMetric
 from .repository.account_activity import AccountActivityRepository
 from .repository.api import ApiMetricsRepository
 from .repository.core import CoreMetricRepository
 from .repository.job import JobRepository
+from .repository.stt import TranscriptionMetricRepository
