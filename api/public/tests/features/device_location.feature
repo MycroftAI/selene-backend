@@ -1,4 +1,4 @@
-Feature: Fetch device's location
+Feature: Device API -- Request device location
 
   Scenario: Location is successfully retrieved from a device
     When a api call to get the location is done

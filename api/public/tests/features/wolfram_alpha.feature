@@ -1,4 +1,4 @@
-Feature: Integration with Wolfram Alpha API
+Feature: Device API -- Integration with Wolfram Alpha API
   Mycroft Core uses Wolfram Alpha as a "fallback".  When a user makes a request
   that cannot be satisfied by an installed skill, the fallback system is used to
   attempt to answer the query.  The device API is used as a proxy to anonymize user

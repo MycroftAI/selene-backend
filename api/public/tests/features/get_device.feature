@@ -1,4 +1,4 @@
-Feature: Get device's information
+Feature: Device API - Request device's information
   Test the endpoint to get a device
 
   Scenario: A valid device entity is returned

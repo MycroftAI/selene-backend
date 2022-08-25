@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block email_body %}
+    <p style="margin-top: 16px;">
+        A change to the email address associated with your Mycroft account has been requested.  Before this change can
+        be applied, the new email address must be verified.
+    </p>
+    <p  style="margin-top: 16px;">To verify this email address, click the button below.</p>
+    <a
+            href="{{ email_verification_url }}"
+            style="
+                background-color: #22a7f0;
+                border-radius: 10px;
+                color: white;
+                display: table;
+                height: 32px;
+                margin-top: 32px;
+                text-decoration: none;
+                width: 220px;
+            "
+    >
+        <span style="margin: 16px auto; display: table; text-align: center; width: 200px">VERIFY EMAIL ADDRESS</span>
+    </a>
+{% endblock email_body %}

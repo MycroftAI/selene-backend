@@ -19,7 +19,7 @@
 
 """
 This is used to support pipenv installing the shared code to the virtual
-environments used in developement of Selene APIs and services.
+environments used in development of Selene APIs and services.
 """
 from setuptools import setup, find_namespace_packages
 
@@ -29,6 +29,7 @@ setup(
     packages=find_namespace_packages(),
     include_package_data=True,
     install_requires=[
+        "email-validator",
         "facebook-sdk",
         "flask",
         "paramiko",

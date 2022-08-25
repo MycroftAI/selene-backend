@@ -1,4 +1,4 @@
-Feature: Get the subscription type from the account linked to a device
+Feature: Device API -- Request account subscription type
   Test the endpoint used to fetch the subscription type of a device
 
   Scenario: User has a free subscription

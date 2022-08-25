@@ -16,14 +16,15 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-
+"""Defines CRUD operations for a user account."""
 from datetime import datetime, timedelta
 from logging import getLogger
 from os import environ
+from typing import Optional
 
 from passlib.hash import sha512_crypt
 
-from selene.util.db import use_transaction
+from selene.util.db import DatabaseRequest, use_transaction
 from ..entity.account import Account, AccountAgreement, AccountMembership
 from ..entity.agreement import OPEN_DATASET
 from ...repository_base import RepositoryBase
@@ -31,7 +32,12 @@ from ...repository_base import RepositoryBase
 _log = getLogger(__name__)
 
 
-def _encrypt_password(password):
+def _encrypt_password(password: str) -> str:
+    """Encrypts the plain-text password using a secret salt and SHA512 encryption.
+
+    :param password: the plain text password as entered by the user
+    :returns: the password value stored in the database.
+    """
     salt = environ["SALT"]
     hash_result = sha512_crypt.using(salt=salt, rounds=5000).hash(password)
     hashed_password_index = hash_result.rindex("$") + 1
@@ -40,22 +46,34 @@ def _encrypt_password(password):
 
 
 class AccountRepository(RepositoryBase):
+    """Collection of methods that access or manipulate the account table."""
+
     def __init__(self, db):
-        super(AccountRepository, self).__init__(db, __file__)
+        super().__init__(db, __file__)
         self.db = db
 
     @use_transaction
     def add(self, account: Account, password: str) -> str:
+        """Adds the account and required agreements to the database.
+
+        :param account: dataclass representation of an account entity
+        :param password: password supplied by the user
+        :returns: the internal identifier for the account
+        """
         account_id = self._add_account(account, password)
         for agreement in account.agreements:
             self.add_agreement(account_id, agreement)
-
-        _log.info("Added account {}".format(account.email_address))
+        _log.info("Added account %s", account.email_address)
 
         return account_id
 
     def _add_account(self, account: Account, password: str):
-        """Add a row to the account table."""
+        """Inserts a row into the account table.
+
+        :param account: dataclass representation of an account entity
+        :param password: password supplied by the user
+        :returns: the internal identifier for the account
+        """
         if password is None:
             encrypted_password = None
         else:
@@ -73,7 +91,11 @@ class AccountRepository(RepositoryBase):
         return result["id"]
 
     def add_agreement(self, account_id: str, agreement: AccountAgreement):
-        """Accounts cannot be added without agreeing to terms and privacy"""
+        """Adds the agreements required at account creation time to the database.
+
+        :param account_id: internal identifier for an account
+        :param agreement: data necessary to insert a row into account_agreement table.
+        """
         request = self._build_db_request(
             sql_file_name="add_account_agreement.sql",
             args=dict(account_id=account_id, agreement_name=agreement.type),
@@ -81,16 +103,22 @@ class AccountRepository(RepositoryBase):
         self.cursor.insert(request)
 
     def remove(self, account: Account):
-        """Delete and account and all of its children"""
+        """Delete and account and all of its children.
+
+        As part of the privacy focus of Mycroft AI, all data related to a user is
+        deleted when the account is deleted.  This is enforced in the database using
+        cascading deletes on any table with a foreign key to the account table.
+
+        :param account: instance of the account entity.
+        """
         request = self._build_db_request(
             sql_file_name="remove_account.sql", args=dict(id=account.id)
         )
         self.cursor.delete(request)
-
         log_msg = "Deleted account {} and all it's related data"
         _log.info(log_msg.format(account.email_address))
 
-    def get_account_by_id(self, account_id: str) -> Account:
+    def get_account_by_id(self, account_id: str) -> Optional[Account]:
         """Use a given uuid to query the database for an account
 
         :param account_id: uuid
@@ -98,27 +126,35 @@ class AccountRepository(RepositoryBase):
         """
         account_id_resolver = "%(account_id)s"
         request = self._build_db_request(
-            sql_file_name="get_account.sql", args=dict(account_id=account_id),
+            sql_file_name="get_account.sql",
+            args=dict(account_id=account_id),
         )
         request.sql = request.sql.format(account_id_resolver=account_id_resolver)
 
         return self._get_account(request)
 
-    def get_account_by_email(self, email_address: str) -> Account:
+    def get_account_by_email(self, email_address: str) -> Optional[Account]:
+        """Retrieves the account using the email address provided by the user at login.
+
+        :param email_address: email address provided by user at login
+        :return: the account associated with the given email address
+        """
         account_id_resolver = (
             "(SELECT id FROM account.account "
             "WHERE email_address = %(email_address)s)"
         )
         request = self._build_db_request(
-            sql_file_name="get_account.sql", args=dict(email_address=email_address),
+            sql_file_name="get_account.sql",
+            args=dict(email_address=email_address),
         )
         request.sql = request.sql.format(account_id_resolver=account_id_resolver)
 
         return self._get_account(request)
 
-    def get_account_from_credentials(self, email: str, password: str) -> Account:
-        """
-        Validate email/password combination against the database
+    def get_account_from_credentials(
+        self, email: str, password: str
+    ) -> Optional[Account]:
+        """Validates email/password combination against the database
 
         :param email: the user provided email address
         :param password: the user provided password
@@ -137,7 +173,26 @@ class AccountRepository(RepositoryBase):
 
         return self._get_account(request)
 
-    def _get_account(self, db_request):
+    def get_account_by_device_id(self, device_id: str) -> Optional[Account]:
+        """Return the account associated with the specified device.
+
+        :param device_id: internal identifier of a Mycroft voice assistant device
+        """
+        request = self._build_db_request(
+            sql_file_name="get_account_by_device_id.sql", args=dict(device_id=device_id)
+        )
+        return self._get_account(request)
+
+    def _get_account(self, db_request: DatabaseRequest) -> Optional[Account]:
+        """Builds an account entity from the database.
+
+        There are many ways an account can be retrieved using differing WHERE clauses.
+        The query is built appending one of these WHERE clauses to a common SELECT
+        clause.
+
+        :param db_request: the SQL and arguments necessary for the query
+        :return: An account entity if a match to the query is found on the database
+        """
         account = None
         result = self.cursor.select_one(db_request)
 
@@ -164,14 +219,12 @@ class AccountRepository(RepositoryBase):
 
         return account
 
-    def get_account_by_device_id(self, device_id) -> Account:
-        """Return an account associated with the specified device."""
-        request = self._build_db_request(
-            sql_file_name="get_account_by_device_id.sql", args=dict(device_id=device_id)
-        )
-        return self._get_account(request)
+    def update_password(self, account_id: str, password: str):
+        """Changes the password for an account on the database.
 
-    def change_password(self, account_id, password):
+        :param account_id: internal account identifier
+        :param password: unencrypted password supplied by user
+        """
         encrypted_password = _encrypt_password(password)
         db_request = self._build_db_request(
             sql_file_name="change_password.sql",
@@ -179,7 +232,24 @@ class AccountRepository(RepositoryBase):
         )
         self.cursor.update(db_request)
 
+    def update_email_address(self, account_id: str, email_address: str):
+        """Update the email address for the specified account ID.
+
+        :param account_id: Internal identifier for a user's account
+        :param email_address: The new email address for the account
+        """
+        db_request = self._build_db_request(
+            sql_file_name="change_email_address.sql",
+            args=dict(account_id=account_id, email_address=email_address),
+        )
+        self.cursor.update(db_request)
+
     def update_username(self, account_id: str, username: str):
+        """Changes the username associated with an account.
+
+        :param account_id: internal account identifier
+        :param username: the new value of the username
+        """
         db_request = self._build_db_request(
             sql_file_name="update_username.sql",
             args=dict(account_id=account_id, username=username),
@@ -187,13 +257,21 @@ class AccountRepository(RepositoryBase):
         self.cursor.update(db_request)
 
     def expire_open_dataset_agreement(self, account_id: str):
+        """Expires the open dataset agreement when the user opts out.
+
+        :param account_id: internal account identifier
+        """
         db_request = self._build_db_request(
             sql_file_name="expire_account_agreement.sql",
             args=dict(account_id=account_id, agreement_type=OPEN_DATASET),
         )
         self.cursor.delete(db_request)
 
-    def update_last_activity_ts(self, account_id):
+    def update_last_activity_ts(self, account_id: str):
+        """Updates the user's last activity time when activity is detected.
+
+        :param account_id: internal account identifier
+        """
         db_request = self._build_db_request(
             sql_file_name="update_last_activity_ts.sql",
             args=dict(account_id=account_id, last_activity_ts=datetime.utcnow()),
@@ -202,6 +280,10 @@ class AccountRepository(RepositoryBase):
         self.cursor.update(db_request)
 
     def daily_report(self, date: datetime):
+        """Builds a daily report from account data on the database.
+
+        :param date: the date of the report
+        """
         base = date - timedelta(days=1)
         end_date = base.strftime("%Y-%m-%d")
         start_date_1_day = (base - timedelta(days=1)).strftime("%Y-%m-%d")
@@ -323,7 +405,11 @@ class AccountRepository(RepositoryBase):
         return report_table
 
     def add_membership(self, acct_id: str, membership: AccountMembership):
-        """A membership is optional, add it if one was selected"""
+        """Adds a membership to the database if one was selected by the user.
+
+        :param acct_id: internal identifier for the account
+        :param membership: data used to populate the account_membership table.
+        """
         request = self._build_db_request(
             sql_file_name="add_account_membership.sql",
             args=dict(
@@ -337,18 +423,24 @@ class AccountRepository(RepositoryBase):
         self.cursor.insert(request)
 
     def end_membership(self, membership: AccountMembership):
+        """Expires a membership when a user discontinues payment.
+
+        :param membership: the membership to expire
+        """
         db_request = self._build_db_request(
             sql_file_name="end_membership.sql",
             args=dict(
                 id=membership.id,
-                membership_ts_range="[{start},{end}]".format(
-                    start=membership.start_date, end=membership.end_date
-                ),
+                membership_ts_range=f"[{membership.start_date},{membership.end_date}]",
             ),
         )
         self.cursor.update(db_request)
 
-    def end_active_membership(self, customer_id):
+    def end_active_membership(self, customer_id: str):
+        """Expires a membership when a user discontinues payment.
+
+        :param customer_id: Payment system identifier of the user's subscription
+        """
         db_request = self._build_db_request(
             sql_file_name="get_active_membership_by_payment_account_id.sql",
             args=dict(payment_account_id=customer_id),
@@ -359,7 +451,12 @@ class AccountRepository(RepositoryBase):
             account_membership.end_date = datetime.utcnow()
             self.end_membership(account_membership)
 
-    def get_active_account_membership(self, account_id) -> AccountMembership:
+    def get_active_account_membership(self, account_id) -> Optional[AccountMembership]:
+        """Retrieves an active membership for the given account, if one exists.
+
+        :param account_id: internal account identifier
+        :returns: membership information if the account is a member
+        """
         account_membership = None
         db_request = self._build_db_request(
             sql_file_name="get_active_membership_by_account_id.sql",

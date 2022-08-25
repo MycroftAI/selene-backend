@@ -21,3 +21,4 @@
 from .account import AccountEndpoint
 from .agreements import AgreementsEndpoint
 from .password_change import PasswordChangeEndpoint
+from .validate_email import ValidateEmailEndpoint

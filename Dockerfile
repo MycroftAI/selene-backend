@@ -72,6 +72,7 @@ ENTRYPOINT ["poetry", "run", "python", "scripts/bootstrap_mycroft_db.py", "--ci"
 # Run the tests defined in the Account API
 FROM selene-base as account-api-test
 ARG stripe_api_key
+ENV ACCOUNT_BASE_URL https://account.mycroft.test
 ENV PANTACOR_API_TOKEN pantacor-token
 ENV PANTACOR_API_BASE_URL pantacor.test.url
 ENV PYTHONPATH=$PYTHONPATH:/opt/selene/selene-backend/api/account

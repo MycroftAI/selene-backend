@@ -1,4 +1,4 @@
-Feature: Get an utterance
+Feature: Device API -- Transcribe an utterance
   Test the google STT integration
 
   @stt

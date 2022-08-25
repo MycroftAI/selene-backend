@@ -1,4 +1,4 @@
-Feature: User changes password as part of password reset workflow
+Feature: Single Sign On API -- Password reset
   The only way a user can change their password in the single sign on application is
   through the password reset feature.  The user clicks a link in an email sent when a
   password reset is requested.  The link takes the user to a page where they reset

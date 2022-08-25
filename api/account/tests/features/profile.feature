@@ -1,4 +1,4 @@
-Feature: Manage account profiles
+Feature: Account API -- Manage account profiles
   Test the ability of the account API to retrieve and manage a user's profile
   settings.
 
@@ -51,3 +51,19 @@ Feature: Manage account profiles
     When the user changes their password
     Then the request will be successful
     And the password on the account will be changed
+    And an password change notification will be sent
+
+  Scenario: User changes email address
+    Given a user who authenticates with a password
+    And the account is authenticated
+    When the user changes their email address
+    Then the request will be successful
+    And an email change notification will be sent to the old email address
+    And an email change verification message will be sent to the new email address
+
+  Scenario: User changes email address to a value is assigned to an existing account
+    Given a user who authenticates with a password
+    And the account is authenticated
+    When the user changes their email address to that of an existing account
+    Then the request will be successful
+    And a duplicate email address error is returned

@@ -1,4 +1,4 @@
-Feature: Add a new account
+Feature: Single Sign On API -- Add a new account
   Test the API call to add an account to the database.
 
   Scenario: Successful account addition
@@ -7,6 +7,10 @@ Feature: Add a new account
     Then the request will be successful
     And the account will be added to the system
     And the new account will be reflected in the account activity metrics
+
+  Scenario: User enters email address belonging to an existing account
+    When a user enters an email address already in use
+    Then a duplicate email address error is returned
 
   Scenario Outline: Request missing a required field
     Given a user completes new account setup

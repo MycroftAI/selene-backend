@@ -1,4 +1,4 @@
-Feature: Pair a device
+Feature: Device API -- Pair a device
   Test the device pairing workflow
 
   Scenario: Pairing code generation
