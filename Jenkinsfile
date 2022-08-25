@@ -220,6 +220,7 @@ pipeline {
     post {
         always {
             sh 'rm -rf allure-result/*'
+            sh 'mkdir -p $HOME/selene/$BRANCH_ALIAS/allure'
             sh 'mv $HOME/selene/$BRANCH_ALIAS/allure/allure-result allure-result'
             // This directory should now be empty, rmdir will intentionally fail if not.
             sh 'rmdir $HOME/selene/$BRANCH_ALIAS/allure'
