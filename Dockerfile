@@ -103,12 +103,15 @@ ENTRYPOINT ["poetry", "run", "behave", "-f", "allure_behave.formatter:AllureForm
 FROM selene-base as public-api-test
 RUN mkdir -p /opt/selene/data
 ARG google_stt_key
+ARG stt_api_key
 ARG wolfram_alpha_key
 ENV PANTACOR_API_TOKEN pantacor-token
 ENV PANTACOR_API_BASE_URL pantacor.test.url
 ENV PYTHONPATH=$PYTHONPATH:/opt/selene/selene-backend/api/public
 ENV GOOGLE_STT_KEY $google_stt_key
 ENV SENDGRID_API_KEY test_sendgrid_key
+ENV STT_URL https://api.assemblyai.com/v2/stream
+ENV STT_API_KEY $stt_api_key
 ENV WOLFRAM_ALPHA_KEY $wolfram_alpha_key
 ENV WOLFRAM_ALPHA_URL https://api.wolframalpha.com
 COPY api/public api/public
