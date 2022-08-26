@@ -13,7 +13,7 @@
 
 # Build steps that apply to all of the selene applications.
 FROM python:3.9 as base-build
-RUN apt-get update && apt-get -y install gcc git
+RUN apt-get update && apt-get -y install gcc git libsndfile-dev
 RUN curl -sSL https://install.python-poetry.org | python3 -
 ENV PATH ${PATH}:/root/.local/bin
 RUN poetry --version
