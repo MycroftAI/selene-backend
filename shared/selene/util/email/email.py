@@ -16,18 +16,37 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-"""Utilities to send and email using SendGrid"""
+"""Utilities to send and email using SendGrid."""
 from dataclasses import dataclass
 from logging import getLogger
 from os import environ
 from pathlib import Path
+from typing import Optional, Tuple
 
-from jinja2 import Template
+from email_validator import validate_email, EmailNotValidError
+from jinja2 import Environment, PackageLoader, select_autoescape
 from python_http_client import HTTPError
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Content, Mail
 
 _log = getLogger(__name__)
+
+
+def validate_email_address(email_address: str) -> Tuple[Optional[str], Optional[str]]:
+    """Uses a third party package to validate an email address.
+
+    :param email_address: email address supplied by user
+    :return: the normalized email address if it is valid, and an error if not
+    """
+    normalized_address = None
+    try:
+        normalized_address = validate_email(email_address).email
+    except EmailNotValidError as exc:
+        error = str(exc)
+    else:
+        error = None
+
+    return normalized_address, error
 
 
 @dataclass
@@ -49,7 +68,7 @@ class EmailMessage:
             raise ValueError("One of body or template file name must be supplied.")
 
 
-class SeleneMailer:
+class SeleneMailer:  # pylint: disable=too-few-public-methods
     """Use the SendGrid API to send an email."""
 
     template_directory = Path(__file__).parent.joinpath("templates")
@@ -58,8 +77,12 @@ class SeleneMailer:
         self.mailer = SendGridAPIClient(api_key=environ["SENDGRID_API_KEY"])
         self.message = message
 
-    def send(self, using_jinja=False):
-        """Send the email."""
+    def send(self, using_jinja: bool = False):
+        """Send the email.
+
+        :param using_jinja: indicates if the Jinja templating engine should be used
+        :raises: HTTPError if the email delivery is unsuccessful
+        """
         message = Mail(
             from_email=self.message.sender,
             to_emails=[self.message.recipient],
@@ -69,32 +92,46 @@ class SeleneMailer:
         try:
             self.mailer.client.mail.send.post(request_body=message.get())
         except HTTPError as exc:
-            _log.exception("Email failed to send: {}".format(exc.to_dict))
+            _log.exception(f"Email failed to send: {exc.to_dict}")
             raise
         else:
             _log.info("Email sent successfully")
 
-    def _build_content(self, using_jinja) -> Content:
-        """Build the content of the email from a template or a predefined body."""
+    def _build_content(self, using_jinja: bool) -> Content:
+        """Build the content of the email from a template or a predefined body.
+
+        :param using_jinja: indicates if the Jinja templating engine should be used
+        :returns the email as it will be recognized in the SendGrid package
+        """
         if self.message.body:
             message_content = self.message.body
         else:
-            message_content = self._build_content_from_template(using_jinja)
+            if using_jinja:
+                message_content = self._build_content_from_jinja_template()
+            else:
+                message_content = self._build_content_from_html_template()
 
         return Content(self.message.content_type, message_content)
 
-    def _build_content_from_template(self, using_jinja):
+    def _build_content_from_html_template(self):
         """Format an HTML template that will be the email body."""
         template_path = self.template_directory.joinpath(
             self.message.template_file_name
         )
-        with open(template_path) as template_file:
+        with open(template_path, encoding="utf-8") as template_file:
             email_content = template_file.read()
         if self.message.template_variables is not None:
-            if using_jinja:
-                template = Template(email_content)
-                email_content = template.render(**self.message.template_variables)
-            else:
-                email_content = email_content.format(**self.message.template_variables)
+            email_content = email_content.format(**self.message.template_variables)
+
+        return email_content
+
+    def _build_content_from_jinja_template(self):
+        """Uses the Jinja templating engine to populate the email content."""
+        jinja_env = Environment(
+            loader=PackageLoader("selene.util.email", "templates"),
+            autoescape=select_autoescape(["html"]),
+        )
+        template = jinja_env.get_template(self.message.template_file_name)
+        email_content = template.render(self.message.template_variables or {})
 
         return email_content

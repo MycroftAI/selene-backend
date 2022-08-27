@@ -77,6 +77,20 @@ def call_add_account_endpoint(context):
     context.response = response
 
 
+@when("a user enters an email address already in use")
+def call_validate_email_endpoint(context):
+    """Call the single sign on API endpoint to validate an email address."""
+    existing_account = context.accounts["foobar"]
+    email_address = existing_account.email_address.encode()
+    token = b2a_base64(email_address).decode()
+
+    context.client.content_type = "application/json"
+    response = context.client.get(
+        f"/api/validate-email?platform=Internal&token={token}"
+    )
+    context.response = response
+
+
 @then("the account will be added to the system")
 def check_db_for_account(context):
     """Check that the account was created as expected."""
@@ -108,3 +122,10 @@ def check_db_for_account_metrics(context):
             account_activity.accounts_added,
             equal_to(context.account_activity.accounts_added + 1),
         )
+
+
+@then("a duplicate email address error is returned")
+def check_for_duplicate_account_error(context):
+    """Check the API response for an "account exists" error."""
+    response = context.response
+    assert_that(response.json["accountExists"], equal_to(True))

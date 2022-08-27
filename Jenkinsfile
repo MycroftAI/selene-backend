@@ -5,6 +5,7 @@ pipeline {
         // building the Docker image.
         disableConcurrentBuilds()
         buildDiscarder(logRotator(numToKeepStr: '5'))
+        ansiColor('xterm')
     }
     environment {
         // Some branches have a "/" in their name (e.g. feature/new-and-cool)
@@ -17,51 +18,54 @@ pipeline {
         ).trim()
         DOCKER_BUILDKIT=1
         //spawns GITHUB_USR and GITHUB_PSW environment variables
-        GITHUB_API=credentials('38b2e4a6-167a-40b2-be6f-d69be42c8190')
+        GITHUB_API_KEY=credentials('38b2e4a6-167a-40b2-be6f-d69be42c8190')
         GITHUB_CLIENT_ID=credentials('380f58b1-8a33-4a9d-a67b-354a9b0e792e')
         GITHUB_CLIENT_SECRET=credentials('71626c21-de59-4450-bfad-5034fd596fb2')
         GOOGLE_STT_KEY=credentials('287949f8-2ada-4450-8806-1fe2dd8e4c4d')
         STRIPE_KEY=credentials('9980e41f-d418-49af-9d62-341d1246f555')
+        STT_API_KEY=credentials('508fc4fe-7f3a-4f10-b0ea-3df54d611f0a')
         WOLFRAM_ALPHA_KEY=credentials('f718e0a1-c19c-4c7f-af88-0689738ccaa1')
     }
     stages {
         stage('Lint & Format') {
             // Run PyLint and Black to check code quality.
             when {
-                changeRequest target: 'dev'
-                changeRequest target: 'master'
+                anyOf {
+                    changeRequest target: 'dev'
+                    changeRequest target: 'master'
+                }
             }
             steps {
                 labelledShell label: 'Account API Setup', script: """
                      docker build \
-                        --build-arg github_api_key=${GITHUB_API_PSW} \
+                        --build-arg github_api_key=${GITHUB_API_KEY} \
                         --build-arg api_name=account \
                         --target api-code-check --no-cache \
                         -t selene-linter:${BRANCH_ALIAS} .
                 """
                 labelledShell label: 'Account API Check', script: """
-                    docker run selene-linter:${BRANCH_ALIAS} --pipenv-dir api/account --pull-request=${BRANCH_NAME}
+                    docker run selene-linter:${BRANCH_ALIAS} --poetry-dir api/account --pull-request=${BRANCH_NAME}
                 """
                 labelledShell label: 'Single Sign On API Setup', script: """
                      docker build \
-                        --build-arg github_api_key=${GITHUB_API_PSW} \
+                        --build-arg github_api_key=${GITHUB_API_KEY} \
                         --build-arg api_name=sso \
                         --target api-code-check --no-cache \
                         -t selene-linter:${BRANCH_ALIAS} .
                 """
                 labelledShell label: 'Single Sign On API Check', script: """
-                    docker run selene-linter:${BRANCH_ALIAS} --pipenv-dir api/sso --pull-request=${BRANCH_NAME}
+                    docker run selene-linter:${BRANCH_ALIAS} --poetry-dir api/sso --pull-request=${BRANCH_NAME}
                 """
                 labelledShell label: 'Public API Setup', script: """
                      docker build \
-                        --build-arg github_api_key=${GITHUB_API_PSW} \
+                        --build-arg github_api_key=${GITHUB_API_KEY} \
                         --build-arg api_name=public \
                         --target api-code-check --no-cache \
                         --label job=${JOB_NAME} \
                         -t selene-linter:${BRANCH_ALIAS} .
                 """
                 labelledShell label: 'Public API Check', script: """
-                    docker run selene-linter:${BRANCH_ALIAS} --pipenv-dir api/public --pull-request=${BRANCH_NAME}
+                    docker run selene-linter:${BRANCH_ALIAS} --poetry-dir api/public --pull-request=${BRANCH_NAME}
                 """
             }
         }
@@ -78,14 +82,16 @@ pipeline {
                 labelledShell label: 'Building Docker image', script: """
                     docker build \
                         --target db-bootstrap \
-                        --build-arg github_api_key=${GITHUB_API_PSW} \
+                        --build-arg github_api_key=${GITHUB_API_KEY} \
                         --label job=${JOB_NAME} \
                         -t selene-db:${BRANCH_ALIAS} .
                 """
                 timeout(time: 5, unit: 'MINUTES')
                 {
                     labelledShell label: 'Run database bootstrap script', script: """
-                        docker run --net selene-net selene-db:${BRANCH_ALIAS}
+                        docker run \
+                            -v '${HOME}/selene:/tmp/selene' \
+                            --net selene-net selene-db:${BRANCH_ALIAS}
                     """
                 }
             }
@@ -104,18 +110,30 @@ pipeline {
                     docker build \
                         --build-arg stripe_api_key=${STRIPE_KEY} \
                         --target account-api-test \
-                        --label job=${JOB_NAME}} \
+                        --label job=${JOB_NAME} \
                         -t selene-account:${BRANCH_ALIAS} .
                 """
                 timeout(time: 5, unit: 'MINUTES')
                 {
+                    sh 'mkdir -p $HOME/selene/$BRANCH_ALIAS/allure'
                     labelledShell label: 'Running behave tests', script: """
                         docker run \
                             --net selene-net \
-                            -v '${HOME}/allure/selene/:/root/allure' \
+                            -v '$HOME/selene/$BRANCH_ALIAS/allure/:/root/allure' \
                             --label job=${JOB_NAME} \
                             selene-account:${BRANCH_ALIAS}
                     """
+                }
+            }
+            post {
+                always {
+                    sh 'docker run \
+                        -v "$HOME/selene/$BRANCH_ALIAS/allure:/root/allure" \
+                        --entrypoint=/bin/bash \
+                        --label build=${JOB_NAME} \
+                        selene-account:${BRANCH_ALIAS} \
+                        -x -c "chown $(id -u $USER):$(id -g $USER) \
+                        -R /root/allure/"'
                 }
             }
         }
@@ -142,9 +160,20 @@ pipeline {
                     labelledShell label: 'Running behave tests', script: """
                         docker run \
                             --net selene-net \
-                            -v '${HOME}/allure/selene/:/root/allure' \
+                            -v '$HOME/selene/$BRANCH_ALIAS/allure/:/root/allure' \
                             selene-sso:${BRANCH_ALIAS}
                     """
+                }
+            }
+            post {
+                always {
+                    sh 'docker run \
+                        -v "$HOME/selene/$BRANCH_ALIAS/allure:/root/allure" \
+                        --entrypoint=/bin/bash \
+                        --label build=${JOB_NAME} \
+                        selene-sso:${BRANCH_ALIAS} \
+                        -x -c "chown $(id -u $USER):$(id -g $USER) \
+                        -R /root/allure/"'
                 }
             }
         }
@@ -161,6 +190,7 @@ pipeline {
                 labelledShell label: 'Building Docker image', script: """
                     docker build \
                         --build-arg google_stt_key=${GOOGLE_STT_KEY} \
+                        --build-arg stt_api_key=${STT_API_KEY} \
                         --build-arg wolfram_alpha_key=${WOLFRAM_ALPHA_KEY} \
                         --target public-api-test \
                         --label job=${JOB_NAME} \
@@ -171,15 +201,40 @@ pipeline {
                     labelledShell label: 'Running behave tests', script: """
                         docker run \
                             --net selene-net \
-                            -v '$HOME/allure/selene/:/root/allure' \
+                            -v '$HOME/selene/$BRANCH_ALIAS/allure/:/root/allure' \
                             selene-public:${BRANCH_ALIAS}
                     """
+                }
+            }
+            post {
+                always {
+                    sh 'docker run \
+                        -v "$HOME/selene/$BRANCH_ALIAS/allure:/root/allure" \
+                        --entrypoint=/bin/bash \
+                        --label build=${JOB_NAME} \
+                        selene-account:${BRANCH_ALIAS} \
+                        -x -c "chown $(id -u $USER):$(id -g $USER) \
+                        -R /root/allure/"'
                 }
             }
         }
     }
     post {
         always {
+            sh 'rm -rf allure-result/*'
+            sh 'mkdir -p $HOME/selene/$BRANCH_ALIAS/allure/allure-result'
+            sh 'mv $HOME/selene/$BRANCH_ALIAS/allure/allure-result allure-result'
+            // This directory should now be empty, rmdir will intentionally fail if not.
+            sh 'rmdir $HOME/selene/$BRANCH_ALIAS/allure'
+            script {
+                allure([
+                    includeProperties: false,
+                    jdk: '',
+                    properties: [],
+                    reportBuildPolicy: 'ALWAYS',
+                    results: [[path: 'allure-result']]
+                ])
+            }
             sh(
                 label: 'Cleanup lingering docker containers and images.',
                 script: """

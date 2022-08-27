@@ -16,5 +16,6 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
+"""Public API into the selene.util.email package."""
 
-from .email import EmailMessage, SeleneMailer
+from .email import EmailMessage, SeleneMailer, validate_email_address

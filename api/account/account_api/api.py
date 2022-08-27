@@ -21,26 +21,33 @@
 from flask import Flask
 
 from selene.api import get_base_config, selene_api, SeleneResponse
-from selene.api.endpoints import AccountEndpoint, AgreementsEndpoint
+from selene.api.endpoints import (
+    AccountEndpoint,
+    AgreementsEndpoint,
+    ValidateEmailEndpoint,
+)
 from selene.util.cache import SeleneCache
 from selene.util.log import configure_selene_logger
 from .endpoints import (
-    PreferencesEndpoint,
+    AccountDefaultsEndpoint,
     CityEndpoint,
     CountryEndpoint,
-    AccountDefaultsEndpoint,
+    EmailAddressChangeEndpoint,
     DeviceEndpoint,
     DeviceCountEndpoint,
     GeographyEndpoint,
     MembershipEndpoint,
     RegionEndpoint,
     PairingCodeEndpoint,
+    PasswordChangeEndpoint,
+    PreferencesEndpoint,
     SkillsEndpoint,
     SkillOauthEndpoint,
     SkillSettingsEndpoint,
     SoftwareUpdateEndpoint,
     SshKeyValidatorEndpoint,
     TimezoneEndpoint,
+    VerifyEmailAddressEndpoint,
     VoiceEndpoint,
     WakeWordEndpoint,
 )
@@ -95,6 +102,14 @@ acct.add_url_rule(
 device_count_endpoint = DeviceCountEndpoint.as_view("device_count_endpoint")
 acct.add_url_rule("/api/device-count", view_func=device_count_endpoint, methods=["GET"])
 
+change_email_endpoint = EmailAddressChangeEndpoint.as_view("change_email_endpoint")
+acct.add_url_rule("/api/change-email", view_func=change_email_endpoint, methods=["PUT"])
+
+change_password_endpoint = PasswordChangeEndpoint.as_view("change_password_endpoint")
+acct.add_url_rule(
+    "/api/change-password", view_func=change_password_endpoint, methods=["PUT"]
+)
+
 geography_endpoint = GeographyEndpoint.as_view("geography_endpoint")
 acct.add_url_rule("/api/geographies", view_func=geography_endpoint, methods=["GET"])
 
@@ -140,11 +155,21 @@ ssh_key_validation_endpoint = SshKeyValidatorEndpoint.as_view(
     "ssh_key_validation_endpoint"
 )
 acct.add_url_rule(
-    "/api/ssh-key", view_func=ssh_key_validation_endpoint, methods=["GET"],
+    "/api/ssh-key",
+    view_func=ssh_key_validation_endpoint,
+    methods=["GET"],
 )
 
 timezone_endpoint = TimezoneEndpoint.as_view("timezone_endpoint")
 acct.add_url_rule("/api/timezones", view_func=timezone_endpoint, methods=["GET"])
+
+validate_email_endpoint = ValidateEmailEndpoint.as_view("validate_email_endpoint")
+acct.add_url_rule(
+    "/api/validate-email", view_func=validate_email_endpoint, methods=["GET"]
+)
+
+verify_email_endpoint = VerifyEmailAddressEndpoint.as_view("verify_email_endpoint")
+acct.add_url_rule("/api/verify-email", view_func=verify_email_endpoint, methods=["PUT"])
 
 voice_endpoint = VoiceEndpoint.as_view("voice_endpoint")
 acct.add_url_rule("/api/voices", view_func=voice_endpoint, methods=["GET"])

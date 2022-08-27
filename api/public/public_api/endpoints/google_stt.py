@@ -16,12 +16,18 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-"""Public API endpoint for transcribing audio using Google's STT API"""
-import os
+"""Public API endpoint for transcribing audio using Google's STT API
+
+DEPRECATION WARNING:
+    This endpoint is being replaced with the audio_transcription endpoint.  It will
+    remain in the V1 API for backwards compatibility.
+"""
+from datetime import datetime
+from decimal import Decimal
 from http import HTTPStatus
 from io import BytesIO
-from time import time
 
+import librosa
 from speech_recognition import (
     AudioData,
     AudioFile,
@@ -32,10 +38,12 @@ from speech_recognition import (
 
 from selene.api import PublicEndpoint, track_account_activity
 from selene.data.account import AccountRepository, OPEN_DATASET
+from selene.data.metric import SttTranscriptionMetric, TranscriptionMetricRepository
 from selene.util.log import get_selene_logger
 
 _log = get_selene_logger(__name__)
 
+SAMPLE_RATE = 16000
 SELENE_DATA_DIR = "/opt/selene/data"
 
 
@@ -47,6 +55,9 @@ class GoogleSTTEndpoint(PublicEndpoint):
         self.recognizer = Recognizer()
         self.account = None
         self.account_shares_data = False
+        self.transcription_success = False
+        self.audio_duration = 0
+        self.transcription_duration = 0
 
     def post(self):
         """Processes an HTTP Post request."""
@@ -56,8 +67,8 @@ class GoogleSTTEndpoint(PublicEndpoint):
         self._check_for_open_dataset_agreement()
         request_audio_data = self._extract_audio_from_request()
         transcription = self._call_google_stt(request_audio_data)
+        self._add_transcription_metric()
         if transcription is not None:
-            self._save_transcription(request_audio_data, transcription)
             track_account_activity(self.db, self.device_id)
 
         return [transcription], HTTPStatus.OK
@@ -91,6 +102,10 @@ class GoogleSTTEndpoint(PublicEndpoint):
         with AudioFile(BytesIO(request_audio)) as source:
             audio_data = self.recognizer.record(source)
 
+        with BytesIO(self.request.data) as request_audio:
+            audio, _ = librosa.load(request_audio, sr=SAMPLE_RATE, mono=True)
+            self.audio_duration = librosa.get_duration(y=audio, sr=SAMPLE_RATE)
+
         return audio_data
 
     def _call_google_stt(self, audio: AudioData) -> str:
@@ -105,6 +120,7 @@ class GoogleSTTEndpoint(PublicEndpoint):
         _log.info(f"{self.request_id}: Transcribing audio with Google STT")
         lang = self.request.args["lang"]
         transcription = None
+        start_time = datetime.now()
         try:
             transcription = self.recognizer.recognize_google(
                 audio, key=self.config["GOOGLE_STT_KEY"], language=lang
@@ -118,36 +134,22 @@ class GoogleSTTEndpoint(PublicEndpoint):
             if self.account_shares_data:
                 log_message += f": {transcription}"
             _log.info(log_message)
+            self.transcription_success = True
+        end_time = datetime.now()
+        self.transcription_duration = (end_time - start_time).total_seconds()
 
         return transcription
 
-    def _save_transcription(self, audio: AudioData, transcription: str):
-        """Saves the STT results for tagging.
-
-        Args:
-            audio: the audio data sent to Google's STT API
-            transcription: the result of the STT transcription
-        """
-        if self.account_shares_data:
-            flac_audio = audio.get_flac_data()
-            file_time = time()
-            try:
-                self._write_open_dataset_file(flac_audio, file_time, file_type="flac")
-                self._write_open_dataset_file(
-                    transcription.encode(), file_time, file_type="stt"
-                )
-            except IOError:
-                _log.exception("Failed to write transcription to file system")
-
-    def _write_open_dataset_file(self, content: bytes, file_time: time, file_type: str):
-        """Writes one of the pair of transcription files.
-
-        Args:
-            content: the data to write to the file
-            file_time: the time of the transcription
-            file_type: the extension of the file
-        """
-        file_name = f"{self.account.id}_{file_time}.{file_type}"
-        file_path = os.path.join(SELENE_DATA_DIR, file_name)
-        with open(file_path, "wb") as stt_file:
-            stt_file.write(content)
+    def _add_transcription_metric(self):
+        """Adds metrics for this STT transcription to the database."""
+        account_repo = AccountRepository(self.db)
+        account = account_repo.get_account_by_device_id(self.device_id)
+        transcription_metric = SttTranscriptionMetric(
+            account_id=account.id,
+            engine="Google",
+            success=self.transcription_success,
+            audio_duration=Decimal(self.audio_duration),
+            transcription_duration=Decimal(self.transcription_duration),
+        )
+        transcription_metric_repo = TranscriptionMetricRepository(self.db)
+        transcription_metric_repo.add(transcription_metric)

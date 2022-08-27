@@ -1,4 +1,4 @@
-Feature: Upload and fetch skills and their settings
+Feature: Device API -- Upload and fetch skills and their settings
   Test all endpoints related to upload and fetch skill settings
 
   Scenario: A device requests the settings for its skills

@@ -1,4 +1,4 @@
-Feature: Save metrics sent to selene from mycroft core
+Feature: Device API -- Save device activity metrics
 
   Scenario: User opted into the open dataset uses their device
     Given a device registered to a user opted into the open dataset

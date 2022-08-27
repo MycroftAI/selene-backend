@@ -16,6 +16,7 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
+"""Data entities representing a user account."""
 
 from dataclasses import dataclass
 from datetime import date, datetime
@@ -23,7 +24,7 @@ from typing import List
 
 
 @dataclass
-class AccountAgreement(object):
+class AccountAgreement:
     """Representation of a 'signed' agreement"""
 
     type: str
@@ -32,7 +33,7 @@ class AccountAgreement(object):
 
 
 @dataclass
-class AccountMembership(object):
+class AccountMembership:
     """Represents the subscription plan chosen by the user"""
 
     type: str
@@ -45,10 +46,11 @@ class AccountMembership(object):
 
 
 @dataclass
-class Account(object):
+class Account:
     """Representation of a Mycroft user account."""
 
     email_address: str
+    federated_login: bool
     agreements: List[AccountAgreement]
     last_activity: datetime = None
     membership: AccountMembership = None

@@ -35,6 +35,7 @@ SELECT
     json_build_object(
         'id', id,
         'email_address', email_address,
+        'federated_login', password is null,
         'username', username,
         'last_activity', last_activity_ts,
         'membership', (SELECT * FROM membership),

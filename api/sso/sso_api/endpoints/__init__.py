@@ -16,12 +16,12 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
+"""Public API into the Single Sign On API endpoint package."""
 
 from .authenticate_internal import AuthenticateInternalEndpoint
 from .github_token import GithubTokenEndpoint
 from .logout import LogoutEndpoint
 from .password_change import PasswordChangeEndpoint
 from .password_reset import PasswordResetEndpoint
-from .validate_email import ValidateEmailEndpoint
 from .validate_federated import ValidateFederatedEndpoint
 from .validate_token import ValidateTokenEndpoint

@@ -18,6 +18,7 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 """Environmental controls for the public API behavioral tests"""
 import os
+from datetime import date
 from pathlib import Path
 from tempfile import mkdtemp
 
@@ -26,6 +27,7 @@ from behave import fixture, use_fixture
 from public_api.api import public
 from selene.api import generate_device_login
 from selene.api.etag import ETagManager
+from selene.data.metric import TranscriptionMetricRepository
 from selene.testing.account import add_account, remove_account
 from selene.testing.account_activity import remove_account_activity
 from selene.testing.agreement import add_agreements, remove_agreements
@@ -127,8 +129,8 @@ def before_scenario(context, _):
 def after_scenario(context, _):
     """Cleanup data that could change during a scenario so next scenario starts fresh.
 
-    The database is setup with cascading deletes that take care of cleaning up[
-    referential integrity for us.  All we have to do here is delete the account
+    The database is setup with cascading deletes that take care of cleaning up
+    referential integrity for us.  All we have to do here is to delete the account
     and all rows on all tables related to that account will also be deleted.
     """
     _log.info("cleaning up after scenario...")
@@ -161,7 +163,8 @@ def _add_device(context):
 def _add_skills(context):
     """Add skill objects to the context for use in step code."""
     foo_skill, foo_settings_display = add_skill(
-        context.db, skill_global_id="foo-skill|19.02",
+        context.db,
+        skill_global_id="foo-skill|19.02",
     )
     bar_skill, bar_settings_display = add_skill(
         context.db,
@@ -212,3 +215,8 @@ def _delete_stt_tagging_files():
     data_dir = "/opt/selene/data"
     for file_name in os.listdir(data_dir):
         os.remove(os.path.join(data_dir, file_name))
+
+
+def _delete_stt_transcription_metrics(context):
+    stt_transcription_repo = TranscriptionMetricRepository(context.db)
+    stt_transcription_repo.delete_by_date(date.today())

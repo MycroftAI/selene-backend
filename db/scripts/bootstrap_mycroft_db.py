@@ -16,7 +16,8 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-
+import os
+from argparse import ArgumentParser
 from datetime import date
 from glob import glob
 from io import BytesIO
@@ -61,7 +62,15 @@ DEVICE_TABLE_ORDER = (
     "pantacor_config",
 )
 GEOGRAPHY_TABLE_ORDER = ("country", "timezone", "region", "city")
-METRIC_TABLE_ORDER = ("api", "api_history", "job", "core", "account_activity")
+METRIC_TABLE_ORDER = (
+    "api",
+    "api_history",
+    "job",
+    "core",
+    "account_activity",
+    "stt_transcription",
+    "stt_engine",
+)
 TAGGING_TABLE_ORDER = (
     "file_location",
     "wake_word_file",
@@ -304,7 +313,7 @@ def _populate_timezone_table(db):
             db.execute_sql(timezone_insert, insert_args)
 
 
-def _populate_city_table(db):
+def _populate_city_table(db, continuous_integration):
     print("Populating geography.city table")
     region_query = "SELECT id, region_code FROM geography.region"
     query_result = db.execute_sql(region_query)
@@ -320,9 +329,12 @@ def _populate_city_table(db):
     cities_download = request.urlopen(
         "http://download.geonames.org/export/dump/cities500.zip"
     )
+    city_dump_path = path.join(
+        environ.get("MYCROFT_DATA_DIR", "/tmp/selene"), "city.dump"
+    )
     with ZipFile(BytesIO(cities_download.read())) as cities_zip:
         with cities_zip.open("cities500.txt") as cities:
-            with open("city.dump", "w") as dump_file:
+            with open(city_dump_path, "w") as dump_file:
                 for city in cities.readlines():
                     city_fields = city.decode().split("\t")
                     city_region = city_fields[8] + "." + city_fields[10]
@@ -342,24 +354,18 @@ def _populate_city_table(db):
                             )
                             + "\n"
                         )
-    with open("city.dump") as dump_file:
-        cursor = db.db.cursor()
-        cursor.copy_from(
-            dump_file,
-            "geography.city",
-            columns=(
-                "region_id",
-                "timezone_id",
-                "name",
-                "latitude",
-                "longitude",
-                "population",
-            ),
-        )
-    remove("city.dump")
+    if continuous_integration:
+        os.chmod(city_dump_path, 0o666)
+        os.chown(city_dump_path, 999, 996)
+    city_copy = (
+        f"COPY geography.city (region_id, timezone_id, name, latitude, longitude, "
+        f"population) FROM '{city_dump_path}'"
+    )
+    db.execute_sql(city_copy)
+    remove(city_dump_path)
 
 
-def _populate_db():
+def _populate_db(continuous_integration):
     mycroft_db = PostgresDB(db_name=MYCROFT_DB_NAME)
     _apply_insert_file(
         mycroft_db, schema_dir="account_schema", file_name="membership.sql"
@@ -371,12 +377,26 @@ def _populate_db():
     _populate_country_table(mycroft_db)
     _populate_region_table(mycroft_db)
     _populate_timezone_table(mycroft_db)
-    _populate_city_table(mycroft_db)
+    _populate_city_table(mycroft_db, continuous_integration)
     mycroft_db.close_db()
 
 
+def _define_args():
+    argument_parser = ArgumentParser()
+    argument_parser.add_argument(
+        "--ci",
+        help="Run in a continuous integration environment",
+        action="store_true",
+        default=False,
+    )
+    script_args = argument_parser.parse_args()
+
+    return script_args
+
+
 if __name__ == "__main__":
+    args = _define_args()
     _init_db()
     _build_template_db()
     _create_mycroft_db_from_template()
-    _populate_db()
+    _populate_db(args.ci)
