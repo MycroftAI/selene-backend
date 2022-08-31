@@ -57,7 +57,7 @@ class AuthenticationToken:
         payload = dict(
             iat=datetime.utcnow(), exp=time() + self.duration, sub=account_id
         )
-        self.jwt = jwt.encode(payload, self.secret, algorithm="HS256").decode("utf-8")
+        self.jwt = jwt.encode(payload, self.secret, algorithm="HS256")
 
     def validate(self):
         """Decodes the auth token and performs some preliminary validation."""
@@ -85,7 +85,7 @@ def get_google_account_email(token: str) -> str:
     :returns: the email address related to the account
     """
     google_response = requests.get(
-        "https://oauth2.googleapis.com/tokeninfo?id_token=" + token
+        "https://oauth2.googleapis.com/tokeninfo?id_token=" + token, timeout=5
     )
     if google_response.status_code == HTTPStatus.OK:
         google_account = json.loads(google_response.content)
@@ -118,6 +118,7 @@ def get_github_account_email(token: str) -> str:
     github_user = requests.get(
         "https://api.github.com/user/emails",
         headers=dict(Authorization="token " + token, Accept="application/json"),
+        timeout=5,
     )
     if github_user.status_code == HTTPStatus.OK:
         for email in json.loads(github_user.content):
@@ -143,6 +144,7 @@ def get_github_authentication_token(access_code: str, state: str) -> str:
     github_response = requests.post(
         "https://github.com/login/oauth/access_token?" + "&".join(params),
         headers=dict(Accept="application/json"),
+        timeout=5,
     )
     response_content = json.loads(github_response.content)
 
