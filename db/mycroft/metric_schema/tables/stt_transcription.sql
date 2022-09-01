@@ -7,8 +7,8 @@ CREATE TABLE metric.stt_transcription (
     account_id              uuid        NOT NULL,
     engine                  TEXT        NOT NULL,
     success                 BOOLEAN     NOT NULL,
-    audio_duration          INTEGER     NOT NULL DEFAULT 0,
-    transcription_duration  INTEGER     NOT NULL DEFAULT 0,
+    audio_duration          NUMERIC     NOT NULL DEFAULT 0,
+    transcription_duration  NUMERIC     NOT NULL DEFAULT 0,
     insert_ts               TIMESTAMP   NOT NULL DEFAULT now()
 );
 
