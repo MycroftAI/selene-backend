@@ -148,8 +148,8 @@ class GoogleSTTEndpoint(PublicEndpoint):
             account_id=account.id,
             engine="Google",
             success=self.transcription_success,
-            audio_duration=Decimal(self.audio_duration),
-            transcription_duration=Decimal(self.transcription_duration),
+            audio_duration=Decimal(str(self.audio_duration)),
+            transcription_duration=Decimal(str(self.transcription_duration)),
         )
         transcription_metric_repo = TranscriptionMetricRepository(self.db)
         transcription_metric_repo.add(transcription_metric)

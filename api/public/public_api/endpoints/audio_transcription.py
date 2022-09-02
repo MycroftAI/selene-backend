@@ -102,7 +102,10 @@ class AudioTranscriptionEndpoint(PublicEndpoint):
         start_timestamp = datetime.now()
         try:
             response = requests.post(
-                environ["STT_URL"], headers=request_headers, data=request_data
+                environ["STT_URL"],
+                headers=request_headers,
+                data=request_data,
+                timeout=5,
             )
             response.raise_for_status()
         except requests.ConnectionError:
@@ -152,8 +155,8 @@ class AudioTranscriptionEndpoint(PublicEndpoint):
             account_id=account.id,
             engine="Assembly AI",
             success=self.transcription_success,
-            audio_duration=self.audio_duration,
-            transcription_duration=self.transcription_duration,
+            audio_duration=Decimal(str(self.audio_duration)),
+            transcription_duration=Decimal(str(self.transcription_duration)),
         )
         transcription_metric_repo = TranscriptionMetricRepository(self.db)
         transcription_metric_repo.add(transcription_metric)

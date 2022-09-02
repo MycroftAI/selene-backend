@@ -92,4 +92,5 @@ def validate_transcription_metrics(context):
     metric = metrics[0]
     assert_that(metric.engine, equal_to(context.engine))
     assert_that(metric.account_id, equal_to(context.account.id))
-    assert_that(metric.audio_duration, equal_to(Decimal(2.0)))
+    expected_audio_duration = metric.audio_duration.quantize((Decimal("0.001")))
+    assert_that(expected_audio_duration, equal_to(Decimal("2.100")))
