@@ -93,24 +93,24 @@ class Login(Model):
 class UpdateMembershipRequest(Model):
     """Representation of a request to update a membership for data validation."""
 
-    new_membership = BooleanType(required=True)
+    action = StringType(required=True, choices=("add", "cancel", "update"))
     membership_type = StringType(choices=(MONTHLY_MEMBERSHIP, YEARLY_MEMBERSHIP))
     payment_method = StringType(choices=[STRIPE_PAYMENT])
     payment_token = StringType()
 
     def validate_membership_type(self, data, value):
         """A new membership must have a membership type."""
-        if data["new_membership"] and value is None:
+        if data["action"] == "add" and value is None:
             raise ValidationError("new memberships require a membership type")
 
     def validate_payment_method(self, data, value):
         """A new membership must have a payment method."""
-        if data["new_membership"] and value is None:
+        if data["action"] == "add" and value is None:
             raise ValidationError("new memberships require a payment method")
 
     def validate_payment_token(self, data, value):
         """A new membership must have a payment token."""
-        if data["new_membership"] and value is None:
+        if data["action"] == "add" and value is None:
             raise ValidationError("payment token required for new memberships")
 
 
@@ -314,8 +314,8 @@ class AccountEndpoint(SeleneEndpoint):
     def _validate_membership_update_request(value):
         """Validate a request to update membership is well formed."""
         validator = UpdateMembershipRequest()
-        validator.new_membership = value["newMembership"]
-        validator.membership_type = value["membershipType"]
+        validator.action = value["action"]
+        validator.membership_type = value.get("membershipType")
         validator.payment_token = value.get("paymentToken")
         validator.payment_method = value.get("paymentMethod")
         validator.validate()
@@ -326,10 +326,10 @@ class AccountEndpoint(SeleneEndpoint):
         """Update an account's membership status."""
         stripe.api_key = os.environ["STRIPE_PRIVATE_KEY"]
         active_membership = self._get_active_membership()
-        if membership_change["membership_type"] is None:
+        if membership_change["action"] == "cancel":
             self._cancel_membership(active_membership)
             self.account_activity_repository.increment_members_expired()
-        elif membership_change["new_membership"]:
+        elif membership_change["action"] == "add":
             if active_membership is None:
                 self._add_membership(membership_change, active_membership)
                 self.account_activity_repository.increment_members_added()
