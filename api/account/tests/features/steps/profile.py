@@ -166,7 +166,7 @@ def add_monthly_membership(context):
 @when("the membership is cancelled")
 def cancel_membership(context):
     """Issue API call to cancel and account's membership."""
-    membership_data = dict(newMembership=False, membershipType=None)
+    membership_data = dict(action="cancel")
     context.response = context.client.patch(
         "/api/account",
         data=json.dumps(dict(membership=membership_data)),
@@ -177,7 +177,7 @@ def cancel_membership(context):
 def _add_membership_via_api(context):
     """Helper function to add account membership via API call"""
     membership_data = dict(
-        newMembership=True,
+        action="add",
         membershipType=MONTHLY_MEMBERSHIP,
         paymentMethod=STRIPE_METHOD,
         paymentToken=VISA_TOKEN,
@@ -192,7 +192,7 @@ def _add_membership_via_api(context):
 @when("the membership is changed to yearly")
 def change_to_yearly_account(context):
     """Issue API call to change a monthly membership to a yearly membership."""
-    membership_data = dict(newMembership=False, membershipType=YEARLY_MEMBERSHIP)
+    membership_data = dict(action="update", membershipType=YEARLY_MEMBERSHIP)
     context.response = context.client.patch(
         "/api/account",
         data=json.dumps(dict(membership=membership_data)),
