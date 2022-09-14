@@ -20,7 +20,7 @@
 from dataclasses import asdict
 from datetime import datetime, timedelta
 from http import HTTPStatus
-from typing import List
+from typing import List, Optional
 
 from flask import json
 from schematics import Model
@@ -96,6 +96,15 @@ class DeviceEndpoint(SeleneEndpoint):
         self.validated_request = None
         self.cache = self.config["SELENE_CACHE"]
         self.etag_manager: ETagManager = ETagManager(self.cache, self.config)
+        self.pantacor_channels = dict(
+            myc200_dev="Development",
+            myc200_beta_qa="Beta QA",
+            myc200_beta="Beta",
+            myc200_stable_qa="Stable QA",
+            myc200_stable="Stable",
+            myc200_lts_qa="LTS QA",
+            myc200_lts="LTS",
+        )
 
     @property
     def device_repository(self):
@@ -145,32 +154,56 @@ class DeviceEndpoint(SeleneEndpoint):
         :param device: the device data retrieved from the database.
         :return: device information formatted for the UI
         """
-        pantacor_update_id = None
-        auto_update = device.pantacor_config.auto_update
-        if auto_update is not None and not auto_update:
-            pantacor_update_id = get_pantacor_pending_deployment(
-                device.pantacor_config.pantacor_id
+        pantacor_config = self._format_pantacor_config(device.pantacor_config)
+        device_status, disconnect_duration = self._format_device_status(device)
+        formatted_device = asdict(device)
+        formatted_device["pantacor_config"].update(pantacor_config)
+        formatted_device["wake_word"].update(name=device.wake_word.name.title())
+        formatted_device.update(
+            status=device_status,
+            disconnect_duration=disconnect_duration,
+            voice=formatted_device.pop("text_to_speech"),
+        )
+
+        return formatted_device
+
+    def _format_pantacor_config(self, pantacor_config) -> dict[str, str]:
+        """Converts Pantacor config values in the database into displayable values.
+
+        :param pantacor_config: Pantacor config database values
+        :returns: Pantacor config displayable values
+        """
+        formatted_config = dict(deployment_id=None)
+        manual_update = (
+            pantacor_config.auto_update is not None and not pantacor_config.auto_update
+        )
+        if manual_update:
+            formatted_config.update(
+                deployment_id=get_pantacor_pending_deployment(
+                    pantacor_config.pantacor_id
+                )
             )
+        if pantacor_config.release_channel is not None:
+            formatted_config.update(
+                release_channel=self.pantacor_channels[pantacor_config.release_channel]
+            )
+
+        return formatted_config
+
+    def _format_device_status(self, device: Device) -> tuple[str, Optional[str]]:
+        """Determines the status of the device being returned.
+
+        :param device: The device to determine the status of
+        :return: status of the device and the duration of disconnect (if applicable)
+        """
         last_contact_age = self._get_device_last_contact(device)
         device_status = self._determine_device_status(last_contact_age)
         if device_status == DISCONNECTED:
             disconnect_duration = self._determine_disconnect_duration(last_contact_age)
         else:
             disconnect_duration = None
-        device.wake_word.name = device.wake_word.name.title()
-        if device.pantacor_config.release_channel is not None:
-            if device.pantacor_config.release_channel == "qa":
-                channel = device.pantacor_config.release_channel.upper()
-            else:
-                channel = device.pantacor_config.release_channel.title()
-            device.pantacor_config.release_channel = channel
-        device_dict = asdict(device)
-        device_dict["status"] = device_status
-        device_dict["disconnect_duration"] = disconnect_duration
-        device_dict["voice"] = device_dict.pop("text_to_speech")
-        device_dict["pantacor_update_id"] = pantacor_update_id
 
-        return device_dict
+        return device_status, disconnect_duration
 
     def _get_device_last_contact(self, device: Device) -> timedelta:
         """Get the last time the device contacted the backend.
@@ -388,6 +421,9 @@ class DeviceEndpoint(SeleneEndpoint):
             release_channel=self.validated_request.pop("release_channel"),
             ssh_public_key=self.validated_request.pop("ssh_public_key"),
         )
+        for channel_name, channel_display in self.pantacor_channels.items():
+            if channel_display == new_pantacor_config["release_channel"]:
+                new_pantacor_config.update(release_channel=channel_name)
         old_pantacor_config = asdict(device.pantacor_config)
         update_pantacor_config(old_pantacor_config, new_pantacor_config)
         self.device_repository.update_pantacor_config(device.id, new_pantacor_config)

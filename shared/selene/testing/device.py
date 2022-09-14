@@ -47,6 +47,6 @@ def add_pantacor_config(db, device_id):
         pantacor_id="test_pantacor_id",
         ip_address="192.168.1.2",
         auto_update=False,
-        release_channel="latest",
+        release_channel="myc200_dev",
     )
     device_repository.upsert_pantacor_config(device_id, pantacor_config)
