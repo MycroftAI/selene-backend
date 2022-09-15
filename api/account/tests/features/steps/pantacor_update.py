@@ -90,11 +90,12 @@ def get_device(context):
     reliably with a test device.
     """
     with patch("requests.request") as request_patch:
-        get_deployment_response = MagicMock(spec=["ok", "content"])
-        get_deployment_response.ok = True
-        get_deployment_content = dict(items=[dict(id="test_deployment_id",)])
-        get_deployment_response.content = json.dumps(get_deployment_content).encode()
-        request_patch.side_effect = [get_deployment_response]
+        api_response = MagicMock(spec=["ok", "content"])
+        api_response.ok = True
+        deployment = dict(id="test_deployment_id")
+        get_deployment_content = dict(items=[deployment])
+        api_response.content = json.dumps(get_deployment_content).encode()
+        request_patch.side_effect = [api_response]
         response = context.client.get(
             "/api/devices/" + context.device_id, content_type="application/json"
         )
@@ -105,7 +106,10 @@ def get_device(context):
 def check_for_deployment_id(context):
     """Check the response of the device query to ensure the update ID is populated."""
     device_attributes = context.response.json
-    assert_that(device_attributes["pantacorUpdateId"], equal_to("test_deployment_id"))
+    assert_that(
+        device_attributes["pantacorConfig"]["deploymentId"],
+        equal_to("test_deployment_id"),
+    )
 
 
 @then("the response indicates that the SSH key is malformed")
