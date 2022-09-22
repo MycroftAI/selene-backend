@@ -97,12 +97,10 @@ class DeviceEndpoint(SeleneEndpoint):
         self.cache = self.config["SELENE_CACHE"]
         self.etag_manager: ETagManager = ETagManager(self.cache, self.config)
         self.pantacor_channels = dict(
-            myc200_dev="Development",
-            myc200_beta_qa="Beta QA",
+            myc200_dev_test="Development",
+            myc200_beta_qa_test="Beta QA",
             myc200_beta="Beta",
-            myc200_stable_qa="Stable QA",
             myc200_stable="Stable",
-            myc200_lts_qa="LTS QA",
             myc200_lts="LTS",
         )
 
@@ -167,25 +165,21 @@ class DeviceEndpoint(SeleneEndpoint):
 
         return formatted_device
 
-    def _format_pantacor_config(self, pantacor_config) -> dict[str, str]:
+    def _format_pantacor_config(self, config) -> dict[str, str]:
         """Converts Pantacor config values in the database into displayable values.
 
-        :param pantacor_config: Pantacor config database values
+        :param config: Pantacor config database values
         :returns: Pantacor config displayable values
         """
         formatted_config = dict(deployment_id=None)
-        manual_update = (
-            pantacor_config.auto_update is not None and not pantacor_config.auto_update
-        )
+        manual_update = config.auto_update is not None and not config.auto_update
         if manual_update:
             formatted_config.update(
-                deployment_id=get_pantacor_pending_deployment(
-                    pantacor_config.pantacor_id
-                )
+                deployment_id=get_pantacor_pending_deployment(config.pantacor_id)
             )
-        if pantacor_config.release_channel is not None:
+        if config.release_channel is not None:
             formatted_config.update(
-                release_channel=self.pantacor_channels[pantacor_config.release_channel]
+                release_channel=self.pantacor_channels.get(config.release_channel)
             )
 
         return formatted_config
@@ -421,9 +415,27 @@ class DeviceEndpoint(SeleneEndpoint):
             release_channel=self.validated_request.pop("release_channel"),
             ssh_public_key=self.validated_request.pop("ssh_public_key"),
         )
-        for channel_name, channel_display in self.pantacor_channels.items():
-            if channel_display == new_pantacor_config["release_channel"]:
-                new_pantacor_config.update(release_channel=channel_name)
+        pantacor_channel_name = self._convert_release_channel(
+            new_pantacor_config["release_channel"]
+        )
+        new_pantacor_config.update(release_channel=pantacor_channel_name)
         old_pantacor_config = asdict(device.pantacor_config)
         update_pantacor_config(old_pantacor_config, new_pantacor_config)
         self.device_repository.update_pantacor_config(device.id, new_pantacor_config)
+
+    def _convert_release_channel(self, release_channel: str) -> str:
+        """Converts the channel sent in the request to one recognized by Pantacor.
+
+        :param release_channel: the value of the release channel in the request
+        :returns: the release channel as recognized by Pantacor
+        """
+        pantacor_channel_name = None
+        formatted_channel = release_channel.title()
+        if "Qa" in release_channel:
+            formatted_channel = release_channel.replace("Qa", "QA")
+
+        for channel_name, channel_display in self.pantacor_channels.items():
+            if channel_display == formatted_channel:
+                pantacor_channel_name = channel_name
+
+        return pantacor_channel_name

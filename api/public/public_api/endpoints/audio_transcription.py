@@ -109,7 +109,7 @@ class AudioTranscriptionEndpoint(PublicEndpoint):
             for result in response.results:
                 for alternative in result.alternatives:
                     if alternative.confidence > highest_confidence:
-                        transcription = alternative.transcription
+                        transcription = alternative.transcript
 
         return transcription
 
