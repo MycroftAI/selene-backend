@@ -48,6 +48,7 @@ from selene.util.auth import (
     get_google_account_email,
 )
 from selene.util.cache import SeleneCache
+from selene.util.log import get_selene_logger
 from selene.util.payment import (
     cancel_stripe_subscription,
     create_stripe_account,
@@ -59,6 +60,8 @@ from ..etag import ETagManager
 MONTHLY_MEMBERSHIP = "Monthly Membership"
 YEARLY_MEMBERSHIP = "Yearly Membership"
 STRIPE_PAYMENT = "Stripe"
+
+_log = get_selene_logger(__name__)
 
 
 def agreement_accepted(value):
@@ -93,7 +96,7 @@ class Login(Model):
 class UpdateMembershipRequest(Model):
     """Representation of a request to update a membership for data validation."""
 
-    action = StringType(required=True, choices=("add", "cancel", "update"))
+    action = StringType(choices=("add", "cancel", "update"))
     membership_type = StringType(choices=(MONTHLY_MEMBERSHIP, YEARLY_MEMBERSHIP))
     payment_method = StringType(choices=[STRIPE_PAYMENT])
     payment_token = StringType()
@@ -326,7 +329,9 @@ class AccountEndpoint(SeleneEndpoint):
         """Update an account's membership status."""
         stripe.api_key = os.environ["STRIPE_PRIVATE_KEY"]
         active_membership = self._get_active_membership()
-        if membership_change["action"] == "cancel":
+        if membership_change["action"] is None:
+            _log.info("No membership option selected")
+        elif membership_change["action"] == "cancel":
             self._cancel_membership(active_membership)
             self.account_activity_repository.increment_members_expired()
         elif membership_change["action"] == "add":
