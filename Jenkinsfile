@@ -189,7 +189,6 @@ pipeline {
                 labelledShell label: 'Building Docker image', script: """
                     docker build \
                         --build-arg google_stt_key=${GOOGLE_STT_KEY} \
-                        --build-arg stt_api_key=${STT_API_KEY} \
                         --build-arg wolfram_alpha_key=${WOLFRAM_ALPHA_KEY} \
                         --target public-api-test \
                         --label job=${JOB_NAME} \
