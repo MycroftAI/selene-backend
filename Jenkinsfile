@@ -21,9 +21,8 @@ pipeline {
         GITHUB_API_KEY=credentials('38b2e4a6-167a-40b2-be6f-d69be42c8190')
         GITHUB_CLIENT_ID=credentials('380f58b1-8a33-4a9d-a67b-354a9b0e792e')
         GITHUB_CLIENT_SECRET=credentials('71626c21-de59-4450-bfad-5034fd596fb2')
-        GOOGLE_STT_KEY=credentials('287949f8-2ada-4450-8806-1fe2dd8e4c4d')
+        GOOGLE_STT_KEY=credentials('ef64e101-c418-4a20-af4f-2fc605ac6855')
         STRIPE_KEY=credentials('9980e41f-d418-49af-9d62-341d1246f555')
-        STT_API_KEY=credentials('508fc4fe-7f3a-4f10-b0ea-3df54d611f0a')
         WOLFRAM_ALPHA_KEY=credentials('f718e0a1-c19c-4c7f-af88-0689738ccaa1')
     }
     stages {
