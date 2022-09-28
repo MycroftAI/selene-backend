@@ -65,7 +65,7 @@ def get_pantacor_device(pantacor_device_id: str) -> PantacorConfig:
             if key == "interfaces.wlan0.ipv4.0" and ip_address is None:
                 ip_address = value
             elif key == "pantahub.claimed":
-                claimed = True if value == "1" else False
+                claimed = value == "1"
 
     return PantacorConfig(
         pantacor_id=pantacor_device_id,
@@ -166,6 +166,7 @@ def _call_pantacor_api(method: str, endpoint: str, **kwargs):
         params=kwargs.get("params"),
         headers=headers,
         data=json.dumps(kwargs.get("data")),
+        timeout=5,
     )
 
     if response.ok:

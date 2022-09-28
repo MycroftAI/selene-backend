@@ -430,12 +430,9 @@ class DeviceEndpoint(SeleneEndpoint):
         :returns: the release channel as recognized by Pantacor
         """
         pantacor_channel_name = None
-        formatted_channel = release_channel.title()
-        if "Qa" in release_channel:
-            formatted_channel = release_channel.replace("Qa", "QA")
-
         for channel_name, channel_display in self.pantacor_channels.items():
-            if channel_display == formatted_channel:
+            if channel_display.lower() == release_channel:
                 pantacor_channel_name = channel_name
 
+        _log.info("pantacor channel name: %s", pantacor_channel_name)
         return pantacor_channel_name
