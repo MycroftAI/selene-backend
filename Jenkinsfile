@@ -189,6 +189,7 @@ pipeline {
                 labelledShell label: 'Building Docker image', script: """
                     docker build \
                         --build-arg wolfram_alpha_key=${WOLFRAM_ALPHA_KEY} \
+                        --build-arg google_stt_key=${GOOGLE_STT_KEY} \
                         --target public-api-test \
                         --label job=${JOB_NAME} \
                         -t selene-public:${BRANCH_ALIAS} .
