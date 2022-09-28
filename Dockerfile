@@ -105,6 +105,7 @@ RUN mkdir -p /opt/selene/data
 ARG google_stt_key
 ARG stt_api_key
 ARG wolfram_alpha_key
+ENV GOOGLE_APPLICATION_CREDENTIALS="/root/secrets/transcription-test-363101-6532632520e1.json"
 ENV PANTACOR_API_TOKEN pantacor-token
 ENV PANTACOR_API_BASE_URL pantacor.test.url
 ENV PYTHONPATH=$PYTHONPATH:/opt/selene/selene-backend/api/public
