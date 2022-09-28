@@ -22,25 +22,20 @@ When a device is configured to use the Mycroft STT plugin for transcribing audio
 this endpoint will be called to do the transcription anonymously.
 """
 
-import json
-from binascii import b2a_base64
 from datetime import datetime
 from decimal import Decimal
 from http import HTTPStatus
 from io import BytesIO
-from os import environ
 from typing import Optional
 
 import librosa
-import numpy
-import requests
+from google.cloud import speech
 
 from selene.api import PublicEndpoint, track_account_activity
 from selene.data.account import AccountRepository
 from selene.data.metric import SttTranscriptionMetric, TranscriptionMetricRepository
 from selene.util.log import get_selene_logger
 
-INT_16_MAX = 32767.0
 SAMPLE_RATE = 16000
 
 _log = get_selene_logger(__name__)
@@ -53,13 +48,12 @@ class AudioTranscriptionEndpoint(PublicEndpoint):
         super().__init__()
         self.audio_duration = Decimal(0.0)
         self.transcription_duration = Decimal(0.0)
-        self.transcription_success = False
 
     def post(self):
         """Processes an HTTP Post request."""
         self._authenticate()
         transcription = self._transcribe()
-        self._add_transcription_metric()
+        self._add_transcription_metric(transcription)
         if transcription is not None:
             track_account_activity(self.db, self.device_id)
 
@@ -70,66 +64,39 @@ class AudioTranscriptionEndpoint(PublicEndpoint):
 
         :returns: None if the transcription failed or the transcription
         """
-        audio = self._format_audio_data()
-        response = self._call_transcription_api(audio)
-        transcription = self._handle_api_response(response)
+        response = self._call_transcription_api()
+        transcription = self._get_transcription(response)
 
         return transcription
 
-    def _format_audio_data(self):
-        """Convert audio data in request to encoding needed for Assembly API."""
-        with BytesIO(self.request.data) as request_audio:
-            audio, _ = librosa.load(request_audio, sr=SAMPLE_RATE, mono=True)
-            self.audio_duration = librosa.get_duration(y=audio, sr=SAMPLE_RATE)
-        formatted_audio = audio * (INT_16_MAX / max(0.01, numpy.max(numpy.abs(audio))))
-        formatted_audio = numpy.clip(formatted_audio, -INT_16_MAX, INT_16_MAX)
-        formatted_audio = formatted_audio.astype("int16")
-
-        return formatted_audio
-
-    def _call_transcription_api(self, audio) -> Optional[requests.Response]:
+    def _call_transcription_api(self) -> Optional[speech.RecognizeResponse]:
         """Calls the configured audio transcription service API.
 
         :returns: None if the call fails or the result of the API call
         """
         response = None
-        audio_data = b2a_base64(audio, newline=False).decode()
-        request_data = json.dumps(dict(audio_data=audio_data))
-        request_headers = {
-            "authorization": environ["STT_API_KEY"],
-            "content-type": "application/json",
-        }
+        client = speech.SpeechClient()
+        audio = speech.RecognitionAudio(content=self.request.data)
+        config_values = dict(
+            encoding=speech.RecognitionConfig.AudioEncoding.FLAC,
+            sample_rate_hertz=SAMPLE_RATE,
+            language_code="en-US",
+        )
+        config = speech.RecognitionConfig(**config_values)
         start_timestamp = datetime.now()
         try:
-            response = requests.post(
-                environ["STT_URL"],
-                headers=request_headers,
-                data=request_data,
-                timeout=5,
-            )
-            response.raise_for_status()
-        except requests.ConnectionError:
-            _log.exception(
-                f"{self.request_id}: Failed to connect to audio transcription service"
-            )
-        except requests.HTTPError:
-            log_message = (
-                f"{self.request_id}: API request to transcription service failed"
-            )
-            response_text = json.loads(response.text)
-            error_message = response_text.get("error")
-            if error_message is not None:
-                log_message += f": {error_message}"
-            _log.exception(log_message)
+            response = client.recognize(config=config, audio=audio)
+        except Exception:
+            _log.exception(f"{self.request_id}: Transcription failed.")
         finally:
             end_timestamp = datetime.now()
         transcription_duration = (end_timestamp - start_timestamp).total_seconds()
-        self.transcription_duration = Decimal(transcription_duration)
+        self.transcription_duration = Decimal(str(transcription_duration))
 
         return response
 
-    def _handle_api_response(
-        self, response: Optional[requests.Response]
+    def _get_transcription(
+        self, response: Optional[speech.RecognizeResponse]
     ) -> Optional[str]:
         """Interrogates the response from the transcription service API.
 
@@ -137,26 +104,31 @@ class AudioTranscriptionEndpoint(PublicEndpoint):
         :return: None if the audio could not be transcribed or the transcription
         """
         transcription = None
-        if response is not None:
-            response_data = json.loads(response.text)
-            if response_data["status"] == "completed":
-                self.transcription_success = True
-                transcription = response_data["text"]
-            else:
-                _log.warning(f"{self.request_id}: audio could not be transcribed")
+        if response:
+            highest_confidence = 0
+            for result in response.results:
+                for alternative in result.alternatives:
+                    if alternative.confidence > highest_confidence:
+                        transcription = alternative.transcript
 
         return transcription
 
-    def _add_transcription_metric(self):
+    def _add_transcription_metric(self, transcription: str):
         """Adds metrics for this STT transcription to the database."""
         account_repo = AccountRepository(self.db)
         account = account_repo.get_account_by_device_id(self.device_id)
         transcription_metric = SttTranscriptionMetric(
             account_id=account.id,
-            engine="Assembly AI",
-            success=self.transcription_success,
-            audio_duration=Decimal(str(self.audio_duration)),
+            engine="Google Cloud",
+            success=transcription is not None,
+            audio_duration=Decimal(str(self._determine_audio_duration())),
             transcription_duration=Decimal(str(self.transcription_duration)),
         )
         transcription_metric_repo = TranscriptionMetricRepository(self.db)
         transcription_metric_repo.add(transcription_metric)
+
+    def _determine_audio_duration(self) -> float:
+        """Determines the duration of the audio data for the metrics."""
+        with BytesIO(self.request.data) as request_audio:
+            audio, _ = librosa.load(request_audio, sr=SAMPLE_RATE, mono=True)
+            return librosa.get_duration(y=audio, sr=SAMPLE_RATE)

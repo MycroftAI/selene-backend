@@ -23,7 +23,6 @@ pipeline {
         GITHUB_CLIENT_SECRET=credentials('71626c21-de59-4450-bfad-5034fd596fb2')
         GOOGLE_STT_KEY=credentials('287949f8-2ada-4450-8806-1fe2dd8e4c4d')
         STRIPE_KEY=credentials('9980e41f-d418-49af-9d62-341d1246f555')
-        STT_API_KEY=credentials('508fc4fe-7f3a-4f10-b0ea-3df54d611f0a')
         WOLFRAM_ALPHA_KEY=credentials('f718e0a1-c19c-4c7f-af88-0689738ccaa1')
     }
     stages {
@@ -189,9 +188,8 @@ pipeline {
             steps {
                 labelledShell label: 'Building Docker image', script: """
                     docker build \
-                        --build-arg google_stt_key=${GOOGLE_STT_KEY} \
-                        --build-arg stt_api_key=${STT_API_KEY} \
                         --build-arg wolfram_alpha_key=${WOLFRAM_ALPHA_KEY} \
+                        --build-arg google_stt_key=${GOOGLE_STT_KEY} \
                         --target public-api-test \
                         --label job=${JOB_NAME} \
                         -t selene-public:${BRANCH_ALIAS} .
@@ -202,6 +200,7 @@ pipeline {
                         docker run \
                             --net selene-net \
                             -v '$HOME/selene/$BRANCH_ALIAS/allure/:/root/allure' \
+                            -v '$HOME/selene/secrets/:/root/secrets' \
                             selene-public:${BRANCH_ALIAS}
                     """
                 }

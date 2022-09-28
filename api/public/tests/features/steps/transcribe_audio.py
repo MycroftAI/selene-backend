@@ -43,7 +43,7 @@ def call_google_stt_endpoint(context, utterance):
 @when('Utterance "{utterance}" is transcribed using Mycroft\'s transcription service')
 def call_audio_transcription_endpoint(context, utterance):
     """Call the endpoint with an audio file known to contain a certain phrase."""
-    context.engine = "Assembly AI"
+    context.engine = "Google Cloud"
     context.utterance = utterance
     audio_data = _build_audio_data()
     request_headers = _build_request_header(context)
