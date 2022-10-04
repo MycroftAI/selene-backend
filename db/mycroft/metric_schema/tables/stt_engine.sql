@@ -11,7 +11,7 @@ CREATE TABLE metric.stt_engine (
 );
 
 CREATE UNIQUE INDEX IF NOT EXISTS
-    stt_transcription_account_activity_idx
+    stt_transcription_engine_activity_idx
 ON
     metric.stt_engine (activity_dt, engine)
 ;
