@@ -84,12 +84,16 @@ def get_pantacor_pending_deployment(device_id: str):
     """
     update_id = None
     params = dict(device_id=device_id, fields="-step")
-    response_data = _call_pantacor_api(
-        "GET", endpoint="deployment-actions/pending", params=params
-    )
-    if response_data["items"]:
-        pending_update = response_data["items"][0]
-        update_id = pending_update["id"]
+    try:
+        response_data = _call_pantacor_api(
+            "GET", endpoint="deployment-actions/pending", params=params
+        )
+    except PantacorError:
+        _log.exception("Failed to get pending deployment data from Pantacor API")
+    else:
+        if response_data["items"]:
+            pending_update = response_data["items"][0]
+            update_id = pending_update["id"]
 
     return update_id
 
