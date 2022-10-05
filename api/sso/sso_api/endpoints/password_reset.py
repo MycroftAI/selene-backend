@@ -61,6 +61,7 @@ class PasswordResetEndpoint(SeleneEndpoint):
 
         :param reset_token: JWT to authenticate the password reset
         """
+        "x-webdoc://1A04515B-9F46-451A-BB8C-567BCB49919E/%7Breset_password_url%7D"
         url = f"{os.environ['SSO_BASE_URL']}/change-password?token={reset_token}"
         email = EmailMessage(
             recipient=self.request.json["emailAddress"],
