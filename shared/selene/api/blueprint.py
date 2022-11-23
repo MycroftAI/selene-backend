@@ -97,8 +97,12 @@ def add_api_metric(http_status):
             http_status=int(http_status),
             url=global_context.url,
         )
-        metric_repository = ApiMetricsRepository(global_context.db)
-        metric_repository.add(api_metric)
+        # Writing the API metrics to the database is disabled here to facilitate
+        # reducing the size of the production database.  Uncomment the below to
+        # reactivate.
+        #
+        # metric_repository = ApiMetricsRepository(global_context.db)
+        # metric_repository.add(api_metric)
 
 
 def update_device_last_contact():

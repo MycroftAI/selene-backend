@@ -36,5 +36,6 @@ class DeviceMetricsEndpoint(PublicEndpoint):
         core_metric = CoreMetric(
             device_id=self.device_id, metric_type=metric, metric_value=self.request.json
         )
-        core_metrics_repo = CoreMetricRepository(self.db)
-        core_metrics_repo.add(core_metric)
+        # Writing metrics from devices is being deactivated to enable
+        # core_metrics_repo = CoreMetricRepository(self.db)
+        # core_metrics_repo.add(core_metric)
