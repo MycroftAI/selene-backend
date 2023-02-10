@@ -11,7 +11,7 @@ psycopg2-binary = "*"
 Markdown = "^3.4.1"
 
 [tool.poetry.dev-dependencies]
-ipython = "==5"
+ipython = "==8.10.0"
 pylint = "*"
 
 [build-system]
