@@ -15,7 +15,7 @@ python = "^3.9"
 flask = "<1.1"
 google-cloud-speech = "^2.15.1"
 itsdangerous = "<=2.0.1"
-jinja2 = "<=2.10.1"
+jinja2 = "<2.11.4"
 markupsafe = "<=2.0.1"
 requests = "*"
 selene = {path = "./../../shared", develop = true}
